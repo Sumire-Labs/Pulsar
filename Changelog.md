@@ -1,4 +1,4 @@
-# Changelog
+# CHANGELOG
 
 All notable changes to Pulsar are documented in this file.
 
