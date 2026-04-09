@@ -232,12 +232,26 @@ public class ScalarSkyEngine extends PulsarEngine {
                 }
             }
 
-            this.appendToIncreaseQueue(encodeCoords(worldX, worldZ, startY, encodeOffset)
+            // Speculative append: if the nibble cache slot for this column
+            // position is not loaded we roll back the append below. Two
+            // things have to be undone on rollback: the queue write (via
+            // counter decrement) AND the dedup set entry (via
+            // rollbackIncreaseDedup). Both must be gated on whether the
+            // append actually happened - with BFS dedup enabled, a
+            // duplicate key causes appendToIncreaseQueue to return false
+            // without touching either, and unconditionally rolling back
+            // would drive the counter negative and crash the next BFS
+            // drain. See PulsarEngine.appendToIncreaseQueue javadoc.
+            final long speculativeValue = encodeCoords(worldX, worldZ, startY, encodeOffset)
                     | this.encodeQueueLevel(currentSky)
-                    | (propagateDirection << DIRECTION_SHIFT));
+                    | (propagateDirection << DIRECTION_SHIFT);
+            final boolean appended = this.appendToIncreaseQueue(speculativeValue);
 
             if (this.getNibbleFromCache(worldX >> 4, startY >> 4, worldZ >> 4) == null) {
-                --this.increaseQueueInitialLength;
+                if (appended) {
+                    --this.increaseQueueInitialLength;
+                    this.rollbackIncreaseDedup(speculativeValue);
+                }
                 startY = startY & ~15;
                 above = Blocks.AIR.getDefaultState();
                 aboveMeta = 0;

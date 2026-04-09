@@ -914,14 +914,25 @@ public abstract class PulsarEngine {
         return this.decreaseQueue = Arrays.copyOf(this.decreaseQueue, Math.min(this.decreaseQueue.length * 2, MAX_QUEUE_SIZE));
     }
 
-    protected final void appendToIncreaseQueue(final long value) {
+    /**
+     * Appends an entry to the increase queue. Returns {@code true} if the
+     * entry was actually written; {@code false} if it was skipped by the
+     * Alfheim-style dedup layer or dropped due to queue overflow. Callers
+     * that implement a "speculative append + rollback" pattern (like
+     * {@code ScalarSkyEngine.tryPropagateSkylight}) MUST check the return
+     * value before decrementing {@link #increaseQueueInitialLength} — a
+     * dedup rejection does not increment the length, so rolling back
+     * unconditionally would leave the counter negative and crash the next
+     * BFS drain with an {@code ArrayIndexOutOfBoundsException}.
+     */
+    protected final boolean appendToIncreaseQueue(final long value) {
         if (com.sumirelabs.pulsar.config.PulsarConfig.enableBfsDedup) {
             // Alfheim-style dedup: reject entries that have the same
             // (coord, level, write/recheck flags) key as something already
             // queued in this BFS session. Direction bits are not part of
             // the key - see DEDUP_MASK javadoc.
             if (!this.increaseDedupSet.add(value & DEDUP_MASK)) {
-                return;
+                return false;
             }
         }
         long[] queue = this.increaseQueue;
@@ -929,18 +940,42 @@ public abstract class PulsarEngine {
         if (idx >= queue.length) {
             if (queue.length >= MAX_QUEUE_SIZE) {
                 warnQueueOverflow();
-                return;
+                return false;
             }
             queue = this.resizeIncreaseQueue();
         }
         queue[idx] = value;
         this.increaseQueueInitialLength = idx + 1;
+        return true;
     }
 
-    protected final void appendToDecreaseQueue(final long value) {
+    /**
+     * Undo the dedup-set side of the most recent
+     * {@link #appendToIncreaseQueue(long) appendToIncreaseQueue} call for
+     * callers implementing the speculative-append-with-rollback pattern.
+     *
+     * <p>The BFS drain loop rolls back a speculative enqueue by decrementing
+     * {@link #increaseQueueInitialLength}, but that only undoes the queue
+     * write - the dedup set still has the key and would silently reject
+     * any future legitimate enqueue of the same {@code (coord, level,
+     * flags)} triple. Callers that rolled back an append via the counter
+     * decrement should also call this method to remove the key from the
+     * dedup set.
+     */
+    protected final void rollbackIncreaseDedup(final long value) {
+        if (com.sumirelabs.pulsar.config.PulsarConfig.enableBfsDedup) {
+            this.increaseDedupSet.remove(value & DEDUP_MASK);
+        }
+    }
+
+    /**
+     * Appends an entry to the decrease queue. See
+     * {@link #appendToIncreaseQueue(long)} for the return-value contract.
+     */
+    protected final boolean appendToDecreaseQueue(final long value) {
         if (com.sumirelabs.pulsar.config.PulsarConfig.enableBfsDedup) {
             if (!this.decreaseDedupSet.add(value & DEDUP_MASK)) {
-                return;
+                return false;
             }
         }
         long[] queue = this.decreaseQueue;
@@ -948,12 +983,13 @@ public abstract class PulsarEngine {
         if (idx >= queue.length) {
             if (queue.length >= MAX_QUEUE_SIZE) {
                 warnQueueOverflow();
-                return;
+                return false;
             }
             queue = this.resizeDecreaseQueue();
         }
         queue[idx] = value;
         this.decreaseQueueInitialLength = idx + 1;
+        return true;
     }
 
     private void warnQueueOverflow() {
