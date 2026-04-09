@@ -5,6 +5,24 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0-dev.3] - 2026-04-10
+
+### Added
+- Right-click placement tracking in `MixinPlayerControllerMP`.
+  `processRightClickBlock` now raises and lowers the
+  `pulsar$playerAction` flag symmetrically with `onPlayerDestroyBlock`,
+  so client-side `checkLightFor` calls triggered by torch / lantern
+  placement take the synchronous fast-path instead of being queued
+  behind the BFS worker. Noticeable during heavy chunk-gen bursts —
+  without this, a player-placed torch could sit behind the
+  initial-light backlog for several hundred ms. Under steady-state
+  load the effect is sub-frame.
+- Gated by the existing `PulsarConfig.trackPlayerAction` flag.
+
+### Documentation
+- `CHANGELOG.md` is now shipped in the repo (added in 0.1.0-dev.2's
+  post-release window) and is the canonical per-version changelog.
+
 ## [0.1.0-dev.2] - 2026-04-10
 
 ### Added
