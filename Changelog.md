@@ -5,6 +5,30 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0-dev.4] - 2026-04-10
+
+### Fixed
+- `ArrayIndexOutOfBoundsException: Index -1` crash on the `Pulsar-Sky`
+  worker thread during heavy chunk-gen bursts (reported on a mid-size
+  Cleanroom modpack with Quark / Battle Towers style worldgen). This
+  was a regression introduced by the Phase 10 BFS dedup in
+  `0.1.0-dev.2`: `ScalarSkyEngine.tryPropagateSkylight` uses a
+  speculative-append-with-rollback pattern, and the dedup short-circuit
+  caused the unconditional rollback to drive
+  `increaseQueueInitialLength` negative, which crashed the next BFS
+  drain on `increaseQueue[-1]`. `appendToIncreaseQueue` /
+  `appendToDecreaseQueue` now return a `boolean` indicating whether
+  the entry was actually written, and `tryPropagateSkylight` gates
+  both the counter decrement and the new `rollbackIncreaseDedup`
+  call on that return value so the counter and the dedup set stay
+  in sync.
+- Rolled-back speculative appends no longer leak into the dedup set.
+  Without the explicit `rollbackIncreaseDedup`, a rolled-back key
+  would stay in the `LongOpenHashSet` and silently reject any future
+  legitimate enqueue of the same `(coord, level, flags)` triple,
+  which could leave isolated dark spots near unloaded chunk
+  boundaries.
+
 ## [0.1.0-dev.3] - 2026-04-10
 
 ### Added
