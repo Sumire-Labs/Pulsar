@@ -8,6 +8,7 @@ import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -187,6 +188,14 @@ public abstract class PulsarEngine {
     protected final void setupCaches(final int centerX, final int centerY, final int centerZ, final boolean relaxed, final boolean tryToLoadChunksFor2Radius) {
         final int centerChunkX = centerX >> 4;
         final int centerChunkZ = centerZ >> 4;
+
+        // Reset the per-session BFS queue dedup sets. These are monotonic
+        // within one setupCaches -> destroyCaches window so that duplicate
+        // enqueues from multi-direction propagation are collapsed before
+        // they reach the drain loop. See DEDUP_MASK and
+        // appendToIncreaseQueue/appendToDecreaseQueue.
+        this.increaseDedupSet.clear();
+        this.decreaseDedupSet.clear();
 
         this.setupEncodeOffset(centerChunkX * 16 + 7, centerY, centerChunkZ * 16 + 7);
 
@@ -855,6 +864,22 @@ public abstract class PulsarEngine {
     protected static final long FLAG_RECHECK_LEVEL = Long.MIN_VALUE >>> 1;
     protected static final long FLAG_HAS_SIDED_TRANSPARENT_BLOCKS = Long.MIN_VALUE; // bit 63
 
+    /**
+     * Key mask used by the Alfheim-style queue dedup layer. Covers the
+     * (x, y, z) coordinate triple, the 4-bit stored light level and the
+     * {@link #FLAG_WRITE_LEVEL} / {@link #FLAG_RECHECK_LEVEL} action bits.
+     *
+     * <p>The direction bitset is deliberately excluded: a second enqueue with
+     * extra check directions is semantically redundant because the
+     * Starlight BFS invariant guarantees the brighter-neighbour re-check
+     * will be driven from the source that actually changed level. Dropping
+     * the direction bits is what gives the dedup its hit rate.
+     */
+    protected static final long DEDUP_MASK = COORD_MASK
+            | (0xFL << LIGHT_LEVEL_SHIFT)
+            | FLAG_WRITE_LEVEL
+            | FLAG_RECHECK_LEVEL;
+
     protected static final int INITIAL_QUEUE_SIZE = 1 << 15; // 32768
     protected static final int MAX_QUEUE_SIZE = 1 << 20; // ~8MB per queue
 
@@ -869,6 +894,15 @@ public abstract class PulsarEngine {
     protected boolean queueOverflowWarned;
     protected boolean queueOverflowed;
 
+    /**
+     * Per-session dedup set for the increase queue. Holds (coord | level |
+     * write/recheck flags) of every entry that has been appended since the
+     * last {@link #setupCaches} call, so {@link #appendToIncreaseQueue} can
+     * cheaply reject duplicates before they reach the BFS drain loop.
+     */
+    protected final LongOpenHashSet increaseDedupSet = new LongOpenHashSet(INITIAL_QUEUE_SIZE);
+    protected final LongOpenHashSet decreaseDedupSet = new LongOpenHashSet(INITIAL_QUEUE_SIZE);
+
     protected final int[] chunkCheckDelayedUpdatesCenter = new int[16 * 16];
     protected final int[] chunkCheckDelayedUpdatesNeighbour = new int[16 * 16];
 
@@ -881,6 +915,15 @@ public abstract class PulsarEngine {
     }
 
     protected final void appendToIncreaseQueue(final long value) {
+        if (com.sumirelabs.pulsar.config.PulsarConfig.enableBfsDedup) {
+            // Alfheim-style dedup: reject entries that have the same
+            // (coord, level, write/recheck flags) key as something already
+            // queued in this BFS session. Direction bits are not part of
+            // the key - see DEDUP_MASK javadoc.
+            if (!this.increaseDedupSet.add(value & DEDUP_MASK)) {
+                return;
+            }
+        }
         long[] queue = this.increaseQueue;
         final int idx = this.increaseQueueInitialLength;
         if (idx >= queue.length) {
@@ -895,6 +938,11 @@ public abstract class PulsarEngine {
     }
 
     protected final void appendToDecreaseQueue(final long value) {
+        if (com.sumirelabs.pulsar.config.PulsarConfig.enableBfsDedup) {
+            if (!this.decreaseDedupSet.add(value & DEDUP_MASK)) {
+                return;
+            }
+        }
         long[] queue = this.decreaseQueue;
         final int idx = this.decreaseQueueInitialLength;
         if (idx >= queue.length) {

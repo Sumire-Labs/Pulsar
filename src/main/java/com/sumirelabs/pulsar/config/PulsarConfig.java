@@ -65,6 +65,16 @@ public final class PulsarConfig {
     /** Emit per-tick stats to {@code logs/pulsar-stats.log}. */
     public static boolean enableDebugStats = false;
 
+    /**
+     * Alfheim-style BFS queue dedup. When true (default),
+     * {@link com.sumirelabs.pulsar.light.engine.PulsarEngine#appendToIncreaseQueue(long)}
+     * and {@code appendToDecreaseQueue(long)} consult a {@code LongOpenHashSet}
+     * keyed by (coord, level, write/recheck flags) and reject duplicates.
+     * The kill-switch exists so the dedup layer can be disabled at runtime
+     * if it is ever suspected of dropping legitimate propagation work.
+     */
+    public static boolean enableBfsDedup = true;
+
     private static Configuration config;
 
     private PulsarConfig() {}
@@ -108,6 +118,11 @@ public final class PulsarConfig {
 
         enableDebugStats = config.getBoolean("enableDebugStats", CATEGORY_DEBUG, false,
                 "Emit per-tick stats to logs/pulsar-stats.log.");
+
+        enableBfsDedup = config.getBoolean("enableBfsDedup", CATEGORY_PERFORMANCE, true,
+                "Alfheim-style BFS queue dedup. Rejects duplicate (coord,level,flags) "
+                        + "enqueues before they reach the drain loop. Disable only to "
+                        + "diagnose a suspected dropped-update bug.");
     }
 
     public static void save() {
