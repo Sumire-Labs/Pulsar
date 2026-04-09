@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New config flag `enableBfsDedup` (default `true`, in the `performance`
   category of `pulsar.cfg`). Kill-switch for the dedup layer in case it is
   ever suspected of dropping legitimate propagation work.
-- README credits entry for [Alfheim](https://github.com/embeddedt/Alfheim),
+- README credits entry for [Alfheim](https://github.com/Red-Studio-Ragnarok/Alfheim),
   the Phosphor-derived 1.12.2 lighting engine whose `DeduplicatedLongQueue`
   design the new dedup layer is modelled on.
 
