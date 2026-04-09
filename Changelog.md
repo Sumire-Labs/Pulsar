@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ArrayIndexOutOfBoundsException: Index -1` crash on the `Pulsar-Sky`
   worker thread during heavy chunk-gen bursts (reported on a mid-size
   Cleanroom modpack with Quark / Battle Towers style worldgen). This
-  was a regression introduced by the Phase 10 BFS dedup in
+  was a regression introduced by the BFS dedup in
   `0.1.0-dev.2`: `ScalarSkyEngine.tryPropagateSkylight` uses a
   speculative-append-with-rollback pattern, and the dedup short-circuit
   caused the unconditional rollback to drive
