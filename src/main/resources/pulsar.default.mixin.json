@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "package": "com.sumirelabs.pulsar.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "target": "@env(DEFAULT)",
+  "mixins": [
+    "MixinChunk",
+    "MixinWorld",
+    "MixinWorldEntitySpawner"
+  ],
+  "server": [
+    "MixinWorldServer"
+  ],
+  "client": [
+    "MixinPlayerControllerMP"
+  ],
+  "setSourceFile": true,
+  "minVersion": "0.8.7",
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
