@@ -17,7 +17,12 @@ public final class PulsarConfig {
     private static final String CATEGORY_FEATURES = "features";
     private static final String CATEGORY_DEBUG = "debug";
 
-    /** Master switch. When false, Pulsar's mixins fall through to vanilla. */
+    /**
+     * Master switch. When false, Pulsar's mob-spawn gate falls through to
+     * vanilla behaviour. (The chunk / world / lighting mixins remain
+     * applied because unapplying them mid-run is not safe — see
+     * {@link com.sumirelabs.pulsar.mixin.MixinChunk} for details.)
+     */
     public static boolean enabled = true;
 
     /** Java thread priority for the BFS worker threads (1–10). */
@@ -37,14 +42,23 @@ public final class PulsarConfig {
      * Track whether the player is mid-place/break on the client and use it
      * to fast-path the renderer's reaction to the change. Disable to test
      * whether a rendering glitch is caused by the player-action heuristic.
+     *
+     * <p>Read by
+     * {@link com.sumirelabs.pulsar.mixin.MixinPlayerControllerMP} — when
+     * false, the inject is a no-op.
      */
     public static boolean trackPlayerAction = true;
 
     /**
      * Allow the server to send chunks to clients before initial lighting
      * has fully propagated. Pulsar's worker threads push the corrected
-     * values shortly afterwards. (Currently a placeholder — the chunk-send
-     * mixin is deferred to a later release.)
+     * values shortly afterwards.
+     *
+     * <p>Read by
+     * {@link com.sumirelabs.pulsar.mixin.MixinChunk#pulsar$alwaysPopulated}
+     * — when false, {@code Chunk.isPopulated()} falls through to vanilla
+     * behaviour. Note that this can cause the client to sit on
+     * "Waiting for chunk…" until Pulsar's BFS completes its initial pass.
      */
     public static boolean sendChunksWithoutLight = true;
 

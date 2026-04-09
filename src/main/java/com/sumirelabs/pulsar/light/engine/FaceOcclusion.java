@@ -31,6 +31,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
  * objects rather than block IDs, since 1.12.2 uses {@link IBlockState}
  * everywhere and there is no useful "block ID" the way 1.7.10 had one.
  */
+@SuppressWarnings("deprecation")
 public final class FaceOcclusion {
 
     /** {@link Block} → 96 bits packed face solidity. */

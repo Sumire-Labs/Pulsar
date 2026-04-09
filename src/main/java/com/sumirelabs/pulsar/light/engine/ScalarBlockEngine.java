@@ -17,7 +17,16 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
  * Scalar block-light engine. BFS propagation with per-block emission and
  * directional opacity. Mirrors {@code ScalarBlockEngine} from SuperNova
  * (1.7.10), with block-id lookups replaced by {@link IBlockState}.
+ *
+ * <p>The {@link IBlockState#getLightValue()} / {@code getLightOpacity()}
+ * overloads without the {@code IBlockAccess}/{@code BlockPos} context are
+ * deprecated in Forge 1.12.2 in favour of the context-aware variants.
+ * Pulsar uses the deprecated overloads on the BFS hot path because the
+ * context versions would need a freshly-allocated {@link net.minecraft.util.math.BlockPos}
+ * per neighbour read and we process millions of such reads during initial
+ * chunk lighting.
  */
+@SuppressWarnings("deprecation")
 public class ScalarBlockEngine extends PulsarEngine {
 
     public ScalarBlockEngine(final World world) {
@@ -74,7 +83,6 @@ public class ScalarBlockEngine extends PulsarEngine {
         }
     }
 
-    @SuppressWarnings("deprecation")
     private static int emissionOf(final IBlockState state) {
         return state.getLightValue() & 0xF;
     }
@@ -114,7 +122,6 @@ public class ScalarBlockEngine extends PulsarEngine {
         return this.calculateLightValueWithBlock(worldX, worldY, worldZ, expect, this.getBlockState(worldX, worldY, worldZ));
     }
 
-    @SuppressWarnings("deprecation")
     private int calculateLightValueWithBlock(final int worldX, final int worldY, final int worldZ, final int expect, final IBlockState state) {
         int level = emissionOf(state);
 
@@ -233,7 +240,6 @@ public class ScalarBlockEngine extends PulsarEngine {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void performLightIncrease() {
         long[] queue = this.increaseQueue;
@@ -327,7 +333,6 @@ public class ScalarBlockEngine extends PulsarEngine {
         this.lastBfsIncreaseTotal += queueLength;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void performLightDecrease() {
         long[] queue = this.decreaseQueue;

@@ -337,7 +337,7 @@ public final class WorldLightManager {
                                 PulsarEngine.getEmptySectionsForChunk(chunk), task.relightAttempts);
                     }
                 } else {
-                    Pulsar.LOGGER.error("Sky engine: chunk ({}, {}) overflowed BFS queue {} times — giving up.",
+                    Pulsar.LOGGER.error("Sky engine: chunk ({}, {}) overflowed BFS queue {} times - giving up.",
                             cx, cz, task.relightAttempts + 1);
                 }
             }
@@ -346,7 +346,7 @@ public final class WorldLightManager {
             if (this.loadedChunkMap.get(task.chunkCoordinate) != null) {
                 throw new RuntimeException("Unexpected NPE processing sky task for chunk (" + cx + ", " + cz + ")", e);
             }
-            Pulsar.LOGGER.warn("Sky task for chunk ({}, {}) aborted — chunk unloaded during processing", cx, cz, e);
+            Pulsar.LOGGER.warn("Sky task for chunk ({}, {}) aborted - chunk unloaded during processing", cx, cz, e);
         }
 
         skyEngine.setStats(null);
@@ -423,7 +423,7 @@ public final class WorldLightManager {
                                 PulsarEngine.getEmptySectionsForChunk(chunk), task.relightAttempts);
                     }
                 } else {
-                    Pulsar.LOGGER.error("Block engine: chunk ({}, {}) overflowed BFS queue {} times — giving up.",
+                    Pulsar.LOGGER.error("Block engine: chunk ({}, {}) overflowed BFS queue {} times - giving up.",
                             cx, cz, task.relightAttempts + 1);
                 }
             }
@@ -432,7 +432,7 @@ public final class WorldLightManager {
             if (this.loadedChunkMap.get(task.chunkCoordinate) != null) {
                 throw new RuntimeException("Unexpected NPE processing block task for chunk (" + cx + ", " + cz + ")", e);
             }
-            Pulsar.LOGGER.warn("Block task for chunk ({}, {}) aborted — chunk unloaded during processing", cx, cz, e);
+            Pulsar.LOGGER.warn("Block task for chunk ({}, {}) aborted - chunk unloaded during processing", cx, cz, e);
         }
 
         blockEngine.setStats(null);

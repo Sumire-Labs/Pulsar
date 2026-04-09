@@ -26,8 +26,15 @@ public class Pulsar {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        LOGGER.info("{} {} preInit", Reference.MOD_NAME, Reference.VERSION);
+        LOGGER.info("{} {} preInit - loading config", Reference.MOD_NAME, Reference.VERSION);
         PulsarConfig.load(event.getModConfigurationDirectory());
+        LOGGER.info(
+                "{} config: enabled={}, sendChunksWithoutLight={}, trackPlayerAction={}, debugStats={}",
+                Reference.MOD_NAME,
+                PulsarConfig.enabled,
+                PulsarConfig.sendChunksWithoutLight,
+                PulsarConfig.trackPlayerAction,
+                PulsarConfig.enableDebugStats);
         proxy.preInit(event);
     }
 
@@ -39,6 +46,7 @@ public class Pulsar {
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
+        LOGGER.info("{} ready - scalar BFS lighting engine active.", Reference.MOD_NAME);
     }
 
     @Mod.EventHandler

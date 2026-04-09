@@ -1,5 +1,6 @@
 package com.sumirelabs.pulsar.mixin;
 
+import com.sumirelabs.pulsar.config.PulsarConfig;
 import com.sumirelabs.pulsar.world.PulsarWorld;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
@@ -25,6 +26,7 @@ public abstract class MixinPlayerControllerMP {
 
     @Inject(method = "onPlayerDestroyBlock", at = @At("HEAD"))
     private void pulsar$beginDestroy(final BlockPos pos, final CallbackInfoReturnable<Boolean> cir) {
+        if (!PulsarConfig.trackPlayerAction) return;
         final Minecraft mc = Minecraft.getMinecraft();
         if (mc.world != null) {
             ((PulsarWorld) mc.world).pulsar$setPlayerAction(true);
@@ -33,6 +35,7 @@ public abstract class MixinPlayerControllerMP {
 
     @Inject(method = "onPlayerDestroyBlock", at = @At("RETURN"))
     private void pulsar$endDestroy(final BlockPos pos, final CallbackInfoReturnable<Boolean> cir) {
+        if (!PulsarConfig.trackPlayerAction) return;
         final Minecraft mc = Minecraft.getMinecraft();
         if (mc.world != null) {
             ((PulsarWorld) mc.world).pulsar$setPlayerAction(false);

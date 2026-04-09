@@ -4,7 +4,6 @@ package com.sumirelabs.pulsar.mixin;
 // REID also @Unique-injects fields onto Chunk (reid$biomeContainer); the
 // pulsar$ prefix below avoids any name collision.
 
-import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.api.ExtendedChunk;
 import com.sumirelabs.pulsar.light.ChunkLightHelper;
 import com.sumirelabs.pulsar.light.PulsarChunk;
@@ -26,10 +25,10 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Chunk.class)
+@SuppressWarnings("deprecation")
 public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
 
     @Shadow
@@ -83,14 +82,6 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     @Unique
     private volatile boolean pulsar$lightReady;
 
-    /** Diagnostic: log the first time pulsar$onLoad fires so we can verify the inject was applied at all. */
-    @Unique
-    private static final AtomicBoolean PULSAR$ON_LOAD_LOGGED = new AtomicBoolean(false);
-    @Unique
-    private static final AtomicBoolean PULSAR$ON_READ_LOGGED = new AtomicBoolean(false);
-    @Unique
-    private static final AtomicBoolean PULSAR$GEN_SKYLIGHT_LOGGED = new AtomicBoolean(false);
-
     // ============================== Init ==============================
 
     @Inject(method = "<init>(Lnet/minecraft/world/World;II)V", at = @At("RETURN"), require = 0)
@@ -115,10 +106,6 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
      */
     @Inject(method = "onLoad", at = @At("HEAD"), require = 0)
     private void pulsar$onLoad(final CallbackInfo ci) {
-        if (PULSAR$ON_LOAD_LOGGED.compareAndSet(false, true)) {
-            Pulsar.LOGGER.info("[Pulsar/diag] pulsar$onLoad first fired (chunk={}, {}; remote={})",
-                    this.x, this.z, this.world.isRemote);
-        }
         final Chunk self = (Chunk) (Object) this;
 
         // Import vanilla nibbles into our SWMR mirrors so the engine has a
@@ -179,9 +166,6 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     @Inject(method = "read", at = @At("RETURN"), require = 0)
     private void pulsar$onRead(final PacketBuffer buf, final int availableSections,
                                final boolean groundUpContinuous, final CallbackInfo ci) {
-        if (PULSAR$ON_READ_LOGGED.compareAndSet(false, true)) {
-            Pulsar.LOGGER.info("[Pulsar/diag] pulsar$onRead first fired (chunk={}, {})", this.x, this.z);
-        }
         if (!this.world.isRemote) return;
         final Chunk self = (Chunk) (Object) this;
 
@@ -219,9 +203,6 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
      */
     @Inject(method = "generateSkylightMap", at = @At("HEAD"), cancellable = true, require = 0)
     private void pulsar$generateSkylightMap(final CallbackInfo ci) {
-        if (PULSAR$GEN_SKYLIGHT_LOGGED.compareAndSet(false, true)) {
-            Pulsar.LOGGER.info("[Pulsar/diag] pulsar$generateSkylightMap first fired (chunk={}, {})", this.x, this.z);
-        }
         final int topSegment = this.getTopFilledSegment();
         this.heightMapMinimum = Integer.MAX_VALUE;
 
@@ -256,7 +237,6 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
      * but uses the local block-state lookup directly to keep the call cheap.
      */
     @Unique
-    @SuppressWarnings("deprecation")
     private int pulsar$opacityAt(final int x, final int y, final int z) {
         return this.getBlockState(x, y, z).getLightOpacity();
     }
@@ -277,7 +257,6 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
      * behaviour). Mirrors SuperNova's {@code supernova$fillVanillaSkyForColumn}.
      */
     @Unique
-    @SuppressWarnings("deprecation")
     private void pulsar$fillVanillaSkyForColumn(final int x, final int z, final int topSegment) {
         int skyLevel = 15;
         for (int y = topSegment + 15; y >= 0; --y) {
@@ -330,6 +309,26 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     private void pulsar$checkLight(final CallbackInfo ci) {
         this.isLightPopulated = true;
         ci.cancel();
+    }
+
+    /**
+     * Always report the chunk as populated to {@code PlayerChunkMapEntry} so
+     * that Pulsar's eager chunk-send strategy works regardless of which
+     * vanilla flag the upstream gate happens to check.
+     *
+     * <p>Mirrors Hodgepodge's {@code MixinChunk_SendWithoutPopulation} from
+     * 1.7.10 (which overrode {@code Chunk.func_150802_k()} for the same
+     * reason). The 1.12.2 equivalent is {@link Chunk#isPopulated()}.
+     *
+     * <p>Gated by {@link com.sumirelabs.pulsar.config.PulsarConfig#sendChunksWithoutLight}
+     * so users who prefer the conservative "wait until BFS is done" model
+     * can flip the switch.
+     */
+    @Inject(method = "isPopulated", at = @At("HEAD"), cancellable = true, require = 0)
+    private void pulsar$alwaysPopulated(final CallbackInfoReturnable<Boolean> cir) {
+        if (com.sumirelabs.pulsar.config.PulsarConfig.sendChunksWithoutLight) {
+            cir.setReturnValue(true);
+        }
     }
 
     // ============================== PulsarChunk implementation ==============================

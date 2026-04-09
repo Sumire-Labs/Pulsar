@@ -18,7 +18,12 @@ import java.util.Arrays;
  * the world top, then horizontal propagation handles attenuation through
  * partially-occluding blocks. Mirrors {@code ScalarSkyEngine} from SuperNova
  * (1.7.10), with the block-id paths replaced by {@link IBlockState}.
+ *
+ * <p>Uses the deprecated {@link IBlockState#getLightOpacity()} overload on
+ * the BFS hot path — see {@link ScalarBlockEngine} javadoc for the
+ * rationale.
  */
+@SuppressWarnings("deprecation")
 public class ScalarSkyEngine extends PulsarEngine {
 
     private final boolean[] nullPropagationCheckCache;
@@ -181,7 +186,6 @@ public class ScalarSkyEngine extends PulsarEngine {
         return 15;
     }
 
-    @SuppressWarnings("deprecation")
     private int tryPropagateSkylight(final int worldX, int startY, final int worldZ, final boolean extrudeInitialised, final boolean delayLightSet) {
         final int encodeOffset = this.coordinateOffset;
         final long propagateDirection = AxisDirection.POSITIVE_Y.everythingButThisDirection;
@@ -326,7 +330,6 @@ public class ScalarSkyEngine extends PulsarEngine {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     protected int calculateLightValue(final int worldX, final int worldY, final int worldZ, final int expect) {
         if (expect == 15) {
@@ -457,7 +460,6 @@ public class ScalarSkyEngine extends PulsarEngine {
         super.checkChunkEdges(chunk, fromSection, toSection);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void performLightIncrease() {
         long[] queue = this.increaseQueue;
@@ -551,7 +553,6 @@ public class ScalarSkyEngine extends PulsarEngine {
         this.lastBfsIncreaseTotal += queueLength;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void performLightDecrease() {
         long[] queue = this.decreaseQueue;
