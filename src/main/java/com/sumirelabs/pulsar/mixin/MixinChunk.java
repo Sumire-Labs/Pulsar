@@ -320,13 +320,13 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
      * 1.7.10 (which overrode {@code Chunk.func_150802_k()} for the same
      * reason). The 1.12.2 equivalent is {@link Chunk#isPopulated()}.
      *
-     * <p>Gated by {@link com.sumirelabs.pulsar.config.PulsarConfig#sendChunksWithoutLight}
+     * <p>Gated by {@link com.sumirelabs.pulsar.config.PulsarConfig.Features#sendChunksWithoutLight}
      * so users who prefer the conservative "wait until BFS is done" model
      * can flip the switch.
      */
     @Inject(method = "isPopulated", at = @At("HEAD"), cancellable = true, require = 0)
     private void pulsar$alwaysPopulated(final CallbackInfoReturnable<Boolean> cir) {
-        if (com.sumirelabs.pulsar.config.PulsarConfig.sendChunksWithoutLight) {
+        if (com.sumirelabs.pulsar.config.PulsarConfig.features.sendChunksWithoutLight) {
             cir.setReturnValue(true);
         }
     }

@@ -36,7 +36,7 @@ public abstract class MixinPlayerControllerMP {
 
     @Inject(method = "onPlayerDestroyBlock", at = @At("HEAD"))
     private void pulsar$beginDestroy(final BlockPos pos, final CallbackInfoReturnable<Boolean> cir) {
-        if (!PulsarConfig.trackPlayerAction) return;
+        if (!PulsarConfig.features.trackPlayerAction) return;
         final Minecraft mc = Minecraft.getMinecraft();
         if (mc.world != null) {
             ((PulsarWorld) mc.world).pulsar$setPlayerAction(true);
@@ -45,7 +45,7 @@ public abstract class MixinPlayerControllerMP {
 
     @Inject(method = "onPlayerDestroyBlock", at = @At("RETURN"))
     private void pulsar$endDestroy(final BlockPos pos, final CallbackInfoReturnable<Boolean> cir) {
-        if (!PulsarConfig.trackPlayerAction) return;
+        if (!PulsarConfig.features.trackPlayerAction) return;
         final Minecraft mc = Minecraft.getMinecraft();
         if (mc.world != null) {
             ((PulsarWorld) mc.world).pulsar$setPlayerAction(false);
@@ -57,7 +57,7 @@ public abstract class MixinPlayerControllerMP {
                                         final BlockPos pos, final EnumFacing facing, final Vec3d vec,
                                         final EnumHand hand,
                                         final CallbackInfoReturnable<EnumActionResult> cir) {
-        if (!PulsarConfig.trackPlayerAction) return;
+        if (!PulsarConfig.features.trackPlayerAction) return;
         if (worldIn != null) {
             ((PulsarWorld) worldIn).pulsar$setPlayerAction(true);
         }
@@ -68,7 +68,7 @@ public abstract class MixinPlayerControllerMP {
                                       final BlockPos pos, final EnumFacing facing, final Vec3d vec,
                                       final EnumHand hand,
                                       final CallbackInfoReturnable<EnumActionResult> cir) {
-        if (!PulsarConfig.trackPlayerAction) return;
+        if (!PulsarConfig.features.trackPlayerAction) return;
         if (worldIn != null) {
             ((PulsarWorld) worldIn).pulsar$setPlayerAction(false);
         }

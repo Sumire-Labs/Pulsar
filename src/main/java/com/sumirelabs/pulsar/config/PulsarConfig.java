@@ -1,133 +1,86 @@
 package com.sumirelabs.pulsar.config;
 
-import com.sumirelabs.pulsar.Pulsar;
-import net.minecraftforge.common.config.Configuration;
-
-import java.io.File;
+import com.sumirelabs.pulsar.Reference;
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
- * Forge {@link Configuration}-backed runtime configuration for Pulsar. The
- * config file lives at {@code config/pulsar.cfg} and is loaded once during
- * {@code FMLPreInitializationEvent}.
+ * Forge {@link Config @Config}-based runtime configuration for Pulsar.
+ *
+ * <p>The config file lives at {@code config/pulsar.cfg} and is managed
+ * automatically by Forge's {@link ConfigManager}. Values can be changed
+ * at runtime through the Mod Options GUI; the {@link EventHandler}
+ * re-syncs them on every {@link ConfigChangedEvent}.
  */
-public final class PulsarConfig {
+@Config(modid = Reference.MOD_ID, name = "pulsar")
+public class PulsarConfig {
 
-    private static final String CATEGORY_GENERAL = "general";
-    private static final String CATEGORY_PERFORMANCE = "performance";
-    private static final String CATEGORY_FEATURES = "features";
-    private static final String CATEGORY_DEBUG = "debug";
-
-    /**
-     * Master switch. When false, Pulsar's mob-spawn gate falls through to
-     * vanilla behaviour. (The chunk / world / lighting mixins remain
-     * applied because unapplying them mid-run is not safe — see
-     * {@link com.sumirelabs.pulsar.mixin.MixinChunk} for details.)
-     */
+    @Config.Comment("Master switch. When false, Pulsar's mob-spawn gate falls through to vanilla behaviour.")
     public static boolean enabled = true;
 
-    /** Java thread priority for the BFS worker threads (1–10). */
-    public static int workerThreadPriority = Thread.NORM_PRIORITY;
+    @Config.Comment("Performance tuning")
+    public static final Performance performance = new Performance();
 
-    /**
-     * Per-tick wall-clock budget for the block-change drain phase, in
-     * milliseconds. The worker yields once this budget is exceeded so that
-     * initial-light tasks can preempt long block-change runs.
-     */
-    public static int lightUpdateBudgetMillisPerTick = 5;
+    @Config.Comment("Feature toggles")
+    public static final Features features = new Features();
 
-    /** Per-tick wall-clock budget for the edge-check phase, in milliseconds. */
-    public static int edgeCheckBudgetMillisPerTick = 10;
+    @Config.Comment("Debug options")
+    public static final Debug debug = new Debug();
 
-    /**
-     * Track whether the player is mid-place/break on the client and use it
-     * to fast-path the renderer's reaction to the change. Disable to test
-     * whether a rendering glitch is caused by the player-action heuristic.
-     *
-     * <p>Read by
-     * {@link com.sumirelabs.pulsar.mixin.MixinPlayerControllerMP} — when
-     * false, the inject is a no-op.
-     */
-    public static boolean trackPlayerAction = true;
+    public static class Performance {
 
-    /**
-     * Allow the server to send chunks to clients before initial lighting
-     * has fully propagated. Pulsar's worker threads push the corrected
-     * values shortly afterwards.
-     *
-     * <p>Read by
-     * {@link com.sumirelabs.pulsar.mixin.MixinChunk#pulsar$alwaysPopulated}
-     * — when false, {@code Chunk.isPopulated()} falls through to vanilla
-     * behaviour. Note that this can cause the client to sit on
-     * "Waiting for chunk…" until Pulsar's BFS completes its initial pass.
-     */
-    public static boolean sendChunksWithoutLight = true;
+        @Config.Comment("Java thread priority for the BFS worker threads (1=lowest, 10=highest).")
+        @Config.RangeInt(min = 1, max = 10)
+        public int workerThreadPriority = Thread.NORM_PRIORITY;
 
-    /** Emit per-tick stats to {@code logs/pulsar-stats.log}. */
-    public static boolean enableDebugStats = false;
+        @Config.Comment("Per-tick wall-clock budget for the block-change drain phase, in milliseconds.")
+        @Config.RangeInt(min = 1, max = 100)
+        public int lightUpdateBudgetMillisPerTick = 5;
 
-    /**
-     * Alfheim-style BFS queue dedup. When true (default),
-     * {@link com.sumirelabs.pulsar.light.engine.PulsarEngine#appendToIncreaseQueue(long)}
-     * and {@code appendToDecreaseQueue(long)} consult a {@code LongOpenHashSet}
-     * keyed by (coord, level, write/recheck flags) and reject duplicates.
-     * The kill-switch exists so the dedup layer can be disabled at runtime
-     * if it is ever suspected of dropping legitimate propagation work.
-     */
-    public static boolean enableBfsDedup = true;
+        @Config.Comment("Per-tick wall-clock budget for the edge-check phase, in milliseconds.")
+        @Config.RangeInt(min = 1, max = 100)
+        public int edgeCheckBudgetMillisPerTick = 10;
 
-    private static Configuration config;
+        @Config.Comment({
+                "Alfheim-style BFS queue dedup. Rejects duplicate (coord,level,flags)",
+                "enqueues before they reach the drain loop. Disable only to diagnose",
+                "a suspected dropped-update bug."
+        })
+        public boolean enableBfsDedup = true;
+    }
 
-    private PulsarConfig() {}
+    public static class Features {
 
-    public static void load(final File configDir) {
-        final File file = new File(configDir, "pulsar.cfg");
-        config = new Configuration(file);
-        try {
-            config.load();
-            sync();
-        } catch (final Throwable t) {
-            Pulsar.LOGGER.error("Failed to load pulsar.cfg", t);
-        } finally {
-            if (config.hasChanged()) {
-                config.save();
+        @Config.Comment({
+                "Track player place/break on the client to fast-path renderer reaction.",
+                "Disable to test whether a rendering glitch is caused by the player-action heuristic."
+        })
+        public boolean trackPlayerAction = true;
+
+        @Config.Comment({
+                "Allow the server to send chunks to clients before initial lighting has propagated.",
+                "Pulsar's worker threads push the corrected values shortly afterwards."
+        })
+        public boolean sendChunksWithoutLight = true;
+    }
+
+    public static class Debug {
+
+        @Config.Comment("Emit per-tick stats to logs/pulsar-stats.log.")
+        public boolean enableDebugStats = false;
+    }
+
+    @Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+    public static class EventHandler {
+
+        @SubscribeEvent
+        public static void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) {
+            if (Reference.MOD_ID.equals(event.getModID())) {
+                ConfigManager.sync(Reference.MOD_ID, Config.Type.INSTANCE);
             }
-        }
-    }
-
-    private static void sync() {
-        enabled = config.getBoolean("enabled", CATEGORY_GENERAL, true,
-                "Master switch. When false, Pulsar's mixins fall through to vanilla lighting.");
-
-        workerThreadPriority = config.getInt("workerThreadPriority", CATEGORY_PERFORMANCE,
-                Thread.NORM_PRIORITY, Thread.MIN_PRIORITY, Thread.MAX_PRIORITY,
-                "Java thread priority for the BFS worker threads (1=lowest, 10=highest).");
-
-        lightUpdateBudgetMillisPerTick = config.getInt("lightUpdateBudgetMillisPerTick", CATEGORY_PERFORMANCE,
-                5, 1, 100,
-                "Per-tick wall-clock budget for the block-change drain phase, in milliseconds.");
-
-        edgeCheckBudgetMillisPerTick = config.getInt("edgeCheckBudgetMillisPerTick", CATEGORY_PERFORMANCE,
-                10, 1, 100,
-                "Per-tick wall-clock budget for the edge-check phase, in milliseconds.");
-
-        trackPlayerAction = config.getBoolean("trackPlayerAction", CATEGORY_FEATURES, true,
-                "Track player place/break on the client to fast-path renderer reaction.");
-
-        sendChunksWithoutLight = config.getBoolean("sendChunksWithoutLight", CATEGORY_FEATURES, true,
-                "Allow the server to send chunks to clients before initial lighting has propagated.");
-
-        enableDebugStats = config.getBoolean("enableDebugStats", CATEGORY_DEBUG, false,
-                "Emit per-tick stats to logs/pulsar-stats.log.");
-
-        enableBfsDedup = config.getBoolean("enableBfsDedup", CATEGORY_PERFORMANCE, true,
-                "Alfheim-style BFS queue dedup. Rejects duplicate (coord,level,flags) "
-                        + "enqueues before they reach the drain loop. Disable only to "
-                        + "diagnose a suspected dropped-update bug.");
-    }
-
-    public static void save() {
-        if (config != null && config.hasChanged()) {
-            config.save();
         }
     }
 }

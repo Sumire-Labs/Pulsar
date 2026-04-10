@@ -926,7 +926,7 @@ public abstract class PulsarEngine {
      * BFS drain with an {@code ArrayIndexOutOfBoundsException}.
      */
     protected final boolean appendToIncreaseQueue(final long value) {
-        if (com.sumirelabs.pulsar.config.PulsarConfig.enableBfsDedup) {
+        if (com.sumirelabs.pulsar.config.PulsarConfig.performance.enableBfsDedup) {
             // Alfheim-style dedup: reject entries that have the same
             // (coord, level, write/recheck flags) key as something already
             // queued in this BFS session. Direction bits are not part of
@@ -963,7 +963,7 @@ public abstract class PulsarEngine {
      * dedup set.
      */
     protected final void rollbackIncreaseDedup(final long value) {
-        if (com.sumirelabs.pulsar.config.PulsarConfig.enableBfsDedup) {
+        if (com.sumirelabs.pulsar.config.PulsarConfig.performance.enableBfsDedup) {
             this.increaseDedupSet.remove(value & DEDUP_MASK);
         }
     }
@@ -973,7 +973,7 @@ public abstract class PulsarEngine {
      * {@link #appendToIncreaseQueue(long)} for the return-value contract.
      */
     protected final boolean appendToDecreaseQueue(final long value) {
-        if (com.sumirelabs.pulsar.config.PulsarConfig.enableBfsDedup) {
+        if (com.sumirelabs.pulsar.config.PulsarConfig.performance.enableBfsDedup) {
             if (!this.decreaseDedupSet.add(value & DEDUP_MASK)) {
                 return false;
             }
