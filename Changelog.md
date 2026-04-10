@@ -5,6 +5,23 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0-dev.5] - 2026-04-10
+
+### Changed
+- Migrated `PulsarConfig` from the legacy Forge `Configuration` API to the
+  annotation-based `@Config` system. The config file (`config/pulsar.cfg`)
+  is now managed automatically by Forge's `ConfigManager`, which provides:
+  - Runtime config editing through the Mod Options GUI (no restart required).
+  - Automatic `ConfigChangedEvent` listener that re-syncs field values
+    when the GUI is closed.
+  - `@Config.RangeInt` validation on numeric fields.
+- Config fields are now organised into nested category classes:
+  `PulsarConfig.performance.*`, `PulsarConfig.features.*`,
+  `PulsarConfig.debug.*`. The top-level `PulsarConfig.enabled` master
+  switch remains unchanged.
+- Removed the manual `PulsarConfig.load()` / `sync()` / `save()` methods;
+  `Pulsar.preInit` now calls `ConfigManager.register(PulsarConfig.class)`.
+
 ## [0.1.0-dev.4] - 2026-04-10
 
 ### Fixed
