@@ -3,7 +3,8 @@
 A high-performance lighting engine mod for Minecraft 1.12.2, built on [Starlight](https://github.com/PaperMC/Starlight)'s BFS propagation algorithm.
 
 > [!WARNING]
-> This mod is in early development. Expect breaking changes and incomplete features.
+> This mod is still in the early stages of development.
+> As no precise benchmarks or tests have been carried out, we cannot guarantee its effectiveness.
 
 ## Overview
 
