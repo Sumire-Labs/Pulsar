@@ -66,9 +66,10 @@ public final class SWMRNibbleArray {
     private boolean updatingDirty;
     private volatile byte[] storageVisible;
 
-    // Dirty byte range tracking for efficient vanilla sync
-    private int dirtyByteMin = ARRAY_SIZE;  // no dirty range
-    private int dirtyByteMax = -1;
+    // NOTE: dirty byte range tracking removed in dev.7 — the fields were
+    // never consumed outside SWMRNibbleArray (ChunkLightHelper.sync* always
+    // does a full System.arraycopy). Saves 8 bytes/object × 36 nibbles/chunk.
+    // Restore if a partial-sync optimisation is implemented later.
 
     // Fast section state flags
     private boolean fullFlag;
@@ -175,8 +176,6 @@ public final class SWMRNibbleArray {
         for (int y = 0; y <= 15; ++y) {
             System.arraycopy(src, start, into, y << (8 - 1), end - start + 1);
         }
-        this.dirtyByteMin = 0;
-        this.dirtyByteMax = ARRAY_SIZE - 1;
         this.fullFlag = other.fullFlag;
         this.zeroFlag = other.zeroFlag;
     }
@@ -189,8 +188,6 @@ public final class SWMRNibbleArray {
                 ? this.storageUpdating = allocateBytes()
                 : this.storageUpdating, (byte) -1);
         this.updatingDirty = true;
-        this.dirtyByteMin = 0;
-        this.dirtyByteMax = ARRAY_SIZE - 1;
         this.fullFlag = true;
         this.zeroFlag = false;
     }
@@ -203,8 +200,6 @@ public final class SWMRNibbleArray {
                 ? this.storageUpdating = allocateBytes()
                 : this.storageUpdating, (byte) 0);
         this.updatingDirty = true;
-        this.dirtyByteMin = 0;
-        this.dirtyByteMax = ARRAY_SIZE - 1;
         this.fullFlag = false;
         this.zeroFlag = true;
     }
@@ -227,8 +222,6 @@ public final class SWMRNibbleArray {
         }
         this.storageUpdating = null;
         this.updatingDirty = false;
-        this.dirtyByteMin = ARRAY_SIZE;
-        this.dirtyByteMax = -1;
         this.fullFlag = false;
         this.zeroFlag = false;
     }
@@ -240,8 +233,6 @@ public final class SWMRNibbleArray {
         }
         this.storageUpdating = null;
         this.updatingDirty = false;
-        this.dirtyByteMin = ARRAY_SIZE;
-        this.dirtyByteMax = -1;
         this.fullFlag = false;
         this.zeroFlag = true;
     }
@@ -431,8 +422,6 @@ public final class SWMRNibbleArray {
         final int shift = (index & 1) << 2;
         final int i = index >>> 1;
         this.storageUpdating[i] = (byte) ((this.storageUpdating[i] & (0xF0 >>> shift)) | (value << shift));
-        this.dirtyByteMin = Math.min(this.dirtyByteMin, i);
-        this.dirtyByteMax = Math.max(this.dirtyByteMax, i);
     }
 
     /**
@@ -445,8 +434,6 @@ public final class SWMRNibbleArray {
             this.swapUpdatingAndMarkDirty();
         }
         System.arraycopy(src, 0, this.storageUpdating, 0, ARRAY_SIZE);
-        this.dirtyByteMin = 0;
-        this.dirtyByteMax = ARRAY_SIZE - 1;
         this.fullFlag = false;
         this.zeroFlag = false;
     }
@@ -464,8 +451,6 @@ public final class SWMRNibbleArray {
             }
             this.updatingDirty = true;
         }
-        this.dirtyByteMin = 0;
-        this.dirtyByteMax = ARRAY_SIZE - 1;
         this.fullFlag = false;
         this.zeroFlag = false;
         return this.storageUpdating;
@@ -480,23 +465,8 @@ public final class SWMRNibbleArray {
         if (!this.updatingDirty) {
             this.swapUpdatingAndMarkDirty();
         }
-        this.dirtyByteMin = 0;
-        this.dirtyByteMax = ARRAY_SIZE - 1;
         this.fullFlag = false;
         this.zeroFlag = false;
-    }
-
-    public int getDirtyByteMin() {
-        return dirtyByteMin;
-    }
-
-    public int getDirtyByteMax() {
-        return dirtyByteMax;
-    }
-
-    public void resetDirtyRange() {
-        dirtyByteMin = ARRAY_SIZE;
-        dirtyByteMax = -1;
     }
 
     public static final class SaveState {
