@@ -5,6 +5,22 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0-dev.7] - 2026-04-14
+
+### Changed
+- Default `enableBfsDedup` to `false`. The Alfheim-style `LongOpenHashSet`
+  dedup layer costs ~1.5 MB of extra memory and neither the original
+  Starlight nor SuperNova engines use dedup. The option remains available
+  for users who observe BFS queue overflow warnings.
+
+### Removed
+- Removed unused dirty byte range tracking fields (`dirtyByteMin`,
+  `dirtyByteMax`) and their accessor methods (`getDirtyByteMin`,
+  `getDirtyByteMax`, `resetDirtyRange`) from `SWMRNibbleArray`.
+  `ChunkLightHelper.sync*` always performs a full `System.arraycopy`,
+  so the per-nibble range tracking was dead code. Saves 8 bytes per
+  `SWMRNibbleArray` instance (36 instances/chunk).
+
 ## [0.1.0-dev.5] - 2026-04-10
 
 ### Changed
