@@ -45,11 +45,13 @@ public class PulsarConfig {
         public int edgeCheckBudgetMillisPerTick = 10;
 
         @Config.Comment({
-                "Alfheim-style BFS queue dedup. Rejects duplicate (coord,level,flags)",
-                "enqueues before they reach the drain loop. Disable only to diagnose",
-                "a suspected dropped-update bug."
+                "Alfheim-style BFS queue dedup. Uses a LongOpenHashSet to reject",
+                "duplicate (coord,level,flags) enqueues before they reach the drain",
+                "loop. Reduces redundant BFS work at the cost of ~1.5 MB extra memory.",
+                "The original Starlight and SuperNova engines do not use dedup.",
+                "Enable only if you observe measurable BFS queue overflow warnings."
         })
-        public boolean enableBfsDedup = true;
+        public boolean enableBfsDedup = false;
     }
 
     public static class Features {
