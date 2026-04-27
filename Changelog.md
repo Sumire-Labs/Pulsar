@@ -5,6 +5,12 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0-dev.9] - 2026-04-27
+
+## Fixed
+
+- Fixed visibly broken underwater sky-light rendering (water columns appeared too dark with a striped/uneven gradient). Root cause: `FaceOcclusion.registerDefaults()` was never invoked, so `hasSidedTransparency(water)` always returned `false`, and the seeding phase in `ScalarSkyEngine.tryPropagateSkylight` would `break` on the first water block during the top-down column walk. Other partially-transparent blocks (ice, slabs, stairs, leaves) had the same symptom. `registerDefaults()` is now called from `Pulsar.postInit`. The BFS itself was already correct via the `Math.max(1, opacity)` fallback in `resolveScalarAbsorption`, so propagation matches vanilla once seeding is fixed.
+
 ## [0.1.0-dev.8] - 2026-04-27
 
 ### Fixed
