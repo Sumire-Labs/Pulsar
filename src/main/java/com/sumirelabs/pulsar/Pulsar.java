@@ -2,6 +2,7 @@ package com.sumirelabs.pulsar;
 
 import com.sumirelabs.pulsar.command.CommandPulsar;
 import com.sumirelabs.pulsar.config.PulsarConfig;
+import com.sumirelabs.pulsar.light.engine.FaceOcclusion;
 import com.sumirelabs.pulsar.proxy.IProxy;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.common.Mod;
@@ -47,6 +48,7 @@ public class Pulsar {
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
+        FaceOcclusion.registerDefaults();
         LOGGER.info("{} ready - scalar BFS lighting engine active.", Reference.MOD_NAME);
     }
 
