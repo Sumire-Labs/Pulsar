@@ -5,6 +5,65 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0-dev.8] - 2026-04-27
+
+### Fixed
+- `OutOfMemoryError: Java heap space` thrown from
+  `ScalarSkyEngine.<init>` during JEI plugin registration on modpacks with
+  many multiblock recipes (reproduced on a Cleanroom 0.5.8-alpha pack #1 with
+  GregTech CEu  + Had Enough Items, ). Root
+  cause: GregTech's `WorldSceneRenderer` instantiates a `TrackedDummyWorld`
+  per multiblock preview, and `MixinWorld.pulsar$getLightManager()` had no
+  filter for fake worlds, so each preview eagerly built a full
+  `WorldLightManager` (~17 MB heap + 2 daemon threads). With 100+
+  multiblocks the cumulative allocation overran the heap before
+  `JeiStarter.registerPlugins` finished, even with `-Xmx10240m`.
+  `MixinWorld.pulsar$getLightManager()` now consults
+  `Pulsar.proxy.isRealMainWorld(World)` and returns `null` for any world
+  that is not a `WorldServer` (server side) or the active
+  `Minecraft.getMinecraft().world` (client side); every existing caller
+  already tolerates a `null` manager. Vanilla light propagation still runs
+  on fake worlds via the unconditional `MixinChunk.pulsar$generateSkylightMap`
+  replacement, which is what the preview renderer expects.
+
+### Changed
+- `PulsarEngine.INITIAL_QUEUE_SIZE` lowered from `1 << 15` (32768) to
+  `1 << 12` (4096), matching Starlight's `StarLightEngine.java:1023`
+  (`new long[16 * 16 * 16]`). The existing
+  `resize{Increase,Decrease}Queue` doublers already grow on demand up to
+  `MAX_QUEUE_SIZE = 1 << 20`, so bursts that previously fit in the
+  preallocated 32K still complete with at most three doublings (amortised
+  O(1)). Saves 480 KB per engine before any BFS work starts.
+- `ScalarSkyEngine` no longer overrides the base queue size with
+  `1 << 18`. The override was a SuperNova-era empirical bump for sky
+  bursts; with Starlight's 4096-entry initial size the resize path covers
+  the same workload and saves 4 MB per sky engine instance.
+- `WorldLightManager` constructor no longer eagerly pre-populates the
+  engine pool with two sky + two block engines. `getEngine(cache, factory)`
+  has always allocated on cache miss, so the eager calls were redundant.
+  First BFS task on a fresh world pays one allocation; subsequent tasks
+  reuse pooled engines via `releaseEngine`. Saves ~16 MB heap at world
+  construction; defence-in-depth in case the new fake-world filter ever
+  misses an edge case.
+- `PulsarEngine.increaseDedupSet` / `decreaseDedupSet` are now allocated
+  only when `PulsarConfig.performance.enableBfsDedup` is `true`. Previously
+  the `LongOpenHashSet`s were created unconditionally even though the
+  flag has defaulted to `false` since `0.1.0-dev.7`. The
+  append/rollback/clear paths already gated on the same flag, so the sets
+  are never read while null. Saves ~1.5 MB per engine when dedup is off
+  (the default).
+
+### Notes
+- Combined heap impact for a real overworld: `WorldLightManager`
+  construction drops from ~17 MB to a few hundred KB; steady-state with
+  one sky + one block engine drops from ~17 MB to ~0.2 MB. For fake
+  worlds the cost is now zero — they never get a manager.
+- Runtime-flipping `enableBfsDedup` from `false` to `true` only enables
+  dedup for engines allocated *after* the flip; engines already in the
+  pool stay non-dedup until they roll over (max 4 in pool, replaced as
+  pool releases run). World reload guarantees full rollover. Matches the
+  existing semantics of the flag as a memory/CPU trade-off knob.
+
 ## [0.1.0-dev.7] - 2026-04-14
 
 ### Changed
