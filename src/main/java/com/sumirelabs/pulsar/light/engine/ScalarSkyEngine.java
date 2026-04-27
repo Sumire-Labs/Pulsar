@@ -31,9 +31,6 @@ public class ScalarSkyEngine extends PulsarEngine {
     public ScalarSkyEngine(final World world) {
         super(true, world);
         this.nullPropagationCheckCache = new boolean[WorldUtil.getTotalLightSections()];
-        // Sky BFS covers far more blocks than block light — start with larger queues.
-        this.increaseQueue = new long[1 << 18];
-        this.decreaseQueue = new long[1 << 18];
     }
 
     @Override

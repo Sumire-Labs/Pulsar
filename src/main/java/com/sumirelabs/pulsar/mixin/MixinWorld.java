@@ -1,5 +1,6 @@
 package com.sumirelabs.pulsar.mixin;
 
+import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.api.ExtendedWorld;
 import com.sumirelabs.pulsar.light.WorldLightManager;
 import com.sumirelabs.pulsar.world.PulsarWorld;
@@ -84,6 +85,10 @@ public abstract class MixinWorld implements PulsarWorld, ExtendedWorld {
             mgr = this.pulsar$lightInterface;
             if (mgr != null) return mgr;
             final World self = (World) (Object) this;
+            // Skip GregTech WorldSceneRenderer / JEI multiblock-preview fake worlds.
+            if (!Pulsar.proxy.isRealMainWorld(self)) {
+                return null;
+            }
             this.pulsar$lightInterface = mgr = new WorldLightManager(self, self.provider.hasSkyLight(), true);
         }
         return mgr;

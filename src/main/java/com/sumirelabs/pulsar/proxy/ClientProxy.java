@@ -3,6 +3,8 @@ package com.sumirelabs.pulsar.proxy;
 import com.sumirelabs.pulsar.light.WorldLightManager;
 import com.sumirelabs.pulsar.world.PulsarWorld;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -14,6 +16,12 @@ public class ClientProxy extends CommonProxy {
     public void preInit(final FMLPreInitializationEvent event) {
         super.preInit(event);
         MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @Override
+    public boolean isRealMainWorld(final World world) {
+        if (world instanceof WorldServer) return true;
+        return Minecraft.getMinecraft().world == world;
     }
 
     /**

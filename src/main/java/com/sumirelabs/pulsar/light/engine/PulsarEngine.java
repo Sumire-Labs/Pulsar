@@ -171,6 +171,11 @@ public abstract class PulsarEngine {
         this.sectionCache = new ExtendedBlockStorage[cacheSize];
         this.nibbleCache = new SWMRNibbleArray[cacheSize];
         this.notifyUpdateCache = new boolean[cacheSize];
+
+        if (com.sumirelabs.pulsar.config.PulsarConfig.performance.enableBfsDedup) {
+            this.increaseDedupSet = new LongOpenHashSet(INITIAL_QUEUE_SIZE);
+            this.decreaseDedupSet = new LongOpenHashSet(INITIAL_QUEUE_SIZE);
+        }
     }
 
     protected final void setupEncodeOffset(final int centerX, final int centerY, final int centerZ) {
@@ -194,8 +199,8 @@ public abstract class PulsarEngine {
         // enqueues from multi-direction propagation are collapsed before
         // they reach the drain loop. See DEDUP_MASK and
         // appendToIncreaseQueue/appendToDecreaseQueue.
-        this.increaseDedupSet.clear();
-        this.decreaseDedupSet.clear();
+        if (this.increaseDedupSet != null) this.increaseDedupSet.clear();
+        if (this.decreaseDedupSet != null) this.decreaseDedupSet.clear();
 
         this.setupEncodeOffset(centerChunkX * 16 + 7, centerY, centerChunkZ * 16 + 7);
 
@@ -880,7 +885,9 @@ public abstract class PulsarEngine {
             | FLAG_WRITE_LEVEL
             | FLAG_RECHECK_LEVEL;
 
-    protected static final int INITIAL_QUEUE_SIZE = 1 << 15; // 32768
+    // 16 * 16 * 16 — matches Starlight (StarLightEngine.java:1023). The base
+    // queues grow on demand via resize{Increase,Decrease}Queue up to MAX_QUEUE_SIZE.
+    protected static final int INITIAL_QUEUE_SIZE = 1 << 12; // 4096
     protected static final int MAX_QUEUE_SIZE = 1 << 20; // ~8MB per queue
 
     protected boolean isMaxLight(final int level) {
@@ -899,9 +906,13 @@ public abstract class PulsarEngine {
      * write/recheck flags) of every entry that has been appended since the
      * last {@link #setupCaches} call, so {@link #appendToIncreaseQueue} can
      * cheaply reject duplicates before they reach the BFS drain loop.
+     *
+     * <p>Allocated only when {@code PulsarConfig.performance.enableBfsDedup}
+     * is true (default false). The append/rollback paths gate on the same
+     * flag, so the set is never read when null.
      */
-    protected final LongOpenHashSet increaseDedupSet = new LongOpenHashSet(INITIAL_QUEUE_SIZE);
-    protected final LongOpenHashSet decreaseDedupSet = new LongOpenHashSet(INITIAL_QUEUE_SIZE);
+    protected LongOpenHashSet increaseDedupSet;
+    protected LongOpenHashSet decreaseDedupSet;
 
     protected final int[] chunkCheckDelayedUpdatesCenter = new int[16 * 16];
     protected final int[] chunkCheckDelayedUpdatesNeighbour = new int[16 * 16];

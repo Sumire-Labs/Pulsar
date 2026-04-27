@@ -78,15 +78,6 @@ public final class WorldLightManager {
         if (this.skyQueue != null) this.skyQueue.setStats(this.stats);
         if (this.blockQueue != null) this.blockQueue.setStats(this.stats);
 
-        if (this.cachedSkyPropagators != null) {
-            this.cachedSkyPropagators.addFirst(this.skyEngineFactory.get());
-            this.cachedSkyPropagators.addFirst(this.skyEngineFactory.get());
-        }
-        if (this.cachedBlockPropagators != null) {
-            this.cachedBlockPropagators.addFirst(this.blockEngineFactory.get());
-            this.cachedBlockPropagators.addFirst(this.blockEngineFactory.get());
-        }
-
         if (hasSkyLight) {
             this.skyWorkerThread = new Thread(
                     () -> {
