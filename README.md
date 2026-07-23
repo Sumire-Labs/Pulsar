@@ -1,15 +1,16 @@
 # Pulsar
 
-A high-performance lighting engine mod for Minecraft 1.12.2, built on [Starlight](https://github.com/PaperMC/Starlight)'s BFS propagation algorithm.
+An experimental lighting engine mod for 1.12.2, built on [Starlight](https://github.com/PaperMC/Starlight)'s BFS propagation algorithm.
 
 > [!WARNING]
 > This mod is a personal hobby project and is currently in the early stages of development.
 > As no precise benchmarks or tests have been carried out, we cannot guarantee its effectiveness.
 > It may also corrupt your world, so we do not recommend using it unless you fully understand what it does. We accept no responsibility for any damage caused by its use.
+> If you don't understand the point of using this mod, we recommend using [Alfheim](https://www.curseforge.com/minecraft/mc-mods/alfheim-lighting-engine) instead.
 
 ## Overview
 
-Pulsar replaces Minecraft’s default lighting engine with a modern BFS-based implementation derived from [Starlight](https://github.com/PaperMC/Starlight). It is intended for use with [CleanroomLoader](https://github.com/CleanroomMC/CleanroomLoader).
+Pulsar replaces Minecraft's lighting engine with a modern BFS-based implementation derived from [Starlight](https://github.com/PaperMC/Starlight). It is intended for use with [CleanroomLoader](https://github.com/CleanroomMC/CleanroomLoader).
 
 Bringing the power of Starlight to 1.12.2.
 
@@ -47,13 +48,18 @@ Pulsar fully replaces the vanilla lighting engine, so it conflicts with any mod 
 
 ## Credits
 
-- [Claude](https://claude.com/product/claude-code) — During development, Claude's ideas came to our rescue on numerous occasions.
 - [Starlight](https://github.com/PaperMC/Starlight) by Spottedleaf — the architecture and core algorithms (BFS propagation, SWMR nibble arrays, deferred lighting) are derived from Starlight's design.
 - [SuperNova](https://github.com/GTNewHorizons/SuperNova) by mitchej123 — a Starlight-inspired RGB colored lighting engine for 1.7.10. Pulsar is a scalar-only port of SuperNova's Starlight-derived BFS engine, with all RGB / color features removed. The majority of Pulsar's light engine, mixin targets and chunk-send strategy were rewritten with reference to SuperNova's implementation.
 - [Hodgepodge](https://github.com/GTNewHorizons/Hodgepodge) by GTNHdev — several of its optimizations are embedded in Pulsar, rewritten with reference to Hodgepodge's implementation.
-- [Alfheim](https://github.com/Red-Studio-Ragnarok/Alfheim) by Desoroxxx — referenced when implementing Pulsar's BFS queue dedup layer (currently deprecated).
 - [GTNHLib](https://github.com/GTNewHorizons/GTNHLib) by GTNHdev — code from several of SuperNova's dependencies has been rewritten for 1.12.2 and embedded into Pulsar.
 - [CleanroomModTemplate](https://github.com/CleanroomMC/CleanroomModTemplate) by CleanroomMC — Pulsar uses CleanroomMC's developer-friendly modern 1.12.2 modding template.
 
 ## License
-[LGPL-3.0](LICENSE.md))
+
+[LGPL-3.0](LICENSE.md)
+
+## ⚠️ Notice
+
+Part of this mod's code is written with the help of generative AI. I review the generated code beforehand, but on rare occasions an imperfection may still remain — if you spot one, I'd appreciate it if you let me know via an Issue.
+
+I'm also well aware that some people feel uneasy about, or dislike, software that uses generative AI. If you're okay with that, I'd be glad to have you use this mod.
