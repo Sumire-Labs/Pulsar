@@ -374,7 +374,17 @@ public abstract class PulsarEngine {
         final int sectionIndex = (worldX >> 4) + 5 * (worldZ >> 4) + (5 * 5) * (worldY >> 4) + this.chunkSectionIndexOffset;
         final SWMRNibbleArray nibble = this.nibbleCache[sectionIndex];
         if (nibble != null) {
-            nibble.set((worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8), level);
+            final int localIndex = (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8);
+            // Skip no-op writes entirely. The sky column walk in particular
+            // rewrites whole columns with unchanged values; writing them
+            // would mark the nibble dirty (2KB vanilla sync per section) and
+            // grow the render-notify bounds (section rebuilds for renders
+            // that would look identical). Alfheim/vanilla only notify actual
+            // changes — this matches that.
+            if (nibble.getUpdating(localIndex) == level) {
+                return;
+            }
+            nibble.set(localIndex, level);
             this.postLightUpdate(sectionIndex, worldX & 15, worldY & 15, worldZ & 15);
         }
     }

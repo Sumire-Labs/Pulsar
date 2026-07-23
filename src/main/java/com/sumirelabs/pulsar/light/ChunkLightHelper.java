@@ -20,25 +20,6 @@ public final class ChunkLightHelper {
     private ChunkLightHelper() {}
 
     /**
-     * @return {@code true} if any non-null block-light nibble exists in the
-     *         given group whose corresponding {@link ExtendedBlockStorage} is
-     *         loaded.
-     */
-    public static boolean hasSavedBlockData(SWMRNibbleArray[] blockNibbles, ExtendedBlockStorage[] storageArrays) {
-        final int minLight = WorldUtil.getMinLightSection();
-        for (int i = 0; i < blockNibbles.length; ++i) {
-            final int sectionY = i + minLight;
-            if (sectionY < 0 || sectionY > 15 || storageArrays[sectionY] == null) {
-                continue;
-            }
-            if (!blockNibbles[i].isNullNibbleVisible()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Wrap each loaded section's vanilla sky-light {@link NibbleArray} in a
      * fresh {@link SWMRNibbleArray}. If {@code onlyWhereNull} is true, only
      * untouched ({@code NULL} state) entries are imported.
