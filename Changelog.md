@@ -5,6 +5,22 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Synced the template with upstream CleanroomModTemplate
+
+### Fixed
+
+- `release-to-cf-mr.yml` referenced a broken action id (`c@v3.3.0`); it now
+  uses `Kir-Antipov/mc-publish@v3.3.0`. Aligned the Gradle version across
+  all three CI workflows to 9.6.1.
+
+### Removed
+
+- The Alfheim-style BFS queue deduplication layer 
+
 ## [0.1.0-dev.9] - 2026-04-27
 
 ## Fixed
