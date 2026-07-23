@@ -30,6 +30,12 @@ upstream (`forge` branch) and Alfheim.
 - `sendChunksWithoutLight` now defaults to `false`: chunks are sent only
   after BFS completes (1.12.2 has no light-update packet to correct them
   later). With persistence, only freshly generated chunks pay the delay.
+- `LightQueue` priority lookups are now O(1). The SuperNova-inherited
+  implementation scanned the whole task map once per task processed —
+  O(N²) per drain, holding the same lock main-thread enqueues need,
+  precisely during worldgen bursts. Auxiliary FIFO key queues (validated
+  lazily on pop) plus an exact counter replace the scans; priority
+  semantics are unchanged.
   
 ### Fixed
 
