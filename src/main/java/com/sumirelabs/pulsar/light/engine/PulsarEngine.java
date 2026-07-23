@@ -8,7 +8,6 @@ import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -171,11 +170,6 @@ public abstract class PulsarEngine {
         this.sectionCache = new ExtendedBlockStorage[cacheSize];
         this.nibbleCache = new SWMRNibbleArray[cacheSize];
         this.notifyUpdateCache = new boolean[cacheSize];
-
-        if (com.sumirelabs.pulsar.config.PulsarConfig.performance.enableBfsDedup) {
-            this.increaseDedupSet = new LongOpenHashSet(INITIAL_QUEUE_SIZE);
-            this.decreaseDedupSet = new LongOpenHashSet(INITIAL_QUEUE_SIZE);
-        }
     }
 
     protected final void setupEncodeOffset(final int centerX, final int centerY, final int centerZ) {
@@ -193,14 +187,6 @@ public abstract class PulsarEngine {
     protected final void setupCaches(final int centerX, final int centerY, final int centerZ, final boolean relaxed, final boolean tryToLoadChunksFor2Radius) {
         final int centerChunkX = centerX >> 4;
         final int centerChunkZ = centerZ >> 4;
-
-        // Reset the per-session BFS queue dedup sets. These are monotonic
-        // within one setupCaches -> destroyCaches window so that duplicate
-        // enqueues from multi-direction propagation are collapsed before
-        // they reach the drain loop. See DEDUP_MASK and
-        // appendToIncreaseQueue/appendToDecreaseQueue.
-        if (this.increaseDedupSet != null) this.increaseDedupSet.clear();
-        if (this.decreaseDedupSet != null) this.decreaseDedupSet.clear();
 
         this.setupEncodeOffset(centerChunkX * 16 + 7, centerY, centerChunkZ * 16 + 7);
 
@@ -869,22 +855,6 @@ public abstract class PulsarEngine {
     protected static final long FLAG_RECHECK_LEVEL = Long.MIN_VALUE >>> 1;
     protected static final long FLAG_HAS_SIDED_TRANSPARENT_BLOCKS = Long.MIN_VALUE; // bit 63
 
-    /**
-     * Key mask used by the Alfheim-style queue dedup layer. Covers the
-     * (x, y, z) coordinate triple, the 4-bit stored light level and the
-     * {@link #FLAG_WRITE_LEVEL} / {@link #FLAG_RECHECK_LEVEL} action bits.
-     *
-     * <p>The direction bitset is deliberately excluded: a second enqueue with
-     * extra check directions is semantically redundant because the
-     * Starlight BFS invariant guarantees the brighter-neighbour re-check
-     * will be driven from the source that actually changed level. Dropping
-     * the direction bits is what gives the dedup its hit rate.
-     */
-    protected static final long DEDUP_MASK = COORD_MASK
-            | (0xFL << LIGHT_LEVEL_SHIFT)
-            | FLAG_WRITE_LEVEL
-            | FLAG_RECHECK_LEVEL;
-
     // 16 * 16 * 16 — matches Starlight (StarLightEngine.java:1023). The base
     // queues grow on demand via resize{Increase,Decrease}Queue up to MAX_QUEUE_SIZE.
     protected static final int INITIAL_QUEUE_SIZE = 1 << 12; // 4096
@@ -901,19 +871,6 @@ public abstract class PulsarEngine {
     protected boolean queueOverflowWarned;
     protected boolean queueOverflowed;
 
-    /**
-     * Per-session dedup set for the increase queue. Holds (coord | level |
-     * write/recheck flags) of every entry that has been appended since the
-     * last {@link #setupCaches} call, so {@link #appendToIncreaseQueue} can
-     * cheaply reject duplicates before they reach the BFS drain loop.
-     *
-     * <p>Allocated only when {@code PulsarConfig.performance.enableBfsDedup}
-     * is true (default false). The append/rollback paths gate on the same
-     * flag, so the set is never read when null.
-     */
-    protected LongOpenHashSet increaseDedupSet;
-    protected LongOpenHashSet decreaseDedupSet;
-
     protected final int[] chunkCheckDelayedUpdatesCenter = new int[16 * 16];
     protected final int[] chunkCheckDelayedUpdatesNeighbour = new int[16 * 16];
 
@@ -927,25 +884,16 @@ public abstract class PulsarEngine {
 
     /**
      * Appends an entry to the increase queue. Returns {@code true} if the
-     * entry was actually written; {@code false} if it was skipped by the
-     * Alfheim-style dedup layer or dropped due to queue overflow. Callers
-     * that implement a "speculative append + rollback" pattern (like
-     * {@code ScalarSkyEngine.tryPropagateSkylight}) MUST check the return
-     * value before decrementing {@link #increaseQueueInitialLength} — a
-     * dedup rejection does not increment the length, so rolling back
-     * unconditionally would leave the counter negative and crash the next
-     * BFS drain with an {@code ArrayIndexOutOfBoundsException}.
+     * entry was actually written; {@code false} if it was dropped due to
+     * queue overflow. Callers that implement a "speculative append +
+     * rollback" pattern (like {@code ScalarSkyEngine.tryPropagateSkylight})
+     * MUST check the return value before decrementing
+     * {@link #increaseQueueInitialLength} — an overflow drop does not
+     * increment the length, so rolling back unconditionally would leave the
+     * counter negative and crash the next BFS drain with an
+     * {@code ArrayIndexOutOfBoundsException}.
      */
     protected final boolean appendToIncreaseQueue(final long value) {
-        if (com.sumirelabs.pulsar.config.PulsarConfig.performance.enableBfsDedup) {
-            // Alfheim-style dedup: reject entries that have the same
-            // (coord, level, write/recheck flags) key as something already
-            // queued in this BFS session. Direction bits are not part of
-            // the key - see DEDUP_MASK javadoc.
-            if (!this.increaseDedupSet.add(value & DEDUP_MASK)) {
-                return false;
-            }
-        }
         long[] queue = this.increaseQueue;
         final int idx = this.increaseQueueInitialLength;
         if (idx >= queue.length) {
@@ -961,34 +909,10 @@ public abstract class PulsarEngine {
     }
 
     /**
-     * Undo the dedup-set side of the most recent
-     * {@link #appendToIncreaseQueue(long) appendToIncreaseQueue} call for
-     * callers implementing the speculative-append-with-rollback pattern.
-     *
-     * <p>The BFS drain loop rolls back a speculative enqueue by decrementing
-     * {@link #increaseQueueInitialLength}, but that only undoes the queue
-     * write - the dedup set still has the key and would silently reject
-     * any future legitimate enqueue of the same {@code (coord, level,
-     * flags)} triple. Callers that rolled back an append via the counter
-     * decrement should also call this method to remove the key from the
-     * dedup set.
-     */
-    protected final void rollbackIncreaseDedup(final long value) {
-        if (com.sumirelabs.pulsar.config.PulsarConfig.performance.enableBfsDedup) {
-            this.increaseDedupSet.remove(value & DEDUP_MASK);
-        }
-    }
-
-    /**
      * Appends an entry to the decrease queue. See
      * {@link #appendToIncreaseQueue(long)} for the return-value contract.
      */
     protected final boolean appendToDecreaseQueue(final long value) {
-        if (com.sumirelabs.pulsar.config.PulsarConfig.performance.enableBfsDedup) {
-            if (!this.decreaseDedupSet.add(value & DEDUP_MASK)) {
-                return false;
-            }
-        }
         long[] queue = this.decreaseQueue;
         final int idx = this.decreaseQueueInitialLength;
         if (idx >= queue.length) {
