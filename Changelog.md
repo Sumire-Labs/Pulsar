@@ -38,6 +38,16 @@ upstream (`forge` branch) and Alfheim.
   data during section changes.
 - The `checkLight()` replacement now also sets `isTerrainPopulated` (vanilla
   sets both flags there); previously chunks were saved as unpopulated.
+- `setLightLevel` now skips no-op writes. The sky column walk rewrites whole
+  columns with unchanged values; each write marked the section dirty (2KB
+  vanilla sync + render rebuild) even though nothing changed visually.
+
+### Removed
+
+- The unwired `performance` config category (`workerThreadPriority` and the
+  two budget knobs were never connected to anything; the engine uses fixed
+  5ms/10ms worker budgets).
+- Unused `ChunkLightHelper.hasSavedBlockData`.
 
 ## [0.1.0-dev.10]
 

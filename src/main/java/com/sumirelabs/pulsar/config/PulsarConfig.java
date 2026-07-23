@@ -21,29 +21,11 @@ public class PulsarConfig {
     @Config.Comment("Master switch. When false, Pulsar's mob-spawn gate falls through to vanilla behaviour.")
     public static boolean enabled = true;
 
-    @Config.Comment("Performance tuning")
-    public static final Performance performance = new Performance();
-
     @Config.Comment("Feature toggles")
     public static final Features features = new Features();
 
     @Config.Comment("Debug options")
     public static final Debug debug = new Debug();
-
-    public static class Performance {
-
-        @Config.Comment("Java thread priority for the BFS worker threads (1=lowest, 10=highest).")
-        @Config.RangeInt(min = 1, max = 10)
-        public int workerThreadPriority = Thread.NORM_PRIORITY;
-
-        @Config.Comment("Per-tick wall-clock budget for the block-change drain phase, in milliseconds.")
-        @Config.RangeInt(min = 1, max = 100)
-        public int lightUpdateBudgetMillisPerTick = 5;
-
-        @Config.Comment("Per-tick wall-clock budget for the edge-check phase, in milliseconds.")
-        @Config.RangeInt(min = 1, max = 100)
-        public int edgeCheckBudgetMillisPerTick = 10;
-    }
 
     public static class Features {
 
