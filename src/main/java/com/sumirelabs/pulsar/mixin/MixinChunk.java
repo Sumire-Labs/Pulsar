@@ -47,6 +47,9 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     public boolean isLightPopulated;
 
     @Shadow
+    public boolean isTerrainPopulated;
+
+    @Shadow
     public int[] heightMap;
 
     @Shadow
@@ -315,13 +318,15 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
 
     /**
      * Bypass vanilla {@code checkLight()}. Vanilla {@code Chunk.checkLight()}
-     * is the canonical site that flips {@code isLightPopulated = true}; we
-     * keep that flag true ourselves so that
-     * {@code PlayerChunkMapEntry.canSendToPlayers()} doesn't refuse to ship
-     * the chunk to the client.
+     * is the canonical site that flips BOTH {@code isTerrainPopulated} and
+     * {@code isLightPopulated} to {@code true} — {@code Chunk.populate}
+     * relies on it for the terrain flag, so the replacement must set both or
+     * freshly generated chunks are never considered populated (and never
+     * saved as such).
      */
     @Inject(method = "checkLight()V", at = @At("HEAD"), cancellable = true, require = 0)
     private void pulsar$checkLight(final CallbackInfo ci) {
+        this.isTerrainPopulated = true;
         this.isLightPopulated = true;
         ci.cancel();
     }
@@ -329,14 +334,16 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     /**
      * Gate chunk sending on Pulsar's BFS completion.
      *
-     * <p>Default ({@code sendChunksWithoutLight = false}): report the chunk as
-     * not populated until {@code pulsar$lightReady} so
-     * {@code PlayerChunkMapEntry} retries next tick and clients only ever
-     * receive fully-lit chunks. Because chunks with valid persisted light are
-     * ready the moment they load, this delay only applies to freshly
-     * generated chunks (typically a few ms of worker time). This also removes
-     * the need for the client to re-light received chunks — 1.12.2 has no
-     * light-update packet, so light sent wrong would have stayed wrong.
+     * <p>Default ({@code sendChunksWithoutLight = false}): the chunk is
+     * populated exactly when {@code pulsar$lightReady}, so
+     * {@code PlayerChunkMapEntry} retries each tick and clients only ever
+     * receive fully-lit chunks. Chunks with valid persisted light are ready
+     * the moment they load, so the delay only applies to freshly generated
+     * (or legacy-world relit) chunks. The vanilla flags are deliberately NOT
+     * consulted: worlds saved by earlier Pulsar builds carry
+     * {@code TerrainPopulated=false} on disk (the cancelled
+     * {@code checkLight()} never set it), and falling through to vanilla
+     * would leave those chunks permanently unsent.
      *
      * <p>With {@code sendChunksWithoutLight = true}: always report populated —
      * the eager strategy inherited from Hodgepodge's
@@ -349,11 +356,7 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
             cir.setReturnValue(true);
             return;
         }
-        if (!this.pulsar$lightReady) {
-            cir.setReturnValue(false);
-        }
-        // else fall through to vanilla (ticked && terrainPopulated &&
-        // isLightPopulated, the latter kept true by pulsar$onLoad).
+        cir.setReturnValue(this.pulsar$lightReady);
     }
 
     // ============================== PulsarChunk implementation ==============================

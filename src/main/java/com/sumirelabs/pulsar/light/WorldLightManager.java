@@ -350,12 +350,16 @@ public final class WorldLightManager {
                             cx, cz, task.relightAttempts + 1);
                 }
             }
-        } catch (final NullPointerException e) {
+        } catch (final Throwable t) {
+            // Always complete the latch: with chunk sending gated on
+            // lightReady, a leaked completion would leave the chunk unsent
+            // forever.
             this.completeInitialLighting(task.chunkCoordinate);
             if (this.loadedChunkMap.get(task.chunkCoordinate) != null) {
-                throw new RuntimeException("Unexpected NPE processing sky task for chunk (" + cx + ", " + cz + ")", e);
+                Pulsar.LOGGER.error("Sky task for chunk ({}, {}) failed", cx, cz, t);
+            } else {
+                Pulsar.LOGGER.warn("Sky task for chunk ({}, {}) aborted - chunk unloaded during processing", cx, cz, t);
             }
-            Pulsar.LOGGER.warn("Sky task for chunk ({}, {}) aborted - chunk unloaded during processing", cx, cz, e);
         }
 
         skyEngine.setStats(null);
@@ -443,12 +447,16 @@ public final class WorldLightManager {
                             cx, cz, task.relightAttempts + 1);
                 }
             }
-        } catch (final NullPointerException e) {
+        } catch (final Throwable t) {
+            // Always complete the latch: with chunk sending gated on
+            // lightReady, a leaked completion would leave the chunk unsent
+            // forever.
             this.completeInitialLighting(task.chunkCoordinate);
             if (this.loadedChunkMap.get(task.chunkCoordinate) != null) {
-                throw new RuntimeException("Unexpected NPE processing block task for chunk (" + cx + ", " + cz + ")", e);
+                Pulsar.LOGGER.error("Block task for chunk ({}, {}) failed", cx, cz, t);
+            } else {
+                Pulsar.LOGGER.warn("Block task for chunk ({}, {}) aborted - chunk unloaded during processing", cx, cz, t);
             }
-            Pulsar.LOGGER.warn("Block task for chunk ({}, {}) aborted - chunk unloaded during processing", cx, cz, e);
         }
 
         blockEngine.setStats(null);

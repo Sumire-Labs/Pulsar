@@ -30,15 +30,14 @@ upstream (`forge` branch) and Alfheim.
 - `sendChunksWithoutLight` now defaults to `false`: chunks are sent only
   after BFS completes (1.12.2 has no light-update packet to correct them
   later). With persistence, only freshly generated chunks pay the delay.
-- Render notifications now mark only the changed-block bounding box per
-  section, deduplicated per client tick — replacing the 3×3×3 section
-  spread that rebuilt up to 27 RenderChunks per light change.
-
+  
 ### Fixed
 
 - `ScalarSkyEngine.initSkyNibble` now only initialises NULL-state nibbles
   (upstream Starlight's guard); previously it could overwrite valid light
   data during section changes.
+- The `checkLight()` replacement now also sets `isTerrainPopulated` (vanilla
+  sets both flags there); previously chunks were saved as unpopulated.
 
 ## [0.1.0-dev.10]
 

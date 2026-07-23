@@ -80,8 +80,13 @@ public final class LightDataSerializer {
 
         final NBTTagList sections = new NBTTagList();
         for (int i = 0, len = blockNibbles.length; i < len; ++i) {
-            final SWMRNibbleArray.SaveState blockState = blockNibbles[i].getSaveState();
-            final SWMRNibbleArray.SaveState skyState = hasSky ? skyNibbles[i].getSaveState() : null;
+            // Null elements are legal: the sky engine's rewriteNibbleCacheForSkylight
+            // replaces NULL-state nibbles with java nulls before the arrays are
+            // published to the chunk. Treat them as NULL (nothing to save).
+            final SWMRNibbleArray blockNib = blockNibbles[i];
+            final SWMRNibbleArray skyNib = hasSky ? skyNibbles[i] : null;
+            final SWMRNibbleArray.SaveState blockState = blockNib == null ? null : blockNib.getSaveState();
+            final SWMRNibbleArray.SaveState skyState = skyNib == null ? null : skyNib.getSaveState();
             if (blockState == null && skyState == null) {
                 continue;
             }
