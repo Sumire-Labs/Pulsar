@@ -304,7 +304,7 @@ public abstract class PulsarEngine {
                             sectionX + RenderUpdateQueue.maxX(bounds),
                             sectionY + RenderUpdateQueue.maxY(bounds),
                             sectionZ + RenderUpdateQueue.maxZ(bounds));
-                    LightStats.engineRenderMarks++;
+                    if (LightStats.enabled) LightStats.engineRenderMarks++;
                 } else if (this.pendingRenderTarget != null) {
                     final int cx = cxLocal - this.chunkOffsetX;
                     final int cz = czLocal - this.chunkOffsetZ;

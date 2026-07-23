@@ -209,7 +209,8 @@ public final class WorldLightManager {
     }
 
     public void processClientRenderUpdates() {
-        final long startNs = System.nanoTime();
+        final boolean statsOn = LightStats.enabled;
+        final long startNs = statsOn ? System.nanoTime() : 0L;
         final int count = this.pendingRenderUpdates.drain((key, bounds) -> {
             final int bx = (int) (key >> 32) << 4;
             final int bz = (short) ((key >> 16) & 0xFFFF) << 4;
@@ -222,7 +223,7 @@ public final class WorldLightManager {
                     by + RenderUpdateQueue.maxY(bounds),
                     bz + RenderUpdateQueue.maxZ(bounds));
         });
-        if (count > 0) {
+        if (statsOn && count > 0) {
             this.stats.drainedSections += count;
             this.stats.drainTimeNs += System.nanoTime() - startNs;
         }
@@ -263,7 +264,7 @@ public final class WorldLightManager {
             while ((task = queue.removeFirstBlockChangeTask()) != null) {
                 taskProcessor.accept(task, engine);
                 if (System.nanoTime() > changeBudget) {
-                    changeBudgetYield.incrementAndGet();
+                    if (LightStats.enabled) changeBudgetYield.incrementAndGet();
                     break;
                 }
             }
@@ -290,7 +291,7 @@ public final class WorldLightManager {
                         break;
                     }
                     if (System.nanoTime() > edgeDeadline) {
-                        this.stats.edgeBudgetYields.incrementAndGet();
+                        if (LightStats.enabled) this.stats.edgeBudgetYields.incrementAndGet();
                         break;
                     }
                 }
@@ -303,7 +304,8 @@ public final class WorldLightManager {
     }
 
     private void processSkyTask(final ChunkTasks task, final PulsarEngine skyEngine) {
-        final long t0 = System.nanoTime();
+        final boolean statsOn = LightStats.enabled;
+        final long t0 = statsOn ? System.nanoTime() : 0L;
         final int cx = CoordinateUtils.getChunkX(task.chunkCoordinate);
         final int cz = CoordinateUtils.getChunkZ(task.chunkCoordinate);
 
@@ -312,9 +314,11 @@ public final class WorldLightManager {
             return;
         }
 
-        this.stats.chunksProcessed.incrementAndGet();
-        this.stats.recordQueueLatency(task.enqueueTimeNs);
-        skyEngine.setStats(this.stats);
+        if (statsOn) {
+            this.stats.chunksProcessed.incrementAndGet();
+            this.stats.recordQueueLatency(task.enqueueTimeNs);
+            skyEngine.setStats(this.stats);
+        }
 
         try {
             if (task.loadInitChunk != null && task.initialLightChunk == null) {
@@ -323,7 +327,7 @@ public final class WorldLightManager {
             }
 
             if (task.initialLightChunk != null) {
-                this.stats.initialLightsRun.incrementAndGet();
+                if (statsOn) this.stats.initialLightsRun.incrementAndGet();
                 skyEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
                 this.completeInitialLighting(task.chunkCoordinate);
 
@@ -363,11 +367,15 @@ public final class WorldLightManager {
         }
 
         skyEngine.setStats(null);
-        this.stats.skyWorkerTimeNs.addAndGet(System.nanoTime() - t0);
-        this.stats.skyTasksProcessed.incrementAndGet();
+        if (statsOn) {
+            this.stats.skyWorkerTimeNs.addAndGet(System.nanoTime() - t0);
+            this.stats.skyTasksProcessed.incrementAndGet();
+        }
     }
 
     private void processBlockTask(final ChunkTasks task, final PulsarEngine blockEngine) {
+        final boolean statsOn = LightStats.enabled;
+        // t0/t1/t2 stay unconditional: they also feed the slow-task warning.
         final long t0 = System.nanoTime();
         final int cx = CoordinateUtils.getChunkX(task.chunkCoordinate);
         final int cz = CoordinateUtils.getChunkZ(task.chunkCoordinate);
@@ -377,9 +385,11 @@ public final class WorldLightManager {
             return;
         }
 
-        this.stats.chunksProcessed.incrementAndGet();
-        this.stats.recordQueueLatency(task.enqueueTimeNs);
-        blockEngine.setStats(this.stats);
+        if (statsOn) {
+            this.stats.chunksProcessed.incrementAndGet();
+            this.stats.recordQueueLatency(task.enqueueTimeNs);
+            blockEngine.setStats(this.stats);
+        }
 
         long changesNs = 0;
         int changesPos = 0, changesBfsInc = 0, changesBfsDec = 0;
@@ -421,7 +431,7 @@ public final class WorldLightManager {
                 changesPos = blockEngine.lastPositionsProcessed;
                 changesBfsInc = blockEngine.lastBfsIncreaseTotal;
                 changesBfsDec = blockEngine.lastBfsDecreaseTotal;
-                this.stats.blockPositionsProcessed.addAndGet(changesPos);
+                if (statsOn) this.stats.blockPositionsProcessed.addAndGet(changesPos);
             }
 
             if (task.queuedEdgeChecksBlock != null) {
@@ -461,8 +471,10 @@ public final class WorldLightManager {
 
         blockEngine.setStats(null);
         final long totalNs = System.nanoTime() - t0;
-        this.stats.blockWorkerTimeNs.addAndGet(totalNs);
-        this.stats.blockTasksProcessed.incrementAndGet();
+        if (statsOn) {
+            this.stats.blockWorkerTimeNs.addAndGet(totalNs);
+            this.stats.blockTasksProcessed.incrementAndGet();
+        }
 
         if (totalNs > 100_000_000L) {
             Pulsar.LOGGER.warn(

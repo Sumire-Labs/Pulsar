@@ -43,6 +43,6 @@ public final class ChunkTasks {
     public ChunkTasks(final long chunkCoordinate) {
         this.chunkCoordinate = chunkCoordinate;
         this.onComplete = SettableFuture.create();
-        this.enqueueTimeNs = System.nanoTime();
+        this.enqueueTimeNs = LightStats.enabled ? System.nanoTime() : 0L;
     }
 }

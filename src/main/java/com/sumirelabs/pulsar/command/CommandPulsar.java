@@ -1,5 +1,6 @@
 package com.sumirelabs.pulsar.command;
 
+import com.sumirelabs.pulsar.config.PulsarConfig;
 import com.sumirelabs.pulsar.light.WorldLightManager;
 import com.sumirelabs.pulsar.world.PulsarWorld;
 import net.minecraft.command.CommandBase;
@@ -66,7 +67,11 @@ public class CommandPulsar extends CommandBase {
             sender.sendMessage(new TextComponentString("Pulsar light manager is not active for this world."));
             return;
         }
-        sender.sendMessage(new TextComponentString("§ePulsar§r — see logs/pulsar-stats.log for live stats."));
+        if (PulsarConfig.debug.enableDebugStats) {
+            sender.sendMessage(new TextComponentString("§ePulsar§r — see logs/pulsar-stats.log for live stats."));
+        } else {
+            sender.sendMessage(new TextComponentString("§ePulsar§r — debug stats are off (set debug.enableDebugStats in config/pulsar.cfg)."));
+        }
         sender.sendMessage(new TextComponentString("Pending light updates: " + (mgr.hasUpdates() ? "yes" : "no")));
     }
 

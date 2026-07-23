@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.config.PulsarConfig;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,7 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Per-world stats accumulator for light engine instrumentation. Dumps to
+ * Per-world stats accumulator for light engine instrumentation. Only active
+ * while {@code debug.enableDebugStats} is set; dumps to
  * {@code logs/pulsar-stats.log} every {@value LOG_INTERVAL_TICKS} ticks.
  */
 public final class LightStats {
@@ -21,8 +23,16 @@ public final class LightStats {
     private static final int LOG_INTERVAL_TICKS = 20;
     private static final SimpleDateFormat TIME_FMT = new SimpleDateFormat("HH:mm:ss.SSS");
 
+    /**
+     * Mirror of {@link PulsarConfig.Debug#enableDebugStats}, refreshed once
+     * per tick so hot paths pay a single volatile load when stats are off.
+     */
+    public static volatile boolean enabled;
+
     private final String side;
-    private final PrintWriter writer;
+    private PrintWriter writer;
+    private boolean writerFailed;
+    private boolean pendingReset;
 
     // Tick tracking
     private long tickCount;
@@ -45,12 +55,6 @@ public final class LightStats {
     // Client drain stats (main thread only)
     long drainedSections;
     long drainTimeNs;
-    long renderQueueSize;
-
-    // Client sync stats (main thread only)
-    long syncBlockLightCalls;
-    long syncSkyLightCalls;
-    long syncTimeNs;
     public static long engineRenderMarks;
 
     // Budget yield stats (multi-thread write)
@@ -76,22 +80,26 @@ public final class LightStats {
 
     public LightStats(final boolean isClient) {
         this.side = isClient ? "CLIENT" : "SERVER";
-        PrintWriter pw = null;
-        try {
-            final File logFile = new File("logs/pulsar-stats.log");
-            logFile.getParentFile().mkdirs();
-            pw = new PrintWriter(new FileWriter(logFile, true), true);
-        } catch (final IOException e) {
-            Pulsar.LOGGER.error("Failed to open pulsar-stats.log", e);
-        }
-        this.writer = pw;
     }
 
     /** Called once per tick from the main thread. Triggers periodic dump. */
     public void tick(final int skyBacklog, final int blockBacklog) {
+        final boolean on = PulsarConfig.debug.enableDebugStats;
+        if (enabled != on) {
+            enabled = on;
+        }
+        this.tickCount++;
+        if (!on) {
+            this.pendingReset = true;
+            return;
+        }
+        if (this.pendingReset) {
+            // Discard partial data recorded around a runtime toggle.
+            this.pendingReset = false;
+            reset();
+        }
         this.skyBacklog = skyBacklog;
         this.blockBacklog = blockBacklog;
-        this.tickCount++;
         if (this.tickCount - this.windowStartTick >= LOG_INTERVAL_TICKS) {
             dump();
             reset();
@@ -99,6 +107,7 @@ public final class LightStats {
     }
 
     void recordQueueLatency(final long enqueueTimeNs) {
+        if (enqueueTimeNs == 0L) return; // task was created while stats were off
         final long latency = System.nanoTime() - enqueueTimeNs;
         if (latency > this.maxQueueLatencyNs) {
             this.maxQueueLatencyNs = latency;
@@ -107,7 +116,18 @@ public final class LightStats {
     }
 
     private void dump() {
-        if (this.writer == null) return;
+        if (this.writer == null) {
+            if (this.writerFailed) return;
+            try {
+                final File logFile = new File("logs/pulsar-stats.log");
+                logFile.getParentFile().mkdirs();
+                this.writer = new PrintWriter(new FileWriter(logFile, true), true);
+            } catch (final IOException e) {
+                this.writerFailed = true;
+                Pulsar.LOGGER.error("Failed to open pulsar-stats.log", e);
+                return;
+            }
+        }
 
         final long processed = this.chunksProcessed.get();
         final int queued = this.chunksQueued.get();
@@ -162,10 +182,6 @@ public final class LightStats {
         if ("CLIENT".equals(this.side)) {
             sb.append(" drainedSections=").append(this.drainedSections);
             sb.append(" drainMs=").append(String.format(Locale.US, "%.1f", this.drainTimeNs / 1_000_000.0));
-            sb.append(" renderQueue=").append(this.renderQueueSize);
-            sb.append(" syncBlock=").append(this.syncBlockLightCalls);
-            sb.append(" syncSky=").append(this.syncSkyLightCalls);
-            sb.append(" syncMs=").append(String.format(Locale.US, "%.1f", this.syncTimeNs / 1_000_000.0));
             sb.append(" engineMarks=").append(engineRenderMarks);
         }
 
@@ -184,10 +200,6 @@ public final class LightStats {
         this.totalQueueLatencyNs = 0;
         this.drainedSections = 0;
         this.drainTimeNs = 0;
-        this.renderQueueSize = 0;
-        this.syncBlockLightCalls = 0;
-        this.syncSkyLightCalls = 0;
-        this.syncTimeNs = 0;
         engineRenderMarks = 0;
         this.edgeBudgetYields.set(0);
         this.blockChangeBudgetYields.set(0);

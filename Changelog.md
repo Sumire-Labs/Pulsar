@@ -41,6 +41,10 @@ upstream (`forge` branch) and Alfheim.
 - `setLightLevel` now skips no-op writes. The sky column walk rewrites whole
   columns with unchanged values; each write marked the section dirty (2KB
   vanilla sync + render rebuild) even though nothing changed visually.
+- `debug.enableDebugStats` was never checked: stats were collected and
+  `logs/pulsar-stats.log` written regardless of the config. Collection and
+  the log file are now fully gated (no file is created while off; the
+  toggle takes effect at runtime).
 
 ### Removed
 
@@ -48,6 +52,8 @@ upstream (`forge` branch) and Alfheim.
   two budget knobs were never connected to anything; the engine uses fixed
   5ms/10ms worker budgets).
 - Unused `ChunkLightHelper.hasSavedBlockData`.
+- Dead `LightStats` client sync counters (`renderQueue`/`syncBlock`/
+  `syncSky`/`syncMs` — the code feeding them was removed earlier).
 
 ## [0.1.0-dev.10]
 

@@ -27,7 +27,7 @@ public final class LightQueue {
         if (tasks == null) {
             tasks = new ChunkTasks(key);
             this.tasksByChunk.put(key, tasks);
-            if (this.stats != null) {
+            if (this.stats != null && LightStats.enabled) {
                 this.stats.chunksQueued.incrementAndGet();
             }
         }
