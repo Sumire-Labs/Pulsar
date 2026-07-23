@@ -63,3 +63,4 @@ Pulsar fully replaces the vanilla lighting engine, so it conflicts with any mod 
 Part of this mod's code is written with the help of generative AI. I review the generated code beforehand, but on rare occasions an imperfection may still remain — if you spot one, I'd appreciate it if you let me know via an Issue.
 
 I'm also well aware that some people feel uneasy about, or dislike, software that uses generative AI. If you're okay with that, I'd be glad to have you use this mod.
+
