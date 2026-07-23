@@ -1,5 +1,6 @@
 package com.sumirelabs.pulsar.proxy;
 
+import com.sumirelabs.pulsar.light.LightDataSerializer;
 import com.sumirelabs.pulsar.world.PulsarWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
@@ -11,6 +12,7 @@ public class CommonProxy implements IProxy {
     @Override
     public void preInit(final FMLPreInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new LightDataSerializer());
     }
 
     @SubscribeEvent

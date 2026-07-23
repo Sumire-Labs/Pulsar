@@ -5,9 +5,7 @@ import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
@@ -21,10 +19,11 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
  * <p>The {@link IBlockState#getLightValue()} / {@code getLightOpacity()}
  * overloads without the {@code IBlockAccess}/{@code BlockPos} context are
  * deprecated in Forge 1.12.2 in favour of the context-aware variants.
- * Pulsar uses the deprecated overloads on the BFS hot path because the
- * context versions would need a freshly-allocated {@link net.minecraft.util.math.BlockPos}
- * per neighbour read and we process millions of such reads during initial
- * chunk lighting.
+ * Pulsar uses the deprecated overloads because the context versions would
+ * need a freshly-allocated {@link net.minecraft.util.math.BlockPos} per
+ * neighbour read. Since they are position-independent, their results are
+ * memoised per state via {@link LightInfo} — the BFS hot loops read a single
+ * packed field instead of making virtual calls and hash lookups per visit.
  */
 @SuppressWarnings("deprecation")
 public class ScalarBlockEngine extends PulsarEngine {
@@ -83,26 +82,23 @@ public class ScalarBlockEngine extends PulsarEngine {
         }
     }
 
-    private static int emissionOf(final IBlockState state) {
-        return state.getLightValue() & 0xF;
-    }
-
     @Override
     protected void checkBlock(final int worldX, final int worldY, final int worldZ) {
         final int encodeOffset = this.coordinateOffset;
         final int currentLevel = this.getLightLevel(worldX, worldY, worldZ);
 
         final IBlockState state = this.getBlockState(worldX, worldY, worldZ);
-        final int emission = emissionOf(state);
+        final int info = LightInfo.of(state);
+        final int emission = LightInfo.emission(info);
 
-        final int calculatedLevel = this.calculateLightValueWithBlock(worldX, worldY, worldZ, 15, state);
+        final int calculatedLevel = this.calculateLightValueWithInfo(worldX, worldY, worldZ, 15, info);
         if (currentLevel == calculatedLevel) {
             return;
         }
 
         this.setLightLevel(worldX, worldY, worldZ, emission);
 
-        final long sf = sidedFlag(state);
+        final long sf = sidedFlag(info);
 
         if (emission > 0) {
             this.appendToIncreaseQueue(encodeCoords(worldX, worldZ, worldY, encodeOffset)
@@ -119,20 +115,20 @@ public class ScalarBlockEngine extends PulsarEngine {
 
     @Override
     protected int calculateLightValue(final int worldX, final int worldY, final int worldZ, final int expect) {
-        return this.calculateLightValueWithBlock(worldX, worldY, worldZ, expect, this.getBlockState(worldX, worldY, worldZ));
+        return this.calculateLightValueWithInfo(worldX, worldY, worldZ, expect,
+                LightInfo.of(this.getBlockState(worldX, worldY, worldZ)));
     }
 
-    private int calculateLightValueWithBlock(final int worldX, final int worldY, final int worldZ, final int expect, final IBlockState state) {
-        int level = emissionOf(state);
+    private int calculateLightValueWithInfo(final int worldX, final int worldY, final int worldZ, final int expect, final int info) {
+        int level = LightInfo.emission(info);
 
         if (level >= 14 || level > expect) {
             return level;
         }
 
-        final Block block = state.getBlock();
-        final int rawOpacity = state.getLightOpacity();
-        final int meta = block.getMetaFromState(state);
-        final boolean sidedTransparent = rawOpacity > 1 && FaceOcclusion.hasSidedTransparency(block);
+        final int rawOpacity = LightInfo.opacity(info);
+        final boolean sidedTransparent = rawOpacity > 1 && (info & LightInfo.REGISTRY) != 0;
+        final int faceBits = LightInfo.faceBits(info);
         final int uniformAbsorption = !sidedTransparent ? Math.max(1, rawOpacity) : 0;
         final int sectionOffset = this.chunkSectionIndexOffset;
 
@@ -147,7 +143,7 @@ public class ScalarBlockEngine extends PulsarEngine {
             final int neighbourLevel = this.getLightLevel(sectionIndex, localIndex);
 
             final int absorption = sidedTransparent
-                    ? (FaceOcclusion.isFaceSolid(block, meta, direction.ordinal()) ? rawOpacity : 1)
+                    ? ((faceBits & (1 << direction.ordinal())) != 0 ? rawOpacity : 1)
                     : uniformAbsorption;
             final int attenuated = neighbourLevel - absorption;
             if (attenuated > level) {
@@ -208,7 +204,8 @@ public class ScalarBlockEngine extends PulsarEngine {
                 final int lz = (index >>> 4) & 15;
 
                 final IBlockState state = this.getBlockStateFast(sectionIdx, lx, ly, lz);
-                final int emission = emissionOf(state);
+                final int info = LightInfo.of(state);
+                final int emission = LightInfo.emission(info);
                 if (emission <= 0) {
                     continue;
                 }
@@ -225,7 +222,7 @@ public class ScalarBlockEngine extends PulsarEngine {
                 this.appendToIncreaseQueue(encodeCoords(worldX, worldZ, worldY, this.coordinateOffset)
                         | this.encodeQueueLevel(emission)
                         | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                        | sidedFlag(state));
+                        | sidedFlag(info));
 
                 this.setLightLevel(worldX, worldY, worldZ, emission);
             }
@@ -262,17 +259,11 @@ public class ScalarBlockEngine extends PulsarEngine {
             final AxisDirection[] checkDirections = OLD_CHECK_DIRECTIONS[(int) ((queueValue >>> DIRECTION_SHIFT) & 63L)];
 
             final boolean hasSidedTransparent = (queueValue & FLAG_HAS_SIDED_TRANSPARENT_BLOCKS) != 0L;
-            Block srcBlock = null;
-            int srcMeta = 0;
-            boolean checkSourceFaces = false;
+            int srcBlockedFaces = 0;
             if (hasSidedTransparent) {
                 final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
                 final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
-                srcBlock = srcState.getBlock();
-                if (srcBlock != Blocks.AIR && FaceOcclusion.hasSidedTransparency(srcBlock)) {
-                    srcMeta = srcBlock.getMetaFromState(srcState);
-                    checkSourceFaces = true;
-                }
+                srcBlockedFaces = LightInfo.faceBits(LightInfo.of(srcState));
             }
 
             if ((queueValue & FLAG_RECHECK_LEVEL) != 0L) {
@@ -284,7 +275,7 @@ public class ScalarBlockEngine extends PulsarEngine {
             }
 
             for (final AxisDirection propagate : checkDirections) {
-                if (checkSourceFaces && FaceOcclusion.isFaceSolid(srcBlock, srcMeta, propagate.ordinal())) continue;
+                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0) continue;
 
                 final int offX = posX + propagate.x;
                 final int offY = posY + propagate.y;
@@ -300,12 +291,8 @@ public class ScalarBlockEngine extends PulsarEngine {
                 final int currentLevel = this.getLightLevel(sectionIndex, localIndex);
 
                 final IBlockState destState = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
-                final int absorption;
-                if (destState.getBlock() == Blocks.AIR) {
-                    absorption = 1;
-                } else {
-                    absorption = FaceOcclusion.resolveScalarAbsorption(destState, propagate.oppositeOrdinal);
-                }
+                final int destInfo = LightInfo.of(destState);
+                final int absorption = LightInfo.absorption(destInfo, destState, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
                 if (targetLevel <= currentLevel) {
@@ -313,7 +300,6 @@ public class ScalarBlockEngine extends PulsarEngine {
                 }
 
                 this.setLightLevel(offX, offY, offZ, targetLevel);
-                this.postLightUpdate(sectionIndex);
 
                 if (targetLevel > 1) {
                     if (queueLength >= queue.length) {
@@ -326,7 +312,7 @@ public class ScalarBlockEngine extends PulsarEngine {
                     queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
                             | this.encodeQueueLevel(targetLevel)
                             | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT)
-                            | sidedFlag(destState);
+                            | sidedFlag(destInfo);
                 }
             }
         }
@@ -357,21 +343,15 @@ public class ScalarBlockEngine extends PulsarEngine {
             final AxisDirection[] checkDirections = OLD_CHECK_DIRECTIONS[(int) ((queueValue >>> DIRECTION_SHIFT) & 63)];
 
             final boolean hasSidedTransparent = (queueValue & FLAG_HAS_SIDED_TRANSPARENT_BLOCKS) != 0L;
-            Block srcBlock = null;
-            int srcMeta = 0;
-            boolean checkSourceFaces = false;
+            int srcBlockedFaces = 0;
             if (hasSidedTransparent) {
                 final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
                 final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
-                srcBlock = srcState.getBlock();
-                if (srcBlock != Blocks.AIR && FaceOcclusion.hasSidedTransparency(srcBlock)) {
-                    srcMeta = srcBlock.getMetaFromState(srcState);
-                    checkSourceFaces = true;
-                }
+                srcBlockedFaces = LightInfo.faceBits(LightInfo.of(srcState));
             }
 
             for (final AxisDirection propagate : checkDirections) {
-                if (checkSourceFaces && FaceOcclusion.isFaceSolid(srcBlock, srcMeta, propagate.ordinal())) continue;
+                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0) continue;
 
                 final int offX = posX + propagate.x;
                 final int offY = posY + propagate.y;
@@ -390,16 +370,11 @@ public class ScalarBlockEngine extends PulsarEngine {
                 }
 
                 final IBlockState state = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
-                final Block block = state.getBlock();
-                final int absorption;
-                if (block == Blocks.AIR) {
-                    absorption = 1;
-                } else {
-                    absorption = FaceOcclusion.resolveScalarAbsorption(state, propagate.oppositeOrdinal);
-                }
+                final int info = LightInfo.of(state);
+                final int absorption = LightInfo.absorption(info, state, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
-                final long sFlag = sidedFlag(state);
+                final long sFlag = sidedFlag(info);
 
                 if (currentLevel > targetLevel) {
                     if (increaseQueueLength >= increaseQueue.length) {
@@ -418,9 +393,8 @@ public class ScalarBlockEngine extends PulsarEngine {
                 }
 
                 this.setLightLevel(offX, offY, offZ, 0);
-                this.postLightUpdate(sectionIndex);
 
-                final int emission = emissionOf(state);
+                final int emission = LightInfo.emission(info);
                 if (emission > 0) {
                     if (increaseQueueLength >= increaseQueue.length) {
                         if (increaseQueue.length >= MAX_QUEUE_SIZE) {
