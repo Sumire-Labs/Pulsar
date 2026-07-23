@@ -24,6 +24,14 @@ public final class ChunkTasks {
     public Chunk initialLightChunk;
     public Boolean[] initialLightEmptySections;
 
+    /**
+     * Non-null if this chunk was loaded with valid persisted light and only
+     * needs the cheap nibble/emptiness-map init (no BFS). Superseded by
+     * {@link #initialLightChunk} when both are queued.
+     */
+    public Chunk loadInitChunk;
+    public Boolean[] loadInitEmptySections;
+
     public IntOpenHashSet queuedEdgeChecksSky;
     public IntOpenHashSet queuedEdgeChecksBlock;
 

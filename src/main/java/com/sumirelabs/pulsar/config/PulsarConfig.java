@@ -55,9 +55,11 @@ public class PulsarConfig {
 
         @Config.Comment({
                 "Allow the server to send chunks to clients before initial lighting has propagated.",
-                "Pulsar's worker threads push the corrected values shortly afterwards."
+                "1.12.2 has no light-update packet, so light sent wrong stays wrong on the client",
+                "until a block change. Chunks with valid persisted light are ready instantly, so",
+                "keeping this off only delays freshly generated chunks by a few worker milliseconds."
         })
-        public boolean sendChunksWithoutLight = true;
+        public boolean sendChunksWithoutLight = false;
     }
 
     public static class Debug {

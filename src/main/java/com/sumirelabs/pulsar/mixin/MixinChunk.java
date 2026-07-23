@@ -82,6 +82,9 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     @Unique
     private volatile boolean pulsar$lightReady;
 
+    @Unique
+    private volatile boolean pulsar$savedLightValid;
+
     // ============================== Init ==============================
 
     @Inject(method = "<init>(Lnet/minecraft/world/World;II)V", at = @At("RETURN"), require = 0)
@@ -108,13 +111,18 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     private void pulsar$onLoad(final CallbackInfo ci) {
         final Chunk self = (Chunk) (Object) this;
 
-        // Import vanilla nibbles into our SWMR mirrors so the engine has a
-        // baseline to start from. For freshly generated chunks the vanilla
-        // skyLight nibble is filled by pulsar$generateSkylightMap below; for
-        // disk-loaded chunks it comes from the NBT.
-        ChunkLightHelper.importVanillaBlock(this.pulsar$blockNibbles, this.getBlockStorageArray());
-        if (this.world.provider.hasSkyLight()) {
-            ChunkLightHelper.importVanillaSky(this.pulsar$skyNibbles, this.getBlockStorageArray(), false);
+        // Restored-from-NBT chunks keep their deserialised SWMR nibbles: they
+        // are richer than what a vanilla import can reconstruct (they carry
+        // the NULL/UNINIT/INIT states and the -1/16 boundary sections).
+        if (!this.pulsar$savedLightValid) {
+            // Import vanilla nibbles into our SWMR mirrors so the engine has a
+            // baseline to start from. For freshly generated chunks the vanilla
+            // skyLight nibble is filled by pulsar$generateSkylightMap below; for
+            // disk-loaded chunks it comes from the NBT.
+            ChunkLightHelper.importVanillaBlock(this.pulsar$blockNibbles, this.getBlockStorageArray());
+            if (this.world.provider.hasSkyLight()) {
+                ChunkLightHelper.importVanillaSky(this.pulsar$skyNibbles, this.getBlockStorageArray(), false);
+            }
         }
 
         // Always mark light-populated so PlayerChunkMapEntry won't refuse to
@@ -134,9 +142,21 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
             return;
         }
 
-        // Server-side: queue the initial BFS so block emitters and full
-        // sky-light propagation are computed asynchronously. completeInitialLighting
-        // will set lightReady = true once both engines finish.
+        if (this.pulsar$savedLightValid) {
+            // Valid persisted light (Starlight-style): no relight needed. The
+            // vanilla nibbles already carry the same values (they were synced
+            // before the save). Only run the cheap nibble/emptiness-map init
+            // so future BFS passes over this chunk have their caches ready.
+            this.pulsar$lightReady = true;
+            mgr.queueChunkLoadInit(this.x, this.z, self, PulsarEngine.getEmptySectionsForChunk(self));
+            mgr.scheduleUpdate();
+            return;
+        }
+
+        // Fresh or invalid-save chunk: queue the initial BFS so block emitters
+        // and full sky-light propagation are computed asynchronously.
+        // completeInitialLighting will set lightReady = true once both engines
+        // finish.
         final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(self);
         mgr.queueChunkLight(this.x, this.z, self, emptySections);
         mgr.scheduleUpdate();
@@ -155,13 +175,12 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     }
 
     /**
-     * Client-side hook: a chunk packet has just been deserialised. Re-import
-     * the vanilla nibbles (the server's view, possibly partial) and queue an
-     * initial BFS so the client engine catches up to the post-server state.
-     *
-     * <p>Mirrors {@code MixinChunk.supernova$onFillChunk} from SuperNova
-     * (1.7.10). 1.12.2 vanilla renamed {@code fillChunk} to
-     * {@link Chunk#read(PacketBuffer, int, boolean)}.
+     * Client-side hook: a chunk packet has just been deserialised. Import the
+     * server's nibbles into our SWMR mirrors and trust them — the server has
+     * already run (or restored) the full BFS, so re-lighting here would only
+     * duplicate the work and double the render invalidations. Only the cheap
+     * nibble/emptiness-map init is queued so later client-side BFS passes
+     * (block changes) have their caches ready.
      */
     @Inject(method = "read", at = @At("RETURN"), require = 0)
     private void pulsar$onRead(final PacketBuffer buf, final int availableSections,
@@ -179,13 +198,9 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
 
         mgr.registerChunk(self);
 
-        final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(self);
-        mgr.queueChunkLight(this.x, this.z, self, emptySections);
+        this.pulsar$lightReady = true;
+        mgr.queueChunkLoadInit(this.x, this.z, self, PulsarEngine.getEmptySectionsForChunk(self));
         mgr.scheduleUpdate();
-
-        // Sync our (just-imported) sky nibbles back to vanilla so renderers
-        // see something reasonable before the BFS finishes.
-        ChunkLightHelper.syncSkyToVanilla(this.pulsar$skyNibbles, this.getBlockStorageArray());
     }
 
     // ============================== Vanilla light bypasses ==============================
@@ -312,23 +327,33 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     }
 
     /**
-     * Always report the chunk as populated to {@code PlayerChunkMapEntry} so
-     * that Pulsar's eager chunk-send strategy works regardless of which
-     * vanilla flag the upstream gate happens to check.
+     * Gate chunk sending on Pulsar's BFS completion.
      *
-     * <p>Mirrors Hodgepodge's {@code MixinChunk_SendWithoutPopulation} from
-     * 1.7.10 (which overrode {@code Chunk.func_150802_k()} for the same
-     * reason). The 1.12.2 equivalent is {@link Chunk#isPopulated()}.
+     * <p>Default ({@code sendChunksWithoutLight = false}): report the chunk as
+     * not populated until {@code pulsar$lightReady} so
+     * {@code PlayerChunkMapEntry} retries next tick and clients only ever
+     * receive fully-lit chunks. Because chunks with valid persisted light are
+     * ready the moment they load, this delay only applies to freshly
+     * generated chunks (typically a few ms of worker time). This also removes
+     * the need for the client to re-light received chunks — 1.12.2 has no
+     * light-update packet, so light sent wrong would have stayed wrong.
      *
-     * <p>Gated by {@link com.sumirelabs.pulsar.config.PulsarConfig.Features#sendChunksWithoutLight}
-     * so users who prefer the conservative "wait until BFS is done" model
-     * can flip the switch.
+     * <p>With {@code sendChunksWithoutLight = true}: always report populated —
+     * the eager strategy inherited from Hodgepodge's
+     * {@code MixinChunk_SendWithoutPopulation} (1.7.10). Fresh chunks may
+     * briefly show pre-BFS light on clients.
      */
     @Inject(method = "isPopulated", at = @At("HEAD"), cancellable = true, require = 0)
-    private void pulsar$alwaysPopulated(final CallbackInfoReturnable<Boolean> cir) {
+    private void pulsar$gatePopulatedOnLight(final CallbackInfoReturnable<Boolean> cir) {
         if (com.sumirelabs.pulsar.config.PulsarConfig.features.sendChunksWithoutLight) {
             cir.setReturnValue(true);
+            return;
         }
+        if (!this.pulsar$lightReady) {
+            cir.setReturnValue(false);
+        }
+        // else fall through to vanilla (ticked && terrainPopulated &&
+        // isLightPopulated, the latter kept true by pulsar$onLoad).
     }
 
     // ============================== PulsarChunk implementation ==============================
@@ -341,6 +366,16 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     @Override
     public void pulsar$setLightReady(final boolean ready) {
         this.pulsar$lightReady = ready;
+    }
+
+    @Override
+    public void pulsar$setSavedLightValid(final boolean valid) {
+        this.pulsar$savedLightValid = valid;
+    }
+
+    @Override
+    public boolean pulsar$hasSavedLightValid() {
+        return this.pulsar$savedLightValid;
     }
 
     @Override

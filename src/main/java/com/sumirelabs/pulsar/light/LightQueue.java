@@ -63,6 +63,18 @@ public final class LightQueue {
     }
 
     /**
+     * Queue the cheap load-time init (nibble/emptiness-map setup, no BFS) for
+     * a chunk restored with valid persisted light.
+     */
+    public synchronized void queueChunkLoadInit(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
+        final long key = CoordinateUtils.getChunkKey(cx, cz);
+        final ChunkTasks tasks = this.getOrCreate(key);
+        tasks.loadInitChunk = chunk;
+        tasks.loadInitEmptySections = emptySections;
+        this.workAvailable.release(1);
+    }
+
+    /**
      * Re-queue a chunk for full relighting after a queue overflow. Increments
      * the relight attempt counter.
      */

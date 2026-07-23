@@ -9,7 +9,6 @@ import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.SnapshotChunkMap;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
@@ -181,6 +180,16 @@ public final class WorldLightManager {
         if (this.blockQueue != null) this.blockQueue.queueChunkLight(cx, cz, chunk, emptySections);
     }
 
+    /**
+     * Queue the cheap load-time init for a chunk restored with valid
+     * persisted light. No completion latch: the caller has already set
+     * {@code lightReady}.
+     */
+    public void queueChunkLoadInit(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
+        if (this.skyQueue != null) this.skyQueue.queueChunkLoadInit(cx, cz, chunk, emptySections);
+        if (this.blockQueue != null) this.blockQueue.queueChunkLoadInit(cx, cz, chunk, emptySections);
+    }
+
     public void removeChunkFromQueues(final int cx, final int cz) {
         if (this.skyQueue != null) this.skyQueue.removeChunk(cx, cz);
         if (this.blockQueue != null) this.blockQueue.removeChunk(cx, cz);
@@ -201,13 +210,17 @@ public final class WorldLightManager {
 
     public void processClientRenderUpdates() {
         final long startNs = System.nanoTime();
-        final int count = this.pendingRenderUpdates.drain(v -> {
-            final int bx = (int) (v >> 32) << 4;
-            final int bz = (short) ((v >> 16) & 0xFFFF) << 4;
-            final int by = (short) (v & 0xFFFF) << 4;
+        final int count = this.pendingRenderUpdates.drain((key, bounds) -> {
+            final int bx = (int) (key >> 32) << 4;
+            final int bz = (short) ((key >> 16) & 0xFFFF) << 4;
+            final int by = (short) (key & 0xFFFF) << 4;
             this.world.markBlockRangeForRenderUpdate(
-                    new BlockPos(bx, by, bz),
-                    new BlockPos(bx + 15, by + 15, bz + 15));
+                    bx + RenderUpdateQueue.minX(bounds),
+                    by + RenderUpdateQueue.minY(bounds),
+                    bz + RenderUpdateQueue.minZ(bounds),
+                    bx + RenderUpdateQueue.maxX(bounds),
+                    by + RenderUpdateQueue.maxY(bounds),
+                    bz + RenderUpdateQueue.maxZ(bounds));
         });
         if (count > 0) {
             this.stats.drainedSections += count;
@@ -304,6 +317,11 @@ public final class WorldLightManager {
         skyEngine.setStats(this.stats);
 
         try {
+            if (task.loadInitChunk != null && task.initialLightChunk == null) {
+                // Persisted-light chunk: nibble/emptiness-map init only, no BFS.
+                skyEngine.loadInChunk(task.loadInitChunk, task.loadInitEmptySections);
+            }
+
             if (task.initialLightChunk != null) {
                 this.stats.initialLightsRun.incrementAndGet();
                 skyEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
@@ -365,6 +383,11 @@ public final class WorldLightManager {
         int edgeSec = 0, edgeBfsInc = 0, edgeBfsDec = 0;
 
         try {
+            if (task.loadInitChunk != null && task.initialLightChunk == null) {
+                // Persisted-light chunk: nibble/emptiness-map init only, no BFS.
+                blockEngine.loadInChunk(task.loadInitChunk, task.loadInitEmptySections);
+            }
+
             if (task.initialLightChunk != null) {
                 blockEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
 
@@ -376,7 +399,9 @@ public final class WorldLightManager {
                             final SWMRNibbleArray r = nibs[i];
                             if (r == null || r.isNullNibbleUpdating() || r.isUninitialisedUpdating()) continue;
                             final int sectionY = i + WorldUtil.getMinLightSection();
-                            this.pendingRenderUpdates.offer(((long) cx << 32) | ((long) (cz & 0xFFFF) << 16) | (sectionY & 0xFFFFL));
+                            this.pendingRenderUpdates.offer(
+                                    ((long) cx << 32) | ((long) (cz & 0xFFFF) << 16) | (sectionY & 0xFFFFL),
+                                    RenderUpdateQueue.FULL_SECTION_BOUNDS);
                         }
                     }
                 }
