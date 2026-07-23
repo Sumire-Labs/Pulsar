@@ -23,6 +23,15 @@ public interface PulsarChunk extends ExtendedChunk {
 
     void pulsar$setLightReady(boolean ready);
 
+    /**
+     * Set by {@link LightDataSerializer} when valid persisted light data was
+     * restored from NBT during chunk deserialisation. When true,
+     * {@code MixinChunk.pulsar$onLoad} skips the full initial relight.
+     */
+    void pulsar$setSavedLightValid(boolean valid);
+
+    boolean pulsar$hasSavedLightValid();
+
     // Block light
     SWMRNibbleArray[] pulsar$getBlockNibbles();
 

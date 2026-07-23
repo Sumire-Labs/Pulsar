@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
@@ -91,9 +90,12 @@ public abstract class PulsarEngine {
     protected final ExtendedBlockStorage[] sectionCache;
     protected final SWMRNibbleArray[] nibbleCache;
     protected final boolean[] notifyUpdateCache;
+    // Per-section changed-block bounds (RenderUpdateQueue packing). Only valid
+    // where notifyUpdateCache is true; overwritten on the first write to a
+    // section, so no reset is needed beyond the flags.
+    protected final long[] notifyBoundsCache;
     protected final Chunk[] chunkCache = new Chunk[5 * 5];
     protected final boolean[][] emptinessMapCache = new boolean[5 * 5][];
-    private int[] dirtyIndicesBuffer = new int[64];
 
     // Pool for int[4096] arrays — avoids allocation churn during BFS
     protected static final ThreadLocal<ArrayDeque<int[]>> PACKED_ARRAY_POOL = ThreadLocal.withInitial(ArrayDeque::new);
@@ -149,7 +151,11 @@ public abstract class PulsarEngine {
     }
 
     protected static long sidedFlag(final IBlockState state) {
-        return FaceOcclusion.hasSidedTransparency(state.getBlock()) ? FLAG_HAS_SIDED_TRANSPARENT_BLOCKS : 0L;
+        return sidedFlag(LightInfo.of(state));
+    }
+
+    protected static long sidedFlag(final int lightInfo) {
+        return (lightInfo & LightInfo.REGISTRY) != 0 ? FLAG_HAS_SIDED_TRANSPARENT_BLOCKS : 0L;
     }
 
     public void setStats(final LightStats stats) {
@@ -170,6 +176,7 @@ public abstract class PulsarEngine {
         this.sectionCache = new ExtendedBlockStorage[cacheSize];
         this.nibbleCache = new SWMRNibbleArray[cacheSize];
         this.notifyUpdateCache = new boolean[cacheSize];
+        this.notifyBoundsCache = new long[cacheSize];
     }
 
     protected final void setupEncodeOffset(final int centerX, final int centerY, final int centerZ) {
@@ -268,33 +275,41 @@ public abstract class PulsarEngine {
     }
 
     protected final void updateVisible() {
-        this.expandDirtyNotifications();
         for (int index = 0, max = this.nibbleCache.length; index < max; ++index) {
             final SWMRNibbleArray nibble = this.nibbleCache[index];
-            if (!this.notifyUpdateCache[index] && (nibble == null || !nibble.isDirty())) {
+            final boolean notify = this.notifyUpdateCache[index];
+            if (!notify && (nibble == null || !nibble.isDirty())) {
                 continue;
             }
             if (nibble != null) {
                 nibble.updateVisible();
             }
             this.onNibbleVisible(index, nibble);
-            if (this.notifyUpdateCache[index] && this.isClientSide) {
+            if (notify && this.isClientSide) {
                 final int cxLocal = index % 5;
                 final int czLocal = (index / 5) % 5;
                 final int cyLocal = index / 25;
+                final long bounds = this.notifyBoundsCache[index];
                 if (!this.suppressRenderNotify) {
+                    // Mark only the actually-changed range. Vanilla inflates it
+                    // by 1 block, which covers cross-section AO/smooth-light
+                    // bleed — no manual neighbour expansion needed.
                     final int sectionX = (cxLocal - this.chunkOffsetX) << 4;
                     final int sectionY = (cyLocal - this.chunkOffsetY) << 4;
                     final int sectionZ = (czLocal - this.chunkOffsetZ) << 4;
                     this.world.markBlockRangeForRenderUpdate(
-                            new BlockPos(sectionX, sectionY, sectionZ),
-                            new BlockPos(sectionX + 15, sectionY + 15, sectionZ + 15));
+                            sectionX + RenderUpdateQueue.minX(bounds),
+                            sectionY + RenderUpdateQueue.minY(bounds),
+                            sectionZ + RenderUpdateQueue.minZ(bounds),
+                            sectionX + RenderUpdateQueue.maxX(bounds),
+                            sectionY + RenderUpdateQueue.maxY(bounds),
+                            sectionZ + RenderUpdateQueue.maxZ(bounds));
                     LightStats.engineRenderMarks++;
                 } else if (this.pendingRenderTarget != null) {
                     final int cx = cxLocal - this.chunkOffsetX;
                     final int cz = czLocal - this.chunkOffsetZ;
                     final int cy = cyLocal - this.chunkOffsetY;
-                    this.pendingRenderTarget.offer(((long) cx << 32) | ((long) (cz & 0xFFFF) << 16) | (cy & 0xFFFFL));
+                    this.pendingRenderTarget.offer(((long) cx << 32) | ((long) (cz & 0xFFFF) << 16) | (cy & 0xFFFFL), bounds);
                 }
             }
         }
@@ -360,56 +375,22 @@ public abstract class PulsarEngine {
         final SWMRNibbleArray nibble = this.nibbleCache[sectionIndex];
         if (nibble != null) {
             nibble.set((worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8), level);
-            this.postLightUpdate(sectionIndex);
-        }
-    }
-
-    protected final void postLightUpdate(final int sectionIndex) {
-        if (this.isClientSide & (!this.suppressRenderNotify | this.pendingRenderTarget != null)) {
-            this.notifyUpdateCache[sectionIndex] = true;
+            this.postLightUpdate(sectionIndex, worldX & 15, worldY & 15, worldZ & 15);
         }
     }
 
     /**
-     * Expand dirty notify flags to neighbouring sections. A light change near
-     * a section boundary affects rendering in the adjacent section, so we
-     * mark a 3×3×3 neighbourhood around each dirty section.
+     * Record a light write for render notification, growing the section's
+     * changed-block bounds. Client only; server-side this is a single branch.
      */
-    private void expandDirtyNotifications() {
-        final boolean[] cache = this.notifyUpdateCache;
-        final int len = cache.length;
-
-        int dirtyCount = 0;
-        for (boolean dirty : cache) {
-            if (dirty) dirtyCount++;
-        }
-        if (dirtyCount == 0) return;
-
-        if (dirtyCount > this.dirtyIndicesBuffer.length) this.dirtyIndicesBuffer = new int[dirtyCount];
-        final int[] dirtyIndices = this.dirtyIndicesBuffer;
-        int idx = 0;
-        for (int i = 0; i < len; ++i) {
-            if (cache[i]) dirtyIndices[idx++] = i;
-        }
-
-        final int totalY = len / 25;
-        for (int d = 0; d < dirtyCount; ++d) {
-            final int index = dirtyIndices[d];
-            final int cx = index % 5;
-            final int cz = (index / 5) % 5;
-            final int cy = index / 25;
-            for (int dy = -1; dy <= 1; ++dy) {
-                final int ny = cy + dy;
-                if (ny < 0 || ny >= totalY) continue;
-                for (int dz = -1; dz <= 1; ++dz) {
-                    final int nz = cz + dz;
-                    if (nz < 0 || nz >= 5) continue;
-                    for (int dx = -1; dx <= 1; ++dx) {
-                        final int nx = cx + dx;
-                        if (nx < 0 || nx >= 5) continue;
-                        cache[nx + 5 * nz + 25 * ny] = true;
-                    }
-                }
+    protected final void postLightUpdate(final int sectionIndex, final int localX, final int localY, final int localZ) {
+        if (this.isClientSide & (!this.suppressRenderNotify | this.pendingRenderTarget != null)) {
+            final long point = RenderUpdateQueue.packBounds(localX, localY, localZ, localX, localY, localZ);
+            if (!this.notifyUpdateCache[sectionIndex]) {
+                this.notifyUpdateCache[sectionIndex] = true;
+                this.notifyBoundsCache[sectionIndex] = point;
+            } else {
+                this.notifyBoundsCache[sectionIndex] = RenderUpdateQueue.unionBounds(this.notifyBoundsCache[sectionIndex], point);
             }
         }
     }
@@ -548,6 +529,32 @@ public abstract class PulsarEngine {
             nibbles[cy - this.minLightSection] = this.getNibbleFromCache(chunkX, cy, chunkZ);
         }
         return nibbles;
+    }
+
+    /**
+     * Load-time init for a chunk restored with valid persisted light. Runs
+     * only {@link #handleEmptySectionChanges} (nibble/emptiness-map setup) —
+     * no BFS, no edge checks. Mirrors Starlight's
+     * {@code StarLightEngine.forceHandleEmptySectionChanges}, which upstream
+     * invokes for already-lit chunks instead of {@code light()}.
+     */
+    public final void loadInChunk(final Chunk chunk, final Boolean[] emptySections) {
+        final int chunkX = chunk.x;
+        final int chunkZ = chunk.z;
+        this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
+        try {
+            final Chunk center = this.getChunkInCache(chunkX, chunkZ);
+            if (center == null) {
+                return;
+            }
+            final boolean[] ret = this.handleEmptySectionChanges(center, emptySections, false);
+            if (ret != null) {
+                this.setEmptinessMap(center, ret);
+            }
+            this.updateVisible();
+        } finally {
+            this.destroyCaches();
+        }
     }
 
     public final void checkChunkEdges(final int chunkX, final int chunkZ, final IntOpenHashSet sections) {
