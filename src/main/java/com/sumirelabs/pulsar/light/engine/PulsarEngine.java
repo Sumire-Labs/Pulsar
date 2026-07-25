@@ -3,7 +3,7 @@ package com.sumirelabs.pulsar.light.engine;
 import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.api.ExtendedWorld;
 import com.sumirelabs.pulsar.light.LightStats;
-import com.sumirelabs.pulsar.light.RenderUpdateQueue;
+import com.sumirelabs.pulsar.light.RenderBounds;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import it.unimi.dsi.fastutil.ints.IntIterator;
@@ -90,7 +90,7 @@ public abstract class PulsarEngine {
     protected final ExtendedBlockStorage[] sectionCache;
     protected final SWMRNibbleArray[] nibbleCache;
     protected final boolean[] notifyUpdateCache;
-    // Per-section changed-block bounds (RenderUpdateQueue packing). Only valid
+    // Per-section changed-block bounds (RenderBounds packing). Only valid
     // where notifyUpdateCache is true; overwritten on the first write to a
     // section, so no reset is needed beyond the flags.
     protected final long[] notifyBoundsCache;
@@ -130,8 +130,6 @@ public abstract class PulsarEngine {
     public int lastBfsIncreaseTotal;
     public int lastBfsDecreaseTotal;
     public int lastPositionsProcessed;
-    public boolean suppressRenderNotify;
-    public RenderUpdateQueue pendingRenderTarget;
     protected final int minLightSection;
     protected final int maxLightSection;
     protected final int minSection;
@@ -290,27 +288,20 @@ public abstract class PulsarEngine {
                 final int czLocal = (index / 5) % 5;
                 final int cyLocal = index / 25;
                 final long bounds = this.notifyBoundsCache[index];
-                if (!this.suppressRenderNotify) {
-                    // Mark only the actually-changed range. Vanilla inflates it
-                    // by 1 block, which covers cross-section AO/smooth-light
-                    // bleed — no manual neighbour expansion needed.
-                    final int sectionX = (cxLocal - this.chunkOffsetX) << 4;
-                    final int sectionY = (cyLocal - this.chunkOffsetY) << 4;
-                    final int sectionZ = (czLocal - this.chunkOffsetZ) << 4;
-                    this.world.markBlockRangeForRenderUpdate(
-                            sectionX + RenderUpdateQueue.minX(bounds),
-                            sectionY + RenderUpdateQueue.minY(bounds),
-                            sectionZ + RenderUpdateQueue.minZ(bounds),
-                            sectionX + RenderUpdateQueue.maxX(bounds),
-                            sectionY + RenderUpdateQueue.maxY(bounds),
-                            sectionZ + RenderUpdateQueue.maxZ(bounds));
-                    if (LightStats.enabled) LightStats.engineRenderMarks++;
-                } else if (this.pendingRenderTarget != null) {
-                    final int cx = cxLocal - this.chunkOffsetX;
-                    final int cz = czLocal - this.chunkOffsetZ;
-                    final int cy = cyLocal - this.chunkOffsetY;
-                    this.pendingRenderTarget.offer(((long) cx << 32) | ((long) (cz & 0xFFFF) << 16) | (cy & 0xFFFFL), bounds);
-                }
+                // Mark only the actually-changed range. Vanilla inflates it
+                // by 1 block, which covers cross-section AO/smooth-light
+                // bleed — no manual neighbour expansion needed.
+                final int sectionX = (cxLocal - this.chunkOffsetX) << 4;
+                final int sectionY = (cyLocal - this.chunkOffsetY) << 4;
+                final int sectionZ = (czLocal - this.chunkOffsetZ) << 4;
+                this.world.markBlockRangeForRenderUpdate(
+                        sectionX + RenderBounds.minX(bounds),
+                        sectionY + RenderBounds.minY(bounds),
+                        sectionZ + RenderBounds.minZ(bounds),
+                        sectionX + RenderBounds.maxX(bounds),
+                        sectionY + RenderBounds.maxY(bounds),
+                        sectionZ + RenderBounds.maxZ(bounds));
+                if (LightStats.enabled) LightStats.engineRenderMarks++;
             }
         }
     }
@@ -394,13 +385,13 @@ public abstract class PulsarEngine {
      * changed-block bounds. Client only; server-side this is a single branch.
      */
     protected final void postLightUpdate(final int sectionIndex, final int localX, final int localY, final int localZ) {
-        if (this.isClientSide & (!this.suppressRenderNotify | this.pendingRenderTarget != null)) {
-            final long point = RenderUpdateQueue.packBounds(localX, localY, localZ, localX, localY, localZ);
+        if (this.isClientSide) {
+            final long point = RenderBounds.pack(localX, localY, localZ, localX, localY, localZ);
             if (!this.notifyUpdateCache[sectionIndex]) {
                 this.notifyUpdateCache[sectionIndex] = true;
                 this.notifyBoundsCache[sectionIndex] = point;
             } else {
-                this.notifyBoundsCache[sectionIndex] = RenderUpdateQueue.unionBounds(this.notifyBoundsCache[sectionIndex], point);
+                this.notifyBoundsCache[sectionIndex] = RenderBounds.union(this.notifyBoundsCache[sectionIndex], point);
             }
         }
     }

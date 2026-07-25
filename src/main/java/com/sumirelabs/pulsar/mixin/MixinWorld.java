@@ -24,25 +24,20 @@ public abstract class MixinWorld implements PulsarWorld, ExtendedWorld {
     @Unique
     private volatile boolean pulsar$ready;
 
-    @Unique
-    private volatile boolean pulsar$playerAction;
-
     @Inject(method = "<init>*", at = @At("RETURN"))
     private void pulsar$onInit(final CallbackInfo ci) {
         this.pulsar$ready = true;
     }
 
     /**
-     * Forward {@code checkLightFor} to Pulsar.
+     * Forward {@code checkLightFor} to Pulsar's queue on both sides.
      *
-     * <p>Server side: enqueue and let the worker process asynchronously.
+     * <p>Server side: the worker threads drain the queue asynchronously.
      *
-     * <p>Client side: if the change came from a player place/break (the
-     * {@link #pulsar$playerAction} flag is set), run BFS synchronously on
-     * the calling thread for instant visual feedback. Otherwise (server-pushed
-     * changes like explosions, pistons, etc.) enqueue the same way as the
-     * server side. Mirrors SuperNova's
-     * {@code MixinWorld.updateLightByType} / {@code func_147451_t} dispatch.
+     * <p>Client side (thin mode): the queue is drained on the main thread at
+     * the end of the same tick, before that tick's frame renders — so player
+     * place/break is still visually instant without a separate synchronous
+     * fast path.
      */
     @Inject(method = "checkLightFor", at = @At("HEAD"), cancellable = true)
     private void pulsar$checkLightFor(final EnumSkyBlock lightType, final BlockPos pos,
@@ -55,25 +50,16 @@ public abstract class MixinWorld implements PulsarWorld, ExtendedWorld {
             return;
         }
         final World self = (World) (Object) this;
-        if (!self.isRemote) {
-            mgr.queueBlockChange(pos.getX(), pos.getY(), pos.getZ());
-            cir.setReturnValue(true);
-            return;
+        if (self.isRemote) {
+            // Only dispatch if the chunk is light-ready, otherwise we'd race
+            // the initial BFS pass.
+            final Chunk chunk = this.pulsar$getAnyChunkImmediately(pos.getX() >> 4, pos.getZ() >> 4);
+            if (chunk == null || !((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$isLightReady()) {
+                cir.setReturnValue(false);
+                return;
+            }
         }
-
-        // Client-side: only dispatch if the chunk is light-ready, otherwise
-        // we'd race the initial BFS pass.
-        final Chunk chunk = this.pulsar$getAnyChunkImmediately(pos.getX() >> 4, pos.getZ() >> 4);
-        if (chunk == null || !((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$isLightReady()) {
-            cir.setReturnValue(false);
-            return;
-        }
-        if (this.pulsar$playerAction) {
-            mgr.blockChange(pos.getX(), pos.getY(), pos.getZ());
-        } else {
-            mgr.queueBlockChange(pos.getX(), pos.getY(), pos.getZ());
-            mgr.scheduleUpdate();
-        }
+        mgr.queueBlockChange(pos.getX(), pos.getY(), pos.getZ());
         cir.setReturnValue(true);
     }
 
@@ -122,13 +108,4 @@ public abstract class MixinWorld implements PulsarWorld, ExtendedWorld {
         }
     }
 
-    @Override
-    public void pulsar$setPlayerAction(final boolean value) {
-        this.pulsar$playerAction = value;
-    }
-
-    @Override
-    public boolean pulsar$isPlayerAction() {
-        return this.pulsar$playerAction;
-    }
 }

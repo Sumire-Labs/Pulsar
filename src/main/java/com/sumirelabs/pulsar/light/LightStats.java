@@ -52,9 +52,7 @@ public final class LightStats {
     volatile int skyBacklog;
     volatile int blockBacklog;
 
-    // Client drain stats (main thread only)
-    long drainedSections;
-    long drainTimeNs;
+    // Client render-mark stat (main thread only)
     public static long engineRenderMarks;
 
     // Budget yield stats (multi-thread write)
@@ -180,8 +178,6 @@ public final class LightStats {
         }
 
         if ("CLIENT".equals(this.side)) {
-            sb.append(" drainedSections=").append(this.drainedSections);
-            sb.append(" drainMs=").append(String.format(Locale.US, "%.1f", this.drainTimeNs / 1_000_000.0));
             sb.append(" engineMarks=").append(engineRenderMarks);
         }
 
@@ -198,8 +194,6 @@ public final class LightStats {
         this.blockTasksProcessed.set(0);
         this.maxQueueLatencyNs = 0;
         this.totalQueueLatencyNs = 0;
-        this.drainedSections = 0;
-        this.drainTimeNs = 0;
         engineRenderMarks = 0;
         this.edgeBudgetYields.set(0);
         this.blockChangeBudgetYields.set(0);

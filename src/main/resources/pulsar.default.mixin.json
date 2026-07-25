@@ -12,9 +12,6 @@
   "server": [
     "MixinWorldServer"
   ],
-  "client": [
-    "MixinPlayerControllerMP"
-  ],
   "setSourceFile": true,
   "minVersion": "0.8.7",
   "injectors": {

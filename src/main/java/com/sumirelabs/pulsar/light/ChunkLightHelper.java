@@ -51,6 +51,36 @@ public final class ChunkLightHelper {
         }
     }
 
+    /**
+     * Wrap each loaded section's vanilla nibble arrays WITHOUT copying: the
+     * SWMR array shares the vanilla {@code byte[]} storage, so
+     * {@code updateVisible()} publishes straight into what the renderer
+     * reads. Thin-client use only — sharing the storage is safe only when
+     * all light writes happen on the main thread.
+     */
+    public static void wrapVanillaBlock(SWMRNibbleArray[] block, ExtendedBlockStorage[] storageArrays) {
+        final int minLight = WorldUtil.getMinLightSection();
+        for (int i = 0; i < block.length; ++i) {
+            final int sectionY = i + minLight;
+            if (sectionY < 0 || sectionY > 15 || storageArrays[sectionY] == null) continue;
+            final NibbleArray vanillaBlock = storageArrays[sectionY].getBlockLight();
+            if (vanillaBlock == null) continue;
+            block[i] = new SWMRNibbleArray(vanillaBlock.getData());
+        }
+    }
+
+    /** Sky-light variant of {@link #wrapVanillaBlock}. */
+    public static void wrapVanillaSky(SWMRNibbleArray[] sky, ExtendedBlockStorage[] storageArrays) {
+        final int minLight = WorldUtil.getMinLightSection();
+        for (int i = 0; i < sky.length; ++i) {
+            final int sectionY = i + minLight;
+            if (sectionY < 0 || sectionY > 15 || storageArrays[sectionY] == null) continue;
+            final NibbleArray vanillaSky = storageArrays[sectionY].getSkyLight();
+            if (vanillaSky == null) continue;
+            sky[i] = new SWMRNibbleArray(vanillaSky.getData());
+        }
+    }
+
     /** Publish SWMR sky visible data back into the vanilla nibble arrays. */
     public static void syncSkyToVanilla(SWMRNibbleArray[] skyNibbles, ExtendedBlockStorage[] storageArrays) {
         final int minLight = WorldUtil.getMinLightSection();

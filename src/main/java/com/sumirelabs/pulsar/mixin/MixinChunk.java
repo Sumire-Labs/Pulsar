@@ -178,12 +178,13 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     }
 
     /**
-     * Client-side hook: a chunk packet has just been deserialised. Import the
-     * server's nibbles into our SWMR mirrors and trust them — the server has
-     * already run (or restored) the full BFS, so re-lighting here would only
-     * duplicate the work and double the render invalidations. Only the cheap
-     * nibble/emptiness-map init is queued so later client-side BFS passes
-     * (block changes) have their caches ready.
+     * Client-side hook: a chunk packet has just been deserialised. Wrap the
+     * server's nibbles (shared storage, no copy) and trust them — the server
+     * has already run (or restored) the full BFS. All client light writes
+     * happen on the main thread, so the SWMR arrays can share the vanilla
+     * byte[]s directly and publishes land straight in what the renderer
+     * reads. Only the cheap nibble/emptiness-map init is queued so later
+     * client-side BFS passes (block changes) have their caches ready.
      */
     @Inject(method = "read", at = @At("RETURN"), require = 0)
     private void pulsar$onRead(final PacketBuffer buf, final int availableSections,
@@ -191,9 +192,9 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         if (!this.world.isRemote) return;
         final Chunk self = (Chunk) (Object) this;
 
-        ChunkLightHelper.importVanillaBlock(this.pulsar$blockNibbles, this.getBlockStorageArray());
+        ChunkLightHelper.wrapVanillaBlock(this.pulsar$blockNibbles, this.getBlockStorageArray());
         if (this.world.provider.hasSkyLight()) {
-            ChunkLightHelper.importVanillaSky(this.pulsar$skyNibbles, this.getBlockStorageArray(), false);
+            ChunkLightHelper.wrapVanillaSky(this.pulsar$skyNibbles, this.getBlockStorageArray());
         }
 
         final WorldLightManager mgr = ((PulsarWorld) this.world).pulsar$getLightManager();
@@ -203,7 +204,6 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
 
         this.pulsar$lightReady = true;
         mgr.queueChunkLoadInit(this.x, this.z, self, PulsarEngine.getEmptySectionsForChunk(self));
-        mgr.scheduleUpdate();
     }
 
     // ============================== Vanilla light bypasses ==============================
@@ -332,31 +332,34 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     }
 
     /**
-     * Gate chunk sending on Pulsar's BFS completion.
+     * Gate chunk sending on Pulsar's BFS completion, ON TOP of vanilla's
+     * populated check.
      *
-     * <p>Default ({@code sendChunksWithoutLight = false}): the chunk is
-     * populated exactly when {@code pulsar$lightReady}, so
-     * {@code PlayerChunkMapEntry} retries each tick and clients only ever
-     * receive fully-lit chunks. Chunks with valid persisted light are ready
-     * the moment they load, so the delay only applies to freshly generated
-     * (or legacy-world relit) chunks. The vanilla flags are deliberately NOT
-     * consulted: worlds saved by earlier Pulsar builds carry
-     * {@code TerrainPopulated=false} on disk (the cancelled
-     * {@code checkLight()} never set it), and falling through to vanilla
-     * would leave those chunks permanently unsent.
+     * <p>Vanilla's own result must be respected: it includes
+     * {@code isTerrainPopulated}, which only turns true after decoration
+     * (trees/ores/plants). An earlier version of this gate returned
+     * {@code pulsar$lightReady} alone, which shipped chunks BEFORE
+     * population — every decoration block then streamed to clients as an
+     * individual block-change packet (~5× the client's setBlockState rate
+     * vs Alfheim in benchmarks), each one re-marking already-built render
+     * chunks and re-queueing server BFS.
      *
-     * <p>With {@code sendChunksWithoutLight = true}: always report populated —
-     * the eager strategy inherited from Hodgepodge's
-     * {@code MixinChunk_SendWithoutPopulation} (1.7.10). Fresh chunks may
-     * briefly show pre-BFS light on clients.
+     * <p>Default ({@code sendChunksWithoutLight = false}): vanilla-populated
+     * AND light-ready. With persistence, restored chunks are light-ready on
+     * load, so the extra delay only applies to freshly generated chunks.
+     *
+     * <p>With {@code sendChunksWithoutLight = true}: vanilla behaviour
+     * (no light gate).
      */
-    @Inject(method = "isPopulated", at = @At("HEAD"), cancellable = true, require = 0)
+    @Inject(method = "isPopulated", at = @At("RETURN"), cancellable = true, require = 0)
     private void pulsar$gatePopulatedOnLight(final CallbackInfoReturnable<Boolean> cir) {
-        if (com.sumirelabs.pulsar.config.PulsarConfig.features.sendChunksWithoutLight) {
-            cir.setReturnValue(true);
+        if (!cir.getReturnValueZ()) {
             return;
         }
-        cir.setReturnValue(this.pulsar$lightReady);
+        if (!com.sumirelabs.pulsar.config.PulsarConfig.features.sendChunksWithoutLight
+                && !this.pulsar$lightReady) {
+            cir.setReturnValue(false);
+        }
     }
 
     // ============================== PulsarChunk implementation ==============================

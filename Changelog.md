@@ -27,6 +27,15 @@ upstream (`forge` branch) and Alfheim.
 
 - The client no longer relights received chunks; it trusts the server's
   nibbles.
+- Thin client: the client no longer runs worker threads or keeps a separate
+  SWMR light store. Received chunks' nibbles are wrapped in place (shared
+  storage with vanilla, no import clone), the light queues are drained on
+  the main thread at tick end, and the engines mark render bounds directly.
+  Eliminates the chunk-receive import (`scheduledExecutables` measured ~3×
+  Alfheim across all benchmarks, with a 95.7ms burst frame in E2E), the
+  SWMR→vanilla copy-back, the render-update drain, and two client threads.
+  The server keeps the async worker architecture — initial lighting stays
+  off-thread.
 - `sendChunksWithoutLight` now defaults to `false`: chunks are sent only
   after BFS completes (1.12.2 has no light-update packet to correct them
   later). With persistence, only freshly generated chunks pay the delay.
@@ -51,6 +60,20 @@ upstream (`forge` branch) and Alfheim.
   `logs/pulsar-stats.log` written regardless of the config. Collection and
   the log file are now fully gated (no file is created while off; the
   toggle takes effect at runtime).
+- The increase-BFS loops were missing Starlight upstream's
+  `currentLevel >= propagatedLevel - 1` early-out, paying a palette read +
+  light-info lookup for the ~half of frontier neighbours that can never be
+  brightened. Restored in both engines; propagation writes also go through
+  the already-resolved nibble instead of `setLightLevel`'s index recompute
+  and no-op guard.
+- Chunks were sent to clients before terrain population: the `isPopulated`
+  gate returned `lightReady` alone, ignoring vanilla's populated flag, so
+  chunks shipped pre-decoration and every tree/ore/plant block then
+  streamed as an individual block-change packet (~5× the client
+  setBlockState rate vs Alfheim), re-marking already-built render chunks
+  and re-queueing server BFS per block. The gate now ANDs `lightReady`
+  onto vanilla's own result (and `sendChunksWithoutLight=true` now means
+  plain vanilla behaviour).
 
 ### Removed
 
@@ -60,6 +83,17 @@ upstream (`forge` branch) and Alfheim.
 - Unused `ChunkLightHelper.hasSavedBlockData`.
 - Dead `LightStats` client sync counters (`renderQueue`/`syncBlock`/
   `syncSky`/`syncMs` — the code feeding them was removed earlier).
+- The playerAction sync fast path (`trackPlayerAction` config,
+  `MixinPlayerControllerMP`, `WorldLightManager.blockChange`): with
+  main-thread queue processing at tick end, player edits are lit within
+  the same frame anyway, and the extra synchronous BFS plus re-queue ran
+  every place/break three times over.
+- `RenderUpdateQueue`, stripped to a `RenderBounds` packing utility — with
+  engines marking render updates directly on the main thread, the
+  offer/drain machinery had no users left.
+- Dead `SafeBlockAccess` (never referenced anywhere; it also carried a
+  chunk-key packing mismatch inherited from SuperNova that would have made
+  every lookup miss).
 
 ## [0.1.0-dev.10]
 

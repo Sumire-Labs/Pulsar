@@ -30,12 +30,6 @@ public class PulsarConfig {
     public static class Features {
 
         @Config.Comment({
-                "Track player place/break on the client to fast-path renderer reaction.",
-                "Disable to test whether a rendering glitch is caused by the player-action heuristic."
-        })
-        public boolean trackPlayerAction = true;
-
-        @Config.Comment({
                 "Allow the server to send chunks to clients before initial lighting has propagated.",
                 "1.12.2 has no light-update packet, so light sent wrong stays wrong on the client",
                 "until a block change. Chunks with valid persisted light are ready instantly, so",

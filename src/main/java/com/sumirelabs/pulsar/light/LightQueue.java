@@ -243,4 +243,12 @@ public final class LightQueue {
     void wakeUp() {
         this.workAvailable.release(1);
     }
+
+    /**
+     * Thin-client mode: no worker ever acquires the permits, so drop them
+     * each drain to keep the semaphore from accumulating without bound.
+     */
+    void clearWorkSignal() {
+        this.workAvailable.drainPermits();
+    }
 }

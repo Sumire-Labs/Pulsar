@@ -519,6 +519,13 @@ public class ScalarSkyEngine extends PulsarEngine {
                 }
 
                 final int currentLevel = this.getLightLevel(sectionIndex, localIndex);
+                // Minimum absorption is 1, so propagatedLevel - 1 is the best
+                // this neighbour could reach — skip the palette + LightInfo
+                // reads entirely when it is already there (Starlight upstream
+                // has the same early-out; ~half of frontier neighbours hit it).
+                if (currentLevel >= propagatedLevel - 1) {
+                    continue;
+                }
 
                 final IBlockState destState = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
                 final int destInfo = LightInfo.of(destState);
@@ -529,7 +536,11 @@ public class ScalarSkyEngine extends PulsarEngine {
                     continue;
                 }
 
-                this.setLightLevel(offX, offY, offZ, targetLevel);
+                // Write through the already-resolved nibble: the guards above
+                // proved this is a real change, so setLightLevel's no-op check
+                // and index recompute would be pure overhead here.
+                this.nibbleCache[sectionIndex].set(localIndex, targetLevel);
+                this.postLightUpdate(sectionIndex, offX & 15, offY & 15, offZ & 15);
 
                 if (targetLevel > 1) {
                     if (queueLength >= queue.length) {
@@ -625,7 +636,9 @@ public class ScalarSkyEngine extends PulsarEngine {
                     continue;
                 }
 
-                this.setLightLevel(offX, offY, offZ, 0);
+                // currentLevel != 0 was checked above — direct write, no no-op guard needed.
+                this.nibbleCache[sectionIndex].set(localIndex, 0);
+                this.postLightUpdate(sectionIndex, offX & 15, offY & 15, offZ & 15);
 
                 if (currentLevel > 1) {
                     if (queueLength >= queue.length) {
@@ -660,6 +673,8 @@ public class ScalarSkyEngine extends PulsarEngine {
         if (srcData == null) return;
         final NibbleArray vanilla = section.getSkyLight();
         if (vanilla == null) return;
-        System.arraycopy(srcData, 0, vanilla.getData(), 0, srcData.length);
+        final byte[] dst = vanilla.getData();
+        if (dst == srcData) return; // thin client: SWMR shares the vanilla storage
+        System.arraycopy(srcData, 0, dst, 0, srcData.length);
     }
 }

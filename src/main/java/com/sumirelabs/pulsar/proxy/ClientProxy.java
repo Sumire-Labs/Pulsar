@@ -25,10 +25,10 @@ public class ClientProxy extends CommonProxy {
     }
 
     /**
-     * Drain Pulsar's pending render-update queue at the end of each client
-     * tick. The worker threads enqueue (chunk x, y, z) triples whenever a
-     * nibble becomes visible; the main thread is the only allowed consumer
-     * for {@code World#markBlockRangeForRenderUpdate}.
+     * Thin-client drive: drain Pulsar's light queues on the main thread at
+     * the end of each client tick. This runs before the tick's frame renders,
+     * so queued block changes (including the player's own place/break) are
+     * lit and render-marked within the same frame.
      */
     @SubscribeEvent
     public void onClientTick(final TickEvent.ClientTickEvent event) {

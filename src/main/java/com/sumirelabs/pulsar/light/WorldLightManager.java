@@ -7,7 +7,6 @@ import com.sumirelabs.pulsar.light.engine.ScalarBlockEngine;
 import com.sumirelabs.pulsar.light.engine.ScalarSkyEngine;
 import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.SnapshotChunkMap;
-import com.sumirelabs.pulsar.util.WorldUtil;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -41,7 +40,10 @@ public final class WorldLightManager {
     // ensure chunk save reads post-BFS data on unload.
     private final Long2ObjectOpenHashMap<SettableFuture<Void>> pendingWork = new Long2ObjectOpenHashMap<>();
 
-    // Separate worker threads + queues for sky and block light
+    // Queues for sky and block light. On the server each is drained by its
+    // own worker thread; on the client (thin mode) both are drained on the
+    // main thread once per tick, so the engines can share storage with the
+    // vanilla nibbles and mark render updates directly.
     private final LightQueue skyQueue;
     private final LightQueue blockQueue;
     private final Thread skyWorkerThread;
@@ -49,10 +51,6 @@ public final class WorldLightManager {
     private volatile boolean running = true;
 
     private final LightStats stats;
-
-    // Client-only: render update coordinates queued by worker threads for main-thread drain.
-    // Each long packs (cx << 32) | ((cz & 0xFFFF) << 16) | (cy & 0xFFFF).
-    private final RenderUpdateQueue pendingRenderUpdates = new RenderUpdateQueue(4096);
 
     // Coordination for initial chunk lighting: both engines must finish before setLightReady(true).
     private final Long2ObjectOpenHashMap<ChunkLightCompletion> initialLightCompletions = new Long2ObjectOpenHashMap<>();
@@ -77,7 +75,7 @@ public final class WorldLightManager {
         if (this.skyQueue != null) this.skyQueue.setStats(this.stats);
         if (this.blockQueue != null) this.blockQueue.setStats(this.stats);
 
-        if (hasSkyLight) {
+        if (hasSkyLight && !world.isRemote) {
             this.skyWorkerThread = new Thread(
                     () -> {
                         while (this.running) {
@@ -97,7 +95,7 @@ public final class WorldLightManager {
             this.skyWorkerThread = null;
         }
 
-        if (hasBlockLight) {
+        if (hasBlockLight && !world.isRemote) {
             this.blockWorkerThread = new Thread(
                     () -> {
                         while (this.running) {
@@ -139,27 +137,9 @@ public final class WorldLightManager {
 
     private static void releaseEngine(final ConcurrentLinkedDeque<PulsarEngine> cache, final PulsarEngine engine) {
         if (cache == null || engine == null) return;
-        engine.suppressRenderNotify = false;
-        engine.pendingRenderTarget = null;
         if (cache.size() < 4) {
             cache.addFirst(engine);
         }
-    }
-
-    private PulsarEngine getSkyLightEngine() {
-        return getEngine(this.cachedSkyPropagators, this.skyEngineFactory);
-    }
-
-    private PulsarEngine getBlockLightEngine() {
-        return getEngine(this.cachedBlockPropagators, this.blockEngineFactory);
-    }
-
-    private void releaseSkyLightEngine(final PulsarEngine engine) {
-        releaseEngine(this.cachedSkyPropagators, engine);
-    }
-
-    private void releaseBlockLightEngine(final PulsarEngine engine) {
-        releaseEngine(this.cachedBlockPropagators, engine);
     }
 
     public void queueBlockChange(final int x, final int y, final int z) {
@@ -208,25 +188,17 @@ public final class WorldLightManager {
                 || (this.blockQueue != null && this.blockQueue.hasPendingWork(cx, cz));
     }
 
+    /**
+     * Thin-client tick: drain both light queues on the main thread. The
+     * engines write into SWMR arrays that share storage with the vanilla
+     * nibbles and mark render updates directly, so there is no separate
+     * publish/drain step.
+     */
     public void processClientRenderUpdates() {
-        final boolean statsOn = LightStats.enabled;
-        final long startNs = statsOn ? System.nanoTime() : 0L;
-        final int count = this.pendingRenderUpdates.drain((key, bounds) -> {
-            final int bx = (int) (key >> 32) << 4;
-            final int bz = (short) ((key >> 16) & 0xFFFF) << 4;
-            final int by = (short) (key & 0xFFFF) << 4;
-            this.world.markBlockRangeForRenderUpdate(
-                    bx + RenderUpdateQueue.minX(bounds),
-                    by + RenderUpdateQueue.minY(bounds),
-                    bz + RenderUpdateQueue.minZ(bounds),
-                    bx + RenderUpdateQueue.maxX(bounds),
-                    by + RenderUpdateQueue.maxY(bounds),
-                    bz + RenderUpdateQueue.maxZ(bounds));
-        });
-        if (statsOn && count > 0) {
-            this.stats.drainedSections += count;
-            this.stats.drainTimeNs += System.nanoTime() - startNs;
-        }
+        this.propagateSkyChanges();
+        this.propagateBlockChanges();
+        if (this.skyQueue != null) this.skyQueue.clearWorkSignal();
+        if (this.blockQueue != null) this.blockQueue.clearWorkSignal();
         final int skySize = this.skyQueue != null ? this.skyQueue.size() : 0;
         final int blockSize = this.blockQueue != null ? this.blockQueue.size() : 0;
         this.stats.tick(skySize, blockSize);
@@ -254,10 +226,6 @@ public final class WorldLightManager {
                                   final AtomicInteger changeBudgetYield, final String label) {
         final PulsarEngine engine = getEngine(cache, factory);
         if (engine == null) return;
-        if (this.world.isRemote) {
-            engine.suppressRenderNotify = true;
-            engine.pendingRenderTarget = this.pendingRenderUpdates;
-        }
         try {
             final long changeBudget = System.nanoTime() + BLOCK_CHANGE_BUDGET_NS;
             ChunkTasks task;
@@ -404,22 +372,6 @@ public final class WorldLightManager {
 
             if (task.initialLightChunk != null) {
                 blockEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
-
-                if (this.world.isRemote) {
-                    final PulsarChunk ext = (PulsarChunk) task.initialLightChunk;
-                    final SWMRNibbleArray[] nibs = ext.pulsar$getBlockNibbles();
-                    if (nibs != null) {
-                        for (int i = 0; i < nibs.length; i++) {
-                            final SWMRNibbleArray r = nibs[i];
-                            if (r == null || r.isNullNibbleUpdating() || r.isUninitialisedUpdating()) continue;
-                            final int sectionY = i + WorldUtil.getMinLightSection();
-                            this.pendingRenderUpdates.offer(
-                                    ((long) cx << 32) | ((long) (cz & 0xFFFF) << 16) | (sectionY & 0xFFFFL),
-                                    RenderUpdateQueue.FULL_SECTION_BOUNDS);
-                        }
-                    }
-                }
-
                 this.completeInitialLighting(task.chunkCoordinate);
                 this.blockQueue.queueEdgeCheckAllSections(cx, cz, false);
             }
@@ -504,41 +456,6 @@ public final class WorldLightManager {
             ((PulsarChunk) completion.chunk).pulsar$setLightReady(true);
             completion.future.set(null);
         }
-    }
-
-    /**
-     * Synchronous block change — runs BFS on the calling thread. Used for
-     * player-initiated block place/break on the client so lighting updates
-     * are visually instant.
-     */
-    public void blockChange(final int x, final int y, final int z) {
-        if (y < WorldUtil.getMinBlockY() || y > WorldUtil.getMaxBlockY()) return;
-        final PulsarEngine skyEngine = this.getSkyLightEngine();
-        final PulsarEngine blockEngine = this.getBlockLightEngine();
-        try {
-            if (skyEngine != null) {
-                skyEngine.blockChanged(x, y, z);
-                if (skyEngine.wasQueueOverflowed()) requeueChunkFromSync(x >> 4, z >> 4);
-            }
-            if (blockEngine != null) {
-                blockEngine.blockChanged(x, y, z);
-                if (blockEngine.wasQueueOverflowed()) requeueChunkFromSync(x >> 4, z >> 4);
-            }
-        } finally {
-            this.releaseSkyLightEngine(skyEngine);
-            this.releaseBlockLightEngine(blockEngine);
-        }
-        this.queueBlockChange(x, y, z);
-        this.scheduleUpdate();
-    }
-
-    private void requeueChunkFromSync(final int cx, final int cz) {
-        final Chunk chunk = this.loadedChunkMap.get(CoordinateUtils.getChunkKey(cx, cz));
-        if (chunk == null) return;
-        final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(chunk);
-        if (this.skyQueue != null) this.skyQueue.requeueChunkLight(cx, cz, chunk, emptySections, 0);
-        if (this.blockQueue != null) this.blockQueue.requeueChunkLight(cx, cz, chunk, emptySections, 0);
-        this.scheduleUpdate();
     }
 
     public boolean forceRelightChunk(final int cx, final int cz) {

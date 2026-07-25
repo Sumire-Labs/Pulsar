@@ -31,11 +31,10 @@ public class Pulsar {
         LOGGER.info("{} {} preInit - loading config", Reference.MOD_NAME, Reference.VERSION);
         ConfigManager.register(PulsarConfig.class);
         LOGGER.info(
-                "{} config: enabled={}, sendChunksWithoutLight={}, trackPlayerAction={}, debugStats={}",
+                "{} config: enabled={}, sendChunksWithoutLight={}, debugStats={}",
                 Reference.MOD_NAME,
                 PulsarConfig.enabled,
                 PulsarConfig.features.sendChunksWithoutLight,
-                PulsarConfig.features.trackPlayerAction,
                 PulsarConfig.debug.enableDebugStats);
         proxy.preInit(event);
     }
