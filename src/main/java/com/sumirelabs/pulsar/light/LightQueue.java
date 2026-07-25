@@ -16,8 +16,13 @@ import java.util.concurrent.Semaphore;
 public final class LightQueue {
 
     private final Long2ObjectLinkedOpenHashMap<ChunkTasks> tasksByChunk = new Long2ObjectLinkedOpenHashMap<>();
-    private final Semaphore workAvailable = new Semaphore(0);
+    // Shared with the manager's other queue: one worker waits on it for both.
+    private final Semaphore workAvailable;
     private LightStats stats;
+
+    LightQueue(final Semaphore workSignal) {
+        this.workAvailable = workSignal;
+    }
 
     // Priority lookup support. The drain loop asks for "first task with block
     // changes" / "first task with initial light" once per task processed, so
@@ -108,45 +113,6 @@ public final class LightQueue {
         this.workAvailable.release(1);
     }
 
-    public synchronized void queueEdgeCheck(final int cx, final int cz, final int sectionY, final boolean isSky) {
-        final long key = CoordinateUtils.getChunkKey(cx, cz);
-        final ChunkTasks tasks = this.getOrCreate(key);
-        if (isSky) {
-            if (tasks.queuedEdgeChecksSky == null) {
-                tasks.queuedEdgeChecksSky = new IntOpenHashSet();
-            }
-            tasks.queuedEdgeChecksSky.add(sectionY);
-        } else {
-            if (tasks.queuedEdgeChecksBlock == null) {
-                tasks.queuedEdgeChecksBlock = new IntOpenHashSet();
-            }
-            tasks.queuedEdgeChecksBlock.add(sectionY);
-        }
-        this.workAvailable.release(1);
-    }
-
-    /** Queue edge checks for all light sections on a chunk. */
-    public synchronized void queueEdgeCheckAllSections(final int cx, final int cz, final boolean isSky) {
-        final long key = CoordinateUtils.getChunkKey(cx, cz);
-        final ChunkTasks tasks = this.getOrCreate(key);
-        if (isSky) {
-            if (tasks.queuedEdgeChecksSky == null) {
-                tasks.queuedEdgeChecksSky = new IntOpenHashSet();
-            }
-            for (int s = WorldUtil.getMinLightSection(); s <= WorldUtil.getMaxLightSection(); ++s) {
-                tasks.queuedEdgeChecksSky.add(s);
-            }
-        } else {
-            if (tasks.queuedEdgeChecksBlock == null) {
-                tasks.queuedEdgeChecksBlock = new IntOpenHashSet();
-            }
-            for (int s = WorldUtil.getMinLightSection(); s <= WorldUtil.getMaxLightSection(); ++s) {
-                tasks.queuedEdgeChecksBlock.add(s);
-            }
-        }
-        this.workAvailable.release(1);
-    }
-
     /**
      * Remove and return the first task that has initial lighting work. Used to
      * prioritize initial lights over edge-check-only tasks.
@@ -230,25 +196,4 @@ public final class LightQueue {
         return this.tasksByChunk.size();
     }
 
-    /**
-     * Block until work is available. Drains all excess permits so we process
-     * everything per wake.
-     */
-    void waitForWork() throws InterruptedException {
-        this.workAvailable.acquire();
-        this.workAvailable.drainPermits();
-    }
-
-    /** Wake the worker thread (e.g., for shutdown). */
-    void wakeUp() {
-        this.workAvailable.release(1);
-    }
-
-    /**
-     * Thin-client mode: no worker ever acquires the permits, so drop them
-     * each drain to keep the semaphore from accumulating without bound.
-     */
-    void clearWorkSignal() {
-        this.workAvailable.drainPermits();
-    }
 }

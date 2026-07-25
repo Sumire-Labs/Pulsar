@@ -39,6 +39,17 @@ upstream (`forge` branch) and Alfheim.
 - `sendChunksWithoutLight` now defaults to `false`: chunks are sent only
   after BFS completes (1.12.2 has no light-update packet to correct them
   later). With persistence, only freshly generated chunks pay the delay.
+- Edge checks now run inline during initial lighting (upstream Starlight's
+  `light()` path) instead of as a separately queued all-sections task —
+  the worker no longer pays a second 5×5 cache setup per chunk per
+  engine. Seams to not-yet-lit neighbours are covered by the neighbour's
+  own inline check when it lights up; the deferred edge-check machinery
+  (`queueEdgeCheck*`, `ChunkTasks.queuedEdgeChecks*`) is removed.
+- One `Pulsar-Light` worker thread replaces the sky/block pair: same
+  total work, half the threads competing with render and chunk-build
+  threads in singleplayer (upstream is also single-lane). Initial-light
+  tasks interleave 8 per queue so sky/block completions — and therefore
+  `lightReady` chunk sends — keep pace during worldgen bursts.
 - `LightQueue` priority lookups are now O(1). The SuperNova-inherited
   implementation scanned the whole task map once per task processed —
   O(N²) per drain, holding the same lock main-thread enqueues need,

@@ -558,27 +558,6 @@ public abstract class PulsarEngine {
         }
     }
 
-    public final void checkChunkEdges(final int chunkX, final int chunkZ, final IntOpenHashSet sections) {
-        this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, false);
-        try {
-            final Chunk chunk = this.getChunkInCache(chunkX, chunkZ);
-            if (chunk == null) {
-                return;
-            }
-            this.prepareBatchedEdgeChecks(chunkX, chunkZ);
-            final IntIterator it = sections.iterator();
-            while (it.hasNext()) {
-                this.checkChunkEdge(chunkX, it.nextInt(), chunkZ);
-                this.performLightDecrease();
-            }
-            this.updateVisible();
-        } finally {
-            this.destroyCaches();
-        }
-    }
-
-    protected void prepareBatchedEdgeChecks(final int chunkX, final int chunkZ) {}
-
     /**
      * Process per-section emptiness changes.
      * {@code emptinessChanges} is a tri-state {@code Boolean[]}: {@code null}

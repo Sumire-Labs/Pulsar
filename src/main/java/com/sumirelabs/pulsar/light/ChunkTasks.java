@@ -32,9 +32,6 @@ public final class ChunkTasks {
     public Chunk loadInitChunk;
     public Boolean[] loadInitEmptySections;
 
-    public IntOpenHashSet queuedEdgeChecksSky;
-    public IntOpenHashSet queuedEdgeChecksBlock;
-
     public final SettableFuture<Void> onComplete;
 
     public final long enqueueTimeNs;
