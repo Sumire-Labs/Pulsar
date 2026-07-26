@@ -5,7 +5,7 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.0-dev.14]
 
 ### Changed
 
@@ -47,9 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   race against the end-of-tick BFS. Pulsar now invalidates the affected
   cloned sections (reflection bridge, soft dependency) whenever the client
   engine publishes light changes
-
-### Note
-- It's about time I ran some benchmarks comparing another lighting engine with the Pulsar Lighting Engine...
 
 ## [0.1.0-dev.12] - 2026-07-26
 
