@@ -525,6 +525,23 @@ public final class WorldLightManager {
         return true;
     }
 
+    /**
+     * True while queued work could still change this chunk's light values
+     * (pending initial light, block/section changes, or an unfinished
+     * completion latch). Edge-check-only tasks do not count. Used to decide
+     * whether the current SWMR data is safe to persist as valid.
+     */
+    public boolean hasPendingLightWork(final int cx, final int cz) {
+        final long key = CoordinateUtils.getChunkKey(cx, cz);
+        synchronized (this.initialLightCompletions) {
+            if (this.initialLightCompletions.containsKey(key)) {
+                return true;
+            }
+        }
+        return (this.skyQueue != null && this.skyQueue.hasPendingLightWork(key))
+                || (this.blockQueue != null && this.blockQueue.hasPendingLightWork(key));
+    }
+
     public void awaitPendingWork(final int cx, final int cz) {
         final ChunkLightCompletion completion;
         synchronized (this.initialLightCompletions) {

@@ -5,6 +5,18 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Phantom light sources on the ocean floor (and anywhere water converts lava
+  to stone): when a chunk unloaded with light updates still queued, the
+  pending removal was dropped and the stale "light of the removed source" was
+  persisted as valid — fossilising glowing patches into the save. Chunks are
+  no longer persisted as lit while value-changing light work is pending; they
+  relight on next load instead. Existing fossils can be cleaned with
+  `/pulsar relight <radius>`
+
 ## [0.1.0-dev.11] - 2026-07-26
 
 ### Added

@@ -231,6 +231,22 @@ public final class LightQueue {
     }
 
     /**
+     * True when this queue still holds work that can change the chunk's light
+     * VALUES: initial light, block changes or section changes. Edge-check-only
+     * tasks are excluded — they refine seams but a save taken before them is
+     * not wrong enough to warrant a full relight.
+     */
+    public synchronized boolean hasPendingLightWork(final long key) {
+        final ChunkTasks tasks = this.tasksByChunk.get(key);
+        if (tasks == null) {
+            return false;
+        }
+        return tasks.initialLightChunk != null
+                || tasks.changedSectionSet != null
+                || (tasks.changedPositions != null && !tasks.changedPositions.isEmpty());
+    }
+
+    /**
      * Block until work is available. Drains all excess permits so we process
      * everything per wake.
      */

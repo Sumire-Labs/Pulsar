@@ -176,6 +176,15 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
             // writing a chunk the main thread was saving.
             if (!this.world.isRemote) {
                 mgr.awaitPendingWork(this.x, this.z);
+                if (mgr.hasPendingLightWork(this.x, this.z)) {
+                    // removeChunkFromQueues below drops these updates. The
+                    // SWMR data may still hold light of removed sources
+                    // (e.g. ocean water turning a lava pocket to stone) —
+                    // persisting it as valid would fossilise phantom light.
+                    // Drop lightReady so the save skips the tag and the
+                    // chunk relights on next load.
+                    this.pulsar$lightReady = false;
+                }
             }
             mgr.removeChunkFromQueues(this.x, this.z);
             mgr.unregisterChunk(this.x, this.z);

@@ -2,6 +2,7 @@ package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.util.WorldUtil;
+import com.sumirelabs.pulsar.world.PulsarWorld;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -77,6 +78,16 @@ public final class LightDataSerializer {
         final SWMRNibbleArray[] blockNibbles = pc.pulsar$getBlockNibbles();
         final SWMRNibbleArray[] skyNibbles = pc.pulsar$getSkyNibbles();
         if (blockNibbles == null || skyNibbles == null) {
+            return;
+        }
+
+        // Queued initial-light/block-change work means the SWMR values are
+        // still in flux (e.g. a lava pocket just turned to stone but its
+        // light removal hasn't run). Persisting them as valid would freeze
+        // phantom light into the save — skip the tag and let the chunk
+        // relight on next load instead.
+        final WorldLightManager mgr = ((PulsarWorld) chunk.getWorld()).pulsar$getLightManager();
+        if (mgr != null && mgr.hasPendingLightWork(chunk.x, chunk.z)) {
             return;
         }
         final boolean hasSky = chunk.getWorld().provider.hasSkyLight();
