@@ -105,17 +105,18 @@ public class ScalarSkyEngine extends PulsarEngine {
         if (chunkY > lowestNonEmpty) {
             nibble.setNonNull();
             nibble.setFull();
-        } else if (emptinessMap != null && emptinessMap[chunkY - this.minSection]) {
-            if (extrude) {
-                final SWMRNibbleArray above = this.getNibbleFromCache(chunkX, chunkY + 1, chunkZ);
-                if (above != null && above.isFullUpdating()) {
-                    nibble.setFull();
-                } else {
+        } else if (extrude) {
+            // Find the first non-null nibble above and extrude its bottom
+            // (x,z) layer downward (upstream): preserves per-column shadows
+            // under overhangs/partially lit sections, instead of guessing
+            // all-15 or all-0.
+            for (int currY = chunkY + 1; currY <= this.maxLightSection; ++currY) {
+                final SWMRNibbleArray above = this.getNibbleFromCache(chunkX, currY, chunkZ);
+                if (above != null && !above.isNullNibbleUpdating()) {
                     nibble.setNonNull();
-                    nibble.setZero();
+                    nibble.extrudeLower(above);
+                    break;
                 }
-            } else {
-                nibble.setNonNull();
             }
         } else {
             nibble.setNonNull();
@@ -137,6 +138,19 @@ public class ScalarSkyEngine extends PulsarEngine {
                 this.nibbleCache[index] = null;
                 nibble.updateVisible();
             }
+        }
+    }
+
+    @Override
+    protected void prepareBatchedEdgeChecks(final int chunkX, final int chunkZ) {
+        // Upstream SkyStarLightEngine.checkChunkEdges(ShortCollection): the
+        // batched edge-check path must strip NULL nibbles from the cache and
+        // lazily init the sections it will read, or checkBlock writes into
+        // NULL nibbles and cross-boundary propagation reads garbage.
+        Arrays.fill(this.nullPropagationCheckCache, false);
+        this.rewriteNibbleCacheForSkylight();
+        for (int y = this.maxLightSection; y >= this.minLightSection; --y) {
+            this.checkNullSection(chunkX, y, chunkZ, true);
         }
     }
 
@@ -242,7 +256,8 @@ public class ScalarSkyEngine extends PulsarEngine {
             // PulsarEngine.appendToIncreaseQueue javadoc.
             final long speculativeValue = encodeCoords(worldX, worldZ, startY, encodeOffset)
                     | this.encodeQueueLevel(currentSky)
-                    | (propagateDirection << DIRECTION_SHIFT);
+                    | (propagateDirection << DIRECTION_SHIFT)
+                    | sidedFlag(currentInfo);
             final boolean appended = this.appendToIncreaseQueue(speculativeValue);
 
             if (this.getNibbleFromCache(worldX >> 4, startY >> 4, worldZ >> 4) == null) {
@@ -327,15 +342,28 @@ public class ScalarSkyEngine extends PulsarEngine {
         final int encodeOffset = this.coordinateOffset;
 
         if (currentLevel == 15) {
+            // Must re-propagate the clobbered source. Upstream sets the sided
+            // flag because it does not know whether the block is
+            // conditionally transparent.
             this.appendToIncreaseQueue(encodeCoords(worldX, worldZ, worldY, encodeOffset)
                     | this.encodeQueueLevel(15)
-                    | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT));
+                    | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                    | FLAG_HAS_SIDED_TRANSPARENT_BLOCKS);
         } else {
             this.setLightLevel(worldX, worldY, worldZ, 0);
-            this.appendToDecreaseQueue(encodeCoords(worldX, worldZ, worldY, encodeOffset)
-                    | this.encodeQueueLevel(currentLevel)
-                    | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT));
         }
+
+        // Unconditional (upstream SkyStarLightEngine.checkBlock): the
+        // decrease pass both removes stale light AND — via its
+        // brighter-neighbour recheck branch — re-seeds the flood from
+        // adjacent sky sources. Queueing it only for non-source cells left
+        // newly revealed cavities black and light under placed blocks stale.
+        // NO sided flag here (upstream): it would mask decrease directions
+        // with the NEW block's occlusion while erasing light that flowed
+        // through the OLD block.
+        this.appendToDecreaseQueue(encodeCoords(worldX, worldZ, worldY, encodeOffset)
+                | this.encodeQueueLevel(currentLevel)
+                | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT));
     }
 
     @Override
@@ -609,9 +637,12 @@ public class ScalarSkyEngine extends PulsarEngine {
                 if (currentLevel == 0) {
                     continue;
                 }
-                if (currentLevel == 15) {
-                    continue;
-                }
+                // NOTE: no `currentLevel == 15` skip here. A sky-source
+                // neighbour must fall through to the brighter-neighbour
+                // branch below so it is re-queued as a RECHECK increase —
+                // that is what re-floods the region this decrease is
+                // darkening (upstream has no such skip). The branch never
+                // decreases it, so sources stay intact.
 
                 final IBlockState state = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
                 final int info = LightInfo.of(state);
@@ -640,7 +671,10 @@ public class ScalarSkyEngine extends PulsarEngine {
                 this.nibbleCache[sectionIndex].set(localIndex, 0);
                 this.postLightUpdate(sectionIndex, offX & 15, offY & 15, offZ & 15);
 
-                if (currentLevel > 1) {
+                // Gate on targetLevel > 0 with targetLevel (upstream): the
+                // level-1 boundary entries are what re-flood the cleared
+                // region's outer ring from surrounding light.
+                if (targetLevel > 0) {
                     if (queueLength >= queue.length) {
                         if (queue.length >= MAX_QUEUE_SIZE) {
                             this.queueOverflowed = true;
@@ -649,7 +683,7 @@ public class ScalarSkyEngine extends PulsarEngine {
                         queue = this.resizeDecreaseQueue();
                     }
                     queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(currentLevel)
+                            | this.encodeQueueLevel(targetLevel)
                             | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT)
                             | sFlag;
                 }

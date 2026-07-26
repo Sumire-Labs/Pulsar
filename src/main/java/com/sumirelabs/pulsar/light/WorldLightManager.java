@@ -12,7 +12,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -37,19 +36,14 @@ public final class WorldLightManager {
 
     private final SnapshotChunkMap loadedChunkMap = new SnapshotChunkMap();
 
-    // Tracks in-flight light work per chunk — used by awaitPendingWork to
-    // ensure chunk save reads post-BFS data on unload.
-    private final Long2ObjectOpenHashMap<SettableFuture<Void>> pendingWork = new Long2ObjectOpenHashMap<>();
-
-    // Queues for sky and block light. On the server both are drained by one
-    // worker thread (interleaving a few initial lights at a time so neither
-    // engine's chunks starve); on the client (thin mode) both are drained on
-    // the main thread once per tick, so the engines can share storage with
-    // the vanilla nibbles and mark render updates directly.
+    // Queues for sky and block light. On the server each is drained by its
+    // own worker thread; on the client (thin mode) both are drained on the
+    // main thread once per tick, so the engines can share storage with the
+    // vanilla nibbles and mark render updates directly.
     private final LightQueue skyQueue;
     private final LightQueue blockQueue;
-    private final Semaphore workSignal = new Semaphore(0);
-    private final Thread lightWorkerThread;
+    private final Thread skyWorkerThread;
+    private final Thread blockWorkerThread;
     private volatile boolean running = true;
 
     private final LightStats stats;
@@ -60,10 +54,6 @@ public final class WorldLightManager {
     private static final int MAX_RELIGHT_ATTEMPTS = 2;
     private static final long EDGE_CHECK_BUDGET_NS = 10_000_000L; // 10ms
     private static final long BLOCK_CHANGE_BUDGET_NS = 5_000_000L; // 5ms
-    // Initial-light tasks processed per queue before yielding to the other
-    // queue — keeps sky and block completion (and thus lightReady) close
-    // together on the single worker during worldgen bursts.
-    private static final int INITIAL_LIGHT_INTERLEAVE = 8;
 
     public WorldLightManager(final World world, final boolean hasSkyLight, final boolean hasBlockLight) {
         this.world = world;
@@ -75,37 +65,50 @@ public final class WorldLightManager {
         this.skyEngineFactory = hasSkyLight ? () -> new ScalarSkyEngine(world) : null;
         this.blockEngineFactory = hasBlockLight ? () -> new ScalarBlockEngine(world) : null;
 
-        this.skyQueue = hasSkyLight ? new LightQueue(this.workSignal) : null;
-        this.blockQueue = hasBlockLight ? new LightQueue(this.workSignal) : null;
+        this.skyQueue = hasSkyLight ? new LightQueue() : null;
+        this.blockQueue = hasBlockLight ? new LightQueue() : null;
         this.stats = new LightStats(world.isRemote);
         if (this.skyQueue != null) this.skyQueue.setStats(this.stats);
         if (this.blockQueue != null) this.blockQueue.setStats(this.stats);
 
-        if ((hasSkyLight || hasBlockLight) && !world.isRemote) {
-            // One worker for both queues: same total work as the former
-            // sky/block thread pair but half the threads competing with the
-            // render/chunk-build threads in singleplayer (Starlight upstream
-            // is also single-lane).
-            this.lightWorkerThread = new Thread(
+        if (hasSkyLight && !world.isRemote) {
+            this.skyWorkerThread = new Thread(
                     () -> {
                         while (this.running) {
-                            if ((this.skyQueue == null || this.skyQueue.isEmpty())
-                                    && (this.blockQueue == null || this.blockQueue.isEmpty())) {
+                            if (this.skyQueue.isEmpty()) {
                                 try {
-                                    this.workSignal.acquire();
-                                    this.workSignal.drainPermits();
+                                    this.skyQueue.waitForWork();
                                 } catch (final InterruptedException e) {
                                     break;
                                 }
                             }
-                            this.propagateSkyChanges(INITIAL_LIGHT_INTERLEAVE);
-                            this.propagateBlockChanges(INITIAL_LIGHT_INTERLEAVE);
+                            this.propagateSkyChanges();
                         }
-                    }, "Pulsar-Light");
-            this.lightWorkerThread.setDaemon(true);
-            this.lightWorkerThread.start();
+                    }, "Pulsar-Sky");
+            this.skyWorkerThread.setDaemon(true);
+            this.skyWorkerThread.start();
         } else {
-            this.lightWorkerThread = null;
+            this.skyWorkerThread = null;
+        }
+
+        if (hasBlockLight && !world.isRemote) {
+            this.blockWorkerThread = new Thread(
+                    () -> {
+                        while (this.running) {
+                            if (this.blockQueue.isEmpty()) {
+                                try {
+                                    this.blockQueue.waitForWork();
+                                } catch (final InterruptedException e) {
+                                    break;
+                                }
+                            }
+                            this.propagateBlockChanges();
+                        }
+                    }, "Pulsar-Block");
+            this.blockWorkerThread.setDaemon(true);
+            this.blockWorkerThread.start();
+        } else {
+            this.blockWorkerThread = null;
         }
     }
 
@@ -119,6 +122,24 @@ public final class WorldLightManager {
 
     public Chunk getLoadedChunk(final int chunkX, final int chunkZ) {
         return this.loadedChunkMap.get(CoordinateUtils.getChunkKey(chunkX, chunkZ));
+    }
+
+    /**
+     * True when all four horizontal neighbours are loaded and light-ready.
+     * Edge checks run horizontally only, so once the four neighbours' inline
+     * checks have run, this chunk's seam light is final — safe to send to
+     * clients (1.12.2 has no light packet to correct a chunk afterwards).
+     */
+    public boolean areNeighboursLightReady(final int cx, final int cz) {
+        for (int i = 0; i < 4; ++i) {
+            final int nx = cx + ((i == 0) ? 1 : (i == 1) ? -1 : 0);
+            final int nz = cz + ((i == 2) ? 1 : (i == 3) ? -1 : 0);
+            final Chunk neighbour = this.loadedChunkMap.get(CoordinateUtils.getChunkKey(nx, nz));
+            if (neighbour == null || !((PulsarChunk) neighbour).pulsar$isLightReady()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static PulsarEngine getEngine(final ConcurrentLinkedDeque<PulsarEngine> cache,
@@ -138,6 +159,12 @@ public final class WorldLightManager {
     public void queueBlockChange(final int x, final int y, final int z) {
         if (this.skyQueue != null) this.skyQueue.queueBlockChange(x, y, z);
         if (this.blockQueue != null) this.blockQueue.queueBlockChange(x, y, z);
+    }
+
+    /** A section's emptiness changed (e.g. a block placed into a new EBS). */
+    public void queueSectionChange(final int cx, final int sectionY, final int cz, final boolean empty) {
+        if (this.skyQueue != null) this.skyQueue.queueSectionChange(cx, sectionY, cz, empty);
+        if (this.blockQueue != null) this.blockQueue.queueSectionChange(cx, sectionY, cz, empty);
     }
 
     public void queueChunkLight(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
@@ -190,9 +217,8 @@ public final class WorldLightManager {
     public void processClientRenderUpdates() {
         this.propagateSkyChanges();
         this.propagateBlockChanges();
-        // No worker consumes the permits on the client — drop them so the
-        // semaphore doesn't accumulate without bound.
-        this.workSignal.drainPermits();
+        if (this.skyQueue != null) this.skyQueue.clearWorkSignal();
+        if (this.blockQueue != null) this.blockQueue.clearWorkSignal();
         final int skySize = this.skyQueue != null ? this.skyQueue.size() : 0;
         final int blockSize = this.blockQueue != null ? this.blockQueue.size() : 0;
         this.stats.tick(skySize, blockSize);
@@ -205,28 +231,19 @@ public final class WorldLightManager {
     }
 
     private void propagateSkyChanges() {
-        this.propagateSkyChanges(Integer.MAX_VALUE);
+        this.propagateChanges(this.skyQueue, this.cachedSkyPropagators, this.skyEngineFactory,
+                this::processSkyTask, this.stats.skyChangeBudgetYields, "propagateSkyChanges");
     }
 
     private void propagateBlockChanges() {
-        this.propagateBlockChanges(Integer.MAX_VALUE);
-    }
-
-    private void propagateSkyChanges(final int maxInitialLights) {
-        this.propagateChanges(this.skyQueue, this.cachedSkyPropagators, this.skyEngineFactory,
-                this::processSkyTask, this.stats.skyChangeBudgetYields, "propagateSkyChanges", maxInitialLights);
-    }
-
-    private void propagateBlockChanges(final int maxInitialLights) {
         this.propagateChanges(this.blockQueue, this.cachedBlockPropagators, this.blockEngineFactory,
-                this::processBlockTask, this.stats.blockChangeBudgetYields, "propagateBlockChanges", maxInitialLights);
+                this::processBlockTask, this.stats.blockChangeBudgetYields, "propagateBlockChanges");
     }
 
     private void propagateChanges(final LightQueue queue, final ConcurrentLinkedDeque<PulsarEngine> cache,
                                   final Supplier<PulsarEngine> factory,
                                   final BiConsumer<ChunkTasks, PulsarEngine> taskProcessor,
-                                  final AtomicInteger changeBudgetYield, final String label,
-                                  final int maxInitialLights) {
+                                  final AtomicInteger changeBudgetYield, final String label) {
         final PulsarEngine engine = getEngine(cache, factory);
         if (engine == null) return;
         try {
@@ -243,19 +260,12 @@ public final class WorldLightManager {
             boolean moreWork = true;
             while (moreWork) {
                 moreWork = false;
-                int initialLights = 0;
-                while (initialLights < maxInitialLights && (task = queue.removeFirstInitialLightTask()) != null) {
-                    ++initialLights;
+                while ((task = queue.removeFirstInitialLightTask()) != null) {
                     taskProcessor.accept(task, engine);
                     ChunkTasks priorityTask;
                     while ((priorityTask = queue.removeFirstBlockChangeTask()) != null) {
                         taskProcessor.accept(priorityTask, engine);
                     }
-                }
-                if (initialLights >= maxInitialLights && queue.hasInitialLightTask()) {
-                    // Interleave cap hit: yield so the other queue's initial
-                    // lights (and thus lightReady completions) keep pace.
-                    return;
                 }
                 final long edgeDeadline = System.nanoTime() + EDGE_CHECK_BUDGET_NS;
                 while ((task = queue.removeFirstTask()) != null) {
@@ -306,16 +316,18 @@ public final class WorldLightManager {
 
             if (task.initialLightChunk != null) {
                 if (statsOn) this.stats.initialLightsRun.incrementAndGet();
-                // checkEdges=true: seams are verified inline while the caches
-                // are already set up (Starlight upstream's light() path).
-                // Seams to not-yet-lit neighbours are covered later by the
-                // neighbour's own inline check when it lights up.
-                skyEngine.light(task.initialLightChunk, task.initialLightEmptySections, true);
+                skyEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
                 this.completeInitialLighting(task.chunkCoordinate);
+
+                this.skyQueue.queueEdgeCheckAllSections(cx, cz, true);
             }
 
             if (task.changedSectionSet != null || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
                 skyEngine.blocksChangedInChunk(cx, cz, task.changedPositions, task.changedSectionSet);
+            }
+
+            if (task.queuedEdgeChecksSky != null) {
+                skyEngine.checkChunkEdges(cx, cz, task.queuedEdgeChecksSky);
             }
 
             if (skyEngine.wasQueueOverflowed()) {
@@ -369,6 +381,8 @@ public final class WorldLightManager {
 
         long changesNs = 0;
         int changesPos = 0, changesBfsInc = 0, changesBfsDec = 0;
+        long edgesNs = 0;
+        int edgeSec = 0, edgeBfsInc = 0, edgeBfsDec = 0;
 
         try {
             if (task.loadInitChunk != null && task.initialLightChunk == null) {
@@ -377,9 +391,9 @@ public final class WorldLightManager {
             }
 
             if (task.initialLightChunk != null) {
-                // checkEdges=true: inline seam verification, see processSkyTask.
-                blockEngine.light(task.initialLightChunk, task.initialLightEmptySections, true);
+                blockEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
                 this.completeInitialLighting(task.chunkCoordinate);
+                this.blockQueue.queueEdgeCheckAllSections(cx, cz, false);
             }
 
             if (task.changedSectionSet != null || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
@@ -390,6 +404,17 @@ public final class WorldLightManager {
                 changesBfsInc = blockEngine.lastBfsIncreaseTotal;
                 changesBfsDec = blockEngine.lastBfsDecreaseTotal;
                 if (statsOn) this.stats.blockPositionsProcessed.addAndGet(changesPos);
+            }
+
+            if (task.queuedEdgeChecksBlock != null) {
+                blockEngine.lastBfsIncreaseTotal = 0;
+                blockEngine.lastBfsDecreaseTotal = 0;
+                edgeSec = task.queuedEdgeChecksBlock.size();
+                final long t2 = System.nanoTime();
+                blockEngine.checkChunkEdges(cx, cz, task.queuedEdgeChecksBlock);
+                edgesNs = System.nanoTime() - t2;
+                edgeBfsInc = blockEngine.lastBfsIncreaseTotal;
+                edgeBfsDec = blockEngine.lastBfsDecreaseTotal;
             }
 
             if (blockEngine.wasQueueOverflowed()) {
@@ -425,8 +450,9 @@ public final class WorldLightManager {
 
         if (totalNs > 100_000_000L) {
             Pulsar.LOGGER.warn(
-                    "Slow block task: chunk ({},{}) total={}ms changes={}ms ({}pos, bfsInc={} bfsDec={})",
-                    cx, cz, totalNs / 1_000_000L, changesNs / 1_000_000L, changesPos, changesBfsInc, changesBfsDec);
+                    "Slow block task: chunk ({},{}) total={}ms changes={}ms ({}pos, bfsInc={} bfsDec={}) edges={}ms ({}sec, bfsInc={} bfsDec={})",
+                    cx, cz, totalNs / 1_000_000L, changesNs / 1_000_000L, changesPos, changesBfsInc, changesBfsDec,
+                    edgesNs / 1_000_000L, edgeSec, edgeBfsInc, edgeBfsDec);
         }
     }
 
@@ -478,10 +504,17 @@ public final class WorldLightManager {
 
     public void shutdown() {
         this.running = false;
-        this.workSignal.release();
-        if (this.lightWorkerThread != null) {
+        if (this.skyQueue != null) this.skyQueue.wakeUp();
+        if (this.blockQueue != null) this.blockQueue.wakeUp();
+        if (this.skyWorkerThread != null) {
             try {
-                this.lightWorkerThread.join(1000);
+                this.skyWorkerThread.join(1000);
+            } catch (final InterruptedException ignored) {
+            }
+        }
+        if (this.blockWorkerThread != null) {
+            try {
+                this.blockWorkerThread.join(1000);
             } catch (final InterruptedException ignored) {
             }
         }

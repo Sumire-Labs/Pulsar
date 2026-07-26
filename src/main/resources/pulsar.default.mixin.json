@@ -10,6 +10,7 @@
     "MixinWorldEntitySpawner"
   ],
   "server": [
+    "MixinPlayerChunkMapEntry",
     "MixinWorldServer"
   ],
   "setSourceFile": true,

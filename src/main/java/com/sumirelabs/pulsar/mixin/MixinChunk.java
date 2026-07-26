@@ -14,6 +14,7 @@ import com.sumirelabs.pulsar.util.WorldUtil;
 import com.sumirelabs.pulsar.world.PulsarWorld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
@@ -146,10 +147,11 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         }
 
         if (this.pulsar$savedLightValid) {
-            // Valid persisted light (Starlight-style): no relight needed. The
-            // vanilla nibbles already carry the same values (they were synced
-            // before the save). Only run the cheap nibble/emptiness-map init
-            // so future BFS passes over this chunk have their caches ready.
+            // Valid persisted light (Starlight-style): no relight needed.
+            // Re-sync SWMR → vanilla anyway (SuperNova does the same): if
+            // anything wrote the vanilla nibbles behind the engine's back
+            // before the save, the divergence would otherwise be permanent.
+            this.pulsar$syncLightToVanilla();
             this.pulsar$lightReady = true;
             mgr.queueChunkLoadInit(this.x, this.z, self, PulsarEngine.getEmptySectionsForChunk(self));
             mgr.scheduleUpdate();
@@ -169,10 +171,13 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     private void pulsar$onUnload(final CallbackInfo ci) {
         final WorldLightManager mgr = ((PulsarWorld) this.world).pulsar$getLightManager();
         if (mgr != null) {
-            mgr.removeChunkFromQueues(this.x, this.z);
+            // Wait BEFORE removing the completion entry — the other order
+            // made awaitPendingWork a guaranteed no-op and let workers keep
+            // writing a chunk the main thread was saving.
             if (!this.world.isRemote) {
                 mgr.awaitPendingWork(this.x, this.z);
             }
+            mgr.removeChunkFromQueues(this.x, this.z);
             mgr.unregisterChunk(this.x, this.z);
         }
     }
@@ -228,7 +233,9 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
             for (int lz = 0; lz < 16; ++lz) {
                 this.precipitationHeightMap[lx + (lz << 4)] = -999;
 
-                for (int y = topSegment + 16 - 1; y > 0; --y) {
+                // Vanilla starts this walk at topSegment + 16 — starting one
+                // lower skipped the top row of the topmost filled section.
+                for (int y = topSegment + 16; y > 0; --y) {
                     if (pulsar$opacityAt(lx, y - 1, lz) != 0) {
                         this.heightMap[lz << 4 | lx] = y;
                         if (y < this.heightMapMinimum) {
@@ -240,13 +247,54 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
             }
         }
 
-        if (this.world.provider.hasSkyLight()) {
+        // The naive column fill is only a pre-BFS baseline for freshly
+        // generated chunks. setBlockState re-invokes generateSkylightMap
+        // whenever a block lands in a new empty section — repainting a lit
+        // chunk with naive values here would stomp the engine's results
+        // (SuperNova suppressed that call site; gating on lightReady is the
+        // injection-free equivalent).
+        if (this.world.provider.hasSkyLight() && !this.pulsar$lightReady) {
             pulsar$fillVanillaSkyColumn(topSegment);
         }
 
         this.isLightPopulated = true;
         this.markDirty();
         ci.cancel();
+    }
+
+    /**
+     * Heightmap-only replacement for vanilla {@code relightBlock} (SuperNova
+     * does the same): vanilla's version writes 15/0 spans plus an
+     * attenuation walk straight into the sky nibbles — the engine's copyback
+     * target on the server and its live shared storage on the thin client.
+     * The BFS handles the actual relight; only the heightmap bookkeeping is
+     * kept.
+     */
+    @Inject(method = "relightBlock", at = @At("HEAD"), cancellable = true, require = 0)
+    private void pulsar$relightBlock(final int x, final int y, final int z, final CallbackInfo ci) {
+        ci.cancel();
+        final int old = this.heightMap[z << 4 | x] & 255;
+        int newHeight = Math.max(old, y);
+        while (newHeight > 0 && pulsar$opacityAt(x, newHeight - 1, z) == 0) {
+            --newHeight;
+        }
+        if (newHeight == old) {
+            return;
+        }
+        this.world.markBlocksDirtyVertical(x + (this.x << 4), z + (this.z << 4), newHeight, old);
+        this.heightMap[z << 4 | x] = newHeight;
+        if (newHeight < this.heightMapMinimum) {
+            this.heightMapMinimum = newHeight;
+        } else {
+            int min = Integer.MAX_VALUE;
+            for (int i = 0; i < 256; ++i) {
+                if (this.heightMap[i] < min) {
+                    min = this.heightMap[i];
+                }
+            }
+            this.heightMapMinimum = min;
+        }
+        this.markDirty();
     }
 
     /**
@@ -331,34 +379,57 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         ci.cancel();
     }
 
+    // NOTE: the light gate for chunk sending lives in
+    // MixinPlayerChunkMapEntry.sendToPlayers, NOT in isPopulated().
+    // isPopulated() also gates World.setBlockState's notifyBlockUpdate —
+    // overriding it suppressed block-change packets and render marks for
+    // any chunk whose light (or neighbours' light) wasn't ready yet.
+
     /**
-     * Gate chunk sending on Pulsar's BFS completion, ON TOP of vanilla's
-     * populated check.
-     *
-     * <p>Vanilla's own result must be respected: it includes
-     * {@code isTerrainPopulated}, which only turns true after decoration
-     * (trees/ores/plants). An earlier version of this gate returned
-     * {@code pulsar$lightReady} alone, which shipped chunks BEFORE
-     * population — every decoration block then streamed to clients as an
-     * individual block-change packet (~5× the client's setBlockState rate
-     * vs Alfheim in benchmarks), each one re-marking already-built render
-     * chunks and re-queueing server BFS.
-     *
-     * <p>Default ({@code sendChunksWithoutLight = false}): vanilla-populated
-     * AND light-ready. With persistence, restored chunks are light-ready on
-     * load, so the extra delay only applies to freshly generated chunks.
-     *
-     * <p>With {@code sendChunksWithoutLight = true}: vanilla behaviour
-     * (no light gate).
+     * Client-side: a block placed into a previously empty section makes
+     * vanilla create a fresh {@link ExtendedBlockStorage} with brand-new
+     * nibble arrays. The thin client's SWMR wrappers must re-wrap that
+     * section (shared storage) and both sides must tell the engine the
+     * section is no longer empty, or the emptiness maps go stale.
      */
-    @Inject(method = "isPopulated", at = @At("RETURN"), cancellable = true, require = 0)
-    private void pulsar$gatePopulatedOnLight(final CallbackInfoReturnable<Boolean> cir) {
-        if (!cir.getReturnValueZ()) {
+    @Unique
+    private boolean pulsar$sectionWasEmpty;
+
+    @Inject(method = "setBlockState", at = @At("HEAD"), require = 0)
+    private void pulsar$preSetBlockState(final BlockPos pos, final IBlockState state,
+                                         final CallbackInfoReturnable<IBlockState> cir) {
+        final ExtendedBlockStorage[] storage = this.getBlockStorageArray();
+        final int sy = pos.getY() >> 4;
+        this.pulsar$sectionWasEmpty = sy >= 0 && sy < storage.length
+                && storage[sy] == Chunk.NULL_BLOCK_STORAGE;
+    }
+
+    @Inject(method = "setBlockState", at = @At("RETURN"), require = 0)
+    private void pulsar$postSetBlockState(final BlockPos pos, final IBlockState state,
+                                          final CallbackInfoReturnable<IBlockState> cir) {
+        if (!this.pulsar$sectionWasEmpty || cir.getReturnValue() == null) {
             return;
         }
-        if (!com.sumirelabs.pulsar.config.PulsarConfig.features.sendChunksWithoutLight
-                && !this.pulsar$lightReady) {
-            cir.setReturnValue(false);
+        final int sy = pos.getY() >> 4;
+        final ExtendedBlockStorage section = this.getBlockStorageArray()[sy];
+        if (section == Chunk.NULL_BLOCK_STORAGE) {
+            return;
+        }
+        this.pulsar$sectionWasEmpty = false;
+        final int idx = sy - WorldUtil.getMinLightSection();
+        if (this.world.isRemote) {
+            final NibbleArray blockNib = section.getBlockLight();
+            if (blockNib != null) {
+                this.pulsar$blockNibbles[idx] = new SWMRNibbleArray(blockNib.getData());
+            }
+            final NibbleArray skyNib = section.getSkyLight();
+            if (skyNib != null) {
+                this.pulsar$skyNibbles[idx] = new SWMRNibbleArray(skyNib.getData());
+            }
+        }
+        final WorldLightManager mgr = ((PulsarWorld) this.world).pulsar$getLightManager();
+        if (mgr != null) {
+            mgr.queueSectionChange(this.x, sy, this.z, false);
         }
     }
 

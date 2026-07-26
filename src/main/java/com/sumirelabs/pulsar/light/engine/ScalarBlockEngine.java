@@ -91,26 +91,24 @@ public class ScalarBlockEngine extends PulsarEngine {
         final int info = LightInfo.of(state);
         final int emission = LightInfo.emission(info);
 
-        final int calculatedLevel = this.calculateLightValueWithInfo(worldX, worldY, worldZ, 15, info);
-        if (currentLevel == calculatedLevel) {
-            return;
-        }
-
+        // No "level unchanged" early-out (upstream): an equal level cannot
+        // prove the propagation DIRECTIONS are unchanged — a slab swap can
+        // keep this cell's level while flipping which faces it feeds.
         this.setLightLevel(worldX, worldY, worldZ, emission);
-
-        final long sf = sidedFlag(info);
 
         if (emission > 0) {
             this.appendToIncreaseQueue(encodeCoords(worldX, worldZ, worldY, encodeOffset)
                     | this.encodeQueueLevel(emission)
                     | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                    | sf);
+                    | sidedFlag(info));
         }
 
+        // No sided flag on the decrease (upstream): the flag would mask
+        // decrease directions with the NEW block's occlusion, but the light
+        // being erased flowed through the OLD block.
         this.appendToDecreaseQueue(encodeCoords(worldX, worldZ, worldY, encodeOffset)
                 | this.encodeQueueLevel(currentLevel)
-                | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                | sf);
+                | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT));
     }
 
     @Override
@@ -423,7 +421,12 @@ public class ScalarBlockEngine extends PulsarEngine {
                             | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
                             | FLAG_WRITE_LEVEL
                             | sFlag;
-                } else if (currentLevel > 1) {
+                }
+
+                // Independent of the emission re-seed (upstream): the decrease
+                // must keep walking past emitters, or removing a bright source
+                // leaves a permanent ghost region behind any dimmer emitter.
+                if (targetLevel > 0) {
                     if (queueLength >= queue.length) {
                         if (queue.length >= MAX_QUEUE_SIZE) {
                             this.queueOverflowed = true;
@@ -432,7 +435,7 @@ public class ScalarBlockEngine extends PulsarEngine {
                         queue = this.resizeDecreaseQueue();
                     }
                     queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(currentLevel)
+                            | this.encodeQueueLevel(targetLevel)
                             | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT)
                             | sFlag;
                 }

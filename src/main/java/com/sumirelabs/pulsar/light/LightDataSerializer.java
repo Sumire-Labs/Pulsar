@@ -28,7 +28,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public final class LightDataSerializer {
 
     /** Bump when the on-disk layout or BFS semantics change incompatibly. */
-    public static final int LIGHT_VERSION = 1;
+    // v5: invalidates light computed before the 2026-07-26 correctness batch
+    // (UNINIT-as-15 sync, missing extrude, decrease re-seed/continuation
+    // fixes) — old data relights once on load.
+    public static final int LIGHT_VERSION = 5;
 
     private static final String TAG_ROOT = "PulsarLight";
     private static final String TAG_VERSION = "version";

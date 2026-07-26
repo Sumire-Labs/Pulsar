@@ -190,6 +190,15 @@ public abstract class PulsarEngine {
     }
 
     protected final void setupCaches(final int centerX, final int centerY, final int centerZ, final boolean relaxed, final boolean tryToLoadChunksFor2Radius) {
+        // Reset per-task state at ENTRY, not in destroyCaches: the overflow
+        // flag must survive until WorldLightManager reads it after the task
+        // returns, and stale queue lengths must not leak into the next task
+        // after a swallowed exception.
+        this.queueOverflowed = false;
+        this.queueOverflowWarned = false;
+        this.increaseQueueInitialLength = 0;
+        this.decreaseQueueInitialLength = 0;
+
         final int centerChunkX = centerX >> 4;
         final int centerChunkZ = centerZ >> 4;
 
@@ -314,8 +323,6 @@ public abstract class PulsarEngine {
         if (this.isClientSide) {
             Arrays.fill(this.notifyUpdateCache, false);
         }
-        this.queueOverflowWarned = false;
-        this.queueOverflowed = false;
     }
 
     /**
@@ -558,6 +565,27 @@ public abstract class PulsarEngine {
         }
     }
 
+    public final void checkChunkEdges(final int chunkX, final int chunkZ, final IntOpenHashSet sections) {
+        this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, false);
+        try {
+            final Chunk chunk = this.getChunkInCache(chunkX, chunkZ);
+            if (chunk == null) {
+                return;
+            }
+            this.prepareBatchedEdgeChecks(chunkX, chunkZ);
+            final IntIterator it = sections.iterator();
+            while (it.hasNext()) {
+                this.checkChunkEdge(chunkX, it.nextInt(), chunkZ);
+                this.performLightDecrease();
+            }
+            this.updateVisible();
+        } finally {
+            this.destroyCaches();
+        }
+    }
+
+    protected void prepareBatchedEdgeChecks(final int chunkX, final int chunkZ) {}
+
     /**
      * Process per-section emptiness changes.
      * {@code emptinessChanges} is a tri-state {@code Boolean[]}: {@code null}
@@ -726,10 +754,10 @@ public abstract class PulsarEngine {
                         blocksTrivial++;
                         continue;
                     }
-                    if (currentLevel > 0 && neighbourLevel > 0 && Math.abs(currentLevel - neighbourLevel) <= 1) {
-                        blocksConsistency++;
-                        continue;
-                    }
+                    // NOTE: no |cur - nb| <= 1 "consistency" skip here — it is
+                    // only a valid proof when the seam absorption is exactly 1;
+                    // for opacity > 1 blocks it accepted values upstream's
+                    // unconditional recalculation would repair.
 
                     blocksRecalc += 2;
                     if (this.calculateLightValue(currX, currY, currZ, currentLevel) != currentLevel) {

@@ -95,11 +95,21 @@ public final class ChunkLightHelper {
             if (vanilla == null) continue;
 
             final byte[] vanillaData = vanilla.getData();
-            final byte[] data = skyNib.getVisibleData();
-            if (data != null) {
-                System.arraycopy(data, 0, vanillaData, 0, SWMRNibbleArray.ARRAY_SIZE);
-            } else {
-                Arrays.fill(vanillaData, (byte) 0xFF);
+            // Copy under the nibble's monitor: updateVisible() mutates the
+            // visible array in place under the same lock, and an unlocked
+            // arraycopy from another worker could publish torn bytes.
+            synchronized (skyNib) {
+                final byte[] data = skyNib.getVisibleData();
+                if (data != null) {
+                    System.arraycopy(data, 0, vanillaData, 0, SWMRNibbleArray.ARRAY_SIZE);
+                } else if (skyNib.isUninitialisedVisible()) {
+                    // UNINIT means "exists, all zero" (upstream reads it as
+                    // 0). Filling 0xFF here painted every enclosed cave and
+                    // ocean floor section fully bright.
+                    Arrays.fill(vanillaData, (byte) 0);
+                }
+                // NULL state: leave the vanilla nibble untouched — the
+                // vanilla column fill already approximates open-sky sections.
             }
         }
     }
@@ -118,11 +128,13 @@ public final class ChunkLightHelper {
             if (vanilla == null) continue;
 
             final byte[] vanillaData = vanilla.getData();
-            final byte[] data = nib.getVisibleData();
-            if (data != null) {
-                System.arraycopy(data, 0, vanillaData, 0, SWMRNibbleArray.ARRAY_SIZE);
-            } else {
-                Arrays.fill(vanillaData, (byte) 0);
+            synchronized (nib) {
+                final byte[] data = nib.getVisibleData();
+                if (data != null) {
+                    System.arraycopy(data, 0, vanillaData, 0, SWMRNibbleArray.ARRAY_SIZE);
+                } else {
+                    Arrays.fill(vanillaData, (byte) 0);
+                }
             }
         }
     }
@@ -172,8 +184,25 @@ public final class ChunkLightHelper {
 
         final int idx = sectionY - minLightSection;
         final SWMRNibbleArray nib = sky[idx];
-        if (nib == null || nib.isNullNibbleVisible() || nib.isUninitialisedVisible()) {
+        if (nib == null || nib.isNullNibbleVisible()) {
+            // Upstream semantics: extrude from the first non-null nibble
+            // above (its bottom layer carries the column's shadow); 15 only
+            // when nothing above exists.
+            for (int i = idx + 1; i < sky.length; ++i) {
+                final SWMRNibbleArray above = sky[i];
+                if (above == null || above.isNullNibbleVisible()) {
+                    continue;
+                }
+                if (above.isUninitialisedVisible()) {
+                    return 0;
+                }
+                return above.getVisible((x & 15) | ((z & 15) << 4));
+            }
             return 15;
+        }
+        if (nib.isUninitialisedVisible()) {
+            // UNINIT = exists, all zero — NOT unknown/15.
+            return 0;
         }
         return nib.getVisible(x, y, z);
     }
