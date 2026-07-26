@@ -2,6 +2,7 @@ package com.sumirelabs.pulsar.light.engine;
 
 import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.api.ExtendedWorld;
+import com.sumirelabs.pulsar.compat.CeleritasCloneCacheBridge;
 import com.sumirelabs.pulsar.light.LightStats;
 import com.sumirelabs.pulsar.light.RenderBounds;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
@@ -303,13 +304,20 @@ public abstract class PulsarEngine {
                 final int sectionX = (cxLocal - this.chunkOffsetX) << 4;
                 final int sectionY = (cyLocal - this.chunkOffsetY) << 4;
                 final int sectionZ = (czLocal - this.chunkOffsetZ) << 4;
-                this.world.markBlockRangeForRenderUpdate(
-                        sectionX + RenderBounds.minX(bounds),
-                        sectionY + RenderBounds.minY(bounds),
-                        sectionZ + RenderBounds.minZ(bounds),
-                        sectionX + RenderBounds.maxX(bounds),
-                        sectionY + RenderBounds.maxY(bounds),
-                        sectionZ + RenderBounds.maxZ(bounds));
+                final int minX = sectionX + RenderBounds.minX(bounds);
+                final int minY = sectionY + RenderBounds.minY(bounds);
+                final int minZ = sectionZ + RenderBounds.minZ(bounds);
+                final int maxX = sectionX + RenderBounds.maxX(bounds);
+                final int maxY = sectionY + RenderBounds.maxY(bounds);
+                final int maxZ = sectionZ + RenderBounds.maxZ(bounds);
+                // Celeritas rebuilds meshes from CACHED chunk clones and its
+                // schedule chain never invalidates them, so a light-only
+                // change would rebuild from a pre-BFS snapshot and stick.
+                // Invalidate the clones for the same ±1-inflated range the
+                // renderer will rebuild.
+                CeleritasCloneCacheBridge.invalidateBlockRange(
+                        minX - 1, minY - 1, minZ - 1, maxX + 1, maxY + 1, maxZ + 1);
+                this.world.markBlockRangeForRenderUpdate(minX, minY, minZ, maxX, maxY, maxZ);
                 if (LightStats.enabled) LightStats.engineRenderMarks++;
             }
         }

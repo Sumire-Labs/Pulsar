@@ -16,6 +16,8 @@ public class ClientProxy extends CommonProxy {
     public void preInit(final FMLPreInitializationEvent event) {
         super.preInit(event);
         MinecraftForge.EVENT_BUS.register(this);
+        net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(
+                new com.sumirelabs.pulsar.command.CommandPulsarClient());
     }
 
     @Override

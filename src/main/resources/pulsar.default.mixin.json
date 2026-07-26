@@ -4,10 +4,19 @@
   "compatibilityLevel": "JAVA_8",
   "target": "@env(DEFAULT)",
   "mixins": [
+    "MixinBlockFaceLight",
+    "MixinBlockSlabFaceLight",
+    "MixinBlockStairsFaceLight",
     "MixinBlockStateImplementation",
     "MixinChunk",
     "MixinWorld",
     "MixinWorldEntitySpawner"
+  ],
+  "client": [
+    "MixinBlockRenderLight",
+    "MixinCeleritasWorldSlice",
+    "MixinChunkCacheRenderLight",
+    "MixinWorldRenderLight"
   ],
   "server": [
     "MixinPlayerChunkMapEntry",
