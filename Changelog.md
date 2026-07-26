@@ -5,6 +5,33 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `/pulsarc` client-side diagnosis command: prints client vanilla, client
+  engine (SWMR + state) and integrated-server light values side by side for
+  the player's surroundings — one glance shows which layer diverges
+- Facing-aware neighbour brightness for slabs and stairs (MC-92 family),
+  ported from Alfheim (MIT, Red Studio): the render-side lookups in
+  `World`/`ChunkCache`/Celeritas's `WorldSlice` now take light only through
+  the faces a block declares open instead of vanilla's max over all five
+  neighbours, and light-emitting blocks are no longer darkened by ambient
+  occlusion (MC-50734, MC-249343)
+
+### Fixed
+
+- Lighting inside tight enclosures going stale — bright floors in sealed
+  boxes, rooms staying dark after breaking open a window (even through
+  F3+A): Celeritas meshes chunks from cached section clones and its rebuild
+  path never invalidates them, so whether a rebuild saw fresh light was a
+  race against the end-of-tick BFS. Pulsar now invalidates the affected
+  cloned sections (reflection bridge, soft dependency) whenever the client
+  engine publishes light changes
+
+### Note
+- It's about time I ran some benchmarks comparing another lighting engine with the Pulsar Lighting Engine...
+
 ## [0.1.0-dev.12] - 2026-07-26
 
 ### Fixed
