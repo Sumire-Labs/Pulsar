@@ -31,7 +31,7 @@ Pulsar started as a rewritten port of the scalar core of [SuperNova](https://git
 
 ## Benchmarks
 
-Measured with a 1.12.2 port of Spottedleaf's [lightbench](https://github.com/Spottedleaf/lightbench) methodology on CleanroomLoader 0.5.15-alpha, fixed seed, fresh world per run, identical mod stack with only the lighting engine swapped. Values are the mean of 2 runs.
+Measured with a 1.12.2 port of Spottedleaf's [lightbench](https://github.com/Sumire-Labs/lightbench) methodology on CleanroomLoader 0.5.15-alpha, fixed seed, fresh world per run, identical mod stack with only the lighting engine swapped. Values are the mean of 2 runs.
 
 ![Benchmark: Pulsar vs Alfheim vs vanilla](docs/benchmarks/bench-three-engines.svg)
 
