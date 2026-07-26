@@ -26,6 +26,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Whole chunks (surface included) rendering pitch black around where the
+  player stops during fast worldgen: sections created by decoration AFTER a
+  chunk's initial light completed were sent to clients with all-zero light.
+  New sections are now filled from the engine's data the moment they are
+  created (server and client)
+- `/pulsar relight` now resends the relit chunks to watching clients (1.12.2
+  has no light packet, so relights were invisible without a rejoin)
+- Deferred edge checks could be silently dropped when one engine finished a
+  chunk before the other; they are now queued only once both engines are done
 - Caves, mineshafts and ocean/lake floors rendering fully bright
 - Opening an enclosed space leaving it pitch black
 - Stale brightness lingering under newly placed blocks or water

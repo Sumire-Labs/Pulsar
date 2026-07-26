@@ -8,7 +8,11 @@ import com.sumirelabs.pulsar.light.engine.ScalarSkyEngine;
 import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.SnapshotChunkMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.minecraft.network.play.server.SPacketChunkData;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -318,8 +322,6 @@ public final class WorldLightManager {
                 if (statsOn) this.stats.initialLightsRun.incrementAndGet();
                 skyEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
                 this.completeInitialLighting(task.chunkCoordinate);
-
-                this.skyQueue.queueEdgeCheckAllSections(cx, cz, true);
             }
 
             if (task.changedSectionSet != null || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
@@ -393,7 +395,6 @@ public final class WorldLightManager {
             if (task.initialLightChunk != null) {
                 blockEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
                 this.completeInitialLighting(task.chunkCoordinate);
-                this.blockQueue.queueEdgeCheckAllSections(cx, cz, false);
             }
 
             if (task.changedSectionSet != null || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
@@ -458,8 +459,14 @@ public final class WorldLightManager {
 
     /**
      * Called by each worker when it finishes initial lighting for a chunk.
-     * The last worker to finish sets {@code lightReady=true} and completes
-     * the pending work future.
+     * The last worker to finish sets {@code lightReady=true}, queues the
+     * deferred edge checks for BOTH engines and completes the pending work
+     * future.
+     *
+     * <p>Edge checks are queued here — not from each engine's own
+     * initial-light block — because {@code checkChunkEdges}' cache setup
+     * skips chunks that are not yet light-ready: an edge check drained
+     * before the OTHER engine finished the same chunk was silently dropped.
      */
     private void completeInitialLighting(final long chunkCoordinate) {
         final ChunkLightCompletion completion;
@@ -474,17 +481,47 @@ public final class WorldLightManager {
             }
             ((PulsarChunk) completion.chunk).pulsar$syncLightToVanilla();
             ((PulsarChunk) completion.chunk).pulsar$setLightReady(true);
+            final int cx = CoordinateUtils.getChunkX(chunkCoordinate);
+            final int cz = CoordinateUtils.getChunkZ(chunkCoordinate);
+            if (this.skyQueue != null) this.skyQueue.queueEdgeCheckAllSections(cx, cz, true);
+            if (this.blockQueue != null) this.blockQueue.queueEdgeCheckAllSections(cx, cz, false);
             completion.future.set(null);
         }
     }
 
     public boolean forceRelightChunk(final int cx, final int cz) {
-        final Chunk chunk = this.loadedChunkMap.get(CoordinateUtils.getChunkKey(cx, cz));
+        final long key = CoordinateUtils.getChunkKey(cx, cz);
+        final Chunk chunk = this.loadedChunkMap.get(key);
         if (chunk == null) return false;
         ((PulsarChunk) chunk).pulsar$setLightReady(false);
         final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(chunk);
         this.queueChunkLight(cx, cz, chunk, emptySections);
         this.scheduleUpdate();
+
+        // 1.12.2 has no light-update packet, so a relight is invisible to
+        // clients that already hold the chunk — resend it once the BFS
+        // completes. Packet construction must happen on the server thread.
+        if (!this.world.isRemote) {
+            final ChunkLightCompletion completion;
+            synchronized (this.initialLightCompletions) {
+                completion = this.initialLightCompletions.get(key);
+            }
+            if (completion != null) {
+                completion.future.addListener(() -> {
+                    final MinecraftServer server = this.world.getMinecraftServer();
+                    if (server == null) return;
+                    server.addScheduledTask(() -> {
+                        if (!(this.world instanceof WorldServer)) return;
+                        final PlayerChunkMapEntry entry =
+                                ((WorldServer) this.world).getPlayerChunkMap().getEntry(cx, cz);
+                        final Chunk current = this.loadedChunkMap.get(key);
+                        if (entry != null && current != null) {
+                            entry.sendPacket(new SPacketChunkData(current, 65535));
+                        }
+                    });
+                }, Runnable::run);
+            }
+        }
         return true;
     }
 

@@ -2,6 +2,7 @@ package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.util.WorldUtil;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.chunk.Chunk;
@@ -28,10 +29,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public final class LightDataSerializer {
 
     /** Bump when the on-disk layout or BFS semantics change incompatibly. */
-    // v5: invalidates light computed before the 2026-07-26 correctness batch
+    // v6: invalidates light computed before the 2026-07-26 correctness batch
     // (UNINIT-as-15 sync, missing extrude, decrease re-seed/continuation
     // fixes) — old data relights once on load.
-    public static final int LIGHT_VERSION = 5;
+    public static final int LIGHT_VERSION = 6;
 
     private static final String TAG_ROOT = "PulsarLight";
     private static final String TAG_VERSION = "version";

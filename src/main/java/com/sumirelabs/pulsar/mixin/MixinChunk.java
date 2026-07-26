@@ -417,6 +417,13 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         }
         this.pulsar$sectionWasEmpty = false;
         final int idx = sy - WorldUtil.getMinLightSection();
+        // The fresh EBS has all-zero nibbles, and after lightReady nothing
+        // re-publishes the engine's already-visible light into them (naive
+        // fill is gated on !lightReady; onNibbleVisible fires on dirty
+        // nibbles only, and no-op writes are skipped). Fill from the SWMR
+        // state NOW or the section is sent/rendered black.
+        ChunkLightHelper.fillVanillaFromEngine(this.pulsar$skyNibbles, this.pulsar$blockNibbles,
+                section, sy, this.world.provider.hasSkyLight());
         if (this.world.isRemote) {
             final NibbleArray blockNib = section.getBlockLight();
             if (blockNib != null) {

@@ -140,6 +140,34 @@ public final class ChunkLightHelper {
     }
 
     /**
+     * Fill a freshly created {@link ExtendedBlockStorage}'s nibble arrays from
+     * the SWMR visible state. A section created AFTER a chunk is light-ready
+     * gets all-zero vanilla nibbles and nothing re-publishes the engine's
+     * (already-visible, therefore not-dirty) data into them: the naive column
+     * fill is gated on {@code !lightReady} and {@code onNibbleVisible} only
+     * fires on dirty nibbles — so without this the section ships to clients
+     * black. Root cause of the 2026-07 black-chunk regression.
+     */
+    public static void fillVanillaFromEngine(SWMRNibbleArray[] skyNibbles, SWMRNibbleArray[] blockNibbles,
+                                             ExtendedBlockStorage section, int sectionY, boolean hasSky) {
+        final NibbleArray blockArr = section.getBlockLight();
+        final NibbleArray skyArr = hasSky ? section.getSkyLight() : null;
+        final int baseY = sectionY << 4;
+        for (int y = 0; y < 16; ++y) {
+            for (int z = 0; z < 16; ++z) {
+                for (int x = 0; x < 16; ++x) {
+                    if (blockArr != null) {
+                        blockArr.set(x, y, z, getBlockLight(blockNibbles, x, baseY + y, z));
+                    }
+                    if (skyArr != null) {
+                        skyArr.set(x, y, z, getSkyLight(skyNibbles, x, baseY + y, z));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Read the visible block-light value at world coordinates {@code (x, y, z)}.
      * Returns {@code 0} if the section is out of bounds or the nibble is null.
      */
