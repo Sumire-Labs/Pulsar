@@ -3,6 +3,8 @@ package com.sumirelabs.pulsar.light.engine;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldUtil;
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -275,6 +277,94 @@ public class ScalarSkyEngine extends PulsarEngine {
         }
 
         return startY;
+    }
+
+    /**
+     * Batched form, matching upstream {@code SkyStarLightEngine
+     * .propagateBlockChanges(…, Set&lt;BlockPos&gt;)}: caches are rewritten
+     * once, ONE skylight column walk per changed COLUMN (from its highest
+     * changed Y), every {@code checkBlock} seeded into the same queues and a
+     * single BFS drain at the end. The inherited per-position loop re-ran
+     * the full pipeline (cache rewrite + column walk + full drain) for every
+     * block — on dense bulk edits (platform builds, /fill) that re-decreased
+     * and re-flooded the same overlapping regions once per block.
+     */
+    @Override
+    protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ,
+                                               final IntOpenHashSet changedPositions) {
+        this.rewriteNibbleCacheForSkylight();
+        Arrays.fill(this.nullPropagationCheckCache, false);
+
+        final int minBlockY = WorldUtil.getMinBlockY();
+        final int maxBlockY = WorldUtil.getMaxBlockY();
+
+        // Highest changed Y per column (index = x | z<<4), like upstream's
+        // heightMapBlockChange.
+        final int[] columnMaxY = new int[256];
+        Arrays.fill(columnMaxY, Integer.MIN_VALUE);
+        IntIterator it = changedPositions.iterator();
+        while (it.hasNext()) {
+            final int packed = it.nextInt();
+            final int worldY = packed >> 8;
+            if (worldY < minBlockY || worldY > maxBlockY) {
+                continue;
+            }
+            final int col = packed & 255;
+            if (worldY > columnMaxY[col]) {
+                columnMaxY[col] = worldY;
+            }
+        }
+
+        final long propagateDirection = AxisDirection.POSITIVE_Y.everythingButThisDirection;
+        final int encodeOffset = this.coordinateOffset;
+
+        for (int col = 0; col < 256; ++col) {
+            final int maxY = columnMaxY[col];
+            if (maxY == Integer.MIN_VALUE) {
+                continue;
+            }
+            final int worldX = (chunkX << 4) | (col & 15);
+            final int worldZ = (chunkZ << 4) | (col >> 4);
+
+            final int maxPropagationY = this.tryPropagateSkylight(worldX, maxY, worldZ, true, true);
+
+            if (this.getLightLevelExtruded(worldX, maxPropagationY, worldZ) == 15) {
+                this.checkNullSection(worldX >> 4, maxPropagationY >> 4, worldZ >> 4, true);
+                for (int currY = maxPropagationY; currY >= (this.minLightSection << 4); --currY) {
+                    if ((currY & 15) == 15) {
+                        this.checkNullSection(worldX >> 4, currY >> 4, worldZ >> 4, true);
+                    }
+                    final SWMRNibbleArray nib = this.nibbleCache[(worldX >> 4) + 5 * (worldZ >> 4)
+                            + (5 * 5) * (currY >> 4) + this.chunkSectionIndexOffset];
+                    if (nib == null) {
+                        currY = currY & ~15;
+                        continue;
+                    }
+                    if (this.getLightLevel(worldX, currY, worldZ) != 15) {
+                        break;
+                    }
+                    this.appendToDecreaseQueue(encodeCoords(worldX, worldZ, currY, encodeOffset)
+                            | this.encodeQueueLevel(15)
+                            | (propagateDirection << DIRECTION_SHIFT));
+                }
+            }
+        }
+
+        this.applyDelayedQueue(this.increaseQueue, this.increaseQueueInitialLength, true);
+        this.applyDelayedQueue(this.decreaseQueue, this.decreaseQueueInitialLength, false);
+
+        it = changedPositions.iterator();
+        while (it.hasNext()) {
+            final int packed = it.nextInt();
+            final int worldY = packed >> 8;
+            if (worldY < minBlockY || worldY > maxBlockY) {
+                continue;
+            }
+            this.lastPositionsProcessed++;
+            this.checkBlock((chunkX << 4) | (packed & 15), worldY, (chunkZ << 4) | ((packed >> 4) & 15));
+        }
+
+        this.performLightDecrease();
     }
 
     @Override

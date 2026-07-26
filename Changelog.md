@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Sky-light block changes are processed as ONE batch per chunk (upstream
+  Starlight's set-based `propagateBlockChanges`): caches prepared once, one
+  skylight column walk per changed COLUMN (highest changed Y), every
+  `checkBlock` seeded into the same queues and a single BFS drain at the
+  end — instead of the full pipeline per position. Bulk edits converge
+  dramatically faster (64×64 platform at y=254: light settle 1.64s → 0.07s;
+  single-edit convergence p50 1.4ms → 0.14ms, p99 outliers gone), and
+  worldgen light CPU drops ~13%
+
+### Known issues
+
+- Sections created above the previous highest non-empty section (skybase
+  platforms in open air) can keep their moment-of-creation vanilla light —
+  the area under such a platform may render fully bright. Pre-existing
+  (not from the batching change); the engine-side sky nibble for that
+  section stays NULL instead of being initialised and re-darkened
+
 ### Added
 
 - `/pulsarc` client-side diagnosis command: prints client vanilla, client
