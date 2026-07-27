@@ -76,10 +76,11 @@ Pulsar fully replaces the vanilla lighting engine, so it conflicts with anything
 
 ### Not recommended
 
-- **OptiFine** — untested, most likely incompatible. Use [Celeritas](https://github.com/kappa-maintainer/Celeritas-auto-build) instead (see below).
+- **OptiFine** — untested, most likely incompatible. Use [Nothirium](https://github.com/Meldexun/Nothirium) or [Celeritas](https://github.com/kappa-maintainer/Celeritas-auto-build) instead (see below).
 
 ### Works with
 
+- **[Nothirium](https://github.com/Meldexun/Nothirium)** (+ RenderLib; on Cleanroom add [Naughthirium](https://www.curseforge.com/minecraft/mc-mods/naughthirium)) — verified in-game. No dedicated hooks needed: Nothirium reads light lazily from live chunk data at mesh time, so Pulsar's light updates flow through the standard render-update path. You will see one benign mixin-overlap warning at startup — both mods apply the identical `getPackedLightmapCoords` fix, so whichever wins, behaviour is the same.
 - **[Celeritas](https://github.com/kappa-maintainer/Celeritas-auto-build)** — Pulsar ships two optional integrations, both **off by default** while their FPS impact during chunk streaming is being measured (see Trade-offs): `compat.celeritasDirectionalMeshLight` routes Celeritas's chunk-meshing light lookups through the MC-92 directional fix (restart required), and `compat.celeritasCloneInvalidation` invalidates Celeritas's cloned-section cache on light changes so meshes never rebuild from stale light — enable it if you see lighting stick in sealed rooms. Both are soft hooks that disable themselves cleanly when Celeritas is absent.
 - So far, it works without conflicting with the mods I regularly use, such as Chibi, Universal Tweaks, StellarCore, and VintageFix.
 

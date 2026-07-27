@@ -217,13 +217,13 @@ public class ScalarSkyEngine extends PulsarEngine {
 
         int currentSky = extrudedLevel;
 
-        int aboveInfo = LightInfo.of(this.getBlockState(worldX, startY + 1, worldZ));
+        int aboveInfo = this.lightInfoAt(this.getBlockState(worldX, startY + 1, worldZ), worldX, startY + 1, worldZ);
 
         for (; startY >= (this.minLightSection << 4); --startY) {
             if ((startY & 15) == 15) {
                 this.checkNullSection(worldX >> 4, startY >> 4, worldZ >> 4, extrudeInitialised);
             }
-            final int currentInfo = LightInfo.of(this.getBlockState(worldX, startY, worldZ));
+            final int currentInfo = this.lightInfoAt(this.getBlockState(worldX, startY, worldZ), worldX, startY, worldZ);
 
             // Check if light can pass DOWN through the above block
             final int aboveOpacity = LightInfo.opacity(aboveInfo);
@@ -463,7 +463,7 @@ public class ScalarSkyEngine extends PulsarEngine {
         }
 
         final int sectionOffset = this.chunkSectionIndexOffset;
-        final int info = LightInfo.of(this.getBlockState(worldX, worldY, worldZ));
+        final int info = this.lightInfoAt(this.getBlockState(worldX, worldY, worldZ), worldX, worldY, worldZ);
         final int rawOpacity = LightInfo.opacity(info);
         final boolean sidedTransparent = rawOpacity > 1 && (info & LightInfo.REGISTRY) != 0;
         final int faceBits = LightInfo.faceBits(info);
@@ -611,7 +611,7 @@ public class ScalarSkyEngine extends PulsarEngine {
             if (hasSidedTransparent) {
                 final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
                 final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
-                srcBlockedFaces = LightInfo.faceBits(LightInfo.of(srcState));
+                srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
             }
 
             if ((queueValue & FLAG_RECHECK_LEVEL) != 0L) {
@@ -646,7 +646,7 @@ public class ScalarSkyEngine extends PulsarEngine {
                 }
 
                 final IBlockState destState = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
-                final int destInfo = LightInfo.of(destState);
+                final int destInfo = this.lightInfoAt(destState, offX, offY, offZ);
                 final int absorption = LightInfo.absorption(destInfo, destState, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
@@ -706,7 +706,7 @@ public class ScalarSkyEngine extends PulsarEngine {
             if (hasSidedTransparent) {
                 final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
                 final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
-                srcBlockedFaces = LightInfo.faceBits(LightInfo.of(srcState));
+                srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
             }
 
             for (final AxisDirection propagate : checkDirections) {
@@ -735,7 +735,7 @@ public class ScalarSkyEngine extends PulsarEngine {
                 // decreases it, so sources stay intact.
 
                 final IBlockState state = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
-                final int info = LightInfo.of(state);
+                final int info = this.lightInfoAt(state, offX, offY, offZ);
                 final int absorption = LightInfo.absorption(info, state, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;

@@ -88,7 +88,7 @@ public class ScalarBlockEngine extends PulsarEngine {
         final int currentLevel = this.getLightLevel(worldX, worldY, worldZ);
 
         final IBlockState state = this.getBlockState(worldX, worldY, worldZ);
-        final int info = LightInfo.of(state);
+        final int info = this.lightInfoAt(state, worldX, worldY, worldZ);
         final int emission = LightInfo.emission(info);
 
         // No "level unchanged" early-out (upstream): an equal level cannot
@@ -114,7 +114,7 @@ public class ScalarBlockEngine extends PulsarEngine {
     @Override
     protected int calculateLightValue(final int worldX, final int worldY, final int worldZ, final int expect) {
         return this.calculateLightValueWithInfo(worldX, worldY, worldZ, expect,
-                LightInfo.of(this.getBlockState(worldX, worldY, worldZ)));
+                this.lightInfoAt(this.getBlockState(worldX, worldY, worldZ), worldX, worldY, worldZ));
     }
 
     private int calculateLightValueWithInfo(final int worldX, final int worldY, final int worldZ, final int expect, final int info) {
@@ -201,16 +201,16 @@ public class ScalarBlockEngine extends PulsarEngine {
                 final int ly = index >>> 8;
                 final int lz = (index >>> 4) & 15;
 
+                final int worldX = offX | lx;
+                final int worldY = offY | ly;
+                final int worldZ = offZ | lz;
+
                 final IBlockState state = this.getBlockStateFast(sectionIdx, lx, ly, lz);
-                final int info = LightInfo.of(state);
+                final int info = this.lightInfoAt(state, worldX, worldY, worldZ);
                 final int emission = LightInfo.emission(info);
                 if (emission <= 0) {
                     continue;
                 }
-
-                final int worldX = offX | lx;
-                final int worldY = offY | ly;
-                final int worldZ = offZ | lz;
 
                 final int currentLevel = this.getLightLevel(worldX, worldY, worldZ);
                 if (emission <= currentLevel) {
@@ -261,7 +261,7 @@ public class ScalarBlockEngine extends PulsarEngine {
             if (hasSidedTransparent) {
                 final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
                 final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
-                srcBlockedFaces = LightInfo.faceBits(LightInfo.of(srcState));
+                srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
             }
 
             if ((queueValue & FLAG_RECHECK_LEVEL) != 0L) {
@@ -296,7 +296,7 @@ public class ScalarBlockEngine extends PulsarEngine {
                 }
 
                 final IBlockState destState = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
-                final int destInfo = LightInfo.of(destState);
+                final int destInfo = this.lightInfoAt(destState, offX, offY, offZ);
                 final int absorption = LightInfo.absorption(destInfo, destState, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
@@ -356,7 +356,7 @@ public class ScalarBlockEngine extends PulsarEngine {
             if (hasSidedTransparent) {
                 final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
                 final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
-                srcBlockedFaces = LightInfo.faceBits(LightInfo.of(srcState));
+                srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
             }
 
             for (final AxisDirection propagate : checkDirections) {
@@ -379,7 +379,7 @@ public class ScalarBlockEngine extends PulsarEngine {
                 }
 
                 final IBlockState state = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
-                final int info = LightInfo.of(state);
+                final int info = this.lightInfoAt(state, offX, offY, offZ);
                 final int absorption = LightInfo.absorption(info, state, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
