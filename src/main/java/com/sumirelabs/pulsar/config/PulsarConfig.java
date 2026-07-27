@@ -24,6 +24,9 @@ public class PulsarConfig {
     @Config.Comment("Feature toggles")
     public static final Features features = new Features();
 
+    @Config.Comment("Compatibility integrations")
+    public static final Compat compat = new Compat();
+
     @Config.Comment("Debug options")
     public static final Debug debug = new Debug();
 
@@ -36,6 +39,27 @@ public class PulsarConfig {
                 "keeping this off only delays freshly generated chunks by a few worker milliseconds."
         })
         public boolean sendChunksWithoutLight = false;
+    }
+
+    public static class Compat {
+
+        @Config.Comment({
+                "Route Celeritas's chunk-meshing light lookups through the directional",
+                "(MC-92) fix, so slabs and stairs in terrain get the corrected lighting.",
+                "Adds per-face lookups to the meshing hot loop; under investigation for",
+                "FPS impact while streaming chunks, so it is OFF by default for now.",
+                "The mixin is applied at startup - changing this requires a restart."})
+        @Config.RequiresMcRestart
+        public boolean celeritasDirectionalMeshLight = false;
+
+        @Config.Comment({
+                "Invalidate Celeritas's cloned-section cache whenever Pulsar publishes",
+                "light changes, so chunk meshes never rebuild from stale light.",
+                "Fixes lighting sticking in sealed rooms (bright floors in closed boxes,",
+                "rooms staying dark after opening a window). Can cost FPS during heavy",
+                "chunk streaming, so it is OFF by default while that is being measured.",
+                "Enable it if you see stale lighting with Celeritas installed."})
+        public boolean celeritasCloneInvalidation = false;
     }
 
     public static class Debug {

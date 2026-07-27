@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.compat;
 
 import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.config.PulsarConfig;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -37,6 +38,11 @@ public final class CeleritasCloneCacheBridge {
     /** Invalidate every cloned section touching the given BLOCK range. */
     public static void invalidateBlockRange(final int x1, final int y1, final int z1,
                                             final int x2, final int y2, final int z2) {
+        // Opt-in while the FPS impact during chunk streaming is being
+        // measured; runtime-toggleable via Mod Options.
+        if (!PulsarConfig.compat.celeritasCloneInvalidation) {
+            return;
+        }
         if (state == ABSENT) {
             return;
         }

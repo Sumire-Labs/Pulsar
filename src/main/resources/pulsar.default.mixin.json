@@ -1,6 +1,7 @@
 {
   "required": true,
   "package": "com.sumirelabs.pulsar.mixin",
+  "plugin": "com.sumirelabs.pulsar.core.PulsarMixinPlugin",
   "compatibilityLevel": "JAVA_8",
   "target": "@env(DEFAULT)",
   "mixins": [

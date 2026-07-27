@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.Shadow;
 /**
  * Same facing-aware routing as {@code MixinWorldRenderLight}, for the
  * vanilla render-thread {@link ChunkCache}. Ported from Alfheim's
- * {@code ChunkCacheMixin} (MIT, Red Studio / Desoroxxx).
  */
 @Mixin(ChunkCache.class)
 public abstract class MixinChunkCacheRenderLight implements RawLightAccess {
@@ -29,7 +28,6 @@ public abstract class MixinChunkCacheRenderLight implements RawLightAccess {
     /**
      * @reason Facing-aware neighbour brightness (MC-92 family) for the
      * render-thread chunk cache.
-     * @author Luna Mira Lage (Desoroxxx) — Alfheim; ported to Pulsar
      */
     @Overwrite
     @SideOnly(Side.CLIENT)
