@@ -22,6 +22,9 @@ dependencies {
     // mixinbooter: required for IEarlyMixinLoader (PulsarLoadingPlugin uses it).
     // Cleanroom bundles a runtime version, but we still need the API at compile time.
     compileOnly "zone.rong:mixinbooter:10.5"
+    // Fluidlogged API: soft dependency — FluidLightBridge merges the stored
+    // fluid's opacity/emission into the engine's light reads when installed.
+    compileOnly "maven.modrinth:fluidlogged-api:3.3.3"
     if (enable_lwjglx.toBoolean()) {
         compileOnly "com.cleanroommc:lwjglx:1.0.0"
     }

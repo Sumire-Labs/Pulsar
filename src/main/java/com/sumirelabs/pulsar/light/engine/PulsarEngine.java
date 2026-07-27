@@ -3,6 +3,7 @@ package com.sumirelabs.pulsar.light.engine;
 import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.api.ExtendedWorld;
 import com.sumirelabs.pulsar.compat.CeleritasCloneCacheBridge;
+import com.sumirelabs.pulsar.compat.FluidLightBridge;
 import com.sumirelabs.pulsar.light.LightStats;
 import com.sumirelabs.pulsar.light.RenderBounds;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
@@ -226,6 +227,9 @@ public abstract class PulsarEngine {
                 }
 
                 this.setChunkInCache(cx, cz, chunk);
+                if (FluidLightBridge.LOADED) {
+                    this.fluidCapCache[cx + 5 * cz + this.chunkIndexOffset] = FluidLightBridge.capabilityOf(chunk);
+                }
                 this.setEmptinessMapCache(cx, cz, this.getEmptinessMap(chunk));
                 if (!isTwoRadius) {
                     this.setBlocksForChunkInCache(cx, cz, chunk.getBlockStorageArray());
@@ -241,6 +245,24 @@ public abstract class PulsarEngine {
 
     protected final void setChunkInCache(final int chunkX, final int chunkZ, final Chunk chunk) {
         this.chunkCache[chunkX + 5 * chunkZ + this.chunkIndexOffset] = chunk;
+    }
+
+    /** Fluidlogged-API chunk capabilities, parallel to the chunk cache (all null when the mod is absent). */
+    protected final Object[] fluidCapCache = new Object[5 * 5];
+
+    /**
+     * Packed light info for {@code state} at a world position: the per-state
+     * cache plus — when Fluidlogged API is installed — the fluid stored at
+     * that position max'd in (opacity/emission, uniform faces), mirroring
+     * Fluidlogged's own max() patches on the vanilla engine.
+     */
+    protected final int lightInfoAt(final IBlockState state, final int worldX, final int worldY, final int worldZ) {
+        final int info = LightInfo.of(state);
+        if (!FluidLightBridge.LOADED) {
+            return info;
+        }
+        final Object cap = this.fluidCapCache[(worldX >> 4) + 5 * (worldZ >> 4) + this.chunkIndexOffset];
+        return cap == null ? info : FluidLightBridge.merge(info, cap, worldX, worldY, worldZ);
     }
 
     protected final ExtendedBlockStorage getChunkSection(final int chunkX, final int chunkY, final int chunkZ) {
@@ -328,6 +350,7 @@ public abstract class PulsarEngine {
         Arrays.fill(this.nibbleCache, null);
         Arrays.fill(this.chunkCache, null);
         Arrays.fill(this.emptinessMapCache, null);
+        Arrays.fill(this.fluidCapCache, null);
         if (this.isClientSide) {
             Arrays.fill(this.notifyUpdateCache, false);
         }

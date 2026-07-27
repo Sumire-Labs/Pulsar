@@ -5,6 +5,7 @@ package com.sumirelabs.pulsar.mixin;
 // pulsar$ prefix below avoids any name collision.
 
 import com.sumirelabs.pulsar.api.ExtendedChunk;
+import com.sumirelabs.pulsar.compat.FluidLightBridge;
 import com.sumirelabs.pulsar.light.ChunkLightHelper;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
@@ -313,7 +314,13 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
      */
     @Unique
     private int pulsar$opacityAt(final int x, final int y, final int z) {
-        return this.getBlockState(x, y, z).getLightOpacity();
+        final int opacity = this.getBlockState(x, y, z).getLightOpacity();
+        if (!FluidLightBridge.LOADED) {
+            return opacity;
+        }
+        // Fluidlogged API: a stored fluid contributes max(block, fluid)
+        // opacity, so fluidlogged blocks count for the heightmap too.
+        return FluidLightBridge.maxOpacityAt((Chunk) (Object) this, opacity, x, y, z);
     }
 
     @Unique
