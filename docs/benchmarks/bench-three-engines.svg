@@ -87,7 +87,7 @@
 
   <!-- ===== Panel B: edits, grouped linear bars ===== -->
   <text class="ink-1" x="520" y="142" font-size="14" font-weight="600">Single block edit until light converged (p50)</text>
-  <text class="muted" x="520" y="160" font-size="12">64×64 stone platform at y=254 · 50 edits each · lower is better · Pulsar bars at min. visible height</text>
+  <text class="muted" x="520" y="160" font-size="12">64×64 stone platform at y=254 · 50 edits each · lower is better</text>
 
   <!-- y = 0..400ms over 500..190 -->
   <g class="grid" stroke-width="1">
@@ -109,7 +109,7 @@
   <text class="ink-2 tnum" x="648" y="469.8" font-size="11" font-weight="600" text-anchor="middle">23.5ms</text>
   <rect class="s-alfheim" x="678" y="496.68" width="44" height="3.32"/>
   <text class="ink-2 tnum" x="700" y="484" font-size="11" font-weight="600" text-anchor="middle">4.28ms</text>
-  <rect class="s-pulsar" x="730" y="497.5" width="44" height="2.5"/>
+  <rect class="s-pulsar" x="730" y="499.86" width="44" height="0.14"/>
   <text class="ink-2 tnum" x="752" y="472" font-size="11" font-weight="600" text-anchor="middle">0.18ms</text>
 
   <!-- place group: bar centers 886 / 938 / 990 -->
@@ -117,7 +117,7 @@
   <text class="ink-2 tnum" x="886" y="249" font-size="11" font-weight="600" text-anchor="middle">308ms</text>
   <path class="s-alfheim" d="M916 500 L916 496.03 Q916 492.03 920 492.03 L956 492.03 Q960 492.03 960 496.03 L960 500 Z"/>
   <text class="ink-2 tnum" x="938" y="484" font-size="11" font-weight="600" text-anchor="middle">10.3ms</text>
-  <rect class="s-pulsar" x="968" y="497.5" width="44" height="2.5"/>
+  <rect class="s-pulsar" x="968" y="499.86" width="44" height="0.14"/>
   <text class="ink-2 tnum" x="990" y="472" font-size="11" font-weight="600" text-anchor="middle">0.18ms</text>
   <text class="ink-1" x="990" y="452" font-size="12" font-weight="700" text-anchor="middle">58× vs Alfheim</text>
 
