@@ -54,8 +54,7 @@ The benchmarks above are all wins for Pulsar, so here is the other side of the l
 - **Strict light consistency.** Alfheim flushes its update queue synchronously on every light read, so code that changes a block and reads light in the same tick always sees the final value. Pulsar converges asynchronously — typically well under a millisecond, but a read in the same call stack can still see the pre-edit value, so gameplay logic that reads light immediately after editing blocks (mob-spawn checks, light-sensing contraptions) can run a tick behind.
 - **Memory.** Pulsar keeps double-buffered SWMR nibble arrays on top of the vanilla ones — roughly 2–3× the light memory per loaded chunk — and the persisted light cache makes saves somewhat larger. Alfheim runs on vanilla storage plus a queue.
 - **Total CPU / small machines.** Pulsar's speed comes from moving light to worker threads (~1.5 cores busy at the heaviest benchmark rung). On the 32-thread test system that parallelism is free; on a 2–4 core budget server the workers compete with the main thread, and Alfheim's lower total CPU use could come out ahead. Untested.
-- **Client FPS while streaming chunks — under investigation.** There are early signs that Pulsar's render-side integrations (Celeritas clone-cache invalidation, directional-light lookups) may cost some FPS while flying through freshly loaded terrain. A client-side benchmark is planned; until then, treat this as a possible Alfheim win.
-- **Maturity.** Alfheim is battle-tested across large modpacks. Pulsar is `0.1.0-dev.x` with a young compatibility surface — hence the warning at the top of this page.
+- **Maturity.** Alfheim is battle-tested across large modpacks. Pulsar is a young compatibility surface — hence the warning at the top of this page.
 
 ## Requirements
 
