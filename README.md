@@ -1,4 +1,4 @@
-# Pulsar
+# Pulsar Lighting Engine
 
 A lighting engine rebuilt for Minecraft 1.12.2, exclusively for [CleanroomLoader](https://github.com/CleanroomMC/CleanroomLoader).
 
