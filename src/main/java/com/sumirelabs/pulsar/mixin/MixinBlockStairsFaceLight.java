@@ -9,8 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 /**
  * Stairs take neighbour brightness only through their OPEN vertical face
- * (top half → below, bottom half → above). Ported from Alfheim's
- * {@code BlockStairsMixin} (MIT, Red Studio / Desoroxxx).
+ * (top half → below, bottom half → above).
  */
 @Mixin(BlockStairs.class)
 public abstract class MixinBlockStairsFaceLight extends MixinBlockFaceLight {

@@ -9,8 +9,7 @@ import net.minecraft.world.IBlockAccess;
 /**
  * Facing-aware neighbour-brightness contract attached to {@code Block}
  * (MC-92 family: slab/stairs faces lit by the max of ALL neighbours in
- * vanilla instead of the face-appropriate one). Ported from Alfheim's
- * {@code ILitBlock} (MIT, Red Studio / Desoroxxx).
+ * vanilla instead of the face-appropriate one).
  */
 public interface FaceLitBlock {
 

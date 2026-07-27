@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="640" viewBox="0 0 1180 640" role="img" aria-label="Pulsar vs Alfheim vs vanilla lighting benchmark: Pulsar generates 8 percent faster than Alfheim and converges single block edits 58 times faster">
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="1080" viewBox="0 0 1180 1080" role="img" aria-label="Pulsar vs Alfheim vs vanilla lighting benchmark: Pulsar generates 8 percent faster than Alfheim, converges single block edits 58 times faster, and sustains 20 TPS at 2048 edits per tick under sustained load where Alfheim exceeds the tick budget past 256">
   <style>
     :root { color-scheme: light dark; }
     .surface { fill: #fcfcfb; }
@@ -10,6 +10,12 @@
     .s-pulsar { fill: #2a78d6; }
     .s-alfheim { fill: #eb6834; }
     .s-vanilla { fill: #1baf7a; }
+    .l-pulsar { stroke: #2a78d6; }
+    .l-alfheim { stroke: #eb6834; }
+    .l-vanilla { stroke: #1baf7a; }
+    .dot { stroke: #fcfcfb; }
+    .zone { fill: #e1e0d9; opacity: 0.35; }
+    .budget { stroke: #898781; }
     text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
     .tnum { font-variant-numeric: tabular-nums; }
     @media (prefers-color-scheme: dark) {
@@ -21,10 +27,15 @@
       .s-pulsar { fill: #3987e5; }
       .s-alfheim { fill: #d95926; }
       .s-vanilla { fill: #199e70; }
+      .l-pulsar { stroke: #3987e5; }
+      .l-alfheim { stroke: #d95926; }
+      .l-vanilla { stroke: #199e70; }
+      .dot { stroke: #1a1a19; }
+      .zone { fill: #2c2c2a; opacity: 0.5; }
     }
   </style>
 
-  <rect class="surface" x="0" y="0" width="1180" height="640"/>
+  <rect class="surface" x="0" y="0" width="1180" height="1080"/>
 
   <!-- Header -->
   <text class="ink-1" x="60" y="40" font-size="22" font-weight="700">Lighting Engine Benchmark - Pulsar, Alfheim, Vanilla</text>
@@ -38,18 +49,6 @@
     <text class="ink-2" x="210" y="96">Alfheim 1.6</text>
     <rect class="s-pulsar" x="310" y="84" width="14" height="14" rx="3"/>
     <text class="ink-2" x="330" y="96">Pulsar 0.1.0-dev.14</text>
-  </g>
-
-  <!-- Test system card -->
-  <g>
-    <rect class="axis" x="858" y="16" width="262" height="118" rx="8" fill="none" stroke-width="1"/>
-    <text class="muted" x="874" y="36" font-size="10" font-weight="700" letter-spacing="0.08em">TEST SYSTEM</text>
-    <text class="ink-2" x="874" y="55" font-size="11.5">Ryzen AI MAX+ 395</text>
-    <text class="ink-2" x="874" y="71" font-size="11.5">Radeon 8060S</text>
-    <text class="ink-2" x="874" y="87" font-size="11.5">96 GB DDR5-8000</text>
-    <line class="grid" x1="874" y1="96" x2="1104" y2="96" stroke-width="1"/>
-    <text class="muted" x="874" y="112" font-size="10.5">Base: BareBones Template (Cleanroom)</text>
-    <text class="muted" x="874" y="126" font-size="10.5">only the lighting engine swapped per run</text>
   </g>
 
   <!-- ===== Panel A: worldgen ===== -->
@@ -88,7 +87,7 @@
 
   <!-- ===== Panel B: edits, grouped linear bars ===== -->
   <text class="ink-1" x="520" y="142" font-size="14" font-weight="600">Single block edit until light converged (p50)</text>
-  <text class="muted" x="520" y="160" font-size="12">64×64 stone platform at y=254 · 50 edits each · lower is better</text>
+  <text class="muted" x="520" y="160" font-size="12">64×64 stone platform at y=254 · 50 edits each · lower is better · Pulsar bars at min. visible height</text>
 
   <!-- y = 0..400ms over 500..190 -->
   <g class="grid" stroke-width="1">
@@ -106,25 +105,19 @@
   </g>
 
   <!-- remove group: bar centers 648 / 700 / 752, width 44 -->
-  <!-- vanilla 23.5ms -> h 18.2 -> y 481.8 -->
   <path class="s-vanilla" d="M626 500 L626 485.8 Q626 481.8 630 481.8 L666 481.8 Q670 481.8 670 485.8 L670 500 Z"/>
   <text class="ink-2 tnum" x="648" y="469.8" font-size="11" font-weight="600" text-anchor="middle">23.5ms</text>
-  <!-- alfheim 4.28ms -> h 3.3 -->
   <rect class="s-alfheim" x="678" y="496.68" width="44" height="3.32"/>
   <text class="ink-2 tnum" x="700" y="484" font-size="11" font-weight="600" text-anchor="middle">4.28ms</text>
-  <!-- pulsar 0.18ms -> h 0.14 -->
-  <rect class="s-pulsar" x="730" y="499.86" width="44" height="0.14"/>
+  <rect class="s-pulsar" x="730" y="497.5" width="44" height="2.5"/>
   <text class="ink-2 tnum" x="752" y="472" font-size="11" font-weight="600" text-anchor="middle">0.18ms</text>
 
   <!-- place group: bar centers 886 / 938 / 990 -->
-  <!-- vanilla 308ms -> y 261.0 -->
   <path class="s-vanilla" d="M864 500 L864 265 Q864 261 868 261 L904 261 Q908 261 908 265 L908 500 Z"/>
   <text class="ink-2 tnum" x="886" y="249" font-size="11" font-weight="600" text-anchor="middle">308ms</text>
-  <!-- alfheim 10.3ms -> h 8.0 -> y 492.03 -->
   <path class="s-alfheim" d="M916 500 L916 496.03 Q916 492.03 920 492.03 L956 492.03 Q960 492.03 960 496.03 L960 500 Z"/>
   <text class="ink-2 tnum" x="938" y="484" font-size="11" font-weight="600" text-anchor="middle">10.3ms</text>
-  <!-- pulsar 0.18ms -> h 0.14 -->
-  <rect class="s-pulsar" x="968" y="499.86" width="44" height="0.14"/>
+  <rect class="s-pulsar" x="968" y="497.5" width="44" height="2.5"/>
   <text class="ink-2 tnum" x="990" y="472" font-size="11" font-weight="600" text-anchor="middle">0.18ms</text>
   <text class="ink-1" x="990" y="452" font-size="12" font-weight="700" text-anchor="middle">58× vs Alfheim</text>
 
@@ -137,7 +130,71 @@
   </g>
   <text class="muted" x="820" y="560" font-size="11" text-anchor="middle">Bulk: 4,096-block platform fully lit — Pulsar 0.2s · Alfheim 0.6s · vanilla 26.0s</text>
 
+  <!-- ===== Panel C: sustained edit load (tps mode) ===== -->
+  <text class="ink-1" x="60" y="664" font-size="14" font-weight="600">Sustained edit load — server tick time vs edit rate</text>
+  <text class="muted" x="60" y="682" font-size="12">MSPT (avg tick work time) while toggling N random platform blocks every tick · 20s per step, single sweep per engine, same seeded op sequence · lower is better</text>
+
+  <!-- saturation zone: x >= 605 -->
+  <rect class="zone" x="605" y="710" width="515" height="240"/>
+
+  <!-- grid: 0/50/100/150/200/250ms over y 950..710 -->
+  <g class="grid" stroke-width="1">
+    <line x1="60" y1="854" x2="1120" y2="854"/>
+    <line x1="60" y1="806" x2="1120" y2="806"/>
+    <line x1="60" y1="758" x2="1120" y2="758"/>
+    <line x1="60" y1="710" x2="1120" y2="710"/>
+  </g>
+  <g class="muted" font-size="11" text-anchor="end">
+    <text class="tnum" x="52" y="953">0</text>
+    <text class="tnum" x="52" y="905">50ms</text>
+    <text class="tnum" x="52" y="857">100ms</text>
+    <text class="tnum" x="52" y="809">150ms</text>
+    <text class="tnum" x="52" y="761">200ms</text>
+    <text class="tnum" x="52" y="713">250ms</text>
+  </g>
+
+  <!-- 20 TPS budget line -->
+  <line class="budget" x1="60" y1="902" x2="950" y2="902" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text class="muted" x="66" y="897" font-size="10.5">50 ms = 20 TPS budget</text>
+
+  <!-- zone labels -->
+  <text class="muted" x="332" y="726" font-size="11" text-anchor="middle">heavy industrial gameplay (TNT clearing, machine fleets)</text>
+  <text class="muted" x="332" y="742" font-size="10.5" text-anchor="middle">below ~10 edits/tick (normal play) every engine is near-free — extrapolated, not measured</text>
+  <text class="muted" x="862" y="726" font-size="11" text-anchor="middle">saturation margin — beyond normal gameplay</text>
+
+  <!-- series lines: x = 130/320/510/700/890/1080 -->
+  <polyline class="l-vanilla" fill="none" stroke-width="2" points="130,915.2 320,918.3 510,918.8 700,890.0 890,835.4 1080,726.4"/>
+  <polyline class="l-alfheim" fill="none" stroke-width="2" points="130,936.3 320,926.1 510,912.8 700,883.2 890,828.7 1080,762.0"/>
+  <polyline class="l-pulsar" fill="none" stroke-width="2.5" points="130,945.6 320,944.5 510,943.0 700,940.9 890,935.0 1080,917.7"/>
+
+  <!-- markers -->
+  <g class="dot" stroke-width="2">
+    <circle class="s-vanilla" cx="130" cy="915.2" r="3.5"/><circle class="s-vanilla" cx="320" cy="918.3" r="3.5"/><circle class="s-vanilla" cx="510" cy="918.8" r="3.5"/><circle class="s-vanilla" cx="700" cy="890.0" r="3.5"/><circle class="s-vanilla" cx="890" cy="835.4" r="3.5"/><circle class="s-vanilla" cx="1080" cy="726.4" r="3.5"/>
+    <circle class="s-alfheim" cx="130" cy="936.3" r="3.5"/><circle class="s-alfheim" cx="320" cy="926.1" r="3.5"/><circle class="s-alfheim" cx="510" cy="912.8" r="3.5"/><circle class="s-alfheim" cx="700" cy="883.2" r="3.5"/><circle class="s-alfheim" cx="890" cy="828.7" r="3.5"/><circle class="s-alfheim" cx="1080" cy="762.0" r="3.5"/>
+    <circle class="s-pulsar" cx="130" cy="945.6" r="3.5"/><circle class="s-pulsar" cx="320" cy="944.5" r="3.5"/><circle class="s-pulsar" cx="510" cy="943.0" r="3.5"/><circle class="s-pulsar" cx="700" cy="940.9" r="3.5"/><circle class="s-pulsar" cx="890" cy="935.0" r="3.5"/><circle class="s-pulsar" cx="1080" cy="917.7" r="3.5"/>
+  </g>
+
+  <!-- end labels -->
+  <text class="ink-2 tnum" x="1112" y="716" font-size="11" font-weight="600" text-anchor="end">vanilla 233 ms</text>
+  <text class="ink-2 tnum" x="1112" y="752" font-size="11" font-weight="600" text-anchor="end">Alfheim 196 ms</text>
+  <text class="ink-2 tnum" x="1112" y="896" font-size="11" font-weight="600" text-anchor="end">Pulsar 33.6 ms</text>
+  <text class="ink-1" x="1112" y="910" font-size="12" font-weight="700" text-anchor="end">20 TPS held at 2048</text>
+
+  <!-- x axis -->
+  <line class="axis" x1="60" y1="950" x2="1120" y2="950" stroke-width="1"/>
+  <g class="ink-2 tnum" font-size="12" text-anchor="middle">
+    <text x="130" y="970">64</text>
+    <text x="320" y="970">128</text>
+    <text x="510" y="970">256</text>
+    <text x="700" y="970">512</text>
+    <text x="890" y="970">1024</text>
+    <text x="1080" y="970">2048</text>
+  </g>
+  <text class="muted" x="590" y="988" font-size="11" text-anchor="middle">edits per tick — each edit floods or re-shadows a ~190-block sky column</text>
+
+  <text class="muted" x="60" y="1012" font-size="11">vanilla's single-tick freezes reach 1.1–3.2s at 64–128 edits/tick (pristine-column floods) · Pulsar's post-run light backlog stays ≤ 0.03s at every step — its async workers keep pace (~1.5 cores at 2048)</text>
+
   <!-- Footnote -->
-  <text class="muted" x="60" y="600" font-size="11">fresh world per run · edit time includes async convergence wait</text>
-  <text class="muted" x="60" y="618" font-size="11">Method: port of ca.spottedleaf/lightbench methodology</text>
+  <text class="muted" x="60" y="1040" font-size="11">fresh world per run · edit time includes async convergence wait · sustained-load MSPT measured without per-edit drain (whatever each engine leaves on the tick thread)</text>
+  <text class="muted" x="60" y="1058" font-size="11">Method: port of ca.spottedleaf/lightbench methodology · tps mode is our sustained-load extension</text>
 </svg>

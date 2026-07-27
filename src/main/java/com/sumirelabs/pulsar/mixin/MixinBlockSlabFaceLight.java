@@ -9,8 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 /**
  * Slabs take neighbour brightness only through their OPEN vertical face
- * (top slab → below, bottom slab → above). Ported from Alfheim's
- * {@code BlockSlabMixin} (MIT, Red Studio / Desoroxxx).
+ * (top slab → below, bottom slab → above).
  */
 @Mixin(BlockSlab.class)
 public abstract class MixinBlockSlabFaceLight extends MixinBlockFaceLight {

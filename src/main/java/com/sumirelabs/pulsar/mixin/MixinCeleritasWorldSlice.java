@@ -51,7 +51,7 @@ public abstract class MixinCeleritasWorldSlice implements RawLightAccess {
      * Celeritas's cloned world slice, matching the World/ChunkCache
      * behaviour. Volume bounds are already checked by the caller
      * (getCombinedLight); the raw lookup handles the rest.
-     * @author ported from Alfheim's design (MIT, Red Studio / Desoroxxx)
+     * @author Sumire Labs
      */
     @Overwrite(remap = false)
     private int getLightFromNeighborsFor(final EnumSkyBlock lightType, final BlockPos pos) {

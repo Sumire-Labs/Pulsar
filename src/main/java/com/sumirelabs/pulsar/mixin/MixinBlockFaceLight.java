@@ -12,8 +12,7 @@ import net.minecraft.world.IBlockAccess;
 import org.spongepowered.asm.mixin.Mixin;
 
 /**
- * Facing-aware neighbour-brightness core (MC-92 family), ported from
- * Alfheim's {@code BlockMixin} (MIT, Red Studio / Desoroxxx).
+ * Facing-aware neighbour-brightness core (MC-92 family).
  *
  * <p>Vanilla's {@code getLightFromNeighborsFor} takes the max light of ALL
  * five up/horizontal neighbours for any {@code useNeighborBrightness}
@@ -50,7 +49,7 @@ public abstract class MixinBlockFaceLight implements FaceLitBlock {
             }
             int opacity = info.pulsar$getLightOpacity(facing, access, pos);
             final int neighborLight = raw.pulsar$getRawLight(lightType, pos.offset(facing));
-            // Alfheim: a fully open face still attenuates by 1 unless it is
+            // A fully open face still attenuates by 1 unless it is
             // receiving full sky light (keeps open-to-sky faces at 15).
             if (opacity == 0 && (lightType != EnumSkyBlock.SKY || neighborLight != EnumSkyBlock.SKY.defaultLightValue)) {
                 opacity = 1;

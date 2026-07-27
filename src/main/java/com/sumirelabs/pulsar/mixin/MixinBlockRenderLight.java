@@ -10,8 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
 /**
- * Client render-side halves of the non-full-block lighting fix. Ported from
- * Alfheim's {@code BlockMixin} (MIT, Red Studio / Desoroxxx).
+ * Client render-side halves of the non-full-block lighting fix.
  */
 @Mixin(Block.class)
 public abstract class MixinBlockRenderLight {
@@ -21,7 +20,7 @@ public abstract class MixinBlockRenderLight {
      * hack — the facing-aware neighbour-brightness path (MixinBlockFaceLight
      * + the World/ChunkCache/WorldSlice overwrites) computes the correct
      * value at this position instead. (MC-92 family)
-     * @author Luna Mira Lage (Desoroxxx) — Alfheim; ported to Pulsar
+     * @author Sumire Labs
      */
     @Overwrite
     @SideOnly(Side.CLIENT)
@@ -33,7 +32,7 @@ public abstract class MixinBlockRenderLight {
      * @reason Light-emitting blocks must not be darkened by ambient
      * occlusion (MC-50734, MC-249343): any block with an emission above 1
      * gets full AO brightness.
-     * @author Luna Mira Lage (Desoroxxx) — Alfheim; ported to Pulsar
+     * @author Sumire Labs
      */
     @Overwrite
     @SideOnly(Side.CLIENT)

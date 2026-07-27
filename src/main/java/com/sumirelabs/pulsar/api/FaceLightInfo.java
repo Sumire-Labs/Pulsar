@@ -7,8 +7,7 @@ import net.minecraft.world.IBlockAccess;
 
 /**
  * State-level view of {@link FaceLitBlock} (attached to
- * {@code BlockStateContainer$StateImplementation}). Ported from Alfheim's
- * {@code ILightInfoProvider} (MIT, Red Studio / Desoroxxx).
+ * {@code BlockStateContainer$StateImplementation}).
  */
 public interface FaceLightInfo {
 

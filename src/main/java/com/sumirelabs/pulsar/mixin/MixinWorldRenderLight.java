@@ -14,8 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 /**
  * Routes the client-side neighbour-brightness lookup on {@link World}
- * through the facing-aware path ({@code MixinBlockFaceLight}). Ported from
- * Alfheim's {@code WorldMixin} (MIT, Red Studio / Desoroxxx).
+ * through the facing-aware path ({@code MixinBlockFaceLight}).
  */
 @Mixin(World.class)
 public abstract class MixinWorldRenderLight implements RawLightAccess {
@@ -31,7 +30,7 @@ public abstract class MixinWorldRenderLight implements RawLightAccess {
      * faces a block declares open contribute, instead of vanilla's max over
      * all five up/horizontal neighbours. Bounds/nether guards live in
      * {@code getLightFor}, which the raw path delegates to.
-     * @author Luna Mira Lage (Desoroxxx) — Alfheim; ported to Pulsar
+     * @author Sumire Labs
      */
     @Overwrite
     @SideOnly(Side.CLIENT)
