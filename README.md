@@ -97,7 +97,7 @@ Pulsar fully replaces the vanilla lighting engine, so it conflicts with anything
 
 ## License
 
-[LGPL-3.0](LICENSE.md). The render-light fixes ported from Alfheim remain under their original MIT license.
+[LGPL-3.0](LICENSE.md).
 
 ## ⚠️ Notice
 
