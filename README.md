@@ -3,8 +3,7 @@
 A lighting engine rebuilt for Minecraft 1.12.2, exclusively for [CleanroomLoader](https://github.com/CleanroomMC/CleanroomLoader).
 
 > [!WARNING]
-> This mod is a personal hobby project and still in an early stage of development.
-> If you are trying to use this project without understanding its purpose,
+> This mod is a hobby project. If you intend to use it without understanding the project's purpose
 > please use this instead: [Alfheim](https://www.curseforge.com/minecraft/mc-mods/alfheim-lighting-engine)
 
 ## Overview
