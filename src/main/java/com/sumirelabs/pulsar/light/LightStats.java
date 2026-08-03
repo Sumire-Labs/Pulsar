@@ -80,7 +80,9 @@ public final class LightStats {
         this.side = isClient ? "CLIENT" : "SERVER";
     }
 
-    /** Called once per tick from the main thread. Triggers periodic dump. */
+    /**
+     * Called once per tick from the main thread. Triggers periodic dump.
+     */
     public void tick(final int skyBacklog, final int blockBacklog) {
         final boolean on = PulsarConfig.debug.enableDebugStats;
         if (enabled != on) {

@@ -64,7 +64,8 @@ public final class PulsarMixinPlugin implements IMixinConfigPlugin {
     }
 
     @Override
-    public void onLoad(final String mixinPackage) {}
+    public void onLoad(final String mixinPackage) {
+    }
 
     @Override
     public String getRefMapperConfig() {
@@ -72,7 +73,8 @@ public final class PulsarMixinPlugin implements IMixinConfigPlugin {
     }
 
     @Override
-    public void acceptTargets(final Set<String> myTargets, final Set<String> otherTargets) {}
+    public void acceptTargets(final Set<String> myTargets, final Set<String> otherTargets) {
+    }
 
     @Override
     public List<String> getMixins() {
@@ -80,8 +82,10 @@ public final class PulsarMixinPlugin implements IMixinConfigPlugin {
     }
 
     @Override
-    public void preApply(final String targetClassName, final ClassNode targetClass, final String mixinClassName, final IMixinInfo mixinInfo) {}
+    public void preApply(final String targetClassName, final ClassNode targetClass, final String mixinClassName, final IMixinInfo mixinInfo) {
+    }
 
     @Override
-    public void postApply(final String targetClassName, final ClassNode targetClass, final String mixinClassName, final IMixinInfo mixinInfo) {}
+    public void postApply(final String targetClassName, final ClassNode targetClass, final String mixinClassName, final IMixinInfo mixinInfo) {
+    }
 }

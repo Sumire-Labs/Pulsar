@@ -17,7 +17,8 @@ import java.util.Arrays;
  */
 public final class ChunkLightHelper {
 
-    private ChunkLightHelper() {}
+    private ChunkLightHelper() {
+    }
 
     /**
      * Wrap each loaded section's vanilla sky-light {@link NibbleArray} in a
@@ -69,7 +70,9 @@ public final class ChunkLightHelper {
         }
     }
 
-    /** Sky-light variant of {@link #wrapVanillaBlock}. */
+    /**
+     * Sky-light variant of {@link #wrapVanillaBlock}.
+     */
     public static void wrapVanillaSky(SWMRNibbleArray[] sky, ExtendedBlockStorage[] storageArrays) {
         final int minLight = WorldUtil.getMinLightSection();
         for (int i = 0; i < sky.length; ++i) {
@@ -81,7 +84,9 @@ public final class ChunkLightHelper {
         }
     }
 
-    /** Publish SWMR sky visible data back into the vanilla nibble arrays. */
+    /**
+     * Publish SWMR sky visible data back into the vanilla nibble arrays.
+     */
     public static void syncSkyToVanilla(SWMRNibbleArray[] skyNibbles, ExtendedBlockStorage[] storageArrays) {
         final int minLight = WorldUtil.getMinLightSection();
         for (int i = 0; i < skyNibbles.length; ++i) {
@@ -114,7 +119,9 @@ public final class ChunkLightHelper {
         }
     }
 
-    /** Publish SWMR block visible data back into the vanilla nibble arrays. */
+    /**
+     * Publish SWMR block visible data back into the vanilla nibble arrays.
+     */
     public static void syncBlockToVanilla(SWMRNibbleArray[] blockNibbles, ExtendedBlockStorage[] storageArrays) {
         final int minLight = WorldUtil.getMinLightSection();
         for (int i = 0; i < blockNibbles.length; ++i) {

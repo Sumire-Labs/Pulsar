@@ -7,7 +7,8 @@ package com.sumirelabs.pulsar.util;
  */
 public final class CoordinateUtils {
 
-    private CoordinateUtils() {}
+    private CoordinateUtils() {
+    }
 
     /**
      * Pack a chunk (x, z) pair into a single 64-bit key. Lower 32 bits hold

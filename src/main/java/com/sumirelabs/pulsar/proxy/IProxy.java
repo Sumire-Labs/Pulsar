@@ -8,13 +8,17 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 public interface IProxy {
-    default void preInit(FMLPreInitializationEvent event) {}
+    default void preInit(FMLPreInitializationEvent event) {
+    }
 
-    default void init(FMLInitializationEvent event) {}
+    default void init(FMLInitializationEvent event) {
+    }
 
-    default void postInit(FMLPostInitializationEvent event) {}
+    default void postInit(FMLPostInitializationEvent event) {
+    }
 
-    default void serverStarting(FMLServerStartingEvent event) {}
+    default void serverStarting(FMLServerStartingEvent event) {
+    }
 
     // Reject GregTech WorldSceneRenderer / JEI multiblock-preview fake worlds.
     // Default (dedicated server): only WorldServer instances are real.

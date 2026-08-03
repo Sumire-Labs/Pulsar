@@ -40,9 +40,12 @@ public final class LightInfo {
     public static final int FACE_MASK = 0x3F;
     public static final int COMPUTED = 1 << 30;
 
-    private LightInfo() {}
+    private LightInfo() {
+    }
 
-    /** Look up (or lazily compute) the packed info for a state. */
+    /**
+     * Look up (or lazily compute) the packed info for a state.
+     */
     public static int of(final IBlockState state) {
         if (state instanceof LightCachedState) {
             return ((LightCachedState) state).pulsar$lightInfo();
@@ -99,7 +102,9 @@ public final class LightInfo {
         return (info & (1 << (FACE_SHIFT + dirOrdinal))) != 0;
     }
 
-    /** Face-solid bitmask by AxisDirection ordinal; 0 when not REGISTRY. */
+    /**
+     * Face-solid bitmask by AxisDirection ordinal; 0 when not REGISTRY.
+     */
     public static int faceBits(final int info) {
         return (info >>> FACE_SHIFT) & FACE_MASK;
     }

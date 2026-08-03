@@ -15,7 +15,7 @@ public interface ExtendedChunk {
 
     /**
      * @return {@code true} once Pulsar has completed initial light propagation
-     *         for this chunk.
+     * for this chunk.
      */
     boolean pulsar$isLightReady();
 }

@@ -12,7 +12,8 @@ package com.sumirelabs.pulsar.light;
  */
 public final class RenderBounds {
 
-    private RenderBounds() {}
+    private RenderBounds() {
+    }
 
     public static long pack(final int minX, final int minY, final int minZ,
                             final int maxX, final int maxY, final int maxZ) {

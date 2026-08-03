@@ -34,15 +34,21 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 @SuppressWarnings("deprecation")
 public final class FaceOcclusion {
 
-    /** {@link Block} → 96 bits packed face solidity. */
+    /**
+     * {@link Block} → 96 bits packed face solidity.
+     */
     private static final Reference2ObjectOpenHashMap<Block, long[]> FACE_SOLIDITY =
             new Reference2ObjectOpenHashMap<>();
 
-    /** Blocks marked sided-transparent (either via interface or scan). */
+    /**
+     * Blocks marked sided-transparent (either via interface or scan).
+     */
     private static final java.util.Set<Block> HAS_SIDED_TRANSPARENCY =
             java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
 
-    /** AxisDirection ordinal → EnumFacing for isSideSolid calls. */
+    /**
+     * AxisDirection ordinal → EnumFacing for isSideSolid calls.
+     */
     private static final EnumFacing[] AXIS_TO_FACING = {
             EnumFacing.EAST,   // 0: POSITIVE_X
             EnumFacing.WEST,   // 1: NEGATIVE_X
@@ -52,7 +58,8 @@ public final class FaceOcclusion {
             EnumFacing.DOWN,   // 5: NEGATIVE_Y
     };
 
-    private FaceOcclusion() {}
+    private FaceOcclusion() {
+    }
 
     public static boolean hasSidedTransparency(final Block block) {
         return HAS_SIDED_TRANSPARENCY.contains(block);
@@ -77,7 +84,7 @@ public final class FaceOcclusion {
      * Scalar absorption resolution: returns a single int (1–15) using vanilla
      * {@link IBlockState#getLightOpacity()} and directional face checks.
      *
-     * @param state    destination block state
+     * @param state      destination block state
      * @param dirOrdinal axis direction ordinal (0–5)
      * @return absorption (1–15)
      */
@@ -149,7 +156,7 @@ public final class FaceOcclusion {
             }
 
             if (anySidedDifference) {
-                FACE_SOLIDITY.put(block, new long[] { bits0, bits1 });
+                FACE_SOLIDITY.put(block, new long[]{bits0, bits1});
                 HAS_SIDED_TRANSPARENCY.add(block);
                 count++;
             }

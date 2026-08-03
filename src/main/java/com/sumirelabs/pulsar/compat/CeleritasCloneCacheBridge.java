@@ -33,9 +33,12 @@ public final class CeleritasCloneCacheBridge {
     private static Method getSectionCache;
     private static Method invalidate;
 
-    private CeleritasCloneCacheBridge() {}
+    private CeleritasCloneCacheBridge() {
+    }
 
-    /** Invalidate every cloned section touching the given BLOCK range. */
+    /**
+     * Invalidate every cloned section touching the given BLOCK range.
+     */
     public static void invalidateBlockRange(final int x1, final int y1, final int z1,
                                             final int x2, final int y2, final int z2) {
         // Opt-in while the FPS impact during chunk streaming is being

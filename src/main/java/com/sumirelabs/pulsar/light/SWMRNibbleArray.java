@@ -370,8 +370,8 @@ public final class SWMRNibbleArray {
 
     /**
      * @return the raw backing byte array for the visible state, or {@code null}
-     *         if the state is null or uninitialised. The caller must not
-     *         mutate the returned array.
+     * if the state is null or uninitialised. The caller must not
+     * mutate the returned array.
      */
     public byte[] getVisibleData() {
         return this.storageVisible;

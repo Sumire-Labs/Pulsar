@@ -22,7 +22,9 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(targets = "org.taumc.celeritas.impl.world.WorldSlice", remap = false)
 public abstract class MixinCeleritasWorldSlice implements RawLightAccess {
 
-    /** NOTE: takes coordinates RELATIVE to {@code baseX/baseY/baseZ}. */
+    /**
+     * NOTE: takes coordinates RELATIVE to {@code baseX/baseY/baseZ}.
+     */
     @Shadow(remap = false)
     private int getLightFor(final EnumSkyBlock lightType, final int x, final int y, final int z) {
         throw new AssertionError();

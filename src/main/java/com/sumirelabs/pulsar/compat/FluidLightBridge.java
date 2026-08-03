@@ -28,9 +28,12 @@ public final class FluidLightBridge {
 
     public static final boolean LOADED = Loader.isModLoaded("fluidlogged_api");
 
-    private FluidLightBridge() {}
+    private FluidLightBridge() {
+    }
 
-    /** The chunk's fluid capability as an opaque handle, or {@code null}. */
+    /**
+     * The chunk's fluid capability as an opaque handle, or {@code null}.
+     */
     public static Object capabilityOf(final Chunk chunk) {
         if (!LOADED || chunk == null) {
             return null;

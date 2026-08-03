@@ -125,7 +125,9 @@ public final class LightQueue {
         this.workAvailable.release(1);
     }
 
-    /** Queue edge checks for all light sections on a chunk. */
+    /**
+     * Queue edge checks for all light sections on a chunk.
+     */
     public synchronized void queueEdgeCheckAllSections(final int cx, final int cz, final boolean isSky) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
@@ -211,7 +213,9 @@ public final class LightQueue {
         }
     }
 
-    /** Bookkeeping for every path that removes a task from the map. */
+    /**
+     * Bookkeeping for every path that removes a task from the map.
+     */
     private void onTaskRemoved(final ChunkTasks task) {
         if (task.initialLightChunk != null) {
             this.initialLightCount--;
@@ -255,7 +259,9 @@ public final class LightQueue {
         this.workAvailable.drainPermits();
     }
 
-    /** Wake the worker thread (e.g., for shutdown). */
+    /**
+     * Wake the worker thread (e.g., for shutdown).
+     */
     void wakeUp() {
         this.workAvailable.release(1);
     }

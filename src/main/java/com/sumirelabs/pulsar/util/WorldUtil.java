@@ -11,7 +11,8 @@ package com.sumirelabs.pulsar.util;
  */
 public final class WorldUtil {
 
-    private WorldUtil() {}
+    private WorldUtil() {
+    }
 
     private static int minSection = 0;
     private static int maxSection = 15;
@@ -29,7 +30,9 @@ public final class WorldUtil {
         return maxSection;
     }
 
-    /** Light sections extend one beyond block sections in each direction. */
+    /**
+     * Light sections extend one beyond block sections in each direction.
+     */
     public static int getMinLightSection() {
         return minSection - 1;
     }

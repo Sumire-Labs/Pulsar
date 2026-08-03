@@ -16,7 +16,7 @@ public interface ExtendedWorld {
      * @param chunkX chunk X coordinate (block X &gt;&gt; 4)
      * @param chunkZ chunk Z coordinate (block Z &gt;&gt; 4)
      * @return the chunk if loaded, {@code null} otherwise. Never triggers chunk
-     *         loading.
+     * loading.
      */
     Chunk pulsar$getAnyChunkImmediately(int chunkX, int chunkZ);
 
@@ -24,8 +24,8 @@ public interface ExtendedWorld {
      * @param chunkX chunk X coordinate
      * @param chunkZ chunk Z coordinate
      * @return {@code true} if the chunk is registered with Pulsar's
-     *         {@code WorldLightManager} but its initial BFS pass has not yet
-     *         completed.
+     * {@code WorldLightManager} but its initial BFS pass has not yet
+     * completed.
      */
     boolean pulsar$hasChunkPendingLight(int chunkX, int chunkZ);
 

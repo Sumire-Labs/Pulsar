@@ -11,7 +11,7 @@ import net.minecraft.util.EnumFacing;
  * <p>Pulsar's BFS engine consults this interface before falling back to the
  * scalar opacity returned by
  * {@link IBlockState#getLightOpacity(net.minecraft.world.IBlockAccess,
- *        net.minecraft.util.math.BlockPos)}.
+ * net.minecraft.util.math.BlockPos)}.
  *
  * <p>This API surface is intentionally minimal: Pulsar's initial release is
  * scalar-only (no RGB), so there is no per-channel absorption variant. RGB
@@ -23,7 +23,7 @@ public interface FaceLightOcclusion {
      * @param state     the block state being queried
      * @param direction the face being queried (never {@code null})
      * @return 0–15 light opacity for that face. {@code 0} = transparent,
-     *         {@code 15} = fully opaque.
+     * {@code 15} = fully opaque.
      */
     int getDirectionalLightOpacity(IBlockState state, EnumFacing direction);
 }

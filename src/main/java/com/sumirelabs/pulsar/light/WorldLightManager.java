@@ -165,7 +165,9 @@ public final class WorldLightManager {
         if (this.blockQueue != null) this.blockQueue.queueBlockChange(x, y, z);
     }
 
-    /** A section's emptiness changed (e.g. a block placed into a new EBS). */
+    /**
+     * A section's emptiness changed (e.g. a block placed into a new EBS).
+     */
     public void queueSectionChange(final int cx, final int sectionY, final int cz, final boolean empty) {
         if (this.skyQueue != null) this.skyQueue.queueSectionChange(cx, sectionY, cz, empty);
         if (this.blockQueue != null) this.blockQueue.queueSectionChange(cx, sectionY, cz, empty);

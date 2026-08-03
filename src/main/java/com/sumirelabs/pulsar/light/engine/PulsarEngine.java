@@ -42,7 +42,7 @@ import java.util.List;
 public abstract class PulsarEngine {
 
     protected static final AxisDirection[] AXIS_DIRECTIONS = AxisDirection.values();
-    protected static final AxisDirection[] ONLY_HORIZONTAL_DIRECTIONS = new AxisDirection[] {
+    protected static final AxisDirection[] ONLY_HORIZONTAL_DIRECTIONS = new AxisDirection[]{
             AxisDirection.POSITIVE_X, AxisDirection.NEGATIVE_X,
             AxisDirection.POSITIVE_Z, AxisDirection.NEGATIVE_Z
     };
@@ -247,7 +247,9 @@ public abstract class PulsarEngine {
         this.chunkCache[chunkX + 5 * chunkZ + this.chunkIndexOffset] = chunk;
     }
 
-    /** Fluidlogged-API chunk capabilities, parallel to the chunk cache (all null when the mod is absent). */
+    /**
+     * Fluidlogged-API chunk capabilities, parallel to the chunk cache (all null when the mod is absent).
+     */
     protected final Object[] fluidCapCache = new Object[5 * 5];
 
     /**
@@ -615,7 +617,8 @@ public abstract class PulsarEngine {
         }
     }
 
-    protected void prepareBatchedEdgeChecks(final int chunkX, final int chunkZ) {}
+    protected void prepareBatchedEdgeChecks(final int chunkX, final int chunkZ) {
+    }
 
     /**
      * Process per-section emptiness changes.
@@ -1007,7 +1010,8 @@ public abstract class PulsarEngine {
      * {@link ExtendedBlockStorage} nibble arrays so renderers immediately see
      * the published values.
      */
-    protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {}
+    protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {
+    }
 
     protected abstract void performLightIncrease();
 

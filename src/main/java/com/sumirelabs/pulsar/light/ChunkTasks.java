@@ -20,7 +20,9 @@ public final class ChunkTasks {
      */
     public Boolean[] changedSectionSet;
 
-    /** Non-null if this chunk needs initial lighting. */
+    /**
+     * Non-null if this chunk needs initial lighting.
+     */
     public Chunk initialLightChunk;
     public Boolean[] initialLightEmptySections;
 
