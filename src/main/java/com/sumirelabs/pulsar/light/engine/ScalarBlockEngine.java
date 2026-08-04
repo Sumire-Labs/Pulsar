@@ -2,7 +2,7 @@ package com.sumirelabs.pulsar.light.engine;
 
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
-import com.sumirelabs.pulsar.util.WorldUtil;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.block.state.IBlockState;
@@ -28,8 +28,8 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 @SuppressWarnings("deprecation")
 public class ScalarBlockEngine extends PulsarEngine {
 
-    public ScalarBlockEngine(final World world) {
-        super(false, world);
+    public ScalarBlockEngine(final World world, final WorldHeightContext heightContext) {
+        super(false, world, heightContext);
     }
 
     @Override
@@ -164,8 +164,8 @@ public class ScalarBlockEngine extends PulsarEngine {
 
     @Override
     protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ, final IntOpenHashSet changedPositions) {
-        final int minBlockY = WorldUtil.getMinBlockY();
-        final int maxBlockY = WorldUtil.getMaxBlockY();
+        final int minBlockY = this.heightContext.getMinBlockY();
+        final int maxBlockY = this.heightContext.getMaxBlockY();
         final IntIterator it = changedPositions.iterator();
         while (it.hasNext()) {
             final int packed = it.nextInt();
@@ -188,7 +188,9 @@ public class ScalarBlockEngine extends PulsarEngine {
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
 
         for (int sectionY = this.minSection; sectionY <= this.maxSection; ++sectionY) {
-            final ExtendedBlockStorage section = sections[sectionY - this.minSection];
+            final int storageIndex = this.heightContext.getStorageIndex(sectionY);
+            final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < sections.length
+                    ? sections[storageIndex] : null;
             if (section == null || section.isEmpty()) {
                 continue;
             }

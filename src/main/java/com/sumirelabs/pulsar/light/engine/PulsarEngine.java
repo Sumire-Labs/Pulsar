@@ -7,6 +7,7 @@ import com.sumirelabs.pulsar.compat.FluidLightBridge;
 import com.sumirelabs.pulsar.light.LightStats;
 import com.sumirelabs.pulsar.light.RenderBounds;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -126,6 +127,7 @@ public abstract class PulsarEngine {
     protected final boolean skylightPropagator;
     protected final boolean isClientSide;
     protected final World world;
+    protected final WorldHeightContext heightContext;
     protected LightStats stats;
 
     // Diagnostic counters — accumulated across propagateBlockChanges calls
@@ -162,14 +164,16 @@ public abstract class PulsarEngine {
         this.stats = stats;
     }
 
-    protected PulsarEngine(final boolean skylightPropagator, final World world) {
+    protected PulsarEngine(final boolean skylightPropagator, final World world,
+                           final WorldHeightContext heightContext) {
         this.skylightPropagator = skylightPropagator;
         this.isClientSide = world.isRemote;
         this.world = world;
-        this.minLightSection = WorldUtil.getMinLightSection();
-        this.maxLightSection = WorldUtil.getMaxLightSection();
-        this.minSection = WorldUtil.getMinSection();
-        this.maxSection = WorldUtil.getMaxSection();
+        this.heightContext = heightContext;
+        this.minLightSection = heightContext.getMinLightSection();
+        this.maxLightSection = heightContext.getMaxLightSection();
+        this.minSection = heightContext.getMinSection();
+        this.maxSection = heightContext.getMaxSection();
 
         final int totalLightSections = (this.maxLightSection - this.minLightSection + 1) + 2; // buffer
         final int cacheSize = 5 * 5 * totalLightSections;
@@ -277,9 +281,9 @@ public abstract class PulsarEngine {
 
     protected final void setBlocksForChunkInCache(final int chunkX, final int chunkZ, final ExtendedBlockStorage[] sections) {
         for (int cy = this.minLightSection; cy <= this.maxLightSection; ++cy) {
-            final ExtendedBlockStorage section = sections == null
-                    ? null
-                    : (cy >= this.minSection && cy <= this.maxSection ? sections[cy - this.minSection] : null);
+            final int storageIndex = this.heightContext.getStorageIndex(cy);
+            final ExtendedBlockStorage section = sections == null || storageIndex < 0 || storageIndex >= sections.length
+                    ? null : sections[storageIndex];
             this.sectionCache[chunkX + 5 * chunkZ + 5 * 5 * cy + this.chunkSectionIndexOffset] = section;
         }
     }
@@ -436,8 +440,8 @@ public abstract class PulsarEngine {
         }
     }
 
-    public static SWMRNibbleArray[] getFilledEmptyLight() {
-        final int totalLightSections = WorldUtil.getTotalLightSections();
+    protected final SWMRNibbleArray[] getFilledEmptyLight() {
+        final int totalLightSections = this.heightContext.getTotalLightSections();
         final SWMRNibbleArray[] ret = new SWMRNibbleArray[totalLightSections];
         for (int i = 0, len = ret.length; i < len; ++i) {
             ret[i] = new SWMRNibbleArray(null, true);
@@ -446,10 +450,15 @@ public abstract class PulsarEngine {
     }
 
     public static Boolean[] getEmptySectionsForChunk(final Chunk chunk) {
+        final WorldHeightContext heightContext = WorldUtil.getHeightContext(chunk.getWorld());
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
-        final Boolean[] ret = new Boolean[sections.length];
-        for (int i = 0; i < sections.length; ++i) {
-            ret[i] = (sections[i] == null || sections[i].isEmpty()) ? Boolean.TRUE : Boolean.FALSE;
+        final Boolean[] ret = new Boolean[heightContext.getTotalSections()];
+        for (int sectionY = heightContext.getMinSection(); sectionY <= heightContext.getMaxSection(); ++sectionY) {
+            final int logicalIndex = heightContext.getSectionIndex(sectionY);
+            final int storageIndex = heightContext.getStorageIndex(sectionY);
+            final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < sections.length
+                    ? sections[storageIndex] : null;
+            ret[logicalIndex] = section == null || section.isEmpty() ? Boolean.TRUE : Boolean.FALSE;
         }
         return ret;
     }
@@ -477,7 +486,7 @@ public abstract class PulsarEngine {
     protected abstract void lightChunk(final Chunk chunk, final boolean needsEdgeChecks);
 
     public final void blockChanged(final int blockX, final int blockY, final int blockZ) {
-        if (blockY < WorldUtil.getMinBlockY() || blockY > WorldUtil.getMaxBlockY()) {
+        if (!this.heightContext.containsBlockY(blockY)) {
             return;
         }
         final int chunkX = blockX >> 4;
@@ -506,8 +515,10 @@ public abstract class PulsarEngine {
                 return;
             }
             // 1. Section changes first (creates/removes nibbles)
-            if (changedSections != null) {
-                final boolean[] ret = this.handleEmptySectionChanges(chunk, changedSections, false);
+            final Boolean[] effectiveSectionChanges = this.reconcileSectionChanges(
+                    chunk, changedPositions, changedSections);
+            if (effectiveSectionChanges != null) {
+                final boolean[] ret = this.handleEmptySectionChanges(chunk, effectiveSectionChanges, false);
                 if (ret != null) {
                     this.setEmptinessMap(chunk, ret);
                 }
@@ -522,9 +533,56 @@ public abstract class PulsarEngine {
         }
     }
 
+    /**
+     * Reconcile queued section-transition events with the chunk's current
+     * storage before processing block changes. Height-extension mods can
+     * replace {@code Chunk#setBlockState} with a cancellable HEAD injection,
+     * so another mixin's RETURN hook is not a reliable way to observe a newly
+     * created or emptied section. Every queued block position gives us a
+     * second, ordering-independent opportunity to detect that transition.
+     */
+    private Boolean[] reconcileSectionChanges(final Chunk chunk,
+                                              final IntOpenHashSet changedPositions,
+                                              final Boolean[] changedSections) {
+        if (changedPositions == null || changedPositions.isEmpty()) {
+            return changedSections;
+        }
+
+        final int totalSections = this.heightContext.getTotalSections();
+        Boolean[] effectiveChanges = changedSections;
+        if (effectiveChanges != null && effectiveChanges.length != totalSections) {
+            effectiveChanges = Arrays.copyOf(effectiveChanges, totalSections);
+        }
+
+        final boolean[] knownEmptiness = this.getEmptinessMap(chunk.x, chunk.z);
+        final IntIterator iterator = changedPositions.iterator();
+        while (iterator.hasNext()) {
+            final int sectionY = (iterator.nextInt() >> 8) >> 4;
+            final int sectionIndex = this.heightContext.getSectionIndex(sectionY);
+            if (sectionIndex < 0) {
+                continue;
+            }
+
+            final ExtendedBlockStorage section = this.getChunkSection(chunk.x, sectionY, chunk.z);
+            final boolean isEmpty = section == null || section.isEmpty();
+            final Boolean queuedValue = effectiveChanges == null ? null : effectiveChanges[sectionIndex];
+            final boolean changedFromKnown = knownEmptiness == null
+                    || sectionIndex >= knownEmptiness.length
+                    || knownEmptiness[sectionIndex] != isEmpty;
+
+            if (queuedValue != null || changedFromKnown) {
+                if (effectiveChanges == null) {
+                    effectiveChanges = new Boolean[totalSections];
+                }
+                effectiveChanges[sectionIndex] = isEmpty;
+            }
+        }
+        return effectiveChanges;
+    }
+
     protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ, final IntOpenHashSet changedPositions) {
-        final int minBlockY = WorldUtil.getMinBlockY();
-        final int maxBlockY = WorldUtil.getMaxBlockY();
+        final int minBlockY = this.heightContext.getMinBlockY();
+        final int maxBlockY = this.heightContext.getMaxBlockY();
         final IntIterator it = changedPositions.iterator();
         while (it.hasNext()) {
             final int packed = it.nextInt();
@@ -544,7 +602,7 @@ public abstract class PulsarEngine {
         final int chunkZ = chunk.z;
         this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
         try {
-            final SWMRNibbleArray[] nibbles = getFilledEmptyLight();
+            final SWMRNibbleArray[] nibbles = this.getFilledEmptyLight();
             this.setChunkInCache(chunkX, chunkZ, chunk);
             this.setBlocksForChunkInCache(chunkX, chunkZ, chunk.getBlockStorageArray());
             this.setNibblesForChunkInCache(chunkX, chunkZ, nibbles);
@@ -635,7 +693,8 @@ public abstract class PulsarEngine {
         final boolean needsInit = unlit || chunkEmptinessMap == null;
 
         if (needsInit) {
-            this.setEmptinessMapCache(chunkX, chunkZ, ret = chunkEmptinessMap = new boolean[WorldUtil.getTotalSections()]);
+            this.setEmptinessMapCache(chunkX, chunkZ,
+                    ret = chunkEmptinessMap = new boolean[this.heightContext.getTotalSections()]);
         }
 
         // update emptiness map

@@ -5,6 +5,16 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Added compatibility with Depths Update's per-dimension height bounds and
+  chunk-section layout, allowing block and sky light to propagate, sync, and
+  persist below Y=0 and above Y=255 ([#4](https://github.com/Sumire-Labs/Pulsar/issues/4)).
+  Existing Pulsar light caches are invalidated once so affected chunks relight
+  across the corrected height range.
+
 
 ## [0.1.0]
 

@@ -7,6 +7,8 @@ import com.sumirelabs.pulsar.light.engine.ScalarBlockEngine;
 import com.sumirelabs.pulsar.light.engine.ScalarSkyEngine;
 import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.SnapshotChunkMap;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
+import com.sumirelabs.pulsar.util.WorldUtil;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.network.play.server.SPacketChunkData;
 import net.minecraft.server.MinecraftServer;
@@ -30,6 +32,7 @@ import java.util.function.Supplier;
 public final class WorldLightManager {
 
     private final World world;
+    private final WorldHeightContext heightContext;
     private final boolean hasSkyLight;
     private final boolean hasBlockLight;
 
@@ -61,16 +64,17 @@ public final class WorldLightManager {
 
     public WorldLightManager(final World world, final boolean hasSkyLight, final boolean hasBlockLight) {
         this.world = world;
+        this.heightContext = WorldUtil.getHeightContext(world);
         this.hasSkyLight = hasSkyLight;
         this.hasBlockLight = hasBlockLight;
         this.cachedSkyPropagators = hasSkyLight ? new ConcurrentLinkedDeque<>() : null;
         this.cachedBlockPropagators = hasBlockLight ? new ConcurrentLinkedDeque<>() : null;
 
-        this.skyEngineFactory = hasSkyLight ? () -> new ScalarSkyEngine(world) : null;
-        this.blockEngineFactory = hasBlockLight ? () -> new ScalarBlockEngine(world) : null;
+        this.skyEngineFactory = hasSkyLight ? () -> new ScalarSkyEngine(world, this.heightContext) : null;
+        this.blockEngineFactory = hasBlockLight ? () -> new ScalarBlockEngine(world, this.heightContext) : null;
 
-        this.skyQueue = hasSkyLight ? new LightQueue() : null;
-        this.blockQueue = hasBlockLight ? new LightQueue() : null;
+        this.skyQueue = hasSkyLight ? new LightQueue(this.heightContext) : null;
+        this.blockQueue = hasBlockLight ? new LightQueue(this.heightContext) : null;
         this.stats = new LightStats(world.isRemote);
         if (this.skyQueue != null) this.skyQueue.setStats(this.stats);
         if (this.blockQueue != null) this.blockQueue.setStats(this.stats);

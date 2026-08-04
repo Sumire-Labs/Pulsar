@@ -1,7 +1,7 @@
 package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.util.CoordinateUtils;
-import com.sumirelabs.pulsar.util.WorldUtil;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
@@ -15,6 +15,7 @@ import java.util.concurrent.Semaphore;
  */
 public final class LightQueue {
 
+    private final WorldHeightContext heightContext;
     private final Long2ObjectLinkedOpenHashMap<ChunkTasks> tasksByChunk = new Long2ObjectLinkedOpenHashMap<>();
     private final Semaphore workAvailable = new Semaphore(0);
     private LightStats stats;
@@ -29,6 +30,10 @@ public final class LightQueue {
     private final LongArrayFIFOQueue blockChangeKeys = new LongArrayFIFOQueue();
     private final LongArrayFIFOQueue initialLightKeys = new LongArrayFIFOQueue();
     private int initialLightCount;
+
+    public LightQueue(final WorldHeightContext heightContext) {
+        this.heightContext = heightContext;
+    }
 
     void setStats(final LightStats stats) {
         this.stats = stats;
@@ -58,12 +63,16 @@ public final class LightQueue {
     }
 
     public synchronized void queueSectionChange(final int cx, final int sectionY, final int cz, final boolean empty) {
+        final int sectionIndex = this.heightContext.getSectionIndex(sectionY);
+        if (sectionIndex < 0) {
+            return;
+        }
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
         if (tasks.changedSectionSet == null) {
-            tasks.changedSectionSet = new Boolean[WorldUtil.getTotalSections()];
+            tasks.changedSectionSet = new Boolean[this.heightContext.getTotalSections()];
         }
-        tasks.changedSectionSet[sectionY] = empty;
+        tasks.changedSectionSet[sectionIndex] = empty;
         this.workAvailable.release(1);
     }
 
@@ -135,14 +144,14 @@ public final class LightQueue {
             if (tasks.queuedEdgeChecksSky == null) {
                 tasks.queuedEdgeChecksSky = new IntOpenHashSet();
             }
-            for (int s = WorldUtil.getMinLightSection(); s <= WorldUtil.getMaxLightSection(); ++s) {
+            for (int s = this.heightContext.getMinLightSection(); s <= this.heightContext.getMaxLightSection(); ++s) {
                 tasks.queuedEdgeChecksSky.add(s);
             }
         } else {
             if (tasks.queuedEdgeChecksBlock == null) {
                 tasks.queuedEdgeChecksBlock = new IntOpenHashSet();
             }
-            for (int s = WorldUtil.getMinLightSection(); s <= WorldUtil.getMaxLightSection(); ++s) {
+            for (int s = this.heightContext.getMinLightSection(); s <= this.heightContext.getMaxLightSection(); ++s) {
                 tasks.queuedEdgeChecksBlock.add(s);
             }
         }

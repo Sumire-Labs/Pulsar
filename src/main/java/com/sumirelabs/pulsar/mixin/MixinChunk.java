@@ -11,6 +11,7 @@ import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.light.WorldLightManager;
 import com.sumirelabs.pulsar.light.engine.PulsarEngine;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import com.sumirelabs.pulsar.world.PulsarWorld;
 import net.minecraft.block.state.IBlockState;
@@ -90,11 +91,23 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     @Unique
     private volatile boolean pulsar$savedLightValid;
 
+    @Unique
+    private WorldHeightContext pulsar$heightContext;
+
+    @Unique
+    private WorldHeightContext pulsar$getHeightContext() {
+        if (this.pulsar$heightContext == null) {
+            this.pulsar$heightContext = WorldUtil.getHeightContext(this.world);
+        }
+        return this.pulsar$heightContext;
+    }
+
     // ============================== Init ==============================
 
     @Inject(method = "<init>(Lnet/minecraft/world/World;II)V", at = @At("RETURN"), require = 0)
     private void pulsar$initFields(final World world, final int x, final int z, final CallbackInfo ci) {
-        final int totalLightSections = WorldUtil.getTotalLightSections();
+        this.pulsar$heightContext = WorldUtil.getHeightContext(world);
+        final int totalLightSections = this.pulsar$heightContext.getTotalLightSections();
         this.pulsar$blockNibbles = new SWMRNibbleArray[totalLightSections];
         this.pulsar$skyNibbles = new SWMRNibbleArray[totalLightSections];
         for (int i = 0; i < totalLightSections; ++i) {
@@ -124,9 +137,11 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
             // baseline to start from. For freshly generated chunks the vanilla
             // skyLight nibble is filled by pulsar$generateSkylightMap below; for
             // disk-loaded chunks it comes from the NBT.
-            ChunkLightHelper.importVanillaBlock(this.pulsar$blockNibbles, this.getBlockStorageArray());
+            ChunkLightHelper.importVanillaBlock(
+                    this.pulsar$getHeightContext(), this.pulsar$blockNibbles, this.getBlockStorageArray());
             if (this.world.provider.hasSkyLight()) {
-                ChunkLightHelper.importVanillaSky(this.pulsar$skyNibbles, this.getBlockStorageArray(), false);
+                ChunkLightHelper.importVanillaSky(
+                        this.pulsar$getHeightContext(), this.pulsar$skyNibbles, this.getBlockStorageArray(), false);
             }
         }
 
@@ -207,9 +222,11 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         if (!this.world.isRemote) return;
         final Chunk self = (Chunk) (Object) this;
 
-        ChunkLightHelper.wrapVanillaBlock(this.pulsar$blockNibbles, this.getBlockStorageArray());
+        ChunkLightHelper.wrapVanillaBlock(
+                this.pulsar$getHeightContext(), this.pulsar$blockNibbles, this.getBlockStorageArray());
         if (this.world.provider.hasSkyLight()) {
-            ChunkLightHelper.wrapVanillaSky(this.pulsar$skyNibbles, this.getBlockStorageArray());
+            ChunkLightHelper.wrapVanillaSky(
+                    this.pulsar$getHeightContext(), this.pulsar$skyNibbles, this.getBlockStorageArray());
         }
 
         final WorldLightManager mgr = ((PulsarWorld) this.world).pulsar$getLightManager();
@@ -236,16 +253,18 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
      */
     @Inject(method = "generateSkylightMap", at = @At("HEAD"), cancellable = true, require = 0)
     private void pulsar$generateSkylightMap(final CallbackInfo ci) {
+        final int minBlockY = this.pulsar$getHeightContext().getMinBlockY();
         final int topSegment = this.getTopFilledSegment();
         this.heightMapMinimum = Integer.MAX_VALUE;
 
         for (int lx = 0; lx < 16; ++lx) {
             for (int lz = 0; lz < 16; ++lz) {
                 this.precipitationHeightMap[lx + (lz << 4)] = -999;
+                this.heightMap[lz << 4 | lx] = minBlockY;
 
                 // Vanilla starts this walk at topSegment + 16 — starting one
                 // lower skipped the top row of the topmost filled section.
-                for (int y = topSegment + 16; y > 0; --y) {
+                for (int y = topSegment + 16; y > minBlockY; --y) {
                     if (pulsar$opacityAt(lx, y - 1, lz) != 0) {
                         this.heightMap[lz << 4 | lx] = y;
                         if (y < this.heightMapMinimum) {
@@ -283,9 +302,10 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     @Inject(method = "relightBlock", at = @At("HEAD"), cancellable = true, require = 0)
     private void pulsar$relightBlock(final int x, final int y, final int z, final CallbackInfo ci) {
         ci.cancel();
-        final int old = this.heightMap[z << 4 | x] & 255;
+        final int minBlockY = this.pulsar$getHeightContext().getMinBlockY();
+        final int old = this.heightMap[z << 4 | x];
         int newHeight = Math.max(old, y);
-        while (newHeight > 0 && pulsar$opacityAt(x, newHeight - 1, z) == 0) {
+        while (newHeight > minBlockY && pulsar$opacityAt(x, newHeight - 1, z) == 0) {
             --newHeight;
         }
         if (newHeight == old) {
@@ -340,9 +360,13 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
      */
     @Unique
     private void pulsar$fillVanillaSkyForColumn(final int x, final int z, final int topSegment) {
+        final WorldHeightContext heightContext = this.pulsar$getHeightContext();
+        final ExtendedBlockStorage[] storageArrays = this.getBlockStorageArray();
         int skyLevel = 15;
-        for (int y = topSegment + 15; y >= 0; --y) {
-            final ExtendedBlockStorage section = this.getBlockStorageArray()[y >> 4];
+        for (int y = topSegment + 15; y >= heightContext.getMinBlockY(); --y) {
+            final int storageIndex = heightContext.getStorageIndex(y >> 4);
+            final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < storageArrays.length
+                    ? storageArrays[storageIndex] : null;
             if (section == null) {
                 if (skyLevel != 15) {
                     skyLevel = Math.max(0, skyLevel - 1);
@@ -416,8 +440,9 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
                                          final CallbackInfoReturnable<IBlockState> cir) {
         final ExtendedBlockStorage[] storage = this.getBlockStorageArray();
         final int sy = pos.getY() >> 4;
-        this.pulsar$sectionWasEmpty = sy >= 0 && sy < storage.length
-                && storage[sy] == Chunk.NULL_BLOCK_STORAGE;
+        final int storageIndex = this.pulsar$getHeightContext().getStorageIndex(sy);
+        this.pulsar$sectionWasEmpty = storageIndex >= 0 && storageIndex < storage.length
+                && storage[storageIndex] == Chunk.NULL_BLOCK_STORAGE;
     }
 
     @Inject(method = "setBlockState", at = @At("RETURN"), require = 0)
@@ -427,20 +452,26 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
             return;
         }
         final int sy = pos.getY() >> 4;
-        final ExtendedBlockStorage section = this.getBlockStorageArray()[sy];
+        final int storageIndex = this.pulsar$getHeightContext().getStorageIndex(sy);
+        final ExtendedBlockStorage[] storage = this.getBlockStorageArray();
+        if (storageIndex < 0 || storageIndex >= storage.length) {
+            return;
+        }
+        final ExtendedBlockStorage section = storage[storageIndex];
         if (section == Chunk.NULL_BLOCK_STORAGE) {
             return;
         }
         this.pulsar$sectionWasEmpty = false;
-        final int idx = sy - WorldUtil.getMinLightSection();
+        final int idx = this.pulsar$getHeightContext().getLightSectionIndex(sy);
         // The fresh EBS has all-zero nibbles, and after lightReady nothing
         // re-publishes the engine's already-visible light into them (naive
         // fill is gated on !lightReady; onNibbleVisible fires on dirty
         // nibbles only, and no-op writes are skipped). Fill from the SWMR
         // state NOW or the section is sent/rendered black.
-        ChunkLightHelper.fillVanillaFromEngine(this.pulsar$skyNibbles, this.pulsar$blockNibbles,
+        ChunkLightHelper.fillVanillaFromEngine(
+                this.pulsar$getHeightContext(), this.pulsar$skyNibbles, this.pulsar$blockNibbles,
                 section, sy, this.world.provider.hasSkyLight());
-        if (this.world.isRemote) {
+        if (this.world.isRemote && idx >= 0) {
             final NibbleArray blockNib = section.getBlockLight();
             if (blockNib != null) {
                 this.pulsar$blockNibbles[idx] = new SWMRNibbleArray(blockNib.getData());
@@ -480,9 +511,11 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
 
     @Override
     public void pulsar$syncLightToVanilla() {
-        ChunkLightHelper.syncBlockToVanilla(this.pulsar$blockNibbles, this.getBlockStorageArray());
+        ChunkLightHelper.syncBlockToVanilla(
+                this.pulsar$getHeightContext(), this.pulsar$blockNibbles, this.getBlockStorageArray());
         if (this.world.provider.hasSkyLight()) {
-            ChunkLightHelper.syncSkyToVanilla(this.pulsar$skyNibbles, this.getBlockStorageArray());
+            ChunkLightHelper.syncSkyToVanilla(
+                    this.pulsar$getHeightContext(), this.pulsar$skyNibbles, this.getBlockStorageArray());
         }
     }
 

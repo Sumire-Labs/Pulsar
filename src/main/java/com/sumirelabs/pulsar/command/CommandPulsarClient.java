@@ -4,6 +4,7 @@ import com.sumirelabs.pulsar.light.ChunkLightHelper;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.light.WorldLightManager;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import com.sumirelabs.pulsar.world.PulsarWorld;
 import net.minecraft.client.Minecraft;
@@ -83,8 +84,11 @@ public class CommandPulsarClient extends CommandBase {
         if (chunk == null) {
             return "chunk not registered";
         }
-        final ExtendedBlockStorage section = pos.getY() >= 0 && pos.getY() < 256
-                ? chunk.getBlockStorageArray()[pos.getY() >> 4] : null;
+        final WorldHeightContext heightContext = WorldUtil.getHeightContext(world);
+        final int storageIndex = heightContext.getStorageIndex(pos.getY() >> 4);
+        final ExtendedBlockStorage[] storageArrays = chunk.getBlockStorageArray();
+        final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < storageArrays.length
+                ? storageArrays[storageIndex] : null;
         final String vanSky;
         final String vanBlock;
         if (section == null) {
@@ -102,11 +106,11 @@ public class CommandPulsarClient extends CommandBase {
         final PulsarChunk pc = (PulsarChunk) chunk;
         final SWMRNibbleArray[] sky = pc.pulsar$getSkyNibbles();
         final SWMRNibbleArray[] block = pc.pulsar$getBlockNibbles();
-        final int idx = (pos.getY() >> 4) - WorldUtil.getMinLightSection();
+        final int idx = heightContext.getLightSectionIndex(pos.getY() >> 4);
         final int swmrSky = sky != null
-                ? ChunkLightHelper.getSkyLight(sky, pos.getX(), pos.getY(), pos.getZ()) : -1;
+                ? ChunkLightHelper.getSkyLight(heightContext, sky, pos.getX(), pos.getY(), pos.getZ()) : -1;
         final int swmrBlock = block != null
-                ? ChunkLightHelper.getBlockLight(block, pos.getX(), pos.getY(), pos.getZ()) : -1;
+                ? ChunkLightHelper.getBlockLight(heightContext, block, pos.getX(), pos.getY(), pos.getZ()) : -1;
         final String skyState = sky != null && idx >= 0 && idx < sky.length ? state(sky[idx]) : "?";
         final String blockState = block != null && idx >= 0 && idx < block.length ? state(block[idx]) : "?";
 

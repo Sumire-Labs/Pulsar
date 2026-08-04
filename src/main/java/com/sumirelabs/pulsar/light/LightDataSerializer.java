@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import com.sumirelabs.pulsar.world.PulsarWorld;
 
@@ -32,10 +33,12 @@ public final class LightDataSerializer {
     /**
      * Bump when the on-disk layout or BFS semantics change incompatibly.
      */
-    // v6: invalidates light computed before the 2026-07-26 correctness batch
+    // v7: persists full per-world height ranges and invalidates caches that
+    // omitted Depths Update's negative/upper sections.
+    // v6: invalidated light computed before the 2026-07-26 correctness batch
     // (UNINIT-as-15 sync, missing extrude, decrease re-seed/continuation
     // fixes) — old data relights once on load.
-    public static final int LIGHT_VERSION = 6;
+    public static final int LIGHT_VERSION = 7;
 
     private static final String TAG_ROOT = "PulsarLight";
     private static final String TAG_VERSION = "version";
@@ -93,7 +96,8 @@ public final class LightDataSerializer {
             return;
         }
         final boolean hasSky = chunk.getWorld().provider.hasSkyLight();
-        final int minLightSection = WorldUtil.getMinLightSection();
+        final WorldHeightContext heightContext = WorldUtil.getHeightContext(chunk.getWorld());
+        final int minLightSection = heightContext.getMinLightSection();
 
         final NBTTagList sections = new NBTTagList();
         for (int i = 0, len = blockNibbles.length; i < len; ++i) {
@@ -108,7 +112,7 @@ public final class LightDataSerializer {
                 continue;
             }
             final NBTTagCompound section = new NBTTagCompound();
-            section.setByte(TAG_Y, (byte) (i + minLightSection));
+            section.setInteger(TAG_Y, i + minLightSection);
             if (blockState != null) {
                 section.setByte(TAG_BLOCK_STATE, (byte) blockState.state);
                 if (blockState.data != null) {
@@ -140,8 +144,9 @@ public final class LightDataSerializer {
             return;
         }
 
-        final int minLightSection = WorldUtil.getMinLightSection();
-        final int totalLightSections = WorldUtil.getTotalLightSections();
+        final WorldHeightContext heightContext = WorldUtil.getHeightContext(event.getChunk().getWorld());
+        final int minLightSection = heightContext.getMinLightSection();
+        final int totalLightSections = heightContext.getTotalLightSections();
 
         final SWMRNibbleArray[] blockNibbles = new SWMRNibbleArray[totalLightSections];
         final SWMRNibbleArray[] skyNibbles = new SWMRNibbleArray[totalLightSections];
@@ -153,9 +158,10 @@ public final class LightDataSerializer {
         final NBTTagList sections = root.getTagList(TAG_SECTIONS, Constants.NBT.TAG_COMPOUND);
         for (int i = 0, len = sections.tagCount(); i < len; ++i) {
             final NBTTagCompound section = sections.getCompoundTagAt(i);
-            final int index = section.getByte(TAG_Y) - minLightSection;
+            final int sectionY = section.getInteger(TAG_Y);
+            final int index = sectionY - minLightSection;
             if (index < 0 || index >= totalLightSections) {
-                throw new IllegalStateException("Light section index out of range: " + section.getByte(TAG_Y));
+                throw new IllegalStateException("Light section index out of range: " + sectionY);
             }
             if (section.hasKey(TAG_BLOCK_STATE, Constants.NBT.TAG_BYTE)) {
                 blockNibbles[index] = restoreNibble(section, TAG_BLOCK_STATE, TAG_BLOCK_DATA);

@@ -2,7 +2,7 @@ package com.sumirelabs.pulsar.light.engine;
 
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
-import com.sumirelabs.pulsar.util.WorldUtil;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.block.state.IBlockState;
@@ -28,9 +28,9 @@ public class ScalarSkyEngine extends PulsarEngine {
 
     private final boolean[] nullPropagationCheckCache;
 
-    public ScalarSkyEngine(final World world) {
-        super(true, world);
-        this.nullPropagationCheckCache = new boolean[WorldUtil.getTotalLightSections()];
+    public ScalarSkyEngine(final World world, final WorldHeightContext heightContext) {
+        super(true, world, heightContext);
+        this.nullPropagationCheckCache = new boolean[heightContext.getTotalLightSections()];
     }
 
     @Override
@@ -295,8 +295,8 @@ public class ScalarSkyEngine extends PulsarEngine {
         this.rewriteNibbleCacheForSkylight();
         Arrays.fill(this.nullPropagationCheckCache, false);
 
-        final int minBlockY = WorldUtil.getMinBlockY();
-        final int maxBlockY = WorldUtil.getMaxBlockY();
+        final int minBlockY = this.heightContext.getMinBlockY();
+        final int maxBlockY = this.heightContext.getMaxBlockY();
 
         // Highest changed Y per column (index = x | z<<4), like upstream's
         // heightMapBlockChange.
@@ -506,8 +506,10 @@ public class ScalarSkyEngine extends PulsarEngine {
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
 
         int highestNonEmptySection = this.maxSection;
-        while (highestNonEmptySection >= this.minSection && (sections[highestNonEmptySection - this.minSection] == null
-                || sections[highestNonEmptySection - this.minSection].isEmpty())) {
+        int highestStorageIndex = this.heightContext.getStorageIndex(highestNonEmptySection);
+        while (highestNonEmptySection >= this.minSection
+                && (highestStorageIndex < 0 || highestStorageIndex >= sections.length
+                || sections[highestStorageIndex] == null || sections[highestStorageIndex].isEmpty())) {
             this.checkNullSection(chunkX, highestNonEmptySection, chunkZ, false);
 
             for (final AxisDirection direction : ONLY_HORIZONTAL_DIRECTIONS) {
@@ -542,6 +544,7 @@ public class ScalarSkyEngine extends PulsarEngine {
             }
 
             --highestNonEmptySection;
+            highestStorageIndex = this.heightContext.getStorageIndex(highestNonEmptySection);
         }
 
         if (highestNonEmptySection >= this.minSection) {
