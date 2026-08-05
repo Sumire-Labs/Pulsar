@@ -2,7 +2,6 @@ package com.sumirelabs.pulsar.light.engine;
 
 import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.api.ExtendedWorld;
-import com.sumirelabs.pulsar.compat.CeleritasCloneCacheBridge;
 import com.sumirelabs.pulsar.compat.FluidLightBridge;
 import com.sumirelabs.pulsar.light.LightStats;
 import com.sumirelabs.pulsar.light.RenderBounds;
@@ -348,13 +347,6 @@ public abstract class PulsarEngine {
                 final int maxX = sectionX + RenderBounds.maxX(bounds);
                 final int maxY = sectionY + RenderBounds.maxY(bounds);
                 final int maxZ = sectionZ + RenderBounds.maxZ(bounds);
-                // Celeritas rebuilds meshes from CACHED chunk clones and its
-                // schedule chain never invalidates them, so a light-only
-                // change would rebuild from a pre-BFS snapshot and stick.
-                // Invalidate the clones for the same ±1-inflated range the
-                // renderer will rebuild.
-                CeleritasCloneCacheBridge.invalidateBlockRange(
-                        minX - 1, minY - 1, minZ - 1, maxX + 1, maxY + 1, maxZ + 1);
                 this.world.markBlockRangeForRenderUpdate(minX, minY, minZ, maxX, maxY, maxZ);
                 if (LightStats.enabled) LightStats.engineRenderMarks++;
             }

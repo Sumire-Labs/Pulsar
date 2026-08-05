@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.1]
 
+### Changed
+
+- Removed the optional Celeritas-specific directional mesh-light and
+  clone-cache hooks. Current Celeritas builds invalidate their own cloned
+  sections when scheduling rebuilds, and normal Pulsar lighting remains
+  compatible without the extra integrations.
+
 ### Fixed
 
 - Added compatibility with Depths Update's per-dimension height bounds and
