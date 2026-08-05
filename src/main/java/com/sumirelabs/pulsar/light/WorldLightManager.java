@@ -18,6 +18,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -260,7 +261,7 @@ public final class WorldLightManager {
             final long changeBudget = System.nanoTime() + BLOCK_CHANGE_BUDGET_NS;
             ChunkTasks task;
             while ((task = queue.removeFirstBlockChangeTask()) != null) {
-                taskProcessor.accept(task, engine);
+                processTask(queue, task, engine, taskProcessor);
                 if (System.nanoTime() > changeBudget) {
                     if (LightStats.enabled) changeBudgetYield.incrementAndGet();
                     break;
@@ -271,18 +272,18 @@ public final class WorldLightManager {
             while (moreWork) {
                 moreWork = false;
                 while ((task = queue.removeFirstInitialLightTask()) != null) {
-                    taskProcessor.accept(task, engine);
+                    processTask(queue, task, engine, taskProcessor);
                     ChunkTasks priorityTask;
                     while ((priorityTask = queue.removeFirstBlockChangeTask()) != null) {
-                        taskProcessor.accept(priorityTask, engine);
+                        processTask(queue, priorityTask, engine, taskProcessor);
                     }
                 }
                 final long edgeDeadline = System.nanoTime() + EDGE_CHECK_BUDGET_NS;
                 while ((task = queue.removeFirstTask()) != null) {
-                    taskProcessor.accept(task, engine);
+                    processTask(queue, task, engine, taskProcessor);
                     ChunkTasks priorityTask;
                     while ((priorityTask = queue.removeFirstBlockChangeTask()) != null) {
-                        taskProcessor.accept(priorityTask, engine);
+                        processTask(queue, priorityTask, engine, taskProcessor);
                     }
                     if (queue.hasInitialLightTask()) {
                         moreWork = true;
@@ -298,6 +299,16 @@ public final class WorldLightManager {
             Pulsar.LOGGER.error("Exception in " + label, t);
         } finally {
             releaseEngine(cache, engine);
+        }
+    }
+
+    private static void processTask(final LightQueue queue, final ChunkTasks task,
+                                    final PulsarEngine engine,
+                                    final BiConsumer<ChunkTasks, PulsarEngine> taskProcessor) {
+        try {
+            taskProcessor.accept(task, engine);
+        } finally {
+            queue.completeTask(task);
         }
     }
 
@@ -549,17 +560,51 @@ public final class WorldLightManager {
                 || (this.blockQueue != null && this.blockQueue.hasPendingLightWork(key));
     }
 
-    public void awaitPendingWork(final int cx, final int cz) {
-        final ChunkLightCompletion completion;
-        synchronized (this.initialLightCompletions) {
-            completion = this.initialLightCompletions.get(CoordinateUtils.getChunkKey(cx, cz));
-        }
-        if (completion != null) {
-            try {
-                completion.future.get(50, TimeUnit.MILLISECONDS);
-            } catch (final Exception e) {
-                Pulsar.LOGGER.warn("Timed out waiting for initial light work on chunk ({}, {})", cx, cz);
+    /**
+     * Wait briefly for all queued or in-flight work touching a chunk. Returns
+     * {@code false} on timeout/interruption so unload can invalidate the saved
+     * light instead of serialising data while a worker may still mutate it.
+     */
+    public boolean awaitPendingWork(final int cx, final int cz) {
+        final long key = CoordinateUtils.getChunkKey(cx, cz);
+        final long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(50L);
+
+        while (true) {
+            final Future<Void> pending = this.getPendingWorkFuture(key);
+            if (pending == null) {
+                return true;
             }
+            final long remaining = deadline - System.nanoTime();
+            if (remaining <= 0L) {
+                break;
+            }
+            try {
+                pending.get(remaining, TimeUnit.NANOSECONDS);
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+                Pulsar.LOGGER.warn("Interrupted while waiting for light work on chunk ({}, {})", cx, cz);
+                return false;
+            } catch (final Exception e) {
+                break;
+            }
+        }
+
+        Pulsar.LOGGER.warn("Timed out waiting for light work on chunk ({}, {})", cx, cz);
+        return false;
+    }
+
+    private Future<Void> getPendingWorkFuture(final long key) {
+        Future<Void> future = this.skyQueue == null ? null : this.skyQueue.getPendingWorkFuture(key);
+        if (future != null) {
+            return future;
+        }
+        future = this.blockQueue == null ? null : this.blockQueue.getPendingWorkFuture(key);
+        if (future != null) {
+            return future;
+        }
+        synchronized (this.initialLightCompletions) {
+            final ChunkLightCompletion completion = this.initialLightCompletions.get(key);
+            return completion == null ? null : completion.future;
         }
     }
 

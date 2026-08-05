@@ -191,14 +191,13 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
             // made awaitPendingWork a guaranteed no-op and let workers keep
             // writing a chunk the main thread was saving.
             if (!this.world.isRemote) {
-                mgr.awaitPendingWork(this.x, this.z);
-                if (mgr.hasPendingLightWork(this.x, this.z)) {
-                    // removeChunkFromQueues below drops these updates. The
-                    // SWMR data may still hold light of removed sources
-                    // (e.g. ocean water turning a lava pocket to stone) —
-                    // persisting it as valid would fossilise phantom light.
-                    // Drop lightReady so the save skips the tag and the
-                    // chunk relights on next load.
+                final boolean workFinished = mgr.awaitPendingWork(this.x, this.z);
+                if (!workFinished || mgr.hasPendingLightWork(this.x, this.z)) {
+                    // A timeout means a worker may still be mutating the
+                    // chunk; queued value changes are dropped below. Either
+                    // case makes the current SWMR snapshot unsafe to persist.
+                    // Drop lightReady so the save skips the tag and the chunk
+                    // relights on next load.
                     this.pulsar$lightReady = false;
                 }
             }

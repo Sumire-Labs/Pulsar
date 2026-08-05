@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `/pulsar relight` resending only the vanilla sixteen chunk sections in
   Depths Update worlds, leaving corrected light below Y=0 or above Y=255
   invisible to connected players until the chunk was reloaded.
+- Fixed chunks briefly appearing to have no pending light work after a worker
+  started processing them, which could race chunk saves/unloads and preserve
+  stale or partially updated lighting.
 
 
 ## [0.1.0]

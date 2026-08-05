@@ -4,9 +4,11 @@ import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import net.minecraft.world.chunk.Chunk;
 
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -17,6 +19,10 @@ public final class LightQueue {
 
     private final WorldHeightContext heightContext;
     private final Long2ObjectLinkedOpenHashMap<ChunkTasks> tasksByChunk = new Long2ObjectLinkedOpenHashMap<>();
+    // Each queue has exactly one consumer. A task is moved here while still
+    // holding this queue's monitor, closing the observability gap between
+    // dequeue and worker completion.
+    private final Long2ObjectOpenHashMap<ChunkTasks> inFlightTasks = new Long2ObjectOpenHashMap<>();
     private final Semaphore workAvailable = new Semaphore(0);
     private LightStats stats;
 
@@ -170,7 +176,7 @@ public final class LightQueue {
                 continue; // stale entry: task left the map through another path
             }
             this.tasksByChunk.remove(key);
-            this.onTaskRemoved(task);
+            this.onTaskDequeued(task);
             return task;
         }
         return null;
@@ -182,7 +188,7 @@ public final class LightQueue {
         }
         final long key = this.tasksByChunk.firstLongKey();
         final ChunkTasks task = this.tasksByChunk.remove(key);
-        this.onTaskRemoved(task);
+        this.onTaskDequeued(task);
         return task;
     }
 
@@ -200,7 +206,7 @@ public final class LightQueue {
                 continue; // stale entry: task left the map through another path
             }
             this.tasksByChunk.remove(key);
-            this.onTaskRemoved(task);
+            this.onTaskDequeued(task);
             return task;
         }
         return null;
@@ -215,11 +221,30 @@ public final class LightQueue {
         return this.initialLightCount > 0;
     }
 
-    public synchronized void removeChunk(final int cx, final int cz) {
-        final ChunkTasks task = this.tasksByChunk.remove(CoordinateUtils.getChunkKey(cx, cz));
-        if (task != null) {
-            this.onTaskRemoved(task);
+    public void removeChunk(final int cx, final int cz) {
+        final ChunkTasks task;
+        synchronized (this) {
+            task = this.tasksByChunk.remove(CoordinateUtils.getChunkKey(cx, cz));
+            if (task != null) {
+                this.onTaskRemoved(task);
+            }
         }
+        if (task != null) {
+            task.onComplete.set(null);
+        }
+    }
+
+    /**
+     * Finish a task previously returned by one of the dequeue methods.
+     * Always called from a worker {@code finally} block.
+     */
+    void completeTask(final ChunkTasks task) {
+        synchronized (this) {
+            if (this.inFlightTasks.get(task.chunkCoordinate) == task) {
+                this.inFlightTasks.remove(task.chunkCoordinate);
+            }
+        }
+        task.onComplete.set(null);
     }
 
     /**
@@ -231,8 +256,17 @@ public final class LightQueue {
         }
     }
 
+    /**
+     * Atomically move a dequeued task into the in-flight set.
+     */
+    private void onTaskDequeued(final ChunkTasks task) {
+        this.onTaskRemoved(task);
+        this.inFlightTasks.put(task.chunkCoordinate, task);
+    }
+
     public synchronized boolean hasPendingWork(final int cx, final int cz) {
-        return this.tasksByChunk.containsKey(CoordinateUtils.getChunkKey(cx, cz));
+        final long key = CoordinateUtils.getChunkKey(cx, cz);
+        return this.tasksByChunk.containsKey(key) || this.inFlightTasks.containsKey(key);
     }
 
     public synchronized boolean isEmpty() {
@@ -250,7 +284,26 @@ public final class LightQueue {
      * not wrong enough to warrant a full relight.
      */
     public synchronized boolean hasPendingLightWork(final long key) {
-        final ChunkTasks tasks = this.tasksByChunk.get(key);
+        return changesLightValues(this.tasksByChunk.get(key))
+                || changesLightValues(this.inFlightTasks.get(key));
+    }
+
+    /**
+     * Completion for the current queued or in-flight batch, or {@code null}
+     * when this queue has no work for the chunk. Callers re-check after the
+     * returned future completes because a new batch may have arrived while
+     * the previous one was running.
+     */
+    synchronized Future<Void> getPendingWorkFuture(final long key) {
+        final ChunkTasks inFlight = this.inFlightTasks.get(key);
+        if (inFlight != null) {
+            return inFlight.onComplete;
+        }
+        final ChunkTasks queued = this.tasksByChunk.get(key);
+        return queued == null ? null : queued.onComplete;
+    }
+
+    private static boolean changesLightValues(final ChunkTasks tasks) {
         if (tasks == null) {
             return false;
         }
