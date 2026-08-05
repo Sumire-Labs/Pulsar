@@ -1,7 +1,7 @@
 # Pulsar Lighting Engine
 
 Pulsar is an asynchronous lighting engine for Minecraft 1.12.2, built for
-[CleanroomLoader](https://github.com/CleanroomMC/CleanroomLoader). It replaces
+[Cleanroom](https://github.com/CleanroomMC/Cleanroom). It replaces
 vanilla block and sky lighting with a Starlight-inspired implementation that
 moves most light propagation off the server thread.
 
@@ -15,7 +15,7 @@ Pulsar is designed to reduce server-thread stalls when lighting has a lot of
 work to do, such as during chunk generation, explosions, large building-tool
 operations, or machines that place and remove many blocks.
 
-- Calculates block and sky light on worker threads.
+- Runs server-side block and sky light propagation on dedicated worker threads.
 - Batches large groups of block changes instead of lighting each block
   separately.
 - Saves completed light data with each chunk, avoiding a full relight every
@@ -25,14 +25,14 @@ operations, or machines that place and remove many blocks.
   blocks, including [MC-92](https://bugs.mojang.com/browse/MC-92), on
   Minecraft's standard terrain-rendering path.
 
-The largest gains are under heavy lighting load. Ordinary gameplay with only a
-few light changes per tick may feel similar to vanilla or Alfheim.
+The largest gains appear under heavy lighting load. At lighter loads, Pulsar's
+main benefit is lower light-update latency rather than higher TPS.
 
 ## Installation
 
 Pulsar requires:
 
-- [CleanroomLoader](https://github.com/CleanroomMC/CleanroomLoader) 0.5 or newer
+- [Cleanroom](https://github.com/CleanroomMC/Cleanroom) 0.5.15 or newer
 
 Existing worlds are supported. Their chunks will be relit once so Pulsar can
 create its own light cache; make a backup before the first launch.
@@ -46,8 +46,8 @@ engine are not compatible.
 ### Supported integrations
 
 - [Fluidlogged API](https://modrinth.com/mod/fluidlogged-api)
-- [Depths Update](https://modrinth.com/mod/depths-update), including dimensions that extend below Y=0 or above Y=255
-</details>
+- [Depths Update](https://modrinth.com/mod/depths-update), including dimensions
+  that extend below Y=0 or above Y=255
 
 ### Incompatible or unsupported
 
@@ -60,18 +60,19 @@ engine are not compatible.
   instead
 - CubicChunks, which uses a different world-storage model
 
-OptiFine is untested and not recommended with Pulsar. Use Nothirium or
-Celeritas when possible.
+OptiFine is untested and not recommended with Pulsar.
 
 ## Performance
 
-Pulsar mainly targets stalls caused by large numbers of block edits. World
-generation also improves, but terrain generation usually takes much more time
-than lighting. At ordinary edit rates, all three engines in this comparison are
-usually fast enough that the difference is difficult to notice.
+Pulsar mainly targets server-thread stalls when many blocks change at once. Its
+world-generation gains are smaller because terrain generation usually dominates
+the overall chunk-generation time. At low edit rates, vanilla, Alfheim, and
+Pulsar may all remain within the 50 ms tick budget, but their light-convergence
+latency differs: vanilla can take noticeably longer after a demanding
+single-block change and falls behind Pulsar much sooner as the edit rate rises.
 
 <details>
-<summary>Benchmark charts, setup, and raw results</summary>
+<summary>Benchmark charts, setup, and results</summary>
 
 ![Pulsar, Alfheim, and vanilla benchmark](docs/benchmarks/bench-three-engines.svg)
 
@@ -111,12 +112,13 @@ rates.
 
 Pulsar moves work away from the server thread, but that comes with costs:
 
-- Light updates are asynchronous. Code that changes a block and immediately
-  reads its light in the same call stack may briefly see the previous value.
+- Server-side light updates are asynchronous. Code that changes a block and
+  immediately reads its light in the same call stack may briefly see the
+  previous value.
 - Pulsar keeps additional light data for loaded chunks and stores a light cache
   in the world save, increasing memory and disk usage.
-- Worker threads use extra CPU. Small servers with only a few available cores
-  may be better served by Alfheim.
+- Heavy lighting workloads can use additional CPU cores. Performance on
+  CPU-constrained systems has not yet been benchmarked.
 - Pulsar is newer and has seen less modpack testing than
   [Alfheim](https://www.curseforge.com/minecraft/mc-mods/alfheim-lighting-engine).
 
@@ -138,6 +140,8 @@ Please attach `latest.log`, the relevant configuration files, and the output of
 
 - [Starlight](https://github.com/PaperMC/Starlight) by Spottedleaf, for the
   architecture and core algorithms
+- [ScalableLux](https://github.com/RelativityMC/ScalableLux) by RelativityMC,
+  for later Starlight fixes and implementation references
 - [SuperNova](https://github.com/GTNewHorizons/SuperNova) by GTNewHorizons, the
   1.7.10 Starlight port on which early Pulsar versions were based
 - [Alfheim](https://github.com/Red-Studio-Ragnarok/Alfheim) by Red Studio, for
@@ -145,10 +149,10 @@ Please attach `latest.log`, the relevant configuration files, and the output of
 - [CleanroomModTemplate](https://github.com/CleanroomMC/CleanroomModTemplate) by
   CleanroomMC
 
-## ⚠️ Notice
-Part of this mod's code is written with the help of generative AI. I review the generated code beforehand, but on rare occasions an imperfection may still remain.
+## AI disclosure
 
-I'm also well aware that some people feel uneasy about, or dislike, software that uses generative AI. If you're okay with that, I'd be glad to have you use this mod.
+Some code in Pulsar was developed with assistance from generative AI and
+reviewed before inclusion. Please report any problems you find.
 
 ## License
 
