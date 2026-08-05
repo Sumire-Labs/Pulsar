@@ -33,12 +33,14 @@ public final class LightDataSerializer {
     /**
      * Bump when the on-disk layout or BFS semantics change incompatibly.
      */
+    // v8: invalidates v7 caches that may have been written with vanilla-only
+    // bounds when the published Depths Update a12 bridge failed to resolve.
     // v7: persists full per-world height ranges and invalidates caches that
     // omitted Depths Update's negative/upper sections.
     // v6: invalidated light computed before the 2026-07-26 correctness batch
     // (UNINIT-as-15 sync, missing extrude, decrease re-seed/continuation
     // fixes) — old data relights once on load.
-    public static final int LIGHT_VERSION = 7;
+    public static final int LIGHT_VERSION = 8;
 
     private static final String TAG_ROOT = "PulsarLight";
     private static final String TAG_VERSION = "version";

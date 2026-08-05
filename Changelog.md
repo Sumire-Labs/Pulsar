@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   persist below Y=0 and above Y=255 ([#4](https://github.com/Sumire-Labs/Pulsar/issues/4)).
   Existing Pulsar light caches are invalidated once so affected chunks relight
   across the corrected height range.
+- Fixed the Depths Update a12 bridge falling back to vanilla height because the
+  released jar exposes storage-index mapping on `HeightContext`, rather than
+  the newer `HeightManager` forwarding method. Light caches written while the
+  bridge was disabled are invalidated once so affected chunks relight.
 
 
 ## [0.1.0]

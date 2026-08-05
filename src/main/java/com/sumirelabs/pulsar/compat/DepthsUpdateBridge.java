@@ -39,7 +39,7 @@ public final class DepthsUpdateBridge {
     private static Method isExtended;
     private static Method minY;
     private static Method maxY;
-    private static Method toStorageIndex;
+    private static DepthsUpdateStorageIndexInvoker storageIndexInvoker;
 
     private static final Map<World, WorldHeightContext> CONTEXTS =
             Collections.synchronizedMap(new WeakHashMap<>());
@@ -86,15 +86,16 @@ public final class DepthsUpdateBridge {
 
             for (int sectionY = minimumSection; sectionY <= maximumSection; ++sectionY) {
                 mapping[sectionY - minimumSection] =
-                        (Integer) toStorageIndex.invoke(null, world, sectionY << 4);
+                        storageIndexInvoker.invoke(heightInfo, world, sectionY << 4);
             }
 
             final WorldHeightContext context =
                     WorldHeightContext.mapped(minimumSection, maximumSection, mapping);
             CONTEXTS.put(world, context);
             Pulsar.LOGGER.info(
-                    "Depths Update height integration active for dimension {}: sections {}..{}",
-                    world.provider.getDimension(), minimumSection, maximumSection);
+                    "Depths Update height integration active for dimension {}: sections {}..{} using {}",
+                    world.provider.getDimension(), minimumSection, maximumSection,
+                    storageIndexInvoker.getDescription());
             return context;
         } catch (final Throwable t) {
             CONTEXTS.put(world, WorldHeightContext.VANILLA);
@@ -113,12 +114,14 @@ public final class DepthsUpdateBridge {
         final Class<?> apiClass = Class.forName("sayys.depthsupdate.api.DepthsUpdateAPI");
         final Class<?> heightInfoClass = Class.forName("sayys.depthsupdate.api.HeightInfo");
         final Class<?> heightManagerClass = Class.forName("sayys.depthsupdate.core.HeightManager");
+        final Class<?> heightContextClass = Class.forName("sayys.depthsupdate.core.HeightContext");
 
         getHeightInfo = apiClass.getMethod("getHeightInfo", World.class);
         isExtended = heightInfoClass.getMethod("isExtended");
         minY = heightInfoClass.getMethod("minY");
         maxY = heightInfoClass.getMethod("maxY");
-        toStorageIndex = heightManagerClass.getMethod("toStorageIndex", World.class, int.class);
+        storageIndexInvoker = DepthsUpdateStorageIndexInvoker.resolve(
+                heightManagerClass, heightContextClass, World.class);
         state = OK;
     }
 }
