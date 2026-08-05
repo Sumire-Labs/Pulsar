@@ -82,15 +82,21 @@ public final class LightQueue {
         this.workAvailable.release(1);
     }
 
-    public synchronized void queueChunkLight(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
+    public synchronized void queueChunkLight(final int cx, final int cz, final Chunk chunk,
+                                             final Boolean[] emptySections, final long generation) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
+        if (tasks.initialLightChunk != null && tasks.initialLightGeneration > generation) {
+            return;
+        }
         if (tasks.initialLightChunk == null) {
             this.initialLightKeys.enqueue(key);
             this.initialLightCount++;
         }
         tasks.initialLightChunk = chunk;
         tasks.initialLightEmptySections = emptySections;
+        tasks.initialLightGeneration = generation;
+        tasks.relightAttempts = 0;
         this.workAvailable.release(1);
     }
 
@@ -109,18 +115,32 @@ public final class LightQueue {
     /**
      * Re-queue a chunk for full relighting after a queue overflow. Increments
      * the relight attempt counter.
+     *
+     * @return {@code false} when a newer full-relight generation already
+     * occupies this chunk's queued batch
      */
-    public synchronized void requeueChunkLight(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections, final int previousAttempts) {
+    public synchronized boolean requeueChunkLight(final int cx, final int cz, final Chunk chunk,
+                                                  final Boolean[] emptySections, final long generation,
+                                                  final int previousAttempts) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
+        if (tasks.initialLightChunk != null && tasks.initialLightGeneration > generation) {
+            return false;
+        }
         if (tasks.initialLightChunk == null) {
             this.initialLightKeys.enqueue(key);
             this.initialLightCount++;
         }
         tasks.initialLightChunk = chunk;
         tasks.initialLightEmptySections = emptySections;
-        tasks.relightAttempts = previousAttempts + 1;
+        if (tasks.initialLightGeneration == generation) {
+            tasks.relightAttempts = Math.max(tasks.relightAttempts, previousAttempts + 1);
+        } else {
+            tasks.initialLightGeneration = generation;
+            tasks.relightAttempts = previousAttempts + 1;
+        }
         this.workAvailable.release(1);
+        return true;
     }
 
     public synchronized void queueEdgeCheck(final int cx, final int cz, final int sectionY, final boolean isSky) {

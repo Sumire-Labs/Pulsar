@@ -56,8 +56,10 @@ public final class WorldLightManager {
 
     private final LightStats stats;
 
-    // Coordination for initial chunk lighting: both engines must finish before setLightReady(true).
+    // Coordination for initial chunk lighting: every active engine must finish
+    // the current generation before setLightReady(true).
     private final Long2ObjectOpenHashMap<ChunkLightCompletion> initialLightCompletions = new Long2ObjectOpenHashMap<>();
+    private long nextInitialLightGeneration;
 
     private static final int MAX_RELIGHT_ATTEMPTS = 2;
     private static final long EDGE_CHECK_BUDGET_NS = 10_000_000L; // 10ms
@@ -179,16 +181,40 @@ public final class WorldLightManager {
     }
 
     public void queueChunkLight(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
-        final int engineCount = (this.hasSkyLight ? 1 : 0) + (this.hasBlockLight ? 1 : 0);
-        final ChunkLightCompletion completion = new ChunkLightCompletion(engineCount, chunk);
+        this.queueChunkLightInternal(cx, cz, chunk, emptySections);
+    }
+
+    private ChunkLightCompletion queueChunkLightInternal(final int cx, final int cz, final Chunk chunk,
+                                                         final Boolean[] emptySections) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
+        final ChunkLightCompletion completion;
+        final ChunkLightCompletion superseded;
 
         synchronized (this.initialLightCompletions) {
-            this.initialLightCompletions.put(key, completion);
+            if (this.nextInitialLightGeneration == Long.MAX_VALUE) {
+                throw new IllegalStateException("Initial-light generation counter exhausted");
+            }
+            final long generation = ++this.nextInitialLightGeneration;
+            final int requiredLanes = (this.hasSkyLight ? InitialLightCompletionState.SKY : 0)
+                    | (this.hasBlockLight ? InitialLightCompletionState.BLOCK : 0);
+            completion = new ChunkLightCompletion(generation, requiredLanes, chunk);
+            superseded = this.initialLightCompletions.put(key, completion);
+
+            // Queue both lanes while holding the generation lock so a newer
+            // request cannot be followed by an older task insertion.
+            ((PulsarChunk) chunk).pulsar$setLightReady(false);
+            if (this.skyQueue != null) {
+                this.skyQueue.queueChunkLight(cx, cz, chunk, emptySections, generation);
+            }
+            if (this.blockQueue != null) {
+                this.blockQueue.queueChunkLight(cx, cz, chunk, emptySections, generation);
+            }
         }
 
-        if (this.skyQueue != null) this.skyQueue.queueChunkLight(cx, cz, chunk, emptySections);
-        if (this.blockQueue != null) this.blockQueue.queueChunkLight(cx, cz, chunk, emptySections);
+        if (superseded != null) {
+            superseded.finish(false);
+        }
+        return completion;
     }
 
     /**
@@ -202,11 +228,15 @@ public final class WorldLightManager {
     }
 
     public void removeChunkFromQueues(final int cx, final int cz) {
-        if (this.skyQueue != null) this.skyQueue.removeChunk(cx, cz);
-        if (this.blockQueue != null) this.blockQueue.removeChunk(cx, cz);
         final long key = CoordinateUtils.getChunkKey(cx, cz);
+        final ChunkLightCompletion removed;
         synchronized (this.initialLightCompletions) {
-            this.initialLightCompletions.remove(key);
+            removed = this.initialLightCompletions.remove(key);
+            if (this.skyQueue != null) this.skyQueue.removeChunk(cx, cz);
+            if (this.blockQueue != null) this.blockQueue.removeChunk(cx, cz);
+        }
+        if (removed != null) {
+            removed.finish(false);
         }
     }
 
@@ -317,9 +347,12 @@ public final class WorldLightManager {
         final long t0 = statsOn ? System.nanoTime() : 0L;
         final int cx = CoordinateUtils.getChunkX(task.chunkCoordinate);
         final int cz = CoordinateUtils.getChunkZ(task.chunkCoordinate);
+        boolean finishInitial = task.initialLightChunk != null;
 
         if (this.loadedChunkMap.get(task.chunkCoordinate) == null) {
-            this.completeInitialLighting(task.chunkCoordinate);
+            if (finishInitial) {
+                this.completeInitialLighting(task, InitialLightCompletionState.SKY);
+            }
             return;
         }
 
@@ -329,48 +362,43 @@ public final class WorldLightManager {
             skyEngine.setStats(this.stats);
         }
 
+        boolean overflowed = false;
         try {
             if (task.loadInitChunk != null && task.initialLightChunk == null) {
                 // Persisted-light chunk: nibble/emptiness-map init only, no BFS.
                 skyEngine.loadInChunk(task.loadInitChunk, task.loadInitEmptySections);
+                overflowed |= skyEngine.wasQueueOverflowed();
             }
 
             if (task.initialLightChunk != null) {
                 if (statsOn) this.stats.initialLightsRun.incrementAndGet();
                 skyEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
-                this.completeInitialLighting(task.chunkCoordinate);
+                overflowed |= skyEngine.wasQueueOverflowed();
             }
 
             if (task.changedSectionSet != null || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
                 skyEngine.blocksChangedInChunk(cx, cz, task.changedPositions, task.changedSectionSet);
+                overflowed |= skyEngine.wasQueueOverflowed();
             }
 
             if (task.queuedEdgeChecksSky != null) {
                 skyEngine.checkChunkEdges(cx, cz, task.queuedEdgeChecksSky);
+                overflowed |= skyEngine.wasQueueOverflowed();
             }
 
-            if (skyEngine.wasQueueOverflowed()) {
-                if (task.relightAttempts < MAX_RELIGHT_ATTEMPTS) {
-                    final Chunk chunk = this.loadedChunkMap.get(task.chunkCoordinate);
-                    if (chunk != null) {
-                        this.skyQueue.requeueChunkLight(cx, cz, chunk,
-                                PulsarEngine.getEmptySectionsForChunk(chunk), task.relightAttempts);
-                    }
-                } else {
-                    Pulsar.LOGGER.error("Sky engine: chunk ({}, {}) overflowed BFS queue {} times - giving up.",
-                            cx, cz, task.relightAttempts + 1);
-                }
+            if (overflowed && this.requeueAfterOverflow(this.skyQueue, task, cx, cz, "Sky")) {
+                finishInitial = false;
             }
         } catch (final Throwable t) {
-            // Always complete the latch: with chunk sending gated on
-            // lightReady, a leaked completion would leave the chunk unsent
-            // forever.
-            this.completeInitialLighting(task.chunkCoordinate);
             if (this.loadedChunkMap.get(task.chunkCoordinate) != null) {
                 Pulsar.LOGGER.error("Sky task for chunk ({}, {}) failed", cx, cz, t);
             } else {
                 Pulsar.LOGGER.warn("Sky task for chunk ({}, {}) aborted - chunk unloaded during processing", cx, cz, t);
             }
+        }
+
+        if (finishInitial) {
+            this.completeInitialLighting(task, InitialLightCompletionState.SKY);
         }
 
         skyEngine.setStats(null);
@@ -386,9 +414,12 @@ public final class WorldLightManager {
         final long t0 = System.nanoTime();
         final int cx = CoordinateUtils.getChunkX(task.chunkCoordinate);
         final int cz = CoordinateUtils.getChunkZ(task.chunkCoordinate);
+        boolean finishInitial = task.initialLightChunk != null;
 
         if (this.loadedChunkMap.get(task.chunkCoordinate) == null) {
-            this.completeInitialLighting(task.chunkCoordinate);
+            if (finishInitial) {
+                this.completeInitialLighting(task, InitialLightCompletionState.BLOCK);
+            }
             return;
         }
 
@@ -403,15 +434,17 @@ public final class WorldLightManager {
         long edgesNs = 0;
         int edgeSec = 0, edgeBfsInc = 0, edgeBfsDec = 0;
 
+        boolean overflowed = false;
         try {
             if (task.loadInitChunk != null && task.initialLightChunk == null) {
                 // Persisted-light chunk: nibble/emptiness-map init only, no BFS.
                 blockEngine.loadInChunk(task.loadInitChunk, task.loadInitEmptySections);
+                overflowed |= blockEngine.wasQueueOverflowed();
             }
 
             if (task.initialLightChunk != null) {
                 blockEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
-                this.completeInitialLighting(task.chunkCoordinate);
+                overflowed |= blockEngine.wasQueueOverflowed();
             }
 
             if (task.changedSectionSet != null || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
@@ -422,6 +455,7 @@ public final class WorldLightManager {
                 changesBfsInc = blockEngine.lastBfsIncreaseTotal;
                 changesBfsDec = blockEngine.lastBfsDecreaseTotal;
                 if (statsOn) this.stats.blockPositionsProcessed.addAndGet(changesPos);
+                overflowed |= blockEngine.wasQueueOverflowed();
             }
 
             if (task.queuedEdgeChecksBlock != null) {
@@ -433,30 +467,22 @@ public final class WorldLightManager {
                 edgesNs = System.nanoTime() - t2;
                 edgeBfsInc = blockEngine.lastBfsIncreaseTotal;
                 edgeBfsDec = blockEngine.lastBfsDecreaseTotal;
+                overflowed |= blockEngine.wasQueueOverflowed();
             }
 
-            if (blockEngine.wasQueueOverflowed()) {
-                if (task.relightAttempts < MAX_RELIGHT_ATTEMPTS) {
-                    final Chunk chunk = this.loadedChunkMap.get(task.chunkCoordinate);
-                    if (chunk != null) {
-                        this.blockQueue.requeueChunkLight(cx, cz, chunk,
-                                PulsarEngine.getEmptySectionsForChunk(chunk), task.relightAttempts);
-                    }
-                } else {
-                    Pulsar.LOGGER.error("Block engine: chunk ({}, {}) overflowed BFS queue {} times - giving up.",
-                            cx, cz, task.relightAttempts + 1);
-                }
+            if (overflowed && this.requeueAfterOverflow(this.blockQueue, task, cx, cz, "Block")) {
+                finishInitial = false;
             }
         } catch (final Throwable t) {
-            // Always complete the latch: with chunk sending gated on
-            // lightReady, a leaked completion would leave the chunk unsent
-            // forever.
-            this.completeInitialLighting(task.chunkCoordinate);
             if (this.loadedChunkMap.get(task.chunkCoordinate) != null) {
                 Pulsar.LOGGER.error("Block task for chunk ({}, {}) failed", cx, cz, t);
             } else {
                 Pulsar.LOGGER.warn("Block task for chunk ({}, {}) aborted - chunk unloaded during processing", cx, cz, t);
             }
+        }
+
+        if (finishInitial) {
+            this.completeInitialLighting(task, InitialLightCompletionState.BLOCK);
         }
 
         blockEngine.setStats(null);
@@ -475,34 +501,130 @@ public final class WorldLightManager {
     }
 
     /**
-     * Called by each worker when it finishes initial lighting for a chunk.
-     * The last worker to finish sets {@code lightReady=true}, queues the
-     * deferred edge checks for BOTH engines and completes the pending work
-     * future.
+     * Requeue a full relight after any operation in a task overflowed its BFS
+     * queue. Coordinated relights retain their generation and defer completion
+     * until the final attempt; ordinary update batches are promoted to a new
+     * coordinated relight. A newer queued generation supersedes an older retry.
+     */
+    private boolean requeueAfterOverflow(final LightQueue queue, final ChunkTasks task,
+                                         final int cx, final int cz, final String engineName) {
+        if (task.relightAttempts < MAX_RELIGHT_ATTEMPTS) {
+            final Chunk chunk = this.loadedChunkMap.get(task.chunkCoordinate);
+            if (chunk == null) {
+                return false;
+            }
+            final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(chunk);
+            if (task.initialLightGeneration <= 0L) {
+                // An ordinary block/section/edge task has no completion state
+                // to release. Promote its recovery to a coordinated relight
+                // of every active lane so final sync and edge checks run.
+                this.queueChunkLightInternal(cx, cz, chunk, emptySections);
+                this.scheduleUpdate();
+                return true;
+            }
+
+            queue.requeueChunkLight(cx, cz, chunk, emptySections,
+                    task.initialLightGeneration, task.relightAttempts);
+            // A false return means a newer generation is already queued. It
+            // still supersedes this attempt, so the old generation must not
+            // report completion.
+            return true;
+        }
+
+        Pulsar.LOGGER.error("{} engine: chunk ({}, {}) overflowed BFS queue {} times - giving up.",
+                engineName, cx, cz, task.relightAttempts + 1);
+        return false;
+    }
+
+    /**
+     * Called once by a lane after its final initial-light attempt. Stale
+     * generations and duplicate lane completions are ignored. The last
+     * required lane publishes the current generation, queues deferred edge
+     * checks for both engines and completes the pending-work future.
      *
      * <p>Edge checks are queued here — not from each engine's own
      * initial-light block — because {@code checkChunkEdges}' cache setup
      * skips chunks that are not yet light-ready: an edge check drained
      * before the OTHER engine finished the same chunk was silently dropped.
      */
-    private void completeInitialLighting(final long chunkCoordinate) {
+    private void completeInitialLighting(final ChunkTasks task, final int lane) {
+        if (task.initialLightGeneration <= 0L) {
+            return;
+        }
+
+        final long chunkCoordinate = task.chunkCoordinate;
         final ChunkLightCompletion completion;
+
         synchronized (this.initialLightCompletions) {
             completion = this.initialLightCompletions.get(chunkCoordinate);
-        }
-        if (completion == null) return;
-
-        if (completion.remaining.decrementAndGet() <= 0) {
-            synchronized (this.initialLightCompletions) {
-                this.initialLightCompletions.remove(chunkCoordinate);
+            if (completion == null) {
+                return;
             }
-            ((PulsarChunk) completion.chunk).pulsar$syncLightToVanilla();
-            ((PulsarChunk) completion.chunk).pulsar$setLightReady(true);
-            final int cx = CoordinateUtils.getChunkX(chunkCoordinate);
-            final int cz = CoordinateUtils.getChunkZ(chunkCoordinate);
-            if (this.skyQueue != null) this.skyQueue.queueEdgeCheckAllSections(cx, cz, true);
-            if (this.blockQueue != null) this.blockQueue.queueEdgeCheckAllSections(cx, cz, false);
-            completion.future.set(null);
+            final InitialLightCompletionState.Result result =
+                    completion.state.complete(task.initialLightGeneration, lane);
+            if (result != InitialLightCompletionState.Result.COMPLETE) {
+                return;
+            }
+        }
+
+        boolean published = false;
+        Throwable publishFailure = null;
+        // Serialise publication only against other generations of THIS chunk,
+        // not against every chunk finishing in the world. The generation is
+        // checked both before and after the bulk nibble copy so an intervening
+        // relight can supersede this one without stale lightReady publication.
+        synchronized (completion.chunk) {
+            boolean currentGeneration;
+            synchronized (this.initialLightCompletions) {
+                currentGeneration = this.initialLightCompletions.get(chunkCoordinate) == completion
+                        && this.loadedChunkMap.get(chunkCoordinate) == completion.chunk;
+            }
+
+            try {
+                if (currentGeneration) {
+                    ((PulsarChunk) completion.chunk).pulsar$syncLightToVanilla();
+                }
+            } catch (final Throwable t) {
+                publishFailure = t;
+            }
+
+            synchronized (this.initialLightCompletions) {
+                if (this.initialLightCompletions.get(chunkCoordinate) == completion) {
+                    this.initialLightCompletions.remove(chunkCoordinate);
+                    currentGeneration = this.loadedChunkMap.get(chunkCoordinate) == completion.chunk;
+                    try {
+                        if (currentGeneration && publishFailure == null) {
+                            ((PulsarChunk) completion.chunk).pulsar$setLightReady(true);
+                            final int cx = CoordinateUtils.getChunkX(chunkCoordinate);
+                            final int cz = CoordinateUtils.getChunkZ(chunkCoordinate);
+                            if (this.skyQueue != null) this.skyQueue.queueEdgeCheckAllSections(cx, cz, true);
+                            if (this.blockQueue != null) this.blockQueue.queueEdgeCheckAllSections(cx, cz, false);
+                            published = true;
+                        } else if (currentGeneration) {
+                            ((PulsarChunk) completion.chunk).pulsar$setLightReady(false);
+                        }
+                    } catch (final Throwable t) {
+                        if (publishFailure == null) {
+                            publishFailure = t;
+                        } else {
+                            publishFailure.addSuppressed(t);
+                        }
+                        try {
+                            ((PulsarChunk) completion.chunk).pulsar$setLightReady(false);
+                        } catch (final Throwable suppressed) {
+                            publishFailure.addSuppressed(suppressed);
+                        }
+                        published = false;
+                    }
+                }
+            }
+        }
+
+        completion.finish(published);
+        if (publishFailure != null) {
+            Pulsar.LOGGER.error("Failed to publish initial light for chunk ({}, {})",
+                    CoordinateUtils.getChunkX(chunkCoordinate), CoordinateUtils.getChunkZ(chunkCoordinate),
+                    publishFailure);
         }
     }
 
@@ -510,35 +632,30 @@ public final class WorldLightManager {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final Chunk chunk = this.loadedChunkMap.get(key);
         if (chunk == null) return false;
-        ((PulsarChunk) chunk).pulsar$setLightReady(false);
         final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(chunk);
-        this.queueChunkLight(cx, cz, chunk, emptySections);
+        final ChunkLightCompletion completion = this.queueChunkLightInternal(cx, cz, chunk, emptySections);
         this.scheduleUpdate();
 
         // 1.12.2 has no light-update packet, so a relight is invisible to
         // clients that already hold the chunk — resend it once the BFS
         // completes. Packet construction must happen on the server thread.
         if (!this.world.isRemote) {
-            final ChunkLightCompletion completion;
-            synchronized (this.initialLightCompletions) {
-                completion = this.initialLightCompletions.get(key);
-            }
-            if (completion != null) {
-                completion.future.addListener(() -> {
-                    final MinecraftServer server = this.world.getMinecraftServer();
-                    if (server == null) return;
-                    server.addScheduledTask(() -> {
-                        if (!(this.world instanceof WorldServer)) return;
-                        final PlayerChunkMapEntry entry =
-                                ((WorldServer) this.world).getPlayerChunkMap().getEntry(cx, cz);
-                        final Chunk current = this.loadedChunkMap.get(key);
-                        if (entry != null && current != null) {
-                            entry.sendPacket(new SPacketChunkData(
-                                    current, this.heightContext.getFullChunkSectionMask()));
-                        }
-                    });
-                }, Runnable::run);
-            }
+            completion.future.addListener(() -> {
+                if (!completion.published) return;
+                final MinecraftServer server = this.world.getMinecraftServer();
+                if (server == null) return;
+                server.addScheduledTask(() -> {
+                    if (!(this.world instanceof WorldServer)) return;
+                    final PlayerChunkMapEntry entry =
+                            ((WorldServer) this.world).getPlayerChunkMap().getEntry(cx, cz);
+                    final Chunk current = this.loadedChunkMap.get(key);
+                    if (entry != null && current == completion.chunk
+                            && ((PulsarChunk) current).pulsar$isLightReady()) {
+                        entry.sendPacket(new SPacketChunkData(
+                                current, this.heightContext.getFullChunkSectionMask()));
+                    }
+                });
+            }, Runnable::run);
         }
         return true;
     }
@@ -627,21 +744,26 @@ public final class WorldLightManager {
         this.stats.close();
     }
 
-    /**
-     * Coordination object for initial chunk lighting. Both sky and block
-     * workers decrement the countdown; the last one to finish sets
-     * {@code lightReady} and completes the future.
-     */
+    /** Coordination object for one generation of a chunk's initial light. */
     static final class ChunkLightCompletion {
 
-        final AtomicInteger remaining;
+        final InitialLightCompletionState state;
         final SettableFuture<Void> future;
         final Chunk chunk;
+        volatile boolean published;
 
-        ChunkLightCompletion(final int engineCount, final Chunk chunk) {
-            this.remaining = new AtomicInteger(engineCount);
+        ChunkLightCompletion(final long generation, final int requiredLanes, final Chunk chunk) {
+            this.state = new InitialLightCompletionState(generation, requiredLanes);
             this.future = SettableFuture.create();
             this.chunk = chunk;
+        }
+
+        synchronized void finish(final boolean published) {
+            if (this.future.isDone()) {
+                return;
+            }
+            this.published = published;
+            this.future.set(null);
         }
     }
 }

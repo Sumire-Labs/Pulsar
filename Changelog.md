@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed chunks briefly appearing to have no pending light work after a worker
   started processing them, which could race chunk saves/unloads and preserve
   stale or partially updated lighting.
+- Fixed overlapping relights and BFS-overflow retries marking chunks as lit
+  from stale or duplicate worker completions. Relight generations are now
+  isolated, and readiness waits for the final retry of every active light
+  engine.
 
 
 ## [0.1.0]
