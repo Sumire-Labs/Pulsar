@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="625" viewBox="0 0 1120 625" role="img" aria-labelledby="title description">
+  <title id="title">Light-update completion latency benchmark</title>
+  <desc id="description">Median completion p50 across three independent Minecraft restarts for vanilla, Alfheim, and Pulsar. Whiskers show the range of the three run p50 values. The logarithmic horizontal axis ranges from 0.05 to 1000 milliseconds and lower is better. Pulsar has the lowest latency in all four workloads.</desc>
+  <style>
+    .background { fill: #ffffff; }
+    .text { fill: #24292f; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .muted { fill: #57606a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .grid { stroke: #d0d7de; }
+    .axis { stroke: #8c959f; }
+    .separator { stroke: #d8dee4; }
+    .vanilla-line { stroke: #6e7781; }
+    .alfheim-line { stroke: #d97706; }
+    .pulsar-line { stroke: #7c3aed; }
+    .vanilla-fill { fill: #6e7781; }
+    .alfheim-fill { fill: #d97706; }
+    .pulsar-fill { fill: #7c3aed; }
+    @media (prefers-color-scheme: dark) {
+      .background { fill: #0d1117; }
+      .text { fill: #f0f6fc; }
+      .muted { fill: #8c959f; }
+      .grid { stroke: #30363d; }
+      .axis { stroke: #6e7681; }
+      .separator { stroke: #30363d; }
+    }
+  </style>
+
+  <rect class="background" width="1120" height="625" />
+  <text class="text" x="560" y="30" text-anchor="middle" font-size="20" font-weight="600">Light-update completion latency</text>
+  <text class="muted" x="560" y="54" text-anchor="middle" font-size="14">Median of each run's p50; whiskers show the range across 3 restarts; lower is better</text>
+
+  <g class="grid" stroke-width="1">
+    <line x1="340" y1="106" x2="340" y2="564" />
+    <line x1="387.59" y1="106" x2="387.59" y2="564" />
+    <line x1="545.70" y1="106" x2="545.70" y2="564" />
+    <line x1="703.80" y1="106" x2="703.80" y2="564" />
+    <line x1="861.90" y1="106" x2="861.90" y2="564" />
+    <line x1="1020" y1="106" x2="1020" y2="564" />
+  </g>
+
+  <g class="separator" stroke-width="1">
+    <line x1="20" y1="219" x2="1088" y2="219" />
+    <line x1="20" y1="333" x2="1088" y2="333" />
+    <line x1="20" y1="447" x2="1088" y2="447" />
+  </g>
+
+  <g class="text" font-size="15">
+    <text x="20" y="155" font-weight="600">Skylight increase<tspan class="muted" x="20" dy="19" font-size="13" font-weight="400">remove roof block</tspan></text>
+    <text x="20" y="269" font-weight="600">Skylight decrease<tspan class="muted" x="20" dy="19" font-size="13" font-weight="400">place roof block</tspan></text>
+    <text x="20" y="383" font-weight="600">Block-light increase<tspan class="muted" x="20" dy="19" font-size="13" font-weight="400">place glowstone</tspan></text>
+    <text x="20" y="497" font-weight="600">Block-light decrease<tspan class="muted" x="20" dy="19" font-size="13" font-weight="400">remove glowstone</tspan></text>
+  </g>
+
+  <g class="text" font-size="14" text-anchor="end">
+    <text x="320" y="137">Vanilla</text><text x="320" y="169">Alfheim</text><text x="320" y="201" font-weight="600">Pulsar</text>
+    <text x="320" y="251">Vanilla</text><text x="320" y="283">Alfheim</text><text x="320" y="315" font-weight="600">Pulsar</text>
+    <text x="320" y="365">Vanilla</text><text x="320" y="397">Alfheim</text><text x="320" y="429" font-weight="600">Pulsar</text>
+    <text x="320" y="479">Vanilla</text><text x="320" y="511">Alfheim</text><text x="320" y="543" font-weight="600">Pulsar</text>
+  </g>
+
+  <!-- Skylight increase: remove the roof block. -->
+  <g class="vanilla-line" stroke-width="2">
+    <line x1="795.61" y1="132" x2="809.11" y2="132" /><line x1="795.61" y1="126" x2="795.61" y2="138" /><line x1="809.11" y1="126" x2="809.11" y2="138" />
+  </g>
+  <circle class="vanilla-fill" cx="807.89" cy="132" r="5" />
+  <text class="text" x="820" y="137" font-size="13">45.541 ms</text>
+  <g class="alfheim-line" stroke-width="2">
+    <line x1="672.81" y1="164" x2="676.46" y2="164" /><line x1="672.81" y1="158" x2="672.81" y2="170" /><line x1="676.46" y1="158" x2="676.46" y2="170" />
+  </g>
+  <polygon class="alfheim-fill" points="675.63,157 682.63,164 675.63,171 668.63,164" />
+  <text class="text" x="688" y="169" font-size="13">6.635 ms</text>
+  <g class="pulsar-line" stroke-width="2">
+    <line x1="526.85" y1="196" x2="531.73" y2="196" /><line x1="526.85" y1="190" x2="526.85" y2="202" /><line x1="531.73" y1="190" x2="531.73" y2="202" />
+  </g>
+  <rect class="pulsar-fill" x="526.06" y="191" width="10" height="10" />
+  <text class="text" x="543" y="201" font-size="13" font-weight="600">0.808 ms</text>
+
+  <!-- Skylight decrease: replace the roof block. -->
+  <g class="vanilla-line" stroke-width="2">
+    <line x1="1001.41" y1="246" x2="1008.76" y2="246" /><line x1="1001.41" y1="240" x2="1001.41" y2="252" /><line x1="1008.76" y1="240" x2="1008.76" y2="252" />
+  </g>
+  <circle class="vanilla-fill" cx="1008.62" cy="246" r="5" />
+  <text class="text" x="1022" y="251" font-size="13">847.284 ms</text>
+  <g class="alfheim-line" stroke-width="2">
+    <line x1="725.66" y1="278" x2="731.54" y2="278" /><line x1="725.66" y1="272" x2="725.66" y2="284" /><line x1="731.54" y1="272" x2="731.54" y2="284" />
+  </g>
+  <polygon class="alfheim-fill" points="730.57,271 737.57,278 730.57,285 723.57,278" />
+  <text class="text" x="743" y="283" font-size="13">14.768 ms</text>
+  <g class="pulsar-line" stroke-width="2">
+    <line x1="572.05" y1="310" x2="592.32" y2="310" /><line x1="572.05" y1="304" x2="572.05" y2="316" /><line x1="592.32" y1="304" x2="592.32" y2="316" />
+  </g>
+  <rect class="pulsar-fill" x="570.39" y="305" width="10" height="10" />
+  <text class="text" x="604" y="315" font-size="13" font-weight="600">1.541 ms</text>
+
+  <!-- Block-light increase: place glowstone. -->
+  <g class="vanilla-line" stroke-width="2">
+    <line x1="584.78" y1="360" x2="596.38" y2="360" /><line x1="584.78" y1="354" x2="584.78" y2="366" /><line x1="596.38" y1="354" x2="596.38" y2="366" />
+  </g>
+  <circle class="vanilla-fill" cx="594.24" cy="360" r="5" />
+  <text class="text" x="607" y="365" font-size="13">2.028 ms</text>
+  <g class="alfheim-line" stroke-width="2">
+    <line x1="432.74" y1="392" x2="440.15" y2="392" /><line x1="432.74" y1="386" x2="432.74" y2="398" /><line x1="440.15" y1="386" x2="440.15" y2="398" />
+  </g>
+  <polygon class="alfheim-fill" points="435.19,385 442.19,392 435.19,399 428.19,392" />
+  <text class="text" x="448" y="397" font-size="13">0.200 ms</text>
+  <g class="pulsar-line" stroke-width="2">
+    <line x1="373.97" y1="424" x2="386.21" y2="424" /><line x1="373.97" y1="418" x2="373.97" y2="430" /><line x1="386.21" y1="418" x2="386.21" y2="430" />
+  </g>
+  <rect class="pulsar-fill" x="369.80" y="419" width="10" height="10" />
+  <text class="text" x="392" y="429" font-size="13" font-weight="600">0.083 ms</text>
+
+  <!-- Block-light decrease: remove glowstone. -->
+  <g class="vanilla-line" stroke-width="2">
+    <line x1="608.88" y1="474" x2="618.33" y2="474" /><line x1="608.88" y1="468" x2="608.88" y2="480" /><line x1="618.33" y1="468" x2="618.33" y2="480" />
+  </g>
+  <circle class="vanilla-fill" cx="616.88" cy="474" r="5" />
+  <text class="text" x="629" y="479" font-size="13">2.820 ms</text>
+  <g class="alfheim-line" stroke-width="2">
+    <line x1="460.94" y1="506" x2="469.36" y2="506" /><line x1="460.94" y1="500" x2="460.94" y2="512" /><line x1="469.36" y1="500" x2="469.36" y2="512" />
+  </g>
+  <polygon class="alfheim-fill" points="463.71,499 470.71,506 463.71,513 456.71,506" />
+  <text class="text" x="477" y="511" font-size="13">0.303 ms</text>
+  <g class="pulsar-line" stroke-width="2">
+    <line x1="385.50" y1="538" x2="403.46" y2="538" /><line x1="385.50" y1="532" x2="385.50" y2="544" /><line x1="403.46" y1="532" x2="403.46" y2="544" />
+  </g>
+  <rect class="pulsar-fill" x="380.50" y="533" width="10" height="10" />
+  <text class="text" x="415" y="543" font-size="13" font-weight="600">0.097 ms</text>
+
+  <line class="axis" x1="340" y1="564" x2="1020" y2="564" stroke-width="1.5" />
+  <g class="muted" font-size="13" text-anchor="middle">
+    <text x="340" y="585">0.05</text>
+    <text x="387.59" y="585">0.1</text>
+    <text x="545.70" y="585">1</text>
+    <text x="703.80" y="585">10</text>
+    <text x="861.90" y="585">100</text>
+    <text x="1020" y="585">1000</text>
+  </g>
+  <text class="text" x="680" y="611" text-anchor="middle" font-size="14">Completion latency (ms, logarithmic scale)</text>
+</svg>
