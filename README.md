@@ -244,8 +244,6 @@ Please attach `latest.log`, the relevant configuration files, and the output of
 
 - [Starlight](https://github.com/PaperMC/Starlight) by Spottedleaf, for the
   architecture and core algorithms
-- [ScalableLux](https://github.com/RelativityMC/ScalableLux) by RelativityMC,
-  for later Starlight fixes and implementation references
 - [SuperNova](https://github.com/GTNewHorizons/SuperNova) by GTNewHorizons, the
   1.7.10 Starlight port on which early Pulsar versions were based
 - [Alfheim](https://github.com/Red-Studio-Ragnarok/Alfheim) by Red Studio, for
