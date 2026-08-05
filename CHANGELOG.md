@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   clone-cache hooks. Current Celeritas builds invalidate their own cloned
   sections when scheduling rebuilds, and normal Pulsar lighting remains
   compatible without the extra integrations.
+- Added a reproducible Lightbench comparison to the README, including three
+  interleaved runs each for vanilla, Alfheim, and Pulsar, the test conditions,
+  and exact per-run aggregate data.
 
 ### Fixed
 
