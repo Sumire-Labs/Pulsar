@@ -13,12 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   clone-cache hooks. Current Celeritas builds invalidate their own cloned
   sections when scheduling rebuilds, and normal Pulsar lighting remains
   compatible without the extra integrations.
-- Added a reproducible Lightbench comparison to the README, including three
-  interleaved runs each for vanilla, Alfheim, and Pulsar, the test conditions,
-  and exact per-run aggregate data.
+- Added a reproducible Lightbench fresh-chunk generation comparison to the
+  README, including three interleaved runs each for vanilla, Alfheim, and
+  Pulsar, the test conditions, and exact per-run aggregate data.
+- Added a correctness-checked Lightbench update comparison covering skylight
+  increase and decrease plus glowstone placement and removal. The README shows
+  the median and full restart range from three interleaved runs per engine and
+  links the exact comparison data.
 
 ### Fixed
 
+- Fixed vanilla `Chunk#getLightFor` queries returning stale or zero light for
+  empty chunk sections after Pulsar's light state became usable. Public sky- and
+  block-light lookups now read Pulsar's visible SWMR data while preserving the
+  vanilla path during initial-light bootstrap.
 - Added compatibility with Depths Update's per-dimension height bounds and
   chunk-section layout, allowing block and sky light to propagate, sync, and
   persist below Y=0 and above Y=255 ([#4](https://github.com/Sumire-Labs/Pulsar/issues/4)).

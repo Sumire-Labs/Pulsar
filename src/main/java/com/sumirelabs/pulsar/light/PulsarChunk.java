@@ -16,8 +16,10 @@ public interface PulsarChunk extends ExtendedChunk {
 
     /**
      * Sync Pulsar SWMR visible data → vanilla {@code blockLight}/{@code skyLight}
-     * nibble arrays so that {@link net.minecraft.world.chunk.Chunk#getLightFor}
-     * returns up-to-date values for renderers and chunk packets.
+     * nibble arrays for chunk packets and compatibility code that reads
+     * existing vanilla section storage directly. Empty sections have no
+     * vanilla storage; {@link net.minecraft.world.chunk.Chunk#getLightFor}
+     * reads Pulsar's visible arrays through the chunk mixin instead.
      */
     void pulsar$syncLightToVanilla();
 

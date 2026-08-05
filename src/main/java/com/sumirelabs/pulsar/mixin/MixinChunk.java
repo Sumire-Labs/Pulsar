@@ -18,6 +18,7 @@ import com.sumirelabs.pulsar.world.PulsarWorld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
@@ -115,6 +116,36 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
             this.pulsar$lightLookupPos = new BlockPos.MutableBlockPos();
         }
         return this.pulsar$lightLookupPos;
+    }
+
+    /**
+     * Once Pulsar owns a chunk's usable light state, expose that state through
+     * the vanilla chunk API as well. Vanilla reads only an existing
+     * {@link ExtendedBlockStorage}; an empty section has no storage and would
+     * therefore report stale height-map skylight even though Pulsar's SWMR
+     * arrays contain the propagated value.
+     *
+     * <p>Before the Pulsar state becomes usable, leave the call untouched so
+     * chunk generation and initial-light bootstrap retain vanilla semantics.
+     */
+    @Inject(method = "getLightFor", at = @At("HEAD"), cancellable = true, require = 0)
+    private void pulsar$getLightFor(final EnumSkyBlock lightType, final BlockPos pos,
+                                    final CallbackInfoReturnable<Integer> cir) {
+        if (!this.pulsar$isLightUsable()) {
+            return;
+        }
+
+        final WorldHeightContext heightContext = this.pulsar$getHeightContext();
+        if (lightType == EnumSkyBlock.SKY) {
+            cir.setReturnValue(this.world.provider.hasSkyLight()
+                    ? ChunkLightHelper.getSkyLight(
+                            heightContext, this.pulsar$skyNibbles, pos.getX(), pos.getY(), pos.getZ())
+                    : 0);
+            return;
+        }
+
+        cir.setReturnValue(ChunkLightHelper.getBlockLight(
+                heightContext, this.pulsar$blockNibbles, pos.getX(), pos.getY(), pos.getZ()));
     }
 
     // ============================== Init ==============================
