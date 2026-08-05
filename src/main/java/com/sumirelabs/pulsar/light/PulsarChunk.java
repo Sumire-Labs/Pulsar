@@ -24,6 +24,15 @@ public interface PulsarChunk extends ExtendedChunk {
     void pulsar$setLightReady(boolean ready);
 
     /**
+     * Internal engine gate. This becomes true after initial propagation so
+     * neighbouring chunks can reconcile against this chunk while the public
+     * light-ready flag remains false until every edge pass completes.
+     */
+    boolean pulsar$isLightUsable();
+
+    void pulsar$setLightUsable(boolean usable);
+
+    /**
      * Set by {@link LightDataSerializer} when valid persisted light data was
      * restored from NBT during chunk deserialisation. When true,
      * {@code MixinChunk.pulsar$onLoad} skips the full initial relight.

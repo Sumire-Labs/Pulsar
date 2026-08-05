@@ -86,7 +86,8 @@ public final class LightQueue {
                                              final Boolean[] emptySections, final long generation) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
-        if (tasks.initialLightChunk != null && tasks.initialLightGeneration > generation) {
+        if ((tasks.initialLightChunk != null && tasks.initialLightGeneration > generation)
+                || tasks.initialLightEdgeGeneration > generation) {
             return;
         }
         if (tasks.initialLightChunk == null) {
@@ -97,6 +98,11 @@ public final class LightQueue {
         tasks.initialLightEmptySections = emptySections;
         tasks.initialLightGeneration = generation;
         tasks.relightAttempts = 0;
+        // A new propagation pass supersedes any queued edge-finalisation
+        // marker. Its accumulated section set may remain as ordinary edge
+        // maintenance and will be checked again after this generation.
+        tasks.initialLightEdgeGeneration = 0L;
+        tasks.edgeCheckAttempts = 0;
         this.workAvailable.release(1);
     }
 
@@ -124,7 +130,8 @@ public final class LightQueue {
                                                   final int previousAttempts) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
-        if (tasks.initialLightChunk != null && tasks.initialLightGeneration > generation) {
+        if ((tasks.initialLightChunk != null && tasks.initialLightGeneration > generation)
+                || tasks.initialLightEdgeGeneration > generation) {
             return false;
         }
         if (tasks.initialLightChunk == null) {
@@ -139,6 +146,8 @@ public final class LightQueue {
             tasks.initialLightGeneration = generation;
             tasks.relightAttempts = previousAttempts + 1;
         }
+        tasks.initialLightEdgeGeneration = 0L;
+        tasks.edgeCheckAttempts = 0;
         this.workAvailable.release(1);
         return true;
     }
@@ -166,6 +175,42 @@ public final class LightQueue {
     public synchronized void queueEdgeCheckAllSections(final int cx, final int cz, final boolean isSky) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
+        this.addAllEdgeSections(tasks, isSky);
+        this.workAvailable.release(1);
+    }
+
+    /**
+     * Queue the edge-reconciliation phase that gates publication of an
+     * initial-light generation.
+     *
+     * @return {@code false} if queued work from a newer generation already
+     * occupies this chunk
+     */
+    public synchronized boolean queueInitialLightEdgeCheckAllSections(final int cx, final int cz,
+                                                                       final boolean isSky,
+                                                                       final long generation,
+                                                                       final int attempts) {
+        if (generation <= 0L || attempts < 0) {
+            throw new IllegalArgumentException("Invalid initial-light edge generation/attempt");
+        }
+        final long key = CoordinateUtils.getChunkKey(cx, cz);
+        final ChunkTasks tasks = this.getOrCreate(key);
+        if ((tasks.initialLightChunk != null && tasks.initialLightGeneration >= generation)
+                || tasks.initialLightEdgeGeneration > generation) {
+            return false;
+        }
+        this.addAllEdgeSections(tasks, isSky);
+        if (tasks.initialLightEdgeGeneration == generation) {
+            tasks.edgeCheckAttempts = Math.max(tasks.edgeCheckAttempts, attempts);
+        } else {
+            tasks.initialLightEdgeGeneration = generation;
+            tasks.edgeCheckAttempts = attempts;
+        }
+        this.workAvailable.release(1);
+        return true;
+    }
+
+    private void addAllEdgeSections(final ChunkTasks tasks, final boolean isSky) {
         if (isSky) {
             if (tasks.queuedEdgeChecksSky == null) {
                 tasks.queuedEdgeChecksSky = new IntOpenHashSet();
@@ -181,7 +226,6 @@ public final class LightQueue {
                 tasks.queuedEdgeChecksBlock.add(s);
             }
         }
-        this.workAvailable.release(1);
     }
 
     /**

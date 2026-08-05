@@ -24,7 +24,8 @@ import javax.annotation.Nullable;
  * <p>The entry retries every tick, so returning {@code false} only delays
  * the send. Conditions on top of vanilla's own populated check:
  * <ul>
- *   <li>the chunk's initial BFS is complete ({@code lightReady}), and</li>
+ *   <li>the chunk's initial propagation and own edge reconciliation are
+ *       complete ({@code lightReady}), and</li>
  *   <li>all four horizontal neighbours are lit — their edge checks are what
  *       finalise this chunk's seam light, and 1.12.2 has no light packet to
  *       correct an already-sent chunk.</li>

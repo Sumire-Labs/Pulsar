@@ -28,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   from stale or duplicate worker completions. Relight generations are now
   isolated, and readiness waits for the final retry of every active light
   engine.
+- Fixed newly lit chunks becoming ready before their deferred sky- and
+  block-light border checks finished, which could send or save visible seams
+  between neighbouring chunks. Border checks now finish for the same relight
+  generation before the chunk is published as ready.
 
 
 ## [0.1.0]

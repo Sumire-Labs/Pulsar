@@ -43,6 +43,13 @@ public final class ChunkTasks {
     public IntOpenHashSet queuedEdgeChecksSky;
     public IntOpenHashSet queuedEdgeChecksBlock;
 
+    /**
+     * Generation whose final edge-reconciliation pass is carried by this
+     * batch. Zero means the edge checks are ordinary maintenance work.
+     */
+    public long initialLightEdgeGeneration;
+    public int edgeCheckAttempts;
+
     public final SettableFuture<Void> onComplete;
 
     public final long enqueueTimeNs;

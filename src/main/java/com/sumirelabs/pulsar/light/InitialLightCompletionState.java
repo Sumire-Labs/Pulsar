@@ -2,8 +2,9 @@ package com.sumirelabs.pulsar.light;
 
 /**
  * Generation-aware, exactly-once state machine for a chunk's initial light.
- * Sky and block workers may finish concurrently, so each required lane is
- * accepted once and only the current generation can reach completion.
+ * Sky and block workers may finish concurrently. Each required lane must
+ * finish both its initial propagation and its deferred edge reconciliation
+ * before the generation can be published as light-ready.
  */
 final class InitialLightCompletionState {
 
@@ -13,12 +14,14 @@ final class InitialLightCompletionState {
     enum Result {
         IGNORED,
         WAITING,
+        INITIAL_COMPLETE,
         COMPLETE
     }
 
     private final long generation;
     private final int requiredLanes;
-    private int completedLanes;
+    private int initialCompletedLanes;
+    private int edgeCompletedLanes;
 
     InitialLightCompletionState(final long generation, final int requiredLanes) {
         if (generation <= 0L) {
@@ -31,17 +34,28 @@ final class InitialLightCompletionState {
         this.requiredLanes = requiredLanes;
     }
 
-    synchronized Result complete(final long taskGeneration, final int lane) {
+    synchronized Result completeInitial(final long taskGeneration, final int lane) {
+        if (!this.accepts(taskGeneration, lane) || (this.initialCompletedLanes & lane) != 0) {
+            return Result.IGNORED;
+        }
+        this.initialCompletedLanes |= lane;
+        return this.initialCompletedLanes == this.requiredLanes ? Result.INITIAL_COMPLETE : Result.WAITING;
+    }
+
+    synchronized Result completeEdges(final long taskGeneration, final int lane) {
+        if (!this.accepts(taskGeneration, lane)
+                || this.initialCompletedLanes != this.requiredLanes
+                || (this.edgeCompletedLanes & lane) != 0) {
+            return Result.IGNORED;
+        }
+        this.edgeCompletedLanes |= lane;
+        return this.edgeCompletedLanes == this.requiredLanes ? Result.COMPLETE : Result.WAITING;
+    }
+
+    private boolean accepts(final long taskGeneration, final int lane) {
         if (lane != SKY && lane != BLOCK) {
             throw new IllegalArgumentException("Invalid initial-light lane: " + lane);
         }
-        if (taskGeneration != this.generation || (lane & this.requiredLanes) == 0) {
-            return Result.IGNORED;
-        }
-        if ((this.completedLanes & lane) != 0) {
-            return Result.IGNORED;
-        }
-        this.completedLanes |= lane;
-        return this.completedLanes == this.requiredLanes ? Result.COMPLETE : Result.WAITING;
+        return taskGeneration == this.generation && (lane & this.requiredLanes) != 0;
     }
 }

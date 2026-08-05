@@ -18,9 +18,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * {@code SaveUtil.saveLightHook}/{@code loadLightHook} to the 1.12.2 Forge
  * {@link ChunkDataEvent} pair.
  *
- * <p>Save: only chunks whose BFS has completed ({@code pulsar$isLightReady})
- * get the tag. A chunk saved mid-relight simply carries no tag and is relit
- * on next load — same fail-safe Starlight uses.
+ * <p>Save: only chunks whose initial propagation and edge reconciliation have
+ * completed ({@code pulsar$isLightReady}) get the tag. A chunk saved
+ * mid-relight simply carries no tag and is relit on next load — same fail-safe
+ * Starlight uses.
  *
  * <p>Load: fires during chunk deserialisation, before {@code Chunk.onLoad}.
  * On a valid restore {@code pulsar$setSavedLightValid(true)} is set and

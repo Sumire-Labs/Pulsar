@@ -54,7 +54,7 @@ public class ScalarBlockEngine extends PulsarEngine {
 
     @Override
     protected boolean canUseChunk(final Chunk chunk) {
-        return ((PulsarChunk) chunk).pulsar$isLightReady();
+        return ((PulsarChunk) chunk).pulsar$isLightUsable();
     }
 
     @Override

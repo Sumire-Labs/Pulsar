@@ -89,6 +89,9 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     private volatile boolean pulsar$lightReady;
 
     @Unique
+    private volatile boolean pulsar$lightUsable;
+
+    @Unique
     private volatile boolean pulsar$savedLightValid;
 
     @Unique
@@ -176,8 +179,8 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
 
         // Fresh or invalid-save chunk: queue the initial BFS so block emitters
         // and full sky-light propagation are computed asynchronously.
-        // completeInitialLighting will set lightReady = true once both engines
-        // finish.
+        // WorldLightManager will set lightReady = true once both engines have
+        // finished propagation and their deferred edge reconciliation.
         final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(self);
         mgr.queueChunkLight(this.x, this.z, self, emptySections);
         mgr.scheduleUpdate();
@@ -496,6 +499,16 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     @Override
     public void pulsar$setLightReady(final boolean ready) {
         this.pulsar$lightReady = ready;
+    }
+
+    @Override
+    public boolean pulsar$isLightUsable() {
+        return this.pulsar$lightReady || this.pulsar$lightUsable;
+    }
+
+    @Override
+    public void pulsar$setLightUsable(final boolean usable) {
+        this.pulsar$lightUsable = usable;
     }
 
     @Override

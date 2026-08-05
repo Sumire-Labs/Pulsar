@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -75,5 +76,22 @@ class LightQueueTest {
 
         queue.completeTask(task);
         assertFalse(queue.hasPendingWork(4, 5));
+    }
+
+    @Test
+    void finalEdgeTaskKeepsNewestGenerationAndRetryAttempt() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
+
+        assertTrue(queue.queueInitialLightEdgeCheckAllSections(7, -2, true, 8L, 0));
+        assertTrue(queue.queueInitialLightEdgeCheckAllSections(7, -2, true, 8L, 1));
+        assertFalse(queue.queueInitialLightEdgeCheckAllSections(7, -2, true, 7L, 2));
+        assertTrue(queue.queueInitialLightEdgeCheckAllSections(7, -2, true, 9L, 0));
+
+        final ChunkTasks task = queue.removeFirstTask();
+        assertNotNull(task);
+        assertEquals(9L, task.initialLightEdgeGeneration);
+        assertEquals(0, task.edgeCheckAttempts);
+
+        queue.completeTask(task);
     }
 }
