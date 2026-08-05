@@ -5,10 +5,6 @@ Pulsar is an asynchronous lighting engine for Minecraft 1.12.2, built for
 vanilla block and sky lighting with a Starlight-inspired implementation that
 moves most light propagation off the server thread.
 
-[Download](https://github.com/Sumire-Labs/Pulsar/releases/latest) ·
-[Changelog](CHANGELOG.md) ·
-[Report an issue](https://github.com/Sumire-Labs/Pulsar/issues)
-
 > [!WARNING]
 > Pulsar is experimental. Back up your world before adding it to an existing
 > modpack.
@@ -26,7 +22,8 @@ operations, or machines that place and remove many blocks.
   time the chunk loads.
 - Writes normal Minecraft light data, so worlds are not locked to Pulsar.
 - Fixes several vanilla rendering bugs around slabs, stairs, and light-emitting
-  blocks, including [MC-92](https://bugs.mojang.com/browse/MC-92).
+  blocks, including [MC-92](https://bugs.mojang.com/browse/MC-92), on
+  Minecraft's standard terrain-rendering path.
 
 The largest gains are under heavy lighting load. Ordinary gameplay with only a
 few light changes per tick may feel similar to vanilla or Alfheim.
@@ -35,13 +32,7 @@ few light changes per tick may feel similar to vanilla or Alfheim.
 
 Pulsar requires:
 
-- Minecraft 1.12.2
 - [CleanroomLoader](https://github.com/CleanroomMC/CleanroomLoader) 0.5 or newer
-
-Download the latest jar from
-[GitHub Releases](https://github.com/Sumire-Labs/Pulsar/releases/latest) and
-place it in the instance's `mods` folder. Do not install another lighting
-engine alongside Pulsar.
 
 Existing worlds are supported. Their chunks will be relit once so Pulsar can
 create its own light cache; make a backup before the first launch.
@@ -55,27 +46,7 @@ engine are not compatible.
 ### Supported integrations
 
 - [Fluidlogged API](https://modrinth.com/mod/fluidlogged-api)
-- Depths Update, including dimensions that extend below Y=0 or above Y=255
-- [Nothirium](https://github.com/Meldexun/Nothirium) with RenderLib; Cleanroom
-  users also need
-  [Naughthirium](https://www.curseforge.com/minecraft/mc-mods/naughthirium)
-- [Celeritas](https://github.com/kappa-maintainer/Celeritas-auto-build)
-
-<details>
-<summary>Nothirium and Celeritas notes</summary>
-
-Nothirium may print a mixin-overlap warning because both mods contain the same
-rendering fix. The overlap is harmless.
-
-Celeritas works without extra configuration. Pulsar also provides two optional
-integrations in `config/pulsar.cfg`; both are disabled by default while their
-rendering cost is being evaluated:
-
-- `compat.celeritasDirectionalMeshLight` applies the directional slab and
-  stair fix to Celeritas terrain meshes. Changing it requires a restart.
-- `compat.celeritasCloneInvalidation` refreshes Celeritas's cached chunk data
-  when light changes. Enable it if light remains stale inside enclosed rooms.
-
+- [Depths Update](https://modrinth.com/mod/depths-update), including dimensions that extend below Y=0 or above Y=255
 </details>
 
 ### Incompatible or unsupported
