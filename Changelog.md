@@ -32,6 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   block-light border checks finished, which could send or save visible seams
   between neighbouring chunks. Border checks now finish for the same relight
   generation before the chunk is published as ready.
+- Fixed Mod blocks with world- or position-dependent Forge light values being
+  treated as if their opacity and emission were constant per block state.
+  Ordinary blocks retain the cached fast path; only overriding block classes
+  use context-aware lookups, with no per-lookup `BlockPos` allocation. Existing
+  Pulsar light caches are invalidated once so affected chunks relight.
 
 
 ## [0.1.0]

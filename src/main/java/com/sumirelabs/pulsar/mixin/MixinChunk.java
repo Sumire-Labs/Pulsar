@@ -10,6 +10,7 @@ import com.sumirelabs.pulsar.light.ChunkLightHelper;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.light.WorldLightManager;
+import com.sumirelabs.pulsar.light.engine.LightInfo;
 import com.sumirelabs.pulsar.light.engine.PulsarEngine;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
@@ -98,11 +99,22 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     private WorldHeightContext pulsar$heightContext;
 
     @Unique
+    private BlockPos.MutableBlockPos pulsar$lightLookupPos;
+
+    @Unique
     private WorldHeightContext pulsar$getHeightContext() {
         if (this.pulsar$heightContext == null) {
             this.pulsar$heightContext = WorldUtil.getHeightContext(this.world);
         }
         return this.pulsar$heightContext;
+    }
+
+    @Unique
+    private BlockPos.MutableBlockPos pulsar$getLightLookupPos() {
+        if (this.pulsar$lightLookupPos == null) {
+            this.pulsar$lightLookupPos = new BlockPos.MutableBlockPos();
+        }
+        return this.pulsar$lightLookupPos;
     }
 
     // ============================== Init ==============================
@@ -331,18 +343,26 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
 
     /**
      * Vanilla-style scalar opacity lookup that does not require the chunk to
-     * be fully loaded. Mirrors {@code Chunk.getBlockLightOpacity(int,int,int)}
-     * but uses the local block-state lookup directly to keep the call cheap.
+     * be fully loaded. The cached value remains the fast path; blocks that
+     * override Forge's world/position-aware method are resolved at this cell.
      */
     @Unique
     private int pulsar$opacityAt(final int x, final int y, final int z) {
-        final int opacity = this.getBlockState(x, y, z).getLightOpacity();
+        final IBlockState state = this.getBlockState(x, y, z);
+        int info = LightInfo.of(state);
+        if (LightInfo.hasContextualValues(info)) {
+            info = LightInfo.resolveContextual(
+                    info, state, this.world, this.pulsar$getLightLookupPos(),
+                    (this.x << 4) + x, y, (this.z << 4) + z);
+        }
+        final int opacity = LightInfo.opacity(info);
         if (!FluidLightBridge.LOADED) {
             return opacity;
         }
         // Fluidlogged API: a stored fluid contributes max(block, fluid)
         // opacity, so fluidlogged blocks count for the heightmap too.
-        return FluidLightBridge.maxOpacityAt((Chunk) (Object) this, opacity, x, y, z);
+        return FluidLightBridge.maxOpacityAt(
+                (Chunk) (Object) this, opacity, x, y, z, this.pulsar$getLightLookupPos());
     }
 
     @Unique
@@ -375,7 +395,7 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
                 }
                 continue;
             }
-            int opacity = section.get(x, y & 15, z).getLightOpacity();
+            int opacity = pulsar$opacityAt(x, y, z);
             if (opacity == 0 && skyLevel != 15) {
                 opacity = 1;
             }

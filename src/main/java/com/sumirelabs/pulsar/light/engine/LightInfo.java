@@ -4,6 +4,8 @@ import com.sumirelabs.pulsar.api.FaceLightOcclusion;
 import com.sumirelabs.pulsar.light.LightCachedState;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 
 /**
  * Packed per-{@link IBlockState} light attributes, memoised on the state
@@ -18,16 +20,21 @@ import net.minecraft.block.state.IBlockState;
  *   bit   9     : DYNAMIC — block implements {@link FaceLightOcclusion}
  *   bit  10     : SIDED — REGISTRY &amp;&amp; opacity &gt; 1 (the state-level gate the
  *                 calculate paths used)
+ *   bit  11     : CONTEXT_OPACITY — the block overrides Forge's
+ *                 world/position-aware opacity method
+ *   bit  12     : CONTEXT_EMISSION — the block overrides Forge's
+ *                 world/position-aware emission method
  *   bits 16..21 : face-solid bits by AxisDirection ordinal (only meaningful
  *                 when REGISTRY; all-solid for DYNAMIC, matching the null-table
  *                 fallback of FaceOcclusion.isFaceSolid)
  *   bit  30     : COMPUTED — sentinel so 0 means "not yet computed"
  * </pre>
  *
- * <p>Caching assumes the non-context {@code getLightOpacity()} /
- * {@code getLightValue()} overloads are constant per state — the same
- * assumption Pulsar's hot path has always made by calling them without
- * world/pos context.
+ * <p>The scalar values remain cached for blocks that inherit Forge's default
+ * context methods. If a block class overrides either context method, the
+ * corresponding flag keeps only that value out of the cache; the engines
+ * resolve it against the current world position with a reusable mutable
+ * {@link BlockPos}, without allocating in the BFS hot loops.
  */
 public final class LightInfo {
 
@@ -36,9 +43,28 @@ public final class LightInfo {
     public static final int REGISTRY = 1 << 8;
     public static final int DYNAMIC = 1 << 9;
     public static final int SIDED = 1 << 10;
+    public static final int CONTEXT_OPACITY = 1 << 11;
+    public static final int CONTEXT_EMISSION = 1 << 12;
+    public static final int CONTEXT_MASK = CONTEXT_OPACITY | CONTEXT_EMISSION;
     public static final int FACE_SHIFT = 16;
     public static final int FACE_MASK = 0x3F;
     public static final int COMPUTED = 1 << 30;
+
+    /**
+     * Reflection runs once per concrete block class, never per state lookup.
+     * Forge-added method names are stable in both MCP and Searge jars. A
+     * failed probe takes the conservative compatibility path for both values.
+     */
+    private static final ClassValue<Integer> CONTEXT_FLAGS = new ClassValue<Integer>() {
+        @Override
+        protected Integer computeValue(final Class<?> blockClass) {
+            return ContextMethodOverrides.detect(
+                    blockClass, Block.class,
+                    "getLightOpacity", CONTEXT_OPACITY,
+                    "getLightValue", CONTEXT_EMISSION,
+                    IBlockState.class, IBlockAccess.class, BlockPos.class);
+        }
+    };
 
     private LightInfo() {
     }
@@ -60,7 +86,7 @@ public final class LightInfo {
         final Block block = state.getBlock();
         final int opacity = Math.min(15, Math.max(0, state.getLightOpacity()));
         final int emission = state.getLightValue() & 0xF;
-        int info = COMPUTED | opacity | (emission << EMISSION_SHIFT);
+        int info = COMPUTED | contextFlags(block) | opacity | (emission << EMISSION_SHIFT);
 
         final boolean dynamic = block instanceof FaceLightOcclusion;
         if (dynamic) {
@@ -88,6 +114,53 @@ public final class LightInfo {
             info |= faceBits << FACE_SHIFT;
         }
         return info;
+    }
+
+    static int contextFlags(final Block block) {
+        return CONTEXT_FLAGS.get(block.getClass());
+    }
+
+    public static boolean hasContextualValues(final int info) {
+        return (info & CONTEXT_MASK) != 0;
+    }
+
+    /**
+     * Replace only the position-dependent scalar values in a packed entry.
+     * The mutable position is reset before each callback, so a misbehaving
+     * implementation cannot corrupt the coordinates seen by the next one.
+     */
+    public static int resolveContextual(final int info, final IBlockState state,
+                                        final IBlockAccess access, final BlockPos.MutableBlockPos pos,
+                                        final int x, final int y, final int z) {
+        final int flags = info & CONTEXT_MASK;
+        if (flags == 0) {
+            return info;
+        }
+
+        int opacity = opacity(info);
+        int emission = emission(info);
+        if ((flags & CONTEXT_OPACITY) != 0) {
+            pos.setPos(x, y, z);
+            opacity = clampLight(state.getLightOpacity(access, pos));
+        }
+        if ((flags & CONTEXT_EMISSION) != 0) {
+            pos.setPos(x, y, z);
+            emission = clampLight(state.getLightValue(access, pos));
+        }
+        return withLightValues(info, opacity, emission);
+    }
+
+    private static int withLightValues(final int info, final int opacity, final int emission) {
+        int resolved = info & ~(OPACITY_MASK | (OPACITY_MASK << EMISSION_SHIFT) | SIDED);
+        resolved |= clampLight(opacity) | (clampLight(emission) << EMISSION_SHIFT);
+        if ((resolved & REGISTRY) != 0 && (resolved & OPACITY_MASK) > 1) {
+            resolved |= SIDED;
+        }
+        return resolved;
+    }
+
+    private static int clampLight(final int value) {
+        return Math.min(15, Math.max(0, value));
     }
 
     public static int opacity(final int info) {

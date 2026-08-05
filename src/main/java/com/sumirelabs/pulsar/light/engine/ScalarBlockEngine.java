@@ -16,14 +16,12 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
  * directional opacity. Mirrors {@code ScalarBlockEngine} from SuperNova
  * (1.7.10), with block-id lookups replaced by {@link IBlockState}.
  *
- * <p>The {@link IBlockState#getLightValue()} / {@code getLightOpacity()}
- * overloads without the {@code IBlockAccess}/{@code BlockPos} context are
- * deprecated in Forge 1.12.2 in favour of the context-aware variants.
- * Pulsar uses the deprecated overloads because the context versions would
- * need a freshly-allocated {@link net.minecraft.util.math.BlockPos} per
- * neighbour read. Since they are position-independent, their results are
- * memoised per state via {@link LightInfo} — the BFS hot loops read a single
+ * <p>For blocks that inherit Forge's context methods, opacity and emission
+ * are memoised per state via {@link LightInfo}: the BFS hot loops read one
  * packed field instead of making virtual calls and hash lookups per visit.
+ * Mod blocks that override the context-aware methods are detected once per
+ * block class and queried with the engine's reusable mutable position, so
+ * world/position-dependent light remains correct without per-visit garbage.
  */
 @SuppressWarnings("deprecation")
 public class ScalarBlockEngine extends PulsarEngine {

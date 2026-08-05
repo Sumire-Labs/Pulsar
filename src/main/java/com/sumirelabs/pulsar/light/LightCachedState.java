@@ -7,9 +7,10 @@ package com.sumirelabs.pulsar.light;
  * {@link com.sumirelabs.pulsar.light.engine.LightInfo} for the bit layout).
  *
  * <p>This is the 1.12.2 analogue of Starlight's {@code BlockStateBaseMixin}
- * per-state {@code opacityIfCached}: it turns the per-BFS-visit virtual
- * {@code getLightOpacity()}/{@code getLightValue()} calls and the
- * {@code FaceOcclusion} hash lookups into a single field read.
+ * per-state {@code opacityIfCached}: for ordinary blocks it turns the
+ * per-BFS-visit virtual light calls and {@code FaceOcclusion} hash lookups
+ * into a single field read. Flags in the same field route context-sensitive
+ * Mod blocks through their world/position-aware Forge methods.
  */
 public interface LightCachedState {
 

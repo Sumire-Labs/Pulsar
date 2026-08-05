@@ -3,6 +3,9 @@ package com.sumirelabs.pulsar.compat;
 import com.sumirelabs.pulsar.light.engine.LightInfo;
 import git.jbredwards.fluidlogged_api.api.capability.IFluidStateCapability;
 import git.jbredwards.fluidlogged_api.api.util.FluidState;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.Loader;
 
@@ -47,24 +50,29 @@ public final class FluidLightBridge {
      * combined cell becomes a plain uniform absorber (face bits dropped) —
      * the same scalar semantics Fluidlogged patches into vanilla.
      */
-    public static int merge(final int info, final Object capability, final int x, final int y, final int z) {
+    public static int merge(final int info, final Object capability, final int x, final int y, final int z,
+                            final IBlockAccess access, final BlockPos.MutableBlockPos lookupPos) {
         final FluidState fluid = ((IFluidStateCapability) capability)
                 .getContainer(y).getFluidState(x, y, z, FluidState.EMPTY);
         if (fluid.isEmpty()) {
             return info;
         }
-        final int fluidInfo = LightInfo.of(fluid.getState());
+        final IBlockState fluidState = fluid.getState();
+        final int fluidInfo = LightInfo.resolveContextual(
+                LightInfo.of(fluidState), fluidState, access, lookupPos, x, y, z);
         final int opacity = Math.max(info & LightInfo.OPACITY_MASK, fluidInfo & LightInfo.OPACITY_MASK);
         final int emission = Math.max(LightInfo.emission(info), LightInfo.emission(fluidInfo));
         return LightInfo.COMPUTED | opacity | (emission << LightInfo.EMISSION_SHIFT);
     }
 
     /**
-     * Scalar vanilla-range opacity with the fluid layer max'd in — for the
-     * heightmap walks in {@code MixinChunk}, which only need
-     * {@code getLightOpacity()} semantics (0-255) rather than packed info.
+     * Scalar opacity with the fluid layer max'd in for the heightmap walks in
+     * {@code MixinChunk}. Context-sensitive fluid blocks use the same world
+     * position as the containing block.
      */
-    public static int maxOpacityAt(final Chunk chunk, final int blockOpacity, final int x, final int y, final int z) {
+    public static int maxOpacityAt(final Chunk chunk, final int blockOpacity,
+                                   final int x, final int y, final int z,
+                                   final BlockPos.MutableBlockPos lookupPos) {
         if (!LOADED) {
             return blockOpacity;
         }
@@ -76,6 +84,11 @@ public final class FluidLightBridge {
         if (fluid.isEmpty()) {
             return blockOpacity;
         }
-        return Math.max(blockOpacity, fluid.getState().getLightOpacity());
+        final IBlockState fluidState = fluid.getState();
+        final int worldX = (chunk.x << 4) + x;
+        final int worldZ = (chunk.z << 4) + z;
+        final int fluidInfo = LightInfo.resolveContextual(
+                LightInfo.of(fluidState), fluidState, chunk.getWorld(), lookupPos, worldX, y, worldZ);
+        return Math.max(blockOpacity, LightInfo.opacity(fluidInfo));
     }
 }

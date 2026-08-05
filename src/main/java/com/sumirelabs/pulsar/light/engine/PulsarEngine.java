@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
@@ -128,6 +129,9 @@ public abstract class PulsarEngine {
     protected final boolean isClientSide;
     protected final World world;
     protected final WorldHeightContext heightContext;
+    // One engine instance processes one task at a time. Reuse its position for
+    // the rare Forge context callbacks instead of allocating in BFS loops.
+    private final BlockPos.MutableBlockPos contextualLightPos = new BlockPos.MutableBlockPos();
     protected LightStats stats;
 
     // Diagnostic counters — accumulated across propagateBlockChanges calls
@@ -257,18 +261,24 @@ public abstract class PulsarEngine {
     protected final Object[] fluidCapCache = new Object[5 * 5];
 
     /**
-     * Packed light info for {@code state} at a world position: the per-state
-     * cache plus — when Fluidlogged API is installed — the fluid stored at
-     * that position max'd in (opacity/emission, uniform faces), mirroring
-     * Fluidlogged's own max() patches on the vanilla engine.
+     * Packed light info for {@code state} at a world position: normally the
+     * per-state cache, with Forge's context methods resolved only for block
+     * classes that override them. When Fluidlogged API is installed, the
+     * fluid stored at that position is max'd in too (opacity/emission,
+     * uniform faces), mirroring Fluidlogged's vanilla-engine patches.
      */
     protected final int lightInfoAt(final IBlockState state, final int worldX, final int worldY, final int worldZ) {
-        final int info = LightInfo.of(state);
+        int info = LightInfo.of(state);
+        if (LightInfo.hasContextualValues(info)) {
+            info = LightInfo.resolveContextual(
+                    info, state, this.world, this.contextualLightPos, worldX, worldY, worldZ);
+        }
         if (!FluidLightBridge.LOADED) {
             return info;
         }
         final Object cap = this.fluidCapCache[(worldX >> 4) + 5 * (worldZ >> 4) + this.chunkIndexOffset];
-        return cap == null ? info : FluidLightBridge.merge(info, cap, worldX, worldY, worldZ);
+        return cap == null ? info : FluidLightBridge.merge(
+                info, cap, worldX, worldY, worldZ, this.world, this.contextualLightPos);
     }
 
     protected final ExtendedBlockStorage getChunkSection(final int chunkX, final int chunkY, final int chunkZ) {
