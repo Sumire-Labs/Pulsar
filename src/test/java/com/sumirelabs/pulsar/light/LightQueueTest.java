@@ -26,6 +26,7 @@ class LightQueueTest {
 
         assertNotNull(task);
         assertNotNull(completion);
+        assertTrue(queue.hasWork());
         assertTrue(queue.hasPendingWork(2, -3));
         assertTrue(queue.hasPendingLightWork(key));
         assertSame(completion, queue.getPendingWorkFuture(key));
@@ -35,6 +36,7 @@ class LightQueueTest {
 
         assertFalse(queue.hasPendingWork(2, -3));
         assertFalse(queue.hasPendingLightWork(key));
+        assertFalse(queue.hasWork());
         assertTrue(completion.isDone());
     }
 

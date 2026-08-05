@@ -333,6 +333,17 @@ public final class LightQueue {
         return this.tasksByChunk.containsKey(key) || this.inFlightTasks.containsKey(key);
     }
 
+    /**
+     * True while this queue has either queued work or a task currently being
+     * processed by its worker. Unlike {@link #isEmpty()}, this is suitable for
+     * external completion checks: a dequeued task is not complete until
+     * {@link #completeTask(ChunkTasks)} removes it from the in-flight set.
+     */
+    public synchronized boolean hasWork() {
+        return !this.tasksByChunk.isEmpty() || !this.inFlightTasks.isEmpty();
+    }
+
+    /** True when there is no task waiting to be dequeued. */
     public synchronized boolean isEmpty() {
         return this.tasksByChunk.isEmpty();
     }

@@ -270,7 +270,8 @@ public final class WorldLightManager {
     }
 
     public boolean hasUpdates() {
-        return (this.skyQueue != null && !this.skyQueue.isEmpty()) || (this.blockQueue != null && !this.blockQueue.isEmpty());
+        return (this.skyQueue != null && this.skyQueue.hasWork())
+                || (this.blockQueue != null && this.blockQueue.hasWork());
     }
 
     public boolean hasChunkPendingLight(final int cx, final int cz) {
