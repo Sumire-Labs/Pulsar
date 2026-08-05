@@ -10,8 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Removed the optional Celeritas-specific directional mesh-light and
-  clone-cache hooks. Current Celeritas builds invalidate their own cloned
-  sections when scheduling rebuilds, and normal Pulsar lighting remains
+  clone-cache hooks.
   compatible without the extra integrations.
 - Added a reproducible Lightbench fresh-chunk generation comparison to the
   README, including three interleaved runs each for vanilla, Alfheim, and
