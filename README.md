@@ -74,38 +74,6 @@ single-block change and falls behind Pulsar much sooner as the edit rate rises.
 <details>
 <summary>Benchmark charts, setup, and results</summary>
 
-![Pulsar, Alfheim, and vanilla benchmark](docs/benchmarks/bench-three-engines.svg)
-
-The benchmark uses a Minecraft 1.12.2 port of Spottedleaf's
-[lightbench](https://github.com/Sumire-Labs/lightbench) methodology. Each engine
-was tested with the same mod list, fixed seed, and a fresh world on
-CleanroomLoader 0.5.15. The table contains the mean of two runs, except for the
-sustained-load sweep, which was run once per engine.
-
-Test system: Ryzen AI MAX+ 395, Radeon 8060S, BareBones Template Cleanroom
-instance.
-
-| Test | Vanilla 1.12.2 | Alfheim 1.6 | Pulsar 0.1.0-dev.14 |
-|---|---:|---:|---:|
-| Generate and fully light 10,201 chunks | 61.3 s | 54.0 s | **49.8 s** |
-| World generation, p99 per chunk | 16.7 ms | 12.3 ms | **11.7 ms** |
-| Remove one block, light converged, p50 | 23.5 ms | 4.28 ms | **0.18 ms** |
-| Place one block, light converged, p50 | 308 ms | 10.3 ms | **0.18 ms** |
-| Relight a 4,096-block platform | 26.0 s | 0.6 s | **0.2 s** |
-| MSPT at 256 edits per tick | 32.5 ms | 38.7 ms | **7.3 ms** |
-| MSPT at 2,048 edits per tick | 233 ms | 196 ms | **33.6 ms** |
-
-The sustained-load test repeatedly changes sky-blocking blocks at rates far
-above normal gameplay. It measures how each engine behaves when its light queue
-is continuously busy; it is not a prediction of everyday FPS or TPS.
-
-The same stress test was also run in a roughly 290-mod pack. Terrain generation
-varied too much for a useful direct comparison, but Pulsar continued to keep
-the server thread below the 50 ms tick budget at substantially higher edit
-rates.
-
-![Sustained edit load in a large modpack](docs/benchmarks/bench-heavy-modpack.svg)
-
 </details>
 
 ## Trade-offs
