@@ -106,6 +106,20 @@ public final class WorldHeightContext {
         return this.maxLightSection - this.minLightSection + 1;
     }
 
+    /**
+     * Bit mask selecting every physical {@code Chunk.storageArrays} slot.
+     *
+     * <p>Vanilla uses sixteen storage sections and therefore {@code 0xFFFF}.
+     * Height-extension mods can retain unused vanilla slots or append sections
+     * in a non-logical order, so the mask must be based on the physical mapping
+     * rather than the logical world-height span.
+     */
+    public int getFullChunkSectionMask() {
+        final int storageSectionCount = this.sectionByStorageIndex.length;
+        return storageSectionCount >= Integer.SIZE
+                ? -1 : (1 << storageSectionCount) - 1;
+    }
+
     public int getMinBlockY() {
         return this.minSection << 4;
     }

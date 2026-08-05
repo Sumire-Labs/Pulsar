@@ -522,7 +522,8 @@ public final class WorldLightManager {
                                 ((WorldServer) this.world).getPlayerChunkMap().getEntry(cx, cz);
                         final Chunk current = this.loadedChunkMap.get(key);
                         if (entry != null && current != null) {
-                            entry.sendPacket(new SPacketChunkData(current, 65535));
+                            entry.sendPacket(new SPacketChunkData(
+                                    current, this.heightContext.getFullChunkSectionMask()));
                         }
                     });
                 }, Runnable::run);

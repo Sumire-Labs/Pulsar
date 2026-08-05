@@ -18,6 +18,7 @@ class WorldHeightContextTest {
         assertEquals(-1, context.getMinLightSection());
         assertEquals(16, context.getMaxLightSection());
         assertEquals(18, context.getTotalLightSections());
+        assertEquals(0xFFFF, context.getFullChunkSectionMask());
         assertEquals(0, context.getStorageIndex(0));
         assertEquals(15, context.getStorageIndex(15));
         assertEquals(-1, context.getStorageIndex(-1));
@@ -46,6 +47,7 @@ class WorldHeightContextTest {
         assertEquals(-64, context.getMinBlockY());
         assertEquals(319, context.getMaxBlockY());
         assertEquals(26, context.getTotalLightSections());
+        assertEquals(0xFFFFFF, context.getFullChunkSectionMask());
         assertEquals(23, context.getStorageIndex(-4));
         assertEquals(20, context.getStorageIndex(-1));
         assertEquals(0, context.getStorageIndex(0));
@@ -77,6 +79,7 @@ class WorldHeightContextTest {
 
         assertEquals(4, context.getStorageIndex(4));
         assertEquals(19, context.getStorageIndex(19));
+        assertEquals(0xFFFFF, context.getFullChunkSectionMask());
         assertEquals(Integer.MIN_VALUE, context.getSectionForStorageIndex(0));
         assertEquals(4, context.getSectionForStorageIndex(4));
     }

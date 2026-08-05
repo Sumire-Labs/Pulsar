@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   released jar exposes storage-index mapping on `HeightContext`, rather than
   the newer `HeightManager` forwarding method. Light caches written while the
   bridge was disabled are invalidated once so affected chunks relight.
+- Fixed `/pulsar relight` resending only the vanilla sixteen chunk sections in
+  Depths Update worlds, leaving corrected light below Y=0 or above Y=255
+  invisible to connected players until the chunk was reloaded.
 
 
 ## [0.1.0]
