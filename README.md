@@ -21,11 +21,13 @@ operations, or machines that place and remove many blocks.
 - Saves completed light data with each chunk, avoiding a full relight every
   time the chunk loads.
 - Writes normal Minecraft light data, so worlds are not locked to Pulsar.
-- Fixes incorrect lighting on slabs and stairs:
-  - [MC-92](https://bugs.mojang.com/browse/MC-92)
 
 The largest gains appear under heavy lighting load. At lighter loads, Pulsar's
 main benefit is lower light-update latency rather than higher TPS.
+
+### Issues fixed in Pulsar
+
+- [MC-92](https://bugs.mojang.com/browse/MC-92)
 
 ## Installation
 
