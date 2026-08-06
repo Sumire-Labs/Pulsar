@@ -1,5 +1,6 @@
 package com.sumirelabs.pulsar.mixin;
 
+import com.sumirelabs.pulsar.light.RenderLightRules;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
@@ -29,15 +30,15 @@ public abstract class MixinBlockRenderLight {
     }
 
     /**
-     * @reason Light-emitting blocks must not be darkened by ambient
-     * occlusion (MC-50734, MC-249343): any block with an emission above 1
-     * gets full AO brightness.
+     * @reason Strong light-emitting blocks must not create ambient-occlusion
+     * shadows on themselves (MC-249343). Level-one emitters retain smooth
+     * lighting through MixinBlockModelRendererLight (MC-50734).
      * @author Sumire Labs
      */
     @Overwrite
     @SideOnly(Side.CLIENT)
     public float getAmbientOcclusionLightValue(final IBlockState state) {
-        final int emission = Math.max(Math.min(state.getLightValue() - 1, 15), 0);
+        final int emission = RenderLightRules.ambientOcclusionEmission(state.getLightValue());
         if (emission == 0) {
             return state.isBlockNormalCube() ? 0.2F : 1.0F;
         }

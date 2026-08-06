@@ -11,10 +11,12 @@
     "MixinChunk",
     "MixinChunkSectionChanges",
     "MixinChunkVanillaLighting",
+    "MixinSPacketChunkData",
     "MixinWorld",
     "MixinWorldEntitySpawner"
   ],
   "client": [
+    "MixinBlockModelRendererLight",
     "MixinBlockRenderLight",
     "MixinChunkCacheRenderLight",
     "MixinWorldRenderLight"

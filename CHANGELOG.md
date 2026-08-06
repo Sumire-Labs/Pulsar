@@ -5,9 +5,31 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2]
+
+### Fixed
+
+- Fixed dense skylight edits, such as large roofs and leaf canopies, leaving
+  stale light behind or reintroducing light across chunk borders
+  ([MC-117067](https://bugs.mojang.com/browse/MC-117067),
+  [MC-117094](https://bugs.mojang.com/browse/MC-117094)). Dense batches now
+  rebuild only the skylight lane, preserving simultaneous block-light updates.
+- Fixed block light failing to enter or clear from block-empty sections across
+  chunk borders ([MC-116690](https://bugs.mojang.com/browse/MC-116690)).
+- Fixed full chunk packets omitting block-empty sections that still contain
+  non-default sky or block light
+  ([MC-80966](https://bugs.mojang.com/browse/MC-80966)).
+- Fixed vanilla and Forge liquids not using neighbouring brightness values
+  ([MC-104532](https://bugs.mojang.com/browse/MC-104532)).
+- Fixed the level-one emitter case of
+  [MC-50734](https://bugs.mojang.com/browse/MC-50734), and fixed self-shadowing
+  on stronger emitters
+  ([MC-249343](https://bugs.mojang.com/browse/MC-249343)).
+
 ## [0.2.1]
 
 ### Changed
+
 - Refactored the lighting pipeline and chunk mixins into smaller, responsibility-focused components to improve maintainability without intended behavior changes.
 
 ## [0.2.0]

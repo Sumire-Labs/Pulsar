@@ -57,10 +57,10 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     public abstract ExtendedBlockStorage[] getBlockStorageArray();
 
     @Unique
-    private SWMRNibbleArray[] pulsar$blockNibbles;
+    private volatile SWMRNibbleArray[] pulsar$blockNibbles;
 
     @Unique
-    private SWMRNibbleArray[] pulsar$skyNibbles;
+    private volatile SWMRNibbleArray[] pulsar$skyNibbles;
 
     @Unique
     private boolean[] pulsar$blockEmptinessMap;

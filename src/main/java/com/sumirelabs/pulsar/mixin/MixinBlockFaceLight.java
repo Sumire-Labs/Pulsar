@@ -4,11 +4,13 @@ import com.sumirelabs.pulsar.api.FaceLightInfo;
 import com.sumirelabs.pulsar.api.FaceLitBlock;
 import com.sumirelabs.pulsar.api.RawLightAccess;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fluids.BlockFluidBase;
 import org.spongepowered.asm.mixin.Mixin;
 
 /**
@@ -38,7 +40,10 @@ public abstract class MixinBlockFaceLight implements FaceLitBlock {
         }
         final RawLightAccess raw = (RawLightAccess) access;
         int lightLevel = raw.pulsar$getRawLight(lightType, pos);
-        if (lightLevel == 15 || !state.useNeighborBrightness()) {
+        final Block block = state.getBlock();
+        final boolean useNeighborBrightness = state.useNeighborBrightness()
+                || block instanceof BlockLiquid || block instanceof BlockFluidBase;
+        if (lightLevel == 15 || !useNeighborBrightness) {
             return lightLevel;
         }
 

@@ -26,6 +26,14 @@ import java.util.concurrent.TimeUnit;
  */
 public final class WorldLightManager {
 
+    /**
+     * Dense asynchronous edits can span several chunk tasks. Processing each
+     * chunk's skylight decrease independently lets a still-stale neighbour
+     * re-seed the columns just cleared by the previous task. Rebuild dense
+     * batches within the sky lane, then reconcile every section edge so all
+     * affected chunks converge (MC-117067 / MC-117094). Ordinary player edits
+     * stay on the incremental fast path.
+     */
     private final World world;
     private final WorldHeightContext heightContext;
 
@@ -191,6 +199,49 @@ public final class WorldLightManager {
             skyEngine.setStats(this.stats);
         }
 
+        final boolean promoteBulkChange = BulkSkyRelightPolicy.shouldPromote(
+                task.initialLightChunk != null || task.initialLightEdgeGeneration > 0L,
+                task.changedPositions == null ? 0 : task.changedPositions.size());
+        if (promoteBulkChange) {
+            final Chunk chunk = this.loadedChunkMap.get(task.chunkCoordinate);
+            if (chunk != null) {
+                try {
+                    // This recovery is deliberately sky-lane-only. Routing a
+                    // dense skylight edit through the two-lane initial-light
+                    // coordinator also rebuilt block light, which could erase
+                    // the old source level before its queued removal had a
+                    // chance to propagate into a neighbouring empty section.
+                    int attempts = 0;
+                    boolean overflowed;
+                    do {
+                        skyEngine.light(chunk, PulsarEngine.getEmptySectionsForChunk(chunk), false);
+                        overflowed = skyEngine.wasQueueOverflowed();
+                        attempts++;
+                    } while (overflowed
+                            && attempts <= InitialLightCoordinator.MAX_RELIGHT_ATTEMPTS);
+
+                    if (overflowed) {
+                        Pulsar.LOGGER.error(
+                                "Sky engine: bulk relight for chunk ({}, {}) overflowed BFS queue {} times - giving up.",
+                                cx, cz, attempts);
+                    } else {
+                        this.skyQueue.queueEdgeCheckAllSections(cx, cz, true);
+                        this.scheduleUpdate();
+                    }
+                } catch (final Throwable t) {
+                    if (this.loadedChunkMap.get(task.chunkCoordinate) != null) {
+                        Pulsar.LOGGER.error("Bulk sky relight for chunk ({}, {}) failed", cx, cz, t);
+                    }
+                }
+            }
+            skyEngine.setStats(null);
+            if (statsOn) {
+                this.stats.skyWorkerTimeNs.addAndGet(System.nanoTime() - t0);
+                this.stats.skyTasksProcessed.incrementAndGet();
+            }
+            return;
+        }
+
         boolean valueOverflowed = false;
         boolean edgeOverflowed = false;
         try {
@@ -202,11 +253,14 @@ public final class WorldLightManager {
 
             if (task.initialLightChunk != null) {
                 if (statsOn) this.stats.initialLightsRun.incrementAndGet();
-                skyEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
+                // A coordinated relight may absorb block/section changes
+                // while it is still queued. Re-read emptiness at execution
+                // time and let this single full pass cover that entire batch.
+                skyEngine.light(task.initialLightChunk,
+                        PulsarEngine.getEmptySectionsForChunk(task.initialLightChunk), false);
                 valueOverflowed |= skyEngine.wasQueueOverflowed();
-            }
-
-            if (task.changedSectionSet != null || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
+            } else if (task.changedSectionSet != null
+                    || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
                 skyEngine.blocksChangedInChunk(cx, cz, task.changedPositions, task.changedSectionSet);
                 valueOverflowed |= skyEngine.wasQueueOverflowed();
             }
@@ -293,11 +347,11 @@ public final class WorldLightManager {
             }
 
             if (task.initialLightChunk != null) {
-                blockEngine.light(task.initialLightChunk, task.initialLightEmptySections, false);
+                blockEngine.light(task.initialLightChunk,
+                        PulsarEngine.getEmptySectionsForChunk(task.initialLightChunk), false);
                 valueOverflowed |= blockEngine.wasQueueOverflowed();
-            }
-
-            if (task.changedSectionSet != null || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
+            } else if (task.changedSectionSet != null
+                    || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
                 final long t1 = System.nanoTime();
                 blockEngine.blocksChangedInChunk(cx, cz, task.changedPositions, task.changedSectionSet);
                 changesNs = System.nanoTime() - t1;

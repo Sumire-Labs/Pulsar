@@ -28,6 +28,13 @@ main benefit is lower light-update latency rather than higher TPS.
 ### Issues fixed in Pulsar
 
 - [MC-92](https://bugs.mojang.com/browse/MC-92)
+- [MC-3329](https://bugs.mojang.com/browse/MC-3329)
+- [MC-80966](https://bugs.mojang.com/browse/MC-80966)
+- [MC-104532](https://bugs.mojang.com/browse/MC-104532)
+- [MC-116690](https://bugs.mojang.com/browse/MC-116690)
+- [MC-117067](https://bugs.mojang.com/browse/MC-117067)
+- [MC-117094](https://bugs.mojang.com/browse/MC-117094)
+- [MC-249343](https://bugs.mojang.com/browse/MC-249343)
 
 ## Installation
 
@@ -251,7 +258,8 @@ Please attach `latest.log`, the relevant configuration files, and the output of
   versions of Pulsar
 
 - [Alfheim](https://github.com/Red-Studio-Ragnarok/Alfheim) by Red Studio, as a
-  reference for fixing MC-92
+  reference for directional neighbour brightness, liquid and emitter rendering,
+  and light-only chunk packet handling
 
 - [CleanroomModTemplate](https://github.com/CleanroomMC/CleanroomModTemplate) by
   CleanroomMC
