@@ -9,6 +9,14 @@ class ContextMethodOverridesTest {
     private static final int FIRST = 1;
     private static final int SECOND = 2;
 
+    private static int detect(final Class<?> implementationClass) {
+        return ContextMethodOverrides.detect(
+                implementationClass, Base.class,
+                "first", FIRST,
+                "second", SECOND,
+                int.class);
+    }
+
     @Test
     void detectsEachOverrideIndependentlyAndThroughInheritance() {
         assertEquals(0, detect(Base.class));
@@ -25,14 +33,6 @@ class ContextMethodOverridesTest {
                 "missingFirst", FIRST,
                 "second", SECOND,
                 int.class));
-    }
-
-    private static int detect(final Class<?> implementationClass) {
-        return ContextMethodOverrides.detect(
-                implementationClass, Base.class,
-                "first", FIRST,
-                "second", SECOND,
-                int.class);
     }
 
     public static class Base {

@@ -32,7 +32,14 @@ abstract class LightEngineCache {
     protected final Chunk[] chunkCache = new Chunk[5 * 5];
     protected final boolean[][] emptinessMapCache = new boolean[5 * 5][];
     protected final Object[] fluidCapCache = new Object[5 * 5];
-
+    protected final boolean isClientSide;
+    protected final World world;
+    protected final WorldHeightContext heightContext;
+    protected final int minLightSection;
+    protected final int maxLightSection;
+    protected final int minSection;
+    protected final int maxSection;
+    private final BlockPos.MutableBlockPos contextualLightPos = new BlockPos.MutableBlockPos();
     protected int encodeOffsetX;
     protected int encodeOffsetY;
     protected int encodeOffsetZ;
@@ -42,17 +49,7 @@ abstract class LightEngineCache {
     protected int chunkOffsetZ;
     protected int chunkIndexOffset;
     protected int chunkSectionIndexOffset;
-
-    protected final boolean isClientSide;
-    protected final World world;
-    protected final WorldHeightContext heightContext;
-    protected final int minLightSection;
-    protected final int maxLightSection;
-    protected final int minSection;
-    protected final int maxSection;
     protected LightStats stats;
-
-    private final BlockPos.MutableBlockPos contextualLightPos = new BlockPos.MutableBlockPos();
 
     LightEngineCache(final World world, final WorldHeightContext heightContext) {
         this.isClientSide = world.isRemote;
@@ -139,7 +136,9 @@ abstract class LightEngineCache {
         this.chunkCache[chunkX + 5 * chunkZ + this.chunkIndexOffset] = chunk;
     }
 
-    /** Resolves cached and context-sensitive block/fluid light properties. */
+    /**
+     * Resolves cached and context-sensitive block/fluid light properties.
+     */
     protected final int lightInfoAt(final IBlockState state,
                                     final int worldX, final int worldY, final int worldZ) {
         int info = LightInfo.of(state);
@@ -323,7 +322,9 @@ abstract class LightEngineCache {
         return result;
     }
 
-    /** Hook for lane-specific task state such as BFS queue lengths. */
+    /**
+     * Hook for lane-specific task state such as BFS queue lengths.
+     */
     protected abstract void resetTaskState();
 
     protected abstract boolean[] getEmptinessMap(Chunk chunk);
@@ -332,7 +333,9 @@ abstract class LightEngineCache {
 
     protected abstract boolean canUseChunk(Chunk chunk);
 
-    /** Called after a dirty nibble is published. */
+    /**
+     * Called after a dirty nibble is published.
+     */
     protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {
     }
 }

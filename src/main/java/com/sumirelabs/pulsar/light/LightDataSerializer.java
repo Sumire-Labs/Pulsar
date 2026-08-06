@@ -54,6 +54,16 @@ public final class LightDataSerializer {
     private static final String TAG_SKY_STATE = "ss";
     private static final String TAG_SKY_DATA = "sd";
 
+    private static SWMRNibbleArray restoreNibble(final NBTTagCompound section, final String stateTag, final String dataTag) {
+        final int state = section.getByte(stateTag);
+        final byte[] raw = section.hasKey(dataTag, Constants.NBT.TAG_BYTE_ARRAY) ? section.getByteArray(dataTag) : null;
+        if (raw != null && raw.length != SWMRNibbleArray.ARRAY_SIZE) {
+            throw new IllegalStateException("Light nibble of wrong length: " + raw.length);
+        }
+        // clone: the NBT object owns the parsed array
+        return new SWMRNibbleArray(raw == null ? null : raw.clone(), state);
+    }
+
     @SubscribeEvent
     public void onChunkSave(final ChunkDataEvent.Save event) {
         try {
@@ -180,15 +190,5 @@ public final class LightDataSerializer {
         pc.pulsar$setBlockNibbles(blockNibbles);
         pc.pulsar$setSkyNibbles(skyNibbles);
         pc.pulsar$setSavedLightValid(true);
-    }
-
-    private static SWMRNibbleArray restoreNibble(final NBTTagCompound section, final String stateTag, final String dataTag) {
-        final int state = section.getByte(stateTag);
-        final byte[] raw = section.hasKey(dataTag, Constants.NBT.TAG_BYTE_ARRAY) ? section.getByteArray(dataTag) : null;
-        if (raw != null && raw.length != SWMRNibbleArray.ARRAY_SIZE) {
-            throw new IllegalStateException("Light nibble of wrong length: " + raw.length);
-        }
-        // clone: the NBT object owns the parsed array
-        return new SWMRNibbleArray(raw == null ? null : raw.clone(), state);
     }
 }

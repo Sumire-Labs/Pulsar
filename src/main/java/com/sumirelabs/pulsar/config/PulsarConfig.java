@@ -18,14 +18,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Config(modid = Reference.MOD_ID, name = "pulsar")
 public class PulsarConfig {
 
-    @Config.Comment("Master switch. When false, Pulsar's mob-spawn gate falls through to vanilla behaviour.")
-    public static boolean enabled = true;
-
     @Config.Comment("Feature toggles")
     public static final Features features = new Features();
-
     @Config.Comment("Debug options")
     public static final Debug debug = new Debug();
+    @Config.Comment("Master switch. When false, Pulsar's mob-spawn gate falls through to vanilla behaviour.")
+    public static boolean enabled = true;
 
     public static class Features {
 

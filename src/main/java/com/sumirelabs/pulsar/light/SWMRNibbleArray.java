@@ -35,50 +35,22 @@ public final class SWMRNibbleArray {
 
     static final ThreadLocal<ArrayDeque<byte[]>> WORKING_BYTES_POOL =
             ThreadLocal.withInitial(ArrayDeque::new);
-
-    private static byte[] allocateBytes() {
-        final byte[] inPool = WORKING_BYTES_POOL.get().pollFirst();
-        if (inPool != null) {
-            return inPool;
-        }
-        return new byte[ARRAY_SIZE];
-    }
-
-    private static void freeBytes(final byte[] bytes) {
-        WORKING_BYTES_POOL.get().addFirst(bytes);
-    }
-
-    public static SWMRNibbleArray fromVanilla(final NibbleArray nibble) {
-        if (nibble == null) {
-            return new SWMRNibbleArray(null, true);
-        }
-        final byte[] data = nibble.getData();
-        if (data == null) {
-            return new SWMRNibbleArray();
-        }
-        return new SWMRNibbleArray(data.clone());
-    }
-
     private int stateUpdating;
     private volatile int stateVisible;
-
     private byte[] storageUpdating;
     private boolean updatingDirty;
     private volatile byte[] storageVisible;
+    // Fast section state flags
+    private boolean fullFlag;
+    private boolean zeroFlag;
+    // Visible-side copies -- published by updateVisible(), read by render thread
+    private volatile boolean fullFlagVisible;
 
     // NOTE: dirty byte range tracking removed in dev.7 — the fields were
     // never consumed outside SWMRNibbleArray (ChunkLightHelper.sync* always
     // does a full System.arraycopy). Saves 8 bytes/object × 36 nibbles/chunk.
     // Restore if a partial-sync optimisation is implemented later.
-
-    // Fast section state flags
-    private boolean fullFlag;
-    private boolean zeroFlag;
-
-    // Visible-side copies -- published by updateVisible(), read by render thread
-    private volatile boolean fullFlagVisible;
     private volatile boolean zeroFlagVisible;
-
     public SWMRNibbleArray() {
         this(null, false);
     }
@@ -86,7 +58,6 @@ public final class SWMRNibbleArray {
     public SWMRNibbleArray(final byte[] bytes) {
         this(bytes, false);
     }
-
     public SWMRNibbleArray(final byte[] bytes, final boolean isNullNibble) {
         if (bytes != null && bytes.length != ARRAY_SIZE) {
             throw new IllegalArgumentException("Data of wrong length: " + bytes.length);
@@ -114,6 +85,42 @@ public final class SWMRNibbleArray {
         this.zeroFlagVisible = this.zeroFlag;
     }
 
+    private static byte[] allocateBytes() {
+        final byte[] inPool = WORKING_BYTES_POOL.get().pollFirst();
+        if (inPool != null) {
+            return inPool;
+        }
+        return new byte[ARRAY_SIZE];
+    }
+
+    private static void freeBytes(final byte[] bytes) {
+        WORKING_BYTES_POOL.get().addFirst(bytes);
+    }
+
+    public static SWMRNibbleArray fromVanilla(final NibbleArray nibble) {
+        if (nibble == null) {
+            return new SWMRNibbleArray(null, true);
+        }
+        final byte[] data = nibble.getData();
+        if (data == null) {
+            return new SWMRNibbleArray();
+        }
+        return new SWMRNibbleArray(data.clone());
+    }
+
+    private static boolean isAllZero(final byte[] data) {
+        for (int i = 0; i < (ARRAY_SIZE >>> 4); ++i) {
+            byte whole = data[i << 4];
+            for (int k = 1; k < (1 << 4); ++k) {
+                whole |= data[(i << 4) | k];
+            }
+            if (whole != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public SaveState getSaveState() {
         synchronized (this) {
             final int state = this.stateVisible;
@@ -131,19 +138,6 @@ public final class SWMRNibbleArray {
                 return new SaveState(data.clone(), state);
             }
         }
-    }
-
-    private static boolean isAllZero(final byte[] data) {
-        for (int i = 0; i < (ARRAY_SIZE >>> 4); ++i) {
-            byte whole = data[i << 4];
-            for (int k = 1; k < (1 << 4); ++k) {
-                whole |= data[(i << 4) | k];
-            }
-            if (whole != 0) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public void extrudeLower(final SWMRNibbleArray other) {

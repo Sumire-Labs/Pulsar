@@ -30,30 +30,27 @@ public abstract class MixinChunkVanillaLighting {
 
     @Shadow
     @Final
-    private World world;
-
-    @Shadow
-    @Final
     public int x;
-
     @Shadow
     @Final
     public int z;
-
     @Shadow
     public boolean isLightPopulated;
-
     @Shadow
     public boolean isTerrainPopulated;
-
     @Shadow
     public int[] heightMap;
-
     @Shadow
     public int[] precipitationHeightMap;
-
     @Shadow
     public int heightMapMinimum;
+    @Shadow
+    @Final
+    private World world;
+    @Unique
+    private WorldHeightContext pulsar$vanillaHeightContext;
+    @Unique
+    private BlockPos.MutableBlockPos pulsar$vanillaLightLookupPos;
 
     @Shadow
     public abstract ExtendedBlockStorage[] getBlockStorageArray();
@@ -66,12 +63,6 @@ public abstract class MixinChunkVanillaLighting {
 
     @Shadow
     public abstract void markDirty();
-
-    @Unique
-    private WorldHeightContext pulsar$vanillaHeightContext;
-
-    @Unique
-    private BlockPos.MutableBlockPos pulsar$vanillaLightLookupPos;
 
     @Unique
     private WorldHeightContext pulsar$getVanillaHeightContext() {
@@ -226,13 +217,17 @@ public abstract class MixinChunkVanillaLighting {
         }
     }
 
-    /** Pulsar's edge reconciliation replaces vanilla gap checks. */
+    /**
+     * Pulsar's edge reconciliation replaces vanilla gap checks.
+     */
     @Inject(method = "recheckGaps", at = @At("HEAD"), cancellable = true, require = 0)
     private void pulsar$recheckGaps(final boolean isClient, final CallbackInfo ci) {
         ci.cancel();
     }
 
-    /** Pulsar's queue replaces vanilla incremental relight checks. */
+    /**
+     * Pulsar's queue replaces vanilla incremental relight checks.
+     */
     @Inject(method = "enqueueRelightChecks", at = @At("HEAD"), cancellable = true, require = 0)
     private void pulsar$enqueueRelightChecks(final CallbackInfo ci) {
         ci.cancel();

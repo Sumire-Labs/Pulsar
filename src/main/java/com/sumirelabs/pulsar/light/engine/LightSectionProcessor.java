@@ -21,7 +21,9 @@ final class LightSectionProcessor {
         this.engine = engine;
     }
 
-    /** Applies sparse section-emptiness changes and initializes nearby nibbles. */
+    /**
+     * Applies sparse section-emptiness changes and initializes nearby nibbles.
+     */
     boolean[] handleEmptySectionChanges(final Chunk chunk,
                                         final Boolean[] emptinessChanges,
                                         final boolean unlit) {

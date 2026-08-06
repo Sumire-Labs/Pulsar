@@ -28,44 +28,10 @@ public final class LightStats {
      * per tick so hot paths pay a single volatile load when stats are off.
      */
     public static volatile boolean enabled;
-
-    private final String side;
-    private PrintWriter writer;
-    private boolean writerFailed;
-    private boolean pendingReset;
-
-    // Tick tracking
-    private long tickCount;
-    private long windowStartTick;
-
-    // Worker stats — written by sky and block worker threads concurrently
-    final AtomicLong chunksProcessed = new AtomicLong();
-    final AtomicLong initialLightsRun = new AtomicLong();
-    final AtomicLong skyWorkerTimeNs = new AtomicLong();
-    final AtomicLong blockWorkerTimeNs = new AtomicLong();
-    final AtomicLong skyTasksProcessed = new AtomicLong();
-    final AtomicLong blockTasksProcessed = new AtomicLong();
-    volatile long maxQueueLatencyNs;
-    volatile long totalQueueLatencyNs;
-
-    // Backlog snapshots (main thread only)
-    volatile int skyBacklog;
-    volatile int blockBacklog;
-
     // Client render-mark stat (main thread only)
     public static long engineRenderMarks;
-
-    // Budget yield stats (multi-thread write)
-    final AtomicInteger edgeBudgetYields = new AtomicInteger();
-    final AtomicInteger blockChangeBudgetYields = new AtomicInteger();
-    final AtomicInteger skyChangeBudgetYields = new AtomicInteger();
-
-    // Queue stats (multi-thread write)
-    final AtomicInteger chunksQueued = new AtomicInteger();
-
     // Block change diagnostics (block worker thread)
     public final AtomicLong blockPositionsProcessed = new AtomicLong();
-
     // Edge check diagnostics (multi-thread write, public for cross-package access from engine)
     public final AtomicLong edgeSectionPairsChecked = new AtomicLong();
     public final AtomicLong edgeSectionPairsSkippedFull = new AtomicLong();
@@ -75,6 +41,31 @@ public final class LightStats {
     public final AtomicLong edgeBlocksSkippedConsistency = new AtomicLong();
     public final AtomicLong edgeBlocksRecalculated = new AtomicLong();
     public final AtomicLong edgeBlocksMismatched = new AtomicLong();
+    // Worker stats — written by sky and block worker threads concurrently
+    final AtomicLong chunksProcessed = new AtomicLong();
+    final AtomicLong initialLightsRun = new AtomicLong();
+    final AtomicLong skyWorkerTimeNs = new AtomicLong();
+    final AtomicLong blockWorkerTimeNs = new AtomicLong();
+    final AtomicLong skyTasksProcessed = new AtomicLong();
+    final AtomicLong blockTasksProcessed = new AtomicLong();
+    // Budget yield stats (multi-thread write)
+    final AtomicInteger edgeBudgetYields = new AtomicInteger();
+    final AtomicInteger blockChangeBudgetYields = new AtomicInteger();
+    final AtomicInteger skyChangeBudgetYields = new AtomicInteger();
+    // Queue stats (multi-thread write)
+    final AtomicInteger chunksQueued = new AtomicInteger();
+    private final String side;
+    volatile long maxQueueLatencyNs;
+    volatile long totalQueueLatencyNs;
+    // Backlog snapshots (main thread only)
+    volatile int skyBacklog;
+    volatile int blockBacklog;
+    private PrintWriter writer;
+    private boolean writerFailed;
+    private boolean pendingReset;
+    // Tick tracking
+    private long tickCount;
+    private long windowStartTick;
 
     public LightStats(final boolean isClient) {
         this.side = isClient ? "CLIENT" : "SERVER";

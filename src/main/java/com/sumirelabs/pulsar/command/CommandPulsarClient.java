@@ -32,52 +32,6 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
  */
 public class CommandPulsarClient extends CommandBase {
 
-    @Override
-    public String getName() {
-        return "pulsarc";
-    }
-
-    @Override
-    public String getUsage(final ICommandSender sender) {
-        return "/pulsarc";
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 0;
-    }
-
-    @Override
-    public boolean checkPermission(final MinecraftServer server, final ICommandSender sender) {
-        return true;
-    }
-
-    @Override
-    public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args) {
-        final Minecraft mc = Minecraft.getMinecraft();
-        final EntityPlayer player = mc.player;
-        if (player == null || mc.world == null) {
-            return;
-        }
-        final BlockPos feet = new BlockPos(player);
-        final BlockPos[] samples = {feet.down(), feet, feet.up(), feet.north(), feet.south(), feet.west(), feet.east()};
-        final String[] labels = {"below", "feet ", "above", "north", "south", "west ", "east "};
-
-        final MinecraftServer integrated = mc.getIntegratedServer();
-        final World serverWorld = integrated != null ? integrated.getWorld(player.dimension) : null;
-
-        sender.sendMessage(new TextComponentString(
-                "§epulsarc §7— van=vanilla sky/blk, swmr=engine sky(state)/blk(state)"));
-        for (int i = 0; i < samples.length; i++) {
-            final BlockPos pos = samples[i];
-            final String client = describe(mc.world, pos);
-            final String serverStr = serverWorld != null ? describe(serverWorld, pos) : "n/a (not singleplayer)";
-            sender.sendMessage(new TextComponentString(
-                    "§7" + labels[i] + " " + pos.getX() + "," + pos.getY() + "," + pos.getZ()
-                            + "§r §bC[" + client + "]§r §6S[" + serverStr + "]"));
-        }
-    }
-
     private static String describe(final World world, final BlockPos pos) {
         final WorldLightManager mgr = ((PulsarWorld) world).pulsar$getLightManager();
         final Chunk chunk = mgr != null ? mgr.getLoadedChunk(pos.getX() >> 4, pos.getZ() >> 4) : null;
@@ -125,5 +79,51 @@ public class CommandPulsarClient extends CommandBase {
         if (nib.isUninitialisedVisible()) return "UNINIT";
         if (nib.isHiddenVisible()) return "HIDDEN";
         return "INIT";
+    }
+
+    @Override
+    public String getName() {
+        return "pulsarc";
+    }
+
+    @Override
+    public String getUsage(final ICommandSender sender) {
+        return "/pulsarc";
+    }
+
+    @Override
+    public int getRequiredPermissionLevel() {
+        return 0;
+    }
+
+    @Override
+    public boolean checkPermission(final MinecraftServer server, final ICommandSender sender) {
+        return true;
+    }
+
+    @Override
+    public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args) {
+        final Minecraft mc = Minecraft.getMinecraft();
+        final EntityPlayer player = mc.player;
+        if (player == null || mc.world == null) {
+            return;
+        }
+        final BlockPos feet = new BlockPos(player);
+        final BlockPos[] samples = {feet.down(), feet, feet.up(), feet.north(), feet.south(), feet.west(), feet.east()};
+        final String[] labels = {"below", "feet ", "above", "north", "south", "west ", "east "};
+
+        final MinecraftServer integrated = mc.getIntegratedServer();
+        final World serverWorld = integrated != null ? integrated.getWorld(player.dimension) : null;
+
+        sender.sendMessage(new TextComponentString(
+                "§epulsarc §7— van=vanilla sky/blk, swmr=engine sky(state)/blk(state)"));
+        for (int i = 0; i < samples.length; i++) {
+            final BlockPos pos = samples[i];
+            final String client = describe(mc.world, pos);
+            final String serverStr = serverWorld != null ? describe(serverWorld, pos) : "n/a (not singleplayer)";
+            sender.sendMessage(new TextComponentString(
+                    "§7" + labels[i] + " " + pos.getX() + "," + pos.getY() + "," + pos.getZ()
+                            + "§r §bC[" + client + "]§r §6S[" + serverStr + "]"));
+        }
     }
 }

@@ -31,7 +31,8 @@ public final class ChunkLightHelper {
         for (int i = 0; i < sky.length; ++i) {
             final int sectionY = i + minLight;
             final int storageIndex = heightContext.getStorageIndex(sectionY);
-            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null) continue;
+            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
+                continue;
             final NibbleArray vanillaSky = storageArrays[storageIndex].getSkyLight();
             if (vanillaSky == null) continue;
             if (onlyWhereNull && !sky[i].isNullNibbleVisible()) continue;
@@ -49,7 +50,8 @@ public final class ChunkLightHelper {
         for (int i = 0; i < block.length; ++i) {
             final int sectionY = i + minLight;
             final int storageIndex = heightContext.getStorageIndex(sectionY);
-            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null) continue;
+            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
+                continue;
             final NibbleArray vanillaBlock = storageArrays[storageIndex].getBlockLight();
             if (vanillaBlock == null) continue;
             block[i] = SWMRNibbleArray.fromVanilla(vanillaBlock);
@@ -69,7 +71,8 @@ public final class ChunkLightHelper {
         for (int i = 0; i < block.length; ++i) {
             final int sectionY = i + minLight;
             final int storageIndex = heightContext.getStorageIndex(sectionY);
-            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null) continue;
+            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
+                continue;
             final NibbleArray vanillaBlock = storageArrays[storageIndex].getBlockLight();
             if (vanillaBlock == null) continue;
             block[i] = new SWMRNibbleArray(vanillaBlock.getData());
@@ -85,7 +88,8 @@ public final class ChunkLightHelper {
         for (int i = 0; i < sky.length; ++i) {
             final int sectionY = i + minLight;
             final int storageIndex = heightContext.getStorageIndex(sectionY);
-            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null) continue;
+            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
+                continue;
             final NibbleArray vanillaSky = storageArrays[storageIndex].getSkyLight();
             if (vanillaSky == null) continue;
             sky[i] = new SWMRNibbleArray(vanillaSky.getData());
@@ -105,7 +109,8 @@ public final class ChunkLightHelper {
 
             final int sectionY = i + minLight;
             final int storageIndex = heightContext.getStorageIndex(sectionY);
-            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null) continue;
+            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
+                continue;
 
             final NibbleArray vanilla = storageArrays[storageIndex].getSkyLight();
             if (vanilla == null) continue;
@@ -143,7 +148,8 @@ public final class ChunkLightHelper {
 
             final int sectionY = i + minLight;
             final int storageIndex = heightContext.getStorageIndex(sectionY);
-            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null) continue;
+            if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
+                continue;
 
             final NibbleArray vanilla = storageArrays[storageIndex].getBlockLight();
             if (vanilla == null) continue;

@@ -4,7 +4,6 @@ import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.init.Blocks;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 import java.util.Arrays;

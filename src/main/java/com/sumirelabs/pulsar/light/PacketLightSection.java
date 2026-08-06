@@ -1,6 +1,8 @@
 package com.sumirelabs.pulsar.light;
 
-/** Pure light-array checks shared by packet integration and unit tests. */
+/**
+ * Pure light-array checks shared by packet integration and unit tests.
+ */
 final class PacketLightSection {
 
     private PacketLightSection() {

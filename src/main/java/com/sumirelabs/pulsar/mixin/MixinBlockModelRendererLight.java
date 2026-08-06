@@ -11,7 +11,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-/** Restores smooth lighting for blocks whose emission is only level one. */
+/**
+ * Restores smooth lighting for blocks whose emission is only level one.
+ */
 @Mixin(BlockModelRenderer.class)
 @SideOnly(Side.CLIENT)
 public abstract class MixinBlockModelRendererLight {
@@ -47,7 +49,9 @@ public abstract class MixinBlockModelRendererLight {
         return RenderLightRules.ambientOcclusionEmission(state.getLightValue(access, pos));
     }
 
-    /** Production/SRG name for the same vanilla call site. */
+    /**
+     * Production/SRG name for the same vanilla call site.
+     */
     @Redirect(
             method = SRG_RENDER_MODEL,
             at = @At(value = "INVOKE", target = VANILLA_LIGHT_VALUE, remap = false),
@@ -58,7 +62,9 @@ public abstract class MixinBlockModelRendererLight {
         return RenderLightRules.ambientOcclusionEmission(state.getLightValue(access, pos));
     }
 
-    /** Optional OptiFine call site for the MCP/development method name. */
+    /**
+     * Optional OptiFine call site for the MCP/development method name.
+     */
     @Redirect(
             method = MCP_RENDER_MODEL,
             at = @At(
@@ -72,7 +78,9 @@ public abstract class MixinBlockModelRendererLight {
         return RenderLightRules.ambientOcclusionEmission(state.getLightValue(access, pos));
     }
 
-    /** Optional OptiFine call site for the production/SRG method name. */
+    /**
+     * Optional OptiFine call site for the production/SRG method name.
+     */
     @Redirect(
             method = SRG_RENDER_MODEL,
             at = @At(value = "INVOKE", target = OPTIFINE_LIGHT_VALUE, remap = false),

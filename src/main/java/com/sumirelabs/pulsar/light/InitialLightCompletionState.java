@@ -10,19 +10,10 @@ final class InitialLightCompletionState {
 
     static final int SKY = 1;
     static final int BLOCK = 1 << 1;
-
-    enum Result {
-        IGNORED,
-        WAITING,
-        INITIAL_COMPLETE,
-        COMPLETE
-    }
-
     private final long generation;
     private final int requiredLanes;
     private int initialCompletedLanes;
     private int edgeCompletedLanes;
-
     InitialLightCompletionState(final long generation, final int requiredLanes) {
         if (generation <= 0L) {
             throw new IllegalArgumentException("Initial-light generation must be positive");
@@ -57,5 +48,12 @@ final class InitialLightCompletionState {
             throw new IllegalArgumentException("Invalid initial-light lane: " + lane);
         }
         return taskGeneration == this.generation && (lane & this.requiredLanes) != 0;
+    }
+
+    enum Result {
+        IGNORED,
+        WAITING,
+        INITIAL_COMPLETE,
+        COMPLETE
     }
 }

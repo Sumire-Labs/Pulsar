@@ -33,16 +33,14 @@ public final class DepthsUpdateBridge {
     private static final int UNRESOLVED = 0;
     private static final int OK = 1;
     private static final int FAILED = 2;
-
+    private static final Map<World, WorldHeightContext> CONTEXTS =
+            Collections.synchronizedMap(new WeakHashMap<>());
     private static volatile int state = UNRESOLVED;
     private static Method getHeightInfo;
     private static Method isExtended;
     private static Method minY;
     private static Method maxY;
     private static DepthsUpdateStorageIndexInvoker storageIndexInvoker;
-
-    private static final Map<World, WorldHeightContext> CONTEXTS =
-            Collections.synchronizedMap(new WeakHashMap<>());
 
     private DepthsUpdateBridge() {
     }

@@ -37,58 +37,60 @@ import java.util.List;
  */
 public abstract class PulsarEngine extends LightEngineCache {
 
-    private final LightSectionProcessor sectionProcessor;
-    protected final boolean skylightPropagator;
-
     protected static final AxisDirection[] AXIS_DIRECTIONS = AxisDirection.values();
     protected static final AxisDirection[] ONLY_HORIZONTAL_DIRECTIONS = new AxisDirection[]{
             AxisDirection.POSITIVE_X, AxisDirection.NEGATIVE_X,
             AxisDirection.POSITIVE_Z, AxisDirection.NEGATIVE_Z
     };
+    // Pool for int[4096] arrays — avoids allocation churn during BFS
+    protected static final ThreadLocal<ArrayDeque<int[]>> PACKED_ARRAY_POOL = ThreadLocal.withInitial(ArrayDeque::new);
+    // Queue entry constants — see class javadoc
+    protected static final int COORD_X_BITS = 6;
+    protected static final int COORD_Z_BITS = 6;
+    protected static final int COORD_Y_BITS = 16;
+    protected static final int COORD_Y_MASK = (1 << COORD_Y_BITS) - 1;
+    protected static final int LIGHT_LEVEL_SHIFT = COORD_X_BITS + COORD_Z_BITS + COORD_Y_BITS; // 28
+    protected static final int DIRECTION_SHIFT = LIGHT_LEVEL_SHIFT + 4; // 32
+    protected static final long COORD_MASK = (1L << LIGHT_LEVEL_SHIFT) - 1;
+    protected static final long FLAG_WRITE_LEVEL = Long.MIN_VALUE >>> 2;
+    protected static final long FLAG_RECHECK_LEVEL = Long.MIN_VALUE >>> 1;
+    protected static final long FLAG_HAS_SIDED_TRANSPARENT_BLOCKS = Long.MIN_VALUE; // bit 63
+    // 16 * 16 * 16 — matches Starlight (StarLightEngine.java:1023). The base
+    // queues grow on demand via resize{Increase,Decrease}Queue up to MAX_QUEUE_SIZE.
+    protected static final int INITIAL_QUEUE_SIZE = 1 << 12; // 4096
+    protected static final int MAX_QUEUE_SIZE = 1 << 20; // ~8MB per queue
+    protected static final AxisDirection[][] OLD_CHECK_DIRECTIONS = new AxisDirection[1 << 6][];
+    protected static final int ALL_DIRECTIONS_BITSET = (1 << 6) - 1;
 
-    protected enum AxisDirection {
-        POSITIVE_X(1, 0, 0),
-        NEGATIVE_X(-1, 0, 0),
-        POSITIVE_Z(0, 0, 1),
-        NEGATIVE_Z(0, 0, -1),
-        POSITIVE_Y(0, 1, 0),
-        NEGATIVE_Y(0, -1, 0);
-
-        static {
-            POSITIVE_X.opposite = NEGATIVE_X;
-            NEGATIVE_X.opposite = POSITIVE_X;
-            POSITIVE_Z.opposite = NEGATIVE_Z;
-            NEGATIVE_Z.opposite = POSITIVE_Z;
-            POSITIVE_Y.opposite = NEGATIVE_Y;
-            NEGATIVE_Y.opposite = POSITIVE_Y;
-        }
-
-        protected AxisDirection opposite;
-
-        protected final int x;
-        protected final int y;
-        protected final int z;
-        protected final int oppositeOrdinal;
-        protected final long everythingButTheOppositeDirection;
-        protected final long everythingButThisDirection;
-
-        AxisDirection(final int x, final int y, final int z) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.oppositeOrdinal = this.ordinal() ^ 1;
-            final int allBits = (1 << 6) - 1;
-            this.everythingButTheOppositeDirection = allBits ^ (1L << (this.ordinal() ^ 1));
-            this.everythingButThisDirection = allBits ^ (1L << this.ordinal());
-        }
-
-        protected AxisDirection getOpposite() {
-            return this.opposite;
+    static {
+        for (int i = 0; i < OLD_CHECK_DIRECTIONS.length; ++i) {
+            final List<AxisDirection> directions = new ArrayList<>();
+            for (int bitset = i, len = Integer.bitCount(i), index = 0; index < len; ++index, bitset ^= (-bitset & bitset)) {
+                directions.add(AXIS_DIRECTIONS[Integer.numberOfTrailingZeros(bitset)]);
+            }
+            OLD_CHECK_DIRECTIONS[i] = directions.toArray(new AxisDirection[0]);
         }
     }
 
-    // Pool for int[4096] arrays — avoids allocation churn during BFS
-    protected static final ThreadLocal<ArrayDeque<int[]>> PACKED_ARRAY_POOL = ThreadLocal.withInitial(ArrayDeque::new);
+    protected final boolean skylightPropagator;
+    private final LightSectionProcessor sectionProcessor;
+    // Diagnostic counters — accumulated across propagateBlockChanges calls
+    public int lastBfsIncreaseTotal;
+    public int lastBfsDecreaseTotal;
+    public int lastPositionsProcessed;
+    protected long[] increaseQueue = new long[INITIAL_QUEUE_SIZE];
+    protected int increaseQueueInitialLength;
+    protected long[] decreaseQueue = new long[INITIAL_QUEUE_SIZE];
+    protected int decreaseQueueInitialLength;
+    protected boolean queueOverflowWarned;
+    protected boolean queueOverflowed;
+
+    protected PulsarEngine(final boolean skylightPropagator, final World world,
+                           final WorldHeightContext heightContext) {
+        super(world, heightContext);
+        this.skylightPropagator = skylightPropagator;
+        this.sectionProcessor = new LightSectionProcessor(this);
+    }
 
     protected static int[] acquirePackedArray() {
         final int[] pooled = PACKED_ARRAY_POOL.get().pollFirst();
@@ -100,19 +102,6 @@ public abstract class PulsarEngine extends LightEngineCache {
             PACKED_ARRAY_POOL.get().addFirst(arr);
         }
     }
-
-    // Diagnostic counters — accumulated across propagateBlockChanges calls
-    public int lastBfsIncreaseTotal;
-    public int lastBfsDecreaseTotal;
-    public int lastPositionsProcessed;
-    // Queue entry constants — see class javadoc
-    protected static final int COORD_X_BITS = 6;
-    protected static final int COORD_Z_BITS = 6;
-    protected static final int COORD_Y_BITS = 16;
-    protected static final int COORD_Y_MASK = (1 << COORD_Y_BITS) - 1;
-    protected static final int LIGHT_LEVEL_SHIFT = COORD_X_BITS + COORD_Z_BITS + COORD_Y_BITS; // 28
-    protected static final int DIRECTION_SHIFT = LIGHT_LEVEL_SHIFT + 4; // 32
-    protected static final long COORD_MASK = (1L << LIGHT_LEVEL_SHIFT) - 1;
 
     protected static long encodeCoords(final int x, final int z, final int y, final int encodeOffset) {
         return (x + ((long) z << COORD_X_BITS) + ((long) y << (COORD_X_BITS + COORD_Z_BITS)) + encodeOffset) & COORD_MASK;
@@ -126,11 +115,18 @@ public abstract class PulsarEngine extends LightEngineCache {
         return (lightInfo & LightInfo.REGISTRY) != 0 ? FLAG_HAS_SIDED_TRANSPARENT_BLOCKS : 0L;
     }
 
-    protected PulsarEngine(final boolean skylightPropagator, final World world,
-                           final WorldHeightContext heightContext) {
-        super(world, heightContext);
-        this.skylightPropagator = skylightPropagator;
-        this.sectionProcessor = new LightSectionProcessor(this);
+    public static Boolean[] getEmptySectionsForChunk(final Chunk chunk) {
+        final WorldHeightContext heightContext = WorldUtil.getHeightContext(chunk.getWorld());
+        final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
+        final Boolean[] ret = new Boolean[heightContext.getTotalSections()];
+        for (int sectionY = heightContext.getMinSection(); sectionY <= heightContext.getMaxSection(); ++sectionY) {
+            final int logicalIndex = heightContext.getSectionIndex(sectionY);
+            final int storageIndex = heightContext.getStorageIndex(sectionY);
+            final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < sections.length
+                    ? sections[storageIndex] : null;
+            ret[logicalIndex] = section == null || section.isEmpty() ? Boolean.TRUE : Boolean.FALSE;
+        }
+        return ret;
     }
 
     @Override
@@ -156,20 +152,6 @@ public abstract class PulsarEngine extends LightEngineCache {
 
     protected boolean isBelowPropagationThreshold(final int level) {
         return level <= 1;
-    }
-
-    public static Boolean[] getEmptySectionsForChunk(final Chunk chunk) {
-        final WorldHeightContext heightContext = WorldUtil.getHeightContext(chunk.getWorld());
-        final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
-        final Boolean[] ret = new Boolean[heightContext.getTotalSections()];
-        for (int sectionY = heightContext.getMinSection(); sectionY <= heightContext.getMaxSection(); ++sectionY) {
-            final int logicalIndex = heightContext.getSectionIndex(sectionY);
-            final int storageIndex = heightContext.getStorageIndex(sectionY);
-            final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < sections.length
-                    ? sections[storageIndex] : null;
-            ret[logicalIndex] = section == null || section.isEmpty() ? Boolean.TRUE : Boolean.FALSE;
-        }
-        return ret;
     }
 
     protected abstract void setEmptinessMap(final Chunk chunk, final boolean[] to);
@@ -422,25 +404,9 @@ public abstract class PulsarEngine extends LightEngineCache {
         this.sectionProcessor.propagateNeighbourLevels(chunk, fromSection, toSection);
     }
 
-    protected static final long FLAG_WRITE_LEVEL = Long.MIN_VALUE >>> 2;
-    protected static final long FLAG_RECHECK_LEVEL = Long.MIN_VALUE >>> 1;
-    protected static final long FLAG_HAS_SIDED_TRANSPARENT_BLOCKS = Long.MIN_VALUE; // bit 63
-
-    // 16 * 16 * 16 — matches Starlight (StarLightEngine.java:1023). The base
-    // queues grow on demand via resize{Increase,Decrease}Queue up to MAX_QUEUE_SIZE.
-    protected static final int INITIAL_QUEUE_SIZE = 1 << 12; // 4096
-    protected static final int MAX_QUEUE_SIZE = 1 << 20; // ~8MB per queue
-
     protected boolean isMaxLight(final int level) {
         return level == 15;
     }
-
-    protected long[] increaseQueue = new long[INITIAL_QUEUE_SIZE];
-    protected int increaseQueueInitialLength;
-    protected long[] decreaseQueue = new long[INITIAL_QUEUE_SIZE];
-    protected int decreaseQueueInitialLength;
-    protected boolean queueOverflowWarned;
-    protected boolean queueOverflowed;
 
     protected final long[] resizeIncreaseQueue() {
         return this.increaseQueue = Arrays.copyOf(this.increaseQueue, Math.min(this.increaseQueue.length * 2, MAX_QUEUE_SIZE));
@@ -510,20 +476,47 @@ public abstract class PulsarEngine extends LightEngineCache {
         return this.queueOverflowed;
     }
 
-    protected static final AxisDirection[][] OLD_CHECK_DIRECTIONS = new AxisDirection[1 << 6][];
-    protected static final int ALL_DIRECTIONS_BITSET = (1 << 6) - 1;
-
-    static {
-        for (int i = 0; i < OLD_CHECK_DIRECTIONS.length; ++i) {
-            final List<AxisDirection> directions = new ArrayList<>();
-            for (int bitset = i, len = Integer.bitCount(i), index = 0; index < len; ++index, bitset ^= (-bitset & bitset)) {
-                directions.add(AXIS_DIRECTIONS[Integer.numberOfTrailingZeros(bitset)]);
-            }
-            OLD_CHECK_DIRECTIONS[i] = directions.toArray(new AxisDirection[0]);
-        }
-    }
-
     protected abstract void performLightIncrease();
 
     protected abstract void performLightDecrease();
+
+    protected enum AxisDirection {
+        POSITIVE_X(1, 0, 0),
+        NEGATIVE_X(-1, 0, 0),
+        POSITIVE_Z(0, 0, 1),
+        NEGATIVE_Z(0, 0, -1),
+        POSITIVE_Y(0, 1, 0),
+        NEGATIVE_Y(0, -1, 0);
+
+        static {
+            POSITIVE_X.opposite = NEGATIVE_X;
+            NEGATIVE_X.opposite = POSITIVE_X;
+            POSITIVE_Z.opposite = NEGATIVE_Z;
+            NEGATIVE_Z.opposite = POSITIVE_Z;
+            POSITIVE_Y.opposite = NEGATIVE_Y;
+            NEGATIVE_Y.opposite = POSITIVE_Y;
+        }
+
+        protected final int x;
+        protected final int y;
+        protected final int z;
+        protected final int oppositeOrdinal;
+        protected final long everythingButTheOppositeDirection;
+        protected final long everythingButThisDirection;
+        protected AxisDirection opposite;
+
+        AxisDirection(final int x, final int y, final int z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.oppositeOrdinal = this.ordinal() ^ 1;
+            final int allBits = (1 << 6) - 1;
+            this.everythingButTheOppositeDirection = allBits ^ (1L << (this.ordinal() ^ 1));
+            this.everythingButThisDirection = allBits ^ (1L << this.ordinal());
+        }
+
+        protected AxisDirection getOpposite() {
+            return this.opposite;
+        }
+    }
 }

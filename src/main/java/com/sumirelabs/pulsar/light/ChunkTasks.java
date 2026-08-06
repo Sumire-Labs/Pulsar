@@ -12,26 +12,24 @@ import net.minecraft.world.chunk.Chunk;
 public final class ChunkTasks {
 
     public final long chunkCoordinate;
+    public final SettableFuture<Void> onComplete;
+    public final long enqueueTimeNs;
     public IntOpenHashSet changedPositions;
-
     /**
      * Per-section emptiness changes. Tri-state:
      * {@code null} = no change, {@code TRUE} = empty, {@code FALSE} = non-empty.
      */
     public Boolean[] changedSectionSet;
-
     /**
      * Non-null if this chunk needs initial lighting.
      */
     public Chunk initialLightChunk;
     public Boolean[] initialLightEmptySections;
-
     /**
      * Full-relight generation coordinated by {@link WorldLightManager}.
      * Zero means this batch did not originate from a coordinated full relight.
      */
     public long initialLightGeneration;
-
     /**
      * Non-null if this chunk was loaded with valid persisted light and only
      * needs the cheap nibble/emptiness-map init (no BFS). Superseded by
@@ -39,20 +37,14 @@ public final class ChunkTasks {
      */
     public Chunk loadInitChunk;
     public Boolean[] loadInitEmptySections;
-
     public IntOpenHashSet queuedEdgeChecksSky;
     public IntOpenHashSet queuedEdgeChecksBlock;
-
     /**
      * Generation whose final edge-reconciliation pass is carried by this
      * batch. Zero means the edge checks are ordinary maintenance work.
      */
     public long initialLightEdgeGeneration;
     public int edgeCheckAttempts;
-
-    public final SettableFuture<Void> onComplete;
-
-    public final long enqueueTimeNs;
     public int relightAttempts;
 
     public ChunkTasks(final long chunkCoordinate) {

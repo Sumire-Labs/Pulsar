@@ -1,6 +1,8 @@
 package com.sumirelabs.pulsar.light;
 
-/** Shared thresholds for vanilla smooth-lighting decisions. */
+/**
+ * Shared thresholds for vanilla smooth-lighting decisions.
+ */
 public final class RenderLightRules {
 
     private RenderLightRules() {

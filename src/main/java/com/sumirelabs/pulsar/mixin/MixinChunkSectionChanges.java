@@ -30,24 +30,20 @@ public abstract class MixinChunkSectionChanges {
 
     @Shadow
     @Final
-    private World world;
-
-    @Shadow
-    @Final
     public int x;
-
     @Shadow
     @Final
     public int z;
+    @Shadow
+    @Final
+    private World world;
+    @Unique
+    private boolean pulsar$sectionWasEmpty;
+    @Unique
+    private WorldHeightContext pulsar$sectionHeightContext;
 
     @Shadow
     public abstract ExtendedBlockStorage[] getBlockStorageArray();
-
-    @Unique
-    private boolean pulsar$sectionWasEmpty;
-
-    @Unique
-    private WorldHeightContext pulsar$sectionHeightContext;
 
     @Unique
     private WorldHeightContext pulsar$getSectionHeightContext() {

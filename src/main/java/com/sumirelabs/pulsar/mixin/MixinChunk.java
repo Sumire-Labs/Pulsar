@@ -40,45 +40,34 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
 
     @Shadow
     @Final
-    private World world;
-
-    @Shadow
-    @Final
     public int x;
-
     @Shadow
     @Final
     public int z;
-
     @Shadow
     public boolean isLightPopulated;
+    @Shadow
+    @Final
+    private World world;
+    @Unique
+    private volatile SWMRNibbleArray[] pulsar$blockNibbles;
+    @Unique
+    private volatile SWMRNibbleArray[] pulsar$skyNibbles;
+    @Unique
+    private boolean[] pulsar$blockEmptinessMap;
+    @Unique
+    private boolean[] pulsar$skyEmptinessMap;
+    @Unique
+    private volatile boolean pulsar$lightReady;
+    @Unique
+    private volatile boolean pulsar$lightUsable;
+    @Unique
+    private volatile boolean pulsar$savedLightValid;
+    @Unique
+    private WorldHeightContext pulsar$heightContext;
 
     @Shadow
     public abstract ExtendedBlockStorage[] getBlockStorageArray();
-
-    @Unique
-    private volatile SWMRNibbleArray[] pulsar$blockNibbles;
-
-    @Unique
-    private volatile SWMRNibbleArray[] pulsar$skyNibbles;
-
-    @Unique
-    private boolean[] pulsar$blockEmptinessMap;
-
-    @Unique
-    private boolean[] pulsar$skyEmptinessMap;
-
-    @Unique
-    private volatile boolean pulsar$lightReady;
-
-    @Unique
-    private volatile boolean pulsar$lightUsable;
-
-    @Unique
-    private volatile boolean pulsar$savedLightValid;
-
-    @Unique
-    private WorldHeightContext pulsar$heightContext;
 
     @Unique
     private WorldHeightContext pulsar$getHeightContext() {

@@ -9,7 +9,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-/** Keeps non-trivial light in block-empty sections of full chunk packets. */
+/**
+ * Keeps non-trivial light in block-empty sections of full chunk packets.
+ */
 @Mixin(SPacketChunkData.class)
 public abstract class MixinSPacketChunkData {
 

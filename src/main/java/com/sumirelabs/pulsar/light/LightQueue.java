@@ -24,8 +24,6 @@ public final class LightQueue {
     // dequeue and worker completion.
     private final Long2ObjectOpenHashMap<ChunkTasks> inFlightTasks = new Long2ObjectOpenHashMap<>();
     private final Semaphore workAvailable = new Semaphore(0);
-    private LightStats stats;
-
     // Priority lookup support. The drain loop asks for "first task with block
     // changes" / "first task with initial light" once per task processed, so
     // these must be O(1): keys are enqueued on the transition into each class
@@ -35,10 +33,20 @@ public final class LightQueue {
     // initial light leaves the map.
     private final LongArrayFIFOQueue blockChangeKeys = new LongArrayFIFOQueue();
     private final LongArrayFIFOQueue initialLightKeys = new LongArrayFIFOQueue();
+    private LightStats stats;
     private int initialLightCount;
 
     public LightQueue(final WorldHeightContext heightContext) {
         this.heightContext = heightContext;
+    }
+
+    private static boolean changesLightValues(final ChunkTasks tasks) {
+        if (tasks == null) {
+            return false;
+        }
+        return tasks.initialLightChunk != null
+                || tasks.changedSectionSet != null
+                || (tasks.changedPositions != null && !tasks.changedPositions.isEmpty());
     }
 
     void setStats(final LightStats stats) {
@@ -187,9 +195,9 @@ public final class LightQueue {
      * occupies this chunk
      */
     public synchronized boolean queueInitialLightEdgeCheckAllSections(final int cx, final int cz,
-                                                                       final boolean isSky,
-                                                                       final long generation,
-                                                                       final int attempts) {
+                                                                      final boolean isSky,
+                                                                      final long generation,
+                                                                      final int attempts) {
         if (generation <= 0L || attempts < 0) {
             throw new IllegalArgumentException("Invalid initial-light edge generation/attempt");
         }
@@ -343,7 +351,9 @@ public final class LightQueue {
         return !this.tasksByChunk.isEmpty() || !this.inFlightTasks.isEmpty();
     }
 
-    /** True when there is no task waiting to be dequeued. */
+    /**
+     * True when there is no task waiting to be dequeued.
+     */
     public synchronized boolean isEmpty() {
         return this.tasksByChunk.isEmpty();
     }
@@ -376,15 +386,6 @@ public final class LightQueue {
         }
         final ChunkTasks queued = this.tasksByChunk.get(key);
         return queued == null ? null : queued.onComplete;
-    }
-
-    private static boolean changesLightValues(final ChunkTasks tasks) {
-        if (tasks == null) {
-            return false;
-        }
-        return tasks.initialLightChunk != null
-                || tasks.changedSectionSet != null
-                || (tasks.changedPositions != null && !tasks.changedPositions.isEmpty());
     }
 
     /**
