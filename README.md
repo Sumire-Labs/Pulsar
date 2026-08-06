@@ -21,9 +21,8 @@ operations, or machines that place and remove many blocks.
 - Saves completed light data with each chunk, avoiding a full relight every
   time the chunk loads.
 - Writes normal Minecraft light data, so worlds are not locked to Pulsar.
-- Fixes several vanilla rendering bugs around slabs, stairs, and light-emitting
-  blocks, including [MC-92](https://bugs.mojang.com/browse/MC-92), on
-  Minecraft's standard terrain-rendering path.
+- Fixes incorrect lighting on slabs and stairs:
+  - [MC-92](https://bugs.mojang.com/browse/MC-92)
 
 The largest gains appear under heavy lighting load. At lighter loads, Pulsar's
 main benefit is lower light-update latency rather than higher TPS.
@@ -243,11 +242,15 @@ Please attach `latest.log`, the relevant configuration files, and the output of
 ## Credits
 
 - [Starlight](https://github.com/PaperMC/Starlight) by Spottedleaf, for the
-  architecture and core algorithms
-- [SuperNova](https://github.com/GTNewHorizons/SuperNova) by GTNewHorizons, the
-  1.7.10 Starlight port on which early Pulsar versions were based
-- [Alfheim](https://github.com/Red-Studio-Ragnarok/Alfheim) by Red Studio, for
-  the MC-92 family of rendering fixes
+  architecture and core algorithms on which Pulsar is based
+
+- [SuperNova](https://github.com/GTNewHorizons/SuperNova) by GTNewHorizons, a
+  Minecraft 1.7.10 port of Starlight that served as the basis for early
+  versions of Pulsar
+
+- [Alfheim](https://github.com/Red-Studio-Ragnarok/Alfheim) by Red Studio, as a
+  reference for fixing MC-92
+
 - [CleanroomModTemplate](https://github.com/CleanroomMC/CleanroomModTemplate) by
   CleanroomMC
 
