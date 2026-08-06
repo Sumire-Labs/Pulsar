@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed large vanilla and JSON Paintings canvases rendering with abrupt,
+  block-sized lighting bands. When smooth lighting is enabled, paintings now
+  interpolate light across tile boundaries
+  ([MC-1531](https://bugs.mojang.com/browse/MC-1531),
+  [#5](https://github.com/Sumire-Labs/Pulsar/issues/5)).
 - Fixed dense skylight edits, such as large roofs and leaf canopies, leaving
   stale light behind or reintroducing light across chunk borders
   ([MC-117067](https://bugs.mojang.com/browse/MC-117067),

@@ -28,6 +28,8 @@ main benefit is lower light-update latency rather than higher TPS.
 ### Issues fixed in Pulsar
 
 - [MC-92](https://bugs.mojang.com/browse/MC-92)
+- [MC-1531](https://bugs.mojang.com/browse/MC-1531) — painting portion only;
+  item frames are not covered
 - [MC-3329](https://bugs.mojang.com/browse/MC-3329)
 - [MC-80966](https://bugs.mojang.com/browse/MC-80966)
 - [MC-104532](https://bugs.mojang.com/browse/MC-104532)

@@ -19,6 +19,8 @@
     "MixinBlockModelRendererLight",
     "MixinBlockRenderLight",
     "MixinChunkCacheRenderLight",
+    "MixinRenderJSONPaintingLight",
+    "MixinRenderPaintingLight",
     "MixinWorldRenderLight"
   ],
   "server": [
