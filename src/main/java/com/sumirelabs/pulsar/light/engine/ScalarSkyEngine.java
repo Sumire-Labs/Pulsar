@@ -3,16 +3,12 @@ package com.sumirelabs.pulsar.light.engine;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
-import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
-
-import java.util.Arrays;
 
 /**
  * Scalar sky-light engine. Two-phase BFS: vertical extrusion seeds light from
@@ -26,11 +22,11 @@ import java.util.Arrays;
 @SuppressWarnings("deprecation")
 public class ScalarSkyEngine extends PulsarEngine {
 
-    private final boolean[] nullPropagationCheckCache;
+    private final SkyLightColumnProcessor columnProcessor;
 
     public ScalarSkyEngine(final World world, final WorldHeightContext heightContext) {
         super(true, world, heightContext);
-        this.nullPropagationCheckCache = new boolean[heightContext.getTotalLightSections()];
+        this.columnProcessor = new SkyLightColumnProcessor(this);
     }
 
     @Override
@@ -60,223 +56,32 @@ public class ScalarSkyEngine extends PulsarEngine {
 
     @Override
     protected void initNibble(final int chunkX, final int chunkY, final int chunkZ, final boolean extrude, final boolean initRemovedNibbles) {
-        if (chunkY < this.minLightSection || chunkY > this.maxLightSection || this.getChunkInCache(chunkX, chunkZ) == null) {
-            return;
-        }
-        SWMRNibbleArray nib = this.getNibbleFromCache(chunkX, chunkY, chunkZ);
-        if (nib == null) {
-            if (!initRemovedNibbles) {
-                return;
-            }
-            this.setNibbleInCache(chunkX, chunkY, chunkZ, nib = new SWMRNibbleArray(null, true));
-        }
-        this.initSkyNibble(nib, chunkX, chunkY, chunkZ, extrude);
-    }
-
-    private void initSkyNibble(final SWMRNibbleArray nibble, final int chunkX, final int chunkY, final int chunkZ, final boolean extrude) {
-        // Upstream guard (Starlight SkyStarLightEngine.initNibble): only
-        // NULL-state nibbles may be initialised. Re-running the full/zero
-        // seeding on an already-initialised nibble would overwrite valid BFS
-        // (or NBT-restored) data — e.g. setZero() on a lit air-gap section.
-        if (!nibble.isNullNibbleUpdating()) {
-            return;
-        }
-        if (chunkY > this.maxSection) {
-            nibble.setFull();
-            return;
-        }
-        if (chunkY < this.minSection) {
-            nibble.setNonNull();
-            nibble.setZero();
-            return;
-        }
-
-        final boolean[] emptinessMap = this.getEmptinessMap(chunkX, chunkZ);
-        int lowestNonEmpty = this.minSection - 1;
-        for (int cy = this.maxSection; cy >= this.minSection; --cy) {
-            if (emptinessMap != null) {
-                if (emptinessMap[cy - this.minSection]) continue;
-            } else {
-                final ExtendedBlockStorage section = this.getChunkSection(chunkX, cy, chunkZ);
-                if (section == null || section.isEmpty()) continue;
-            }
-            lowestNonEmpty = cy;
-            break;
-        }
-
-        if (chunkY > lowestNonEmpty) {
-            nibble.setNonNull();
-            nibble.setFull();
-        } else if (extrude) {
-            // Find the first non-null nibble above and extrude its bottom
-            // (x,z) layer downward (upstream): preserves per-column shadows
-            // under overhangs/partially lit sections, instead of guessing
-            // all-15 or all-0.
-            for (int currY = chunkY + 1; currY <= this.maxLightSection; ++currY) {
-                final SWMRNibbleArray above = this.getNibbleFromCache(chunkX, currY, chunkZ);
-                if (above != null && !above.isNullNibbleUpdating()) {
-                    nibble.setNonNull();
-                    nibble.extrudeLower(above);
-                    break;
-                }
-            }
-        } else {
-            nibble.setNonNull();
-        }
+        this.columnProcessor.initNibble(
+                chunkX, chunkY, chunkZ, extrude, initRemovedNibbles);
     }
 
     @Override
     protected void setNibbleNull(final int chunkX, final int chunkY, final int chunkZ) {
-        final SWMRNibbleArray nib = this.getNibbleFromCache(chunkX, chunkY, chunkZ);
-        if (nib != null) {
-            nib.setNull();
-        }
+        this.columnProcessor.setNibbleNull(chunkX, chunkY, chunkZ);
     }
 
     private void rewriteNibbleCacheForSkylight() {
-        for (int index = 0, max = this.nibbleCache.length; index < max; ++index) {
-            final SWMRNibbleArray nibble = this.nibbleCache[index];
-            if (nibble != null && nibble.isNullNibbleUpdating()) {
-                this.nibbleCache[index] = null;
-                nibble.updateVisible();
-            }
-        }
+        this.columnProcessor.rewriteNibbleCache();
     }
 
     @Override
     protected void prepareBatchedEdgeChecks(final int chunkX, final int chunkZ) {
-        // Upstream SkyStarLightEngine.checkChunkEdges(ShortCollection): the
-        // batched edge-check path must strip NULL nibbles from the cache and
-        // lazily init the sections it will read, or checkBlock writes into
-        // NULL nibbles and cross-boundary propagation reads garbage.
-        Arrays.fill(this.nullPropagationCheckCache, false);
-        this.rewriteNibbleCacheForSkylight();
-        for (int y = this.maxLightSection; y >= this.minLightSection; --y) {
-            this.checkNullSection(chunkX, y, chunkZ, true);
-        }
+        this.columnProcessor.prepareBatchedEdgeChecks(chunkX, chunkZ);
     }
 
     private boolean checkNullSection(final int chunkX, final int chunkY, final int chunkZ, final boolean extrudeInitialised) {
-        if (chunkY < this.minLightSection || chunkY > this.maxLightSection || this.nullPropagationCheckCache[chunkY - this.minLightSection]) {
-            return false;
-        }
-        this.nullPropagationCheckCache[chunkY - this.minLightSection] = true;
-
-        boolean needInitNeighbours = false;
-        neighbour_search:
-        for (int dz = -1; dz <= 1; ++dz) {
-            for (int dx = -1; dx <= 1; ++dx) {
-                final SWMRNibbleArray nibble = this.getNibbleFromCache(dx + chunkX, chunkY, dz + chunkZ);
-                if (nibble != null && !nibble.isNullNibbleUpdating()) {
-                    needInitNeighbours = true;
-                    break neighbour_search;
-                }
-            }
-        }
-
-        if (needInitNeighbours) {
-            for (int dz = -1; dz <= 1; ++dz) {
-                for (int dx = -1; dx <= 1; ++dx) {
-                    this.initNibble(dx + chunkX, chunkY, dz + chunkZ, (dx | dz) != 0 || extrudeInitialised, true);
-                }
-            }
-        }
-
-        return needInitNeighbours;
-    }
-
-    private int getLightLevelExtruded(final int worldX, final int worldY, final int worldZ) {
-        final int chunkX = worldX >> 4;
-        int chunkY = worldY >> 4;
-        final int chunkZ = worldZ >> 4;
-
-        final int idx = chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset;
-        if (this.nibbleCache[idx] != null) {
-            return this.getLightLevel(idx, (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8));
-        }
-
-        while (++chunkY <= this.maxLightSection) {
-            final int nextIdx = chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset;
-            if (this.nibbleCache[nextIdx] != null) {
-                return this.getLightLevel(nextIdx, (worldX & 15) | ((worldZ & 15) << 4));
-            }
-        }
-        return 15;
+        return this.columnProcessor.checkNullSection(
+                chunkX, chunkY, chunkZ, extrudeInitialised);
     }
 
     private int tryPropagateSkylight(final int worldX, int startY, final int worldZ, final boolean extrudeInitialised, final boolean delayLightSet) {
-        final int encodeOffset = this.coordinateOffset;
-        final long propagateDirection = AxisDirection.POSITIVE_Y.everythingButThisDirection;
-
-        final int extrudedLevel = this.getLightLevelExtruded(worldX, startY + 1, worldZ);
-        if (extrudedLevel == 0) {
-            return startY;
-        }
-
-        this.checkNullSection(worldX >> 4, startY >> 4, worldZ >> 4, extrudeInitialised);
-
-        int currentSky = extrudedLevel;
-
-        int aboveInfo = this.lightInfoAt(this.getBlockState(worldX, startY + 1, worldZ), worldX, startY + 1, worldZ);
-
-        for (; startY >= (this.minLightSection << 4); --startY) {
-            if ((startY & 15) == 15) {
-                this.checkNullSection(worldX >> 4, startY >> 4, worldZ >> 4, extrudeInitialised);
-            }
-            final int currentInfo = this.lightInfoAt(this.getBlockState(worldX, startY, worldZ), worldX, startY, worldZ);
-
-            // Check if light can pass DOWN through the above block
-            final int aboveOpacity = LightInfo.opacity(aboveInfo);
-            if (aboveOpacity > 0) {
-                if ((aboveInfo & LightInfo.REGISTRY) == 0 || LightInfo.isFaceSolid(aboveInfo, 5)) {
-                    break;
-                }
-            }
-
-            // Check if light can enter the current block from above
-            final int currentOpacity = LightInfo.opacity(currentInfo);
-            if (currentOpacity > 0) {
-                if ((currentInfo & LightInfo.REGISTRY) == 0 || LightInfo.isFaceSolid(currentInfo, 4)) {
-                    break;
-                }
-            }
-
-            if (currentOpacity > 0) {
-                currentSky -= currentOpacity;
-                if (currentSky <= 0) {
-                    break;
-                }
-            }
-
-            // Speculative append: if the nibble cache slot for this column
-            // position is not loaded we roll back the append below. The
-            // rollback (counter decrement) must be gated on whether the
-            // append actually happened - on queue overflow
-            // appendToIncreaseQueue returns false without incrementing the
-            // counter, so unconditionally rolling back would drive the
-            // counter negative and crash the next BFS drain. See
-            // PulsarEngine.appendToIncreaseQueue javadoc.
-            final long speculativeValue = encodeCoords(worldX, worldZ, startY, encodeOffset)
-                    | this.encodeQueueLevel(currentSky)
-                    | (propagateDirection << DIRECTION_SHIFT)
-                    | sidedFlag(currentInfo);
-            final boolean appended = this.appendToIncreaseQueue(speculativeValue);
-
-            if (this.getNibbleFromCache(worldX >> 4, startY >> 4, worldZ >> 4) == null) {
-                if (appended) {
-                    --this.increaseQueueInitialLength;
-                }
-                startY = startY & ~15;
-                aboveInfo = LightInfo.of(Blocks.AIR.getDefaultState());
-            } else if (!delayLightSet) {
-                this.setLightLevel(worldX, startY, worldZ, currentSky);
-                aboveInfo = currentInfo;
-            } else {
-                aboveInfo = currentInfo;
-            }
-        }
-
-        return startY;
+        return this.columnProcessor.tryPropagateSkylight(
+                worldX, startY, worldZ, extrudeInitialised, delayLightSet);
     }
 
     /**
@@ -292,138 +97,12 @@ public class ScalarSkyEngine extends PulsarEngine {
     @Override
     protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ,
                                                final IntOpenHashSet changedPositions) {
-        this.rewriteNibbleCacheForSkylight();
-        Arrays.fill(this.nullPropagationCheckCache, false);
-
-        final int minBlockY = this.heightContext.getMinBlockY();
-        final int maxBlockY = this.heightContext.getMaxBlockY();
-
-        // Highest changed Y per column (index = x | z<<4), like upstream's
-        // heightMapBlockChange.
-        final int[] columnMaxY = new int[256];
-        Arrays.fill(columnMaxY, Integer.MIN_VALUE);
-        IntIterator it = changedPositions.iterator();
-        while (it.hasNext()) {
-            final int packed = it.nextInt();
-            final int worldY = packed >> 8;
-            if (worldY < minBlockY || worldY > maxBlockY) {
-                continue;
-            }
-            final int col = packed & 255;
-            if (worldY > columnMaxY[col]) {
-                columnMaxY[col] = worldY;
-            }
-        }
-
-        final long propagateDirection = AxisDirection.POSITIVE_Y.everythingButThisDirection;
-        final int encodeOffset = this.coordinateOffset;
-
-        for (int col = 0; col < 256; ++col) {
-            final int maxY = columnMaxY[col];
-            if (maxY == Integer.MIN_VALUE) {
-                continue;
-            }
-            final int worldX = (chunkX << 4) | (col & 15);
-            final int worldZ = (chunkZ << 4) | (col >> 4);
-
-            final int maxPropagationY = this.tryPropagateSkylight(worldX, maxY, worldZ, true, true);
-
-            if (this.getLightLevelExtruded(worldX, maxPropagationY, worldZ) == 15) {
-                this.checkNullSection(worldX >> 4, maxPropagationY >> 4, worldZ >> 4, true);
-                for (int currY = maxPropagationY; currY >= (this.minLightSection << 4); --currY) {
-                    if ((currY & 15) == 15) {
-                        this.checkNullSection(worldX >> 4, currY >> 4, worldZ >> 4, true);
-                    }
-                    final SWMRNibbleArray nib = this.nibbleCache[(worldX >> 4) + 5 * (worldZ >> 4)
-                            + (5 * 5) * (currY >> 4) + this.chunkSectionIndexOffset];
-                    if (nib == null) {
-                        currY = currY & ~15;
-                        continue;
-                    }
-                    if (this.getLightLevel(worldX, currY, worldZ) != 15) {
-                        break;
-                    }
-                    this.appendToDecreaseQueue(encodeCoords(worldX, worldZ, currY, encodeOffset)
-                            | this.encodeQueueLevel(15)
-                            | (propagateDirection << DIRECTION_SHIFT));
-                }
-            }
-        }
-
-        this.applyDelayedQueue(this.increaseQueue, this.increaseQueueInitialLength, true);
-        this.applyDelayedQueue(this.decreaseQueue, this.decreaseQueueInitialLength, false);
-
-        it = changedPositions.iterator();
-        while (it.hasNext()) {
-            final int packed = it.nextInt();
-            final int worldY = packed >> 8;
-            if (worldY < minBlockY || worldY > maxBlockY) {
-                continue;
-            }
-            this.lastPositionsProcessed++;
-            this.checkBlock((chunkX << 4) | (packed & 15), worldY, (chunkZ << 4) | ((packed >> 4) & 15));
-        }
-
-        this.performLightDecrease();
+        this.columnProcessor.processBlockPositionChanges(chunkX, chunkZ, changedPositions);
     }
 
     @Override
     protected void propagateBlockChanges(final Chunk atChunk, final int blockX, final int blockY, final int blockZ) {
-        this.rewriteNibbleCacheForSkylight();
-        Arrays.fill(this.nullPropagationCheckCache, false);
-
-        final int maxPropagationY = this.tryPropagateSkylight(blockX, blockY, blockZ, true, true);
-
-        final long propagateDirection = AxisDirection.POSITIVE_Y.everythingButThisDirection;
-        final int encodeOffset = this.coordinateOffset;
-
-        final int extrudedLevel = this.getLightLevelExtruded(blockX, maxPropagationY, blockZ);
-        if (extrudedLevel == 15) {
-            this.checkNullSection(blockX >> 4, maxPropagationY >> 4, blockZ >> 4, true);
-
-            for (int currY = maxPropagationY; currY >= (this.minLightSection << 4); --currY) {
-                if ((currY & 15) == 15) {
-                    this.checkNullSection(blockX >> 4, currY >> 4, blockZ >> 4, true);
-                }
-
-                final SWMRNibbleArray nib = this.nibbleCache[(blockX >> 4) + 5 * (blockZ >> 4) + (5 * 5) * (currY >> 4) + this.chunkSectionIndexOffset];
-                if (nib == null) {
-                    currY = currY & ~15;
-                    continue;
-                }
-
-                final int currentLevel = this.getLightLevel(blockX, currY, blockZ);
-                if (currentLevel != 15) {
-                    break;
-                }
-
-                this.appendToDecreaseQueue(encodeCoords(blockX, blockZ, currY, encodeOffset)
-                        | this.encodeQueueLevel(15)
-                        | (propagateDirection << DIRECTION_SHIFT));
-            }
-        }
-
-        this.applyDelayedQueue(this.increaseQueue, this.increaseQueueInitialLength, true);
-        this.applyDelayedQueue(this.decreaseQueue, this.decreaseQueueInitialLength, false);
-
-        this.checkBlock(blockX, blockY, blockZ);
-
-        this.performLightDecrease();
-    }
-
-    private void applyDelayedQueue(final long[] queue, final int len, final boolean useLevel) {
-        final int decodeOffsetX = -this.encodeOffsetX;
-        final int decodeOffsetY = -this.encodeOffsetY;
-        final int decodeOffsetZ = -this.encodeOffsetZ;
-
-        for (int i = 0; i < len; ++i) {
-            final long queueValue = queue[i];
-            final int posX = ((int) queueValue & 63) + decodeOffsetX;
-            final int posZ = (((int) queueValue >>> 6) & 63) + decodeOffsetZ;
-            final int posY = (((int) queueValue >>> 12) & 0xFFFF) + decodeOffsetY;
-            final int level = useLevel ? (int) ((queueValue >>> LIGHT_LEVEL_SHIFT) & 0xF) : 0;
-            this.setLightLevel(posX, posY, posZ, level);
-        }
+        this.columnProcessor.propagateBlockChange(blockX, blockY, blockZ);
     }
 
     @Override
@@ -499,7 +178,7 @@ public class ScalarSkyEngine extends PulsarEngine {
     @Override
     protected void lightChunk(final Chunk chunk, final boolean needsEdgeChecks) {
         this.rewriteNibbleCacheForSkylight();
-        Arrays.fill(this.nullPropagationCheckCache, false);
+        this.columnProcessor.resetNullPropagationChecks();
 
         final int chunkX = chunk.x;
         final int chunkZ = chunk.z;
@@ -577,7 +256,7 @@ public class ScalarSkyEngine extends PulsarEngine {
 
     @Override
     protected void checkChunkEdges(final Chunk chunk, final int fromSection, final int toSection) {
-        Arrays.fill(this.nullPropagationCheckCache, false);
+        this.columnProcessor.resetNullPropagationChecks();
         this.rewriteNibbleCacheForSkylight();
 
         final int chunkX = chunk.x;

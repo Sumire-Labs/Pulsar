@@ -9,6 +9,8 @@
     "MixinBlockStairsFaceLight",
     "MixinBlockStateImplementation",
     "MixinChunk",
+    "MixinChunkSectionChanges",
+    "MixinChunkVanillaLighting",
     "MixinWorld",
     "MixinWorldEntitySpawner"
   ],

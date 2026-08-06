@@ -1,18 +1,13 @@
 package com.sumirelabs.pulsar.light.engine;
 
 import com.sumirelabs.pulsar.Pulsar;
-import com.sumirelabs.pulsar.api.ExtendedWorld;
-import com.sumirelabs.pulsar.compat.FluidLightBridge;
 import com.sumirelabs.pulsar.light.LightStats;
-import com.sumirelabs.pulsar.light.RenderBounds;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
@@ -40,7 +35,10 @@ import java.util.List;
  *   bit  63     : FLAG_HAS_SIDED_TRANSPARENT_BLOCKS
  * </pre>
  */
-public abstract class PulsarEngine {
+public abstract class PulsarEngine extends LightEngineCache {
+
+    private final LightSectionProcessor sectionProcessor;
+    protected final boolean skylightPropagator;
 
     protected static final AxisDirection[] AXIS_DIRECTIONS = AxisDirection.values();
     protected static final AxisDirection[] ONLY_HORIZONTAL_DIRECTIONS = new AxisDirection[]{
@@ -89,17 +87,6 @@ public abstract class PulsarEngine {
         }
     }
 
-    // index = x + (z * 5) + (y * 25), where x,z are [-2,2] offset from center chunk, y is light section
-    protected final ExtendedBlockStorage[] sectionCache;
-    protected final SWMRNibbleArray[] nibbleCache;
-    protected final boolean[] notifyUpdateCache;
-    // Per-section changed-block bounds (RenderBounds packing). Only valid
-    // where notifyUpdateCache is true; overwritten on the first write to a
-    // section, so no reset is needed beyond the flags.
-    protected final long[] notifyBoundsCache;
-    protected final Chunk[] chunkCache = new Chunk[5 * 5];
-    protected final boolean[][] emptinessMapCache = new boolean[5 * 5][];
-
     // Pool for int[4096] arrays — avoids allocation churn during BFS
     protected static final ThreadLocal<ArrayDeque<int[]>> PACKED_ARRAY_POOL = ThreadLocal.withInitial(ArrayDeque::new);
 
@@ -114,34 +101,10 @@ public abstract class PulsarEngine {
         }
     }
 
-    protected int encodeOffsetX;
-    protected int encodeOffsetY;
-    protected int encodeOffsetZ;
-    protected int coordinateOffset;
-    protected int chunkOffsetX;
-    protected int chunkOffsetY;
-    protected int chunkOffsetZ;
-    protected int chunkIndexOffset;
-    protected int chunkSectionIndexOffset;
-
-    protected final boolean skylightPropagator;
-    protected final boolean isClientSide;
-    protected final World world;
-    protected final WorldHeightContext heightContext;
-    // One engine instance processes one task at a time. Reuse its position for
-    // the rare Forge context callbacks instead of allocating in BFS loops.
-    private final BlockPos.MutableBlockPos contextualLightPos = new BlockPos.MutableBlockPos();
-    protected LightStats stats;
-
     // Diagnostic counters — accumulated across propagateBlockChanges calls
     public int lastBfsIncreaseTotal;
     public int lastBfsDecreaseTotal;
     public int lastPositionsProcessed;
-    protected final int minLightSection;
-    protected final int maxLightSection;
-    protected final int minSection;
-    protected final int maxSection;
-
     // Queue entry constants — see class javadoc
     protected static final int COORD_X_BITS = 6;
     protected static final int COORD_Z_BITS = 6;
@@ -163,236 +126,24 @@ public abstract class PulsarEngine {
         return (lightInfo & LightInfo.REGISTRY) != 0 ? FLAG_HAS_SIDED_TRANSPARENT_BLOCKS : 0L;
     }
 
-    public void setStats(final LightStats stats) {
-        this.stats = stats;
-    }
-
     protected PulsarEngine(final boolean skylightPropagator, final World world,
                            final WorldHeightContext heightContext) {
+        super(world, heightContext);
         this.skylightPropagator = skylightPropagator;
-        this.isClientSide = world.isRemote;
-        this.world = world;
-        this.heightContext = heightContext;
-        this.minLightSection = heightContext.getMinLightSection();
-        this.maxLightSection = heightContext.getMaxLightSection();
-        this.minSection = heightContext.getMinSection();
-        this.maxSection = heightContext.getMaxSection();
-
-        final int totalLightSections = (this.maxLightSection - this.minLightSection + 1) + 2; // buffer
-        final int cacheSize = 5 * 5 * totalLightSections;
-        this.sectionCache = new ExtendedBlockStorage[cacheSize];
-        this.nibbleCache = new SWMRNibbleArray[cacheSize];
-        this.notifyUpdateCache = new boolean[cacheSize];
-        this.notifyBoundsCache = new long[cacheSize];
+        this.sectionProcessor = new LightSectionProcessor(this);
     }
 
-    protected final void setupEncodeOffset(final int centerX, final int centerY, final int centerZ) {
-        this.encodeOffsetX = 31 - centerX;
-        this.encodeOffsetY = (-(this.minLightSection - 1) << 4);
-        this.encodeOffsetZ = 31 - centerZ;
-        this.coordinateOffset = this.encodeOffsetX + (this.encodeOffsetZ << 6) + (this.encodeOffsetY << 12);
-        this.chunkOffsetX = 2 - (centerX >> 4);
-        this.chunkOffsetY = -(this.minLightSection - 1);
-        this.chunkOffsetZ = 2 - (centerZ >> 4);
-        this.chunkIndexOffset = this.chunkOffsetX + (5 * this.chunkOffsetZ);
-        this.chunkSectionIndexOffset = this.chunkIndexOffset + ((5 * 5) * this.chunkOffsetY);
+    @Override
+    public void setStats(final LightStats stats) {
+        super.setStats(stats);
     }
 
-    protected final void setupCaches(final int centerX, final int centerY, final int centerZ, final boolean relaxed, final boolean tryToLoadChunksFor2Radius) {
-        // Reset per-task state at ENTRY, not in destroyCaches: the overflow
-        // flag must survive until WorldLightManager reads it after the task
-        // returns, and stale queue lengths must not leak into the next task
-        // after a swallowed exception.
+    @Override
+    protected final void resetTaskState() {
         this.queueOverflowed = false;
         this.queueOverflowWarned = false;
         this.increaseQueueInitialLength = 0;
         this.decreaseQueueInitialLength = 0;
-
-        final int centerChunkX = centerX >> 4;
-        final int centerChunkZ = centerZ >> 4;
-
-        this.setupEncodeOffset(centerChunkX * 16 + 7, centerY, centerChunkZ * 16 + 7);
-
-        final int radius = tryToLoadChunksFor2Radius ? 2 : 1;
-
-        for (int dz = -radius; dz <= radius; ++dz) {
-            for (int dx = -radius; dx <= radius; ++dx) {
-                final int cx = centerChunkX + dx;
-                final int cz = centerChunkZ + dz;
-                final boolean isTwoRadius = Math.max(Math.abs(dx), Math.abs(dz)) == 2;
-                final Chunk chunk = ((ExtendedWorld) this.world).pulsar$getAnyChunkImmediately(cx, cz);
-
-                if (chunk == null) {
-                    if (relaxed | isTwoRadius) {
-                        continue;
-                    }
-                    throw new IllegalArgumentException("Trying to propagate light update before 1 radius neighbours ready");
-                }
-
-                if (!this.canUseChunk(chunk)) {
-                    continue;
-                }
-
-                this.setChunkInCache(cx, cz, chunk);
-                if (FluidLightBridge.LOADED) {
-                    this.fluidCapCache[cx + 5 * cz + this.chunkIndexOffset] = FluidLightBridge.capabilityOf(chunk);
-                }
-                this.setEmptinessMapCache(cx, cz, this.getEmptinessMap(chunk));
-                if (!isTwoRadius) {
-                    this.setBlocksForChunkInCache(cx, cz, chunk.getBlockStorageArray());
-                    this.setNibblesForChunkInCache(cx, cz, this.getNibblesOnChunk(chunk));
-                }
-            }
-        }
-    }
-
-    protected final Chunk getChunkInCache(final int chunkX, final int chunkZ) {
-        return this.chunkCache[chunkX + 5 * chunkZ + this.chunkIndexOffset];
-    }
-
-    protected final void setChunkInCache(final int chunkX, final int chunkZ, final Chunk chunk) {
-        this.chunkCache[chunkX + 5 * chunkZ + this.chunkIndexOffset] = chunk;
-    }
-
-    /**
-     * Fluidlogged-API chunk capabilities, parallel to the chunk cache (all null when the mod is absent).
-     */
-    protected final Object[] fluidCapCache = new Object[5 * 5];
-
-    /**
-     * Packed light info for {@code state} at a world position: normally the
-     * per-state cache, with Forge's context methods resolved only for block
-     * classes that override them. When Fluidlogged API is installed, the
-     * fluid stored at that position is max'd in too (opacity/emission,
-     * uniform faces), mirroring Fluidlogged's vanilla-engine patches.
-     */
-    protected final int lightInfoAt(final IBlockState state, final int worldX, final int worldY, final int worldZ) {
-        int info = LightInfo.of(state);
-        if (LightInfo.hasContextualValues(info)) {
-            info = LightInfo.resolveContextual(
-                    info, state, this.world, this.contextualLightPos, worldX, worldY, worldZ);
-        }
-        if (!FluidLightBridge.LOADED) {
-            return info;
-        }
-        final Object cap = this.fluidCapCache[(worldX >> 4) + 5 * (worldZ >> 4) + this.chunkIndexOffset];
-        return cap == null ? info : FluidLightBridge.merge(
-                info, cap, worldX, worldY, worldZ, this.world, this.contextualLightPos);
-    }
-
-    protected final ExtendedBlockStorage getChunkSection(final int chunkX, final int chunkY, final int chunkZ) {
-        return this.sectionCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
-    }
-
-    protected final void setChunkSectionInCache(final int chunkX, final int chunkY, final int chunkZ, final ExtendedBlockStorage section) {
-        this.sectionCache[chunkX + 5 * chunkZ + 5 * 5 * chunkY + this.chunkSectionIndexOffset] = section;
-    }
-
-    protected final void setBlocksForChunkInCache(final int chunkX, final int chunkZ, final ExtendedBlockStorage[] sections) {
-        for (int cy = this.minLightSection; cy <= this.maxLightSection; ++cy) {
-            final int storageIndex = this.heightContext.getStorageIndex(cy);
-            final ExtendedBlockStorage section = sections == null || storageIndex < 0 || storageIndex >= sections.length
-                    ? null : sections[storageIndex];
-            this.sectionCache[chunkX + 5 * chunkZ + 5 * 5 * cy + this.chunkSectionIndexOffset] = section;
-        }
-    }
-
-    protected final SWMRNibbleArray getNibbleFromCache(final int chunkX, final int chunkY, final int chunkZ) {
-        return this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
-    }
-
-    protected final void setNibbleInCache(final int chunkX, final int chunkY, final int chunkZ, final SWMRNibbleArray nibble) {
-        this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset] = nibble;
-    }
-
-    protected final void setNibblesForChunkInCache(final int chunkX, final int chunkZ, final SWMRNibbleArray[] nibbles) {
-        for (int cy = this.minLightSection; cy <= this.maxLightSection; ++cy) {
-            this.setNibbleInCache(chunkX, cy, chunkZ, nibbles == null ? null : nibbles[cy - this.minLightSection]);
-        }
-    }
-
-    protected final boolean[] getEmptinessMap(final int chunkX, final int chunkZ) {
-        return this.emptinessMapCache[chunkX + 5 * chunkZ + this.chunkIndexOffset];
-    }
-
-    protected final void setEmptinessMapCache(final int chunkX, final int chunkZ, final boolean[] emptinessMap) {
-        this.emptinessMapCache[chunkX + 5 * chunkZ + this.chunkIndexOffset] = emptinessMap;
-    }
-
-    protected final void updateVisible() {
-        for (int index = 0, max = this.nibbleCache.length; index < max; ++index) {
-            final SWMRNibbleArray nibble = this.nibbleCache[index];
-            final boolean notify = this.notifyUpdateCache[index];
-            if (!notify && (nibble == null || !nibble.isDirty())) {
-                continue;
-            }
-            if (nibble != null) {
-                nibble.updateVisible();
-            }
-            this.onNibbleVisible(index, nibble);
-            if (notify && this.isClientSide) {
-                final int cxLocal = index % 5;
-                final int czLocal = (index / 5) % 5;
-                final int cyLocal = index / 25;
-                final long bounds = this.notifyBoundsCache[index];
-                // Mark only the actually-changed range. Vanilla inflates it
-                // by 1 block, which covers cross-section AO/smooth-light
-                // bleed — no manual neighbour expansion needed.
-                final int sectionX = (cxLocal - this.chunkOffsetX) << 4;
-                final int sectionY = (cyLocal - this.chunkOffsetY) << 4;
-                final int sectionZ = (czLocal - this.chunkOffsetZ) << 4;
-                final int minX = sectionX + RenderBounds.minX(bounds);
-                final int minY = sectionY + RenderBounds.minY(bounds);
-                final int minZ = sectionZ + RenderBounds.minZ(bounds);
-                final int maxX = sectionX + RenderBounds.maxX(bounds);
-                final int maxY = sectionY + RenderBounds.maxY(bounds);
-                final int maxZ = sectionZ + RenderBounds.maxZ(bounds);
-                this.world.markBlockRangeForRenderUpdate(minX, minY, minZ, maxX, maxY, maxZ);
-                if (LightStats.enabled) LightStats.engineRenderMarks++;
-            }
-        }
-    }
-
-    protected final void destroyCaches() {
-        Arrays.fill(this.sectionCache, null);
-        Arrays.fill(this.nibbleCache, null);
-        Arrays.fill(this.chunkCache, null);
-        Arrays.fill(this.emptinessMapCache, null);
-        Arrays.fill(this.fluidCapCache, null);
-        if (this.isClientSide) {
-            Arrays.fill(this.notifyUpdateCache, false);
-        }
-    }
-
-    /**
-     * Look up the {@link IBlockState} at the given world position via the
-     * 5×5 cache. Returns air if the section is unloaded.
-     */
-    protected final IBlockState getBlockState(final int worldX, final int worldY, final int worldZ) {
-        final int sectionIndex = (worldX >> 4) + 5 * (worldZ >> 4) + (5 * 5) * (worldY >> 4) + this.chunkSectionIndexOffset;
-        final ExtendedBlockStorage section = this.sectionCache[sectionIndex];
-        if (section == null) return Blocks.AIR.getDefaultState();
-        return section.get(worldX & 15, worldY & 15, worldZ & 15);
-    }
-
-    /**
-     * Look up the {@link IBlockState} at the given section + local coordinates
-     * (skips the section index recomputation).
-     */
-    protected final IBlockState getBlockStateFast(final int sectionIndex, final int x, final int y, final int z) {
-        final ExtendedBlockStorage section = this.sectionCache[sectionIndex];
-        if (section == null) return Blocks.AIR.getDefaultState();
-        return section.get(x, y, z);
-    }
-
-    protected int getLightLevel(final int worldX, final int worldY, final int worldZ) {
-        final SWMRNibbleArray nibble = this.nibbleCache[(worldX >> 4) + 5 * (worldZ >> 4) + (5 * 5) * (worldY >> 4) + this.chunkSectionIndexOffset];
-        return nibble == null ? 0 : nibble.getUpdating((worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8));
-    }
-
-    protected int getLightLevel(final int sectionIndex, final int localIndex) {
-        final SWMRNibbleArray nibble = this.nibbleCache[sectionIndex];
-        return nibble == null ? 0 : nibble.getUpdating(localIndex);
     }
 
     protected long encodeQueueLevel(final int level) {
@@ -405,50 +156,6 @@ public abstract class PulsarEngine {
 
     protected boolean isBelowPropagationThreshold(final int level) {
         return level <= 1;
-    }
-
-    protected void setLightLevel(final int worldX, final int worldY, final int worldZ, final int level) {
-        final int sectionIndex = (worldX >> 4) + 5 * (worldZ >> 4) + (5 * 5) * (worldY >> 4) + this.chunkSectionIndexOffset;
-        final SWMRNibbleArray nibble = this.nibbleCache[sectionIndex];
-        if (nibble != null) {
-            final int localIndex = (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8);
-            // Skip no-op writes entirely. The sky column walk in particular
-            // rewrites whole columns with unchanged values; writing them
-            // would mark the nibble dirty (2KB vanilla sync per section) and
-            // grow the render-notify bounds (section rebuilds for renders
-            // that would look identical). Alfheim/vanilla only notify actual
-            // changes — this matches that.
-            if (nibble.getUpdating(localIndex) == level) {
-                return;
-            }
-            nibble.set(localIndex, level);
-            this.postLightUpdate(sectionIndex, worldX & 15, worldY & 15, worldZ & 15);
-        }
-    }
-
-    /**
-     * Record a light write for render notification, growing the section's
-     * changed-block bounds. Client only; server-side this is a single branch.
-     */
-    protected final void postLightUpdate(final int sectionIndex, final int localX, final int localY, final int localZ) {
-        if (this.isClientSide) {
-            final long point = RenderBounds.pack(localX, localY, localZ, localX, localY, localZ);
-            if (!this.notifyUpdateCache[sectionIndex]) {
-                this.notifyUpdateCache[sectionIndex] = true;
-                this.notifyBoundsCache[sectionIndex] = point;
-            } else {
-                this.notifyBoundsCache[sectionIndex] = RenderBounds.union(this.notifyBoundsCache[sectionIndex], point);
-            }
-        }
-    }
-
-    protected final SWMRNibbleArray[] getFilledEmptyLight() {
-        final int totalLightSections = this.heightContext.getTotalLightSections();
-        final SWMRNibbleArray[] ret = new SWMRNibbleArray[totalLightSections];
-        for (int i = 0, len = ret.length; i < len; ++i) {
-            ret[i] = new SWMRNibbleArray(null, true);
-        }
-        return ret;
     }
 
     public static Boolean[] getEmptySectionsForChunk(final Chunk chunk) {
@@ -465,15 +172,18 @@ public abstract class PulsarEngine {
         return ret;
     }
 
-    protected abstract boolean[] getEmptinessMap(final Chunk chunk);
-
     protected abstract void setEmptinessMap(final Chunk chunk, final boolean[] to);
 
+    @Override
+    protected abstract boolean[] getEmptinessMap(final Chunk chunk);
+
+    @Override
     protected abstract SWMRNibbleArray[] getNibblesOnChunk(final Chunk chunk);
 
-    protected abstract void setNibbles(final Chunk chunk, final SWMRNibbleArray[] to);
-
+    @Override
     protected abstract boolean canUseChunk(final Chunk chunk);
+
+    protected abstract void setNibbles(final Chunk chunk, final SWMRNibbleArray[] to);
 
     protected abstract void initNibble(final int chunkX, final int chunkY, final int chunkZ, final boolean extrude, final boolean initRemovedNibbles);
 
@@ -687,278 +397,29 @@ public abstract class PulsarEngine {
      * unchanged sections.
      */
     protected final boolean[] handleEmptySectionChanges(final Chunk chunk, final Boolean[] emptinessChanges, final boolean unlit) {
-        final int chunkX = chunk.x;
-        final int chunkZ = chunk.z;
-
-        boolean[] chunkEmptinessMap = this.getEmptinessMap(chunkX, chunkZ);
-        boolean[] ret = null;
-        final boolean needsInit = unlit || chunkEmptinessMap == null;
-
-        if (needsInit) {
-            this.setEmptinessMapCache(chunkX, chunkZ,
-                    ret = chunkEmptinessMap = new boolean[this.heightContext.getTotalSections()]);
-        }
-
-        // update emptiness map
-        for (int sectionIndex = (emptinessChanges.length - 1); sectionIndex >= 0; --sectionIndex) {
-            Boolean valueBoxed = emptinessChanges[sectionIndex];
-            if (valueBoxed == null) {
-                if (!needsInit) {
-                    continue;
-                }
-                final ExtendedBlockStorage section = this.getChunkSection(chunkX, sectionIndex + this.minSection, chunkZ);
-                emptinessChanges[sectionIndex] = valueBoxed = section == null || section.isEmpty() ? Boolean.TRUE : Boolean.FALSE;
-            }
-            chunkEmptinessMap[sectionIndex] = valueBoxed;
-        }
-
-        // init neighbour nibbles for non-empty sections
-        for (int sectionIndex = (emptinessChanges.length - 1); sectionIndex >= 0; --sectionIndex) {
-            final Boolean valueBoxed = emptinessChanges[sectionIndex];
-            final int sectionY = sectionIndex + this.minSection;
-            if (valueBoxed == null || valueBoxed) {
-                continue;
-            }
-            for (int dz = -1; dz <= 1; ++dz) {
-                for (int dx = -1; dx <= 1; ++dx) {
-                    final boolean extrude = (dx | dz) != 0 || !unlit;
-                    for (int dy = 1; dy >= -1; --dy) {
-                        this.initNibble(dx + chunkX, dy + sectionY, dz + chunkZ, extrude, false);
-                    }
-                }
-            }
-        }
-
-        // check for de-init and lazy-init
-        for (int dz = -1; dz <= 1; ++dz) {
-            for (int dx = -1; dx <= 1; ++dx) {
-                boolean neighboursLoaded = true;
-                neighbour_loaded_search:
-                for (int dz2 = -1; dz2 <= 1; ++dz2) {
-                    for (int dx2 = -1; dx2 <= 1; ++dx2) {
-                        if (this.getEmptinessMap(dx + dx2 + chunkX, dz + dz2 + chunkZ) == null) {
-                            neighboursLoaded = false;
-                            break neighbour_loaded_search;
-                        }
-                    }
-                }
-
-                for (int sectionY = this.maxLightSection; sectionY >= this.minLightSection; --sectionY) {
-                    boolean allEmpty = true;
-                    neighbour_search:
-                    for (int dy2 = -1; dy2 <= 1; ++dy2) {
-                        for (int dz2 = -1; dz2 <= 1; ++dz2) {
-                            for (int dx2 = -1; dx2 <= 1; ++dx2) {
-                                final int y = sectionY + dy2;
-                                if (y < this.minSection || y > this.maxSection) {
-                                    continue;
-                                }
-                                final boolean[] emptinessMap = this.getEmptinessMap(dx + dx2 + chunkX, dz + dz2 + chunkZ);
-                                if (emptinessMap != null) {
-                                    if (!emptinessMap[y - this.minSection]) {
-                                        allEmpty = false;
-                                        break neighbour_search;
-                                    }
-                                } else {
-                                    final ExtendedBlockStorage section = this.getChunkSection(dx + dx2 + chunkX, y, dz + dz2 + chunkZ);
-                                    if (section != null && !section.isEmpty()) {
-                                        allEmpty = false;
-                                        break neighbour_search;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (allEmpty & neighboursLoaded) {
-                        this.setNibbleNull(dx + chunkX, sectionY, dz + chunkZ);
-                    } else if (!allEmpty) {
-                        final boolean extrude = (dx | dz) != 0 || !unlit;
-                        this.initNibble(dx + chunkX, sectionY, dz + chunkZ, extrude, false);
-                    }
-                }
-            }
-        }
-
-        return ret;
+        return this.sectionProcessor.handleEmptySectionChanges(chunk, emptinessChanges, unlit);
     }
 
     protected void checkChunkEdge(final int chunkX, final int chunkY, final int chunkZ) {
-        final int currIdx = chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset;
-        final SWMRNibbleArray currNibble = this.nibbleCache[currIdx];
-        if (currNibble == null) {
-            return;
-        }
-
-        final LightStats s = this.stats;
-
-        for (final AxisDirection direction : ONLY_HORIZONTAL_DIRECTIONS) {
-            final int neighbourOffX = direction.x;
-            final int neighbourOffZ = direction.z;
-
-            final int nIdx = (chunkX + neighbourOffX) + 5 * (chunkZ + neighbourOffZ) + (5 * 5) * chunkY + this.chunkSectionIndexOffset;
-            final SWMRNibbleArray neighbourNibble = this.nibbleCache[nIdx];
-            if (neighbourNibble == null) {
-                continue;
-            }
-            if (!currNibble.isInitialisedUpdating() && !neighbourNibble.isInitialisedUpdating()) {
-                continue;
-            }
-            if (this.areBothEdgeSectionsFull(currIdx, nIdx)) {
-                if (s != null) s.edgeSectionPairsSkippedFull.incrementAndGet();
-                continue;
-            }
-            if (this.areBothEdgeSectionsZero(currIdx, nIdx)) {
-                if (s != null) s.edgeSectionPairsSkippedZero.incrementAndGet();
-                continue;
-            }
-
-            if (s != null) s.edgeSectionPairsChecked.incrementAndGet();
-
-            final int incX, incZ, startX, startZ;
-            if (neighbourOffX != 0) {
-                incX = 0;
-                incZ = 1;
-                startX = direction.x < 0 ? chunkX << 4 : chunkX << 4 | 15;
-                startZ = chunkZ << 4;
-            } else {
-                incX = 1;
-                incZ = 0;
-                startZ = neighbourOffZ < 0 ? chunkZ << 4 : chunkZ << 4 | 15;
-                startX = chunkX << 4;
-            }
-
-            int centerDelayedChecks = 0;
-            int neighbourDelayedChecks = 0;
-            int blocksTrivial = 0;
-            int blocksConsistency = 0;
-            int blocksRecalc = 0;
-            int blocksMismatch = 0;
-            for (int currY = chunkY << 4, maxY = currY | 15; currY <= maxY; ++currY) {
-                for (int i = 0, currX = startX, currZ = startZ; i < 16; ++i, currX += incX, currZ += incZ) {
-                    final int neighbourX = currX + neighbourOffX;
-                    final int neighbourZ = currZ + neighbourOffZ;
-
-                    final int currentIndex = (currX & 15) | ((currZ & 15) << 4) | ((currY & 15) << 8);
-                    final int currentLevel = this.getLightLevel(currIdx, currentIndex);
-
-                    final int neighbourIndex = (neighbourX & 15) | ((neighbourZ & 15) << 4) | ((currY & 15) << 8);
-                    final int neighbourLevel = this.getLightLevel(nIdx, neighbourIndex);
-
-                    if (currentLevel == 0 && neighbourLevel == 0) {
-                        blocksTrivial++;
-                        continue;
-                    }
-                    // NOTE: no |cur - nb| <= 1 "consistency" skip here — it is
-                    // only a valid proof when the seam absorption is exactly 1;
-                    // for opacity > 1 blocks it accepted values upstream's
-                    // unconditional recalculation would repair.
-
-                    blocksRecalc += 2;
-                    if (this.calculateLightValue(currX, currY, currZ, currentLevel) != currentLevel) {
-                        this.chunkCheckDelayedUpdatesCenter[centerDelayedChecks++] = currentIndex;
-                        blocksMismatch++;
-                    }
-                    if (this.calculateLightValue(neighbourX, currY, neighbourZ, neighbourLevel) != neighbourLevel) {
-                        this.chunkCheckDelayedUpdatesNeighbour[neighbourDelayedChecks++] = neighbourIndex;
-                        blocksMismatch++;
-                    }
-                }
-            }
-
-            if (s != null) {
-                s.edgeBlocksTotal.addAndGet(256);
-                s.edgeBlocksSkippedTrivial.addAndGet(blocksTrivial);
-                s.edgeBlocksSkippedConsistency.addAndGet(blocksConsistency);
-                s.edgeBlocksRecalculated.addAndGet(blocksRecalc);
-                s.edgeBlocksMismatched.addAndGet(blocksMismatch);
-            }
-
-            final int currentChunkOffX = chunkX << 4;
-            final int currentChunkOffZ = chunkZ << 4;
-            final int neighbourChunkOffX = (chunkX + direction.x) << 4;
-            final int neighbourChunkOffZ = (chunkZ + direction.z) << 4;
-            final int chunkOffY = chunkY << 4;
-            for (int i = 0, len = Math.max(centerDelayedChecks, neighbourDelayedChecks); i < len; ++i) {
-                if (i < centerDelayedChecks) {
-                    final int value = this.chunkCheckDelayedUpdatesCenter[i];
-                    this.checkBlock(currentChunkOffX | (value & 15), chunkOffY | (value >>> 8), currentChunkOffZ | ((value >>> 4) & 0xF));
-                }
-                if (i < neighbourDelayedChecks) {
-                    final int value = this.chunkCheckDelayedUpdatesNeighbour[i];
-                    this.checkBlock(neighbourChunkOffX | (value & 15), chunkOffY | (value >>> 8), neighbourChunkOffZ | ((value >>> 4) & 0xF));
-                }
-            }
-        }
+        this.sectionProcessor.checkChunkEdge(chunkX, chunkY, chunkZ);
     }
 
-    protected boolean areBothEdgeSectionsFull(final int currIdx, final int nIdx) {
-        return this.nibbleCache[currIdx].isFullUpdating() && this.nibbleCache[nIdx].isFullUpdating();
+    protected boolean areBothEdgeSectionsFull(final int currentIndex, final int neighbourIndex) {
+        return this.nibbleCache[currentIndex].isFullUpdating()
+                && this.nibbleCache[neighbourIndex].isFullUpdating();
     }
 
-    protected boolean areBothEdgeSectionsZero(final int currIdx, final int nIdx) {
-        return this.nibbleCache[currIdx].isZeroUpdating() && this.nibbleCache[nIdx].isZeroUpdating();
+    protected boolean areBothEdgeSectionsZero(final int currentIndex, final int neighbourIndex) {
+        return this.nibbleCache[currentIndex].isZeroUpdating()
+                && this.nibbleCache[neighbourIndex].isZeroUpdating();
     }
 
     protected void checkChunkEdges(final Chunk chunk, final int fromSection, final int toSection) {
-        for (int currSectionY = toSection; currSectionY >= fromSection; --currSectionY) {
-            this.checkChunkEdge(chunk.x, currSectionY, chunk.z);
-        }
-        this.performLightDecrease();
+        this.sectionProcessor.checkChunkEdges(chunk, fromSection, toSection);
     }
 
     protected void propagateNeighbourLevels(final Chunk chunk, final int fromSection, final int toSection) {
-        final int chunkX = chunk.x;
-        final int chunkZ = chunk.z;
-        final int dirShift = this.getDirectionShift();
-
-        for (int currSectionY = toSection; currSectionY >= fromSection; --currSectionY) {
-            final SWMRNibbleArray currNibble = this.getNibbleFromCache(chunkX, currSectionY, chunkZ);
-            if (currNibble == null) {
-                continue;
-            }
-            for (final AxisDirection direction : ONLY_HORIZONTAL_DIRECTIONS) {
-                final int neighbourOffX = direction.x;
-                final int neighbourOffZ = direction.z;
-
-                final int nIdx = (chunkX + neighbourOffX) + 5 * (chunkZ + neighbourOffZ) + (5 * 5) * currSectionY + this.chunkSectionIndexOffset;
-                if (this.nibbleCache[nIdx] == null || !this.nibbleCache[nIdx].isInitialisedUpdating()) {
-                    continue;
-                }
-
-                final int incX, incZ, startX, startZ;
-                if (neighbourOffX != 0) {
-                    incX = 0;
-                    incZ = 1;
-                    startX = direction.x < 0 ? (chunkX << 4) - 1 : (chunkX << 4) + 16;
-                    startZ = chunkZ << 4;
-                } else {
-                    incX = 1;
-                    incZ = 0;
-                    startZ = neighbourOffZ < 0 ? (chunkZ << 4) - 1 : (chunkZ << 4) + 16;
-                    startX = chunkX << 4;
-                }
-
-                final long propagateDirection = 1L << direction.oppositeOrdinal;
-                final int encodeOffset = this.coordinateOffset;
-
-                for (int currY = currSectionY << 4, maxY = currY | 15; currY <= maxY; ++currY) {
-                    for (int i = 0, currX = startX, currZ = startZ; i < 16; ++i, currX += incX, currZ += incZ) {
-                        final int localIndex = (currX & 15) | ((currZ & 15) << 4) | ((currY & 15) << 8);
-                        final int level = this.getLightLevel(nIdx, localIndex);
-                        if (this.isBelowPropagationThreshold(level)) {
-                            continue;
-                        }
-                        final int edgeIdx = (currX >> 4) + 5 * (currZ >> 4) + (5 * 5) * (currY >> 4) + this.chunkSectionIndexOffset;
-                        final IBlockState edgeState = this.getBlockStateFast(edgeIdx, currX & 15, currY & 15, currZ & 15);
-                        this.appendToIncreaseQueue(encodeCoords(currX, currZ, currY, encodeOffset)
-                                | this.encodeQueueLevel(level)
-                                | (propagateDirection << dirShift)
-                                | sidedFlag(edgeState));
-                    }
-                }
-            }
-        }
+        this.sectionProcessor.propagateNeighbourLevels(chunk, fromSection, toSection);
     }
 
     protected static final long FLAG_WRITE_LEVEL = Long.MIN_VALUE >>> 2;
@@ -980,9 +441,6 @@ public abstract class PulsarEngine {
     protected int decreaseQueueInitialLength;
     protected boolean queueOverflowWarned;
     protected boolean queueOverflowed;
-
-    protected final int[] chunkCheckDelayedUpdatesCenter = new int[16 * 16];
-    protected final int[] chunkCheckDelayedUpdatesNeighbour = new int[16 * 16];
 
     protected final long[] resizeIncreaseQueue() {
         return this.increaseQueue = Arrays.copyOf(this.increaseQueue, Math.min(this.increaseQueue.length * 2, MAX_QUEUE_SIZE));
@@ -1063,15 +521,6 @@ public abstract class PulsarEngine {
             }
             OLD_CHECK_DIRECTIONS[i] = directions.toArray(new AxisDirection[0]);
         }
-    }
-
-    /**
-     * Hook called for each dirty nibble after its data is published. Used by
-     * concrete engines to sync data into the vanilla
-     * {@link ExtendedBlockStorage} nibble arrays so renderers immediately see
-     * the published values.
-     */
-    protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {
     }
 
     protected abstract void performLightIncrease();
