@@ -5,10 +5,6 @@ Pulsar is an asynchronous lighting engine for Minecraft 1.12.2, built for
 vanilla block and sky lighting with a Starlight-inspired implementation that
 moves most light propagation off the server thread.
 
-> [!WARNING]
-> Pulsar is experimental. Back up your world before adding it to an existing
-> modpack.
-
 ## What Pulsar does
 
 Pulsar is designed to reduce server-thread stalls when lighting has a lot of
@@ -18,14 +14,18 @@ operations, or machines that place and remove many blocks.
 - Runs server-side block and sky light propagation on dedicated worker threads.
 - Batches large groups of block changes instead of lighting each block
   separately.
-- Saves completed light data with each chunk, avoiding a full relight every
-  time the chunk loads.
-- Writes normal Minecraft light data, so worlds are not locked to Pulsar.
+- Stores Pulsar's completed lighting state in each chunk, allowing Pulsar to
+  restore it without recalculating the chunk's lighting after every reload.
+- Also keeps Minecraft's standard block-light and sky-light data up to date,
+  so the additional Pulsar cache can be discarded safely if Pulsar is removed.
 
 The largest gains appear under heavy lighting load. At lighter loads, Pulsar's
 main benefit is lower light-update latency rather than higher TPS.
 
 ### Issues fixed in Pulsar
+
+Pulsar also fixes vanilla lighting and rendering problems affecting stairs,
+slabs, paintings, liquids, chunk borders, and changing light sources:
 
 - [MC-92](https://bugs.mojang.com/browse/MC-92)
 - [MC-1531](https://bugs.mojang.com/browse/MC-1531) — painting portion only;
@@ -38,15 +38,6 @@ main benefit is lower light-update latency rather than higher TPS.
 - [MC-117094](https://bugs.mojang.com/browse/MC-117094)
 - [MC-249343](https://bugs.mojang.com/browse/MC-249343)
 
-## Installation
-
-Pulsar requires:
-
-- [Cleanroom](https://github.com/CleanroomMC/Cleanroom) 0.5.15 or newer
-
-Existing worlds are supported. Their chunks will be relit once so Pulsar can
-create its own light cache; make a backup before the first launch.
-
 ## Compatibility
 
 Pulsar should work with most biome, cave, world-generation, and dimension mods
@@ -55,6 +46,8 @@ engine are not compatible.
 
 ### Supported integrations
 
+- [Celeritas](https://git.taumc.org/embeddedt/celeritas), including
+  face-aware lighting for stairs and slabs
 - [Fluidlogged API](https://modrinth.com/mod/fluidlogged-api)
 - [Depths Update](https://modrinth.com/mod/depths-update), including dimensions
   that extend below Y=0 or above Y=255
@@ -74,20 +67,27 @@ OptiFine is untested and not recommended with Pulsar.
 
 ## Performance
 
-Pulsar mainly targets server-thread stalls when many blocks change at once or a
-skylight edit spans a tall column. Vanilla is often quick enough for an ordinary
-isolated block-light edit, but that does not make the three engines equivalent:
-their light-convergence latency diverges sharply as the affected area grows.
+Pulsar is built for workloads where lighting has a lot of work to resolve at
+once, such as large block changes or skylight edits spanning tall columns.
+Small, isolated block-light edits may already be quick in vanilla, while larger
+affected areas show much greater differences between engines.
 
 ### Light updates
 
-In a controlled Lightbench test, each block edit ran by itself and was followed
-by the engine-specific lighting-completion barrier. The timer started
-immediately before `setBlockState` and stopped only after server-side lighting
-finished. Lightbench then verified the fixed stored-light probes after every
-sample, outside the timed interval.
+Lightbench measured from immediately before each block edit until the resulting
+server-side lighting update had fully completed. It verified the stored light
+values after every sample, outside the timed interval. Each launch produced its
+own median result; the graph shows the middle value from three separate
+launches. Lower is better.
 
 ![Light-update completion benchmark](docs/benchmarks/2026-08-06-light-updates.svg)
+
+Pulsar's largest gains appeared in the demanding skylight tests. These results
+measure lighting-completion time for the tested edits, not overall FPS, TPS, or
+game speed.
+
+<details>
+<summary>Light-update benchmark data, setup, and individual runs</summary>
 
 Each cell below is the median of three independent run p50s; parentheses show
 the range of those run p50s. Times are milliseconds and lower is better.
@@ -104,9 +104,6 @@ Alfheim 14.768 ms, and Pulsar 1.541 ms at the median p50. This is deliberately
 a demanding skylight workload, with a roof at Y=254 above a floor at Y=3. The
 550.01x ratio describes that one light-completion workload; it is not a claim of
 550x more FPS, TPS, or overall game speed.
-
-<details>
-<summary>Light-update benchmark setup and individual runs</summary>
 
 The benchmark was recorded on 2026-08-06 using
 [Lightbench 1.0.0](https://github.com/Sumire-Labs/lightbench) in update mode.
@@ -160,7 +157,8 @@ worker-CPU values are in the [comparison CSV](docs/benchmarks/2026-08-06-light-u
 World-generation gains are smaller because terrain generation usually dominates
 the overall chunk-generation time.
 
-In a fresh-chunk generation benchmark on the test system, Pulsar completed the
+In a fresh-chunk generation benchmark on
+ the test system, Pulsar completed the
 10,404-chunk workload in a median of 48.831 seconds, compared with 56.461
 seconds for vanilla. That is 1.16x the throughput and 13.5% less elapsed time.
 Alfheim completed it in 49.615 seconds; its measured range overlaps Pulsar's,
@@ -168,19 +166,19 @@ so the two should be considered broadly similar in this workload.
 
 ![Fresh chunk generation benchmark](docs/benchmarks/2026-08-05-chunk-generation.svg)
 
-| Engine | Median total | Range | Median chunks/s | Throughput vs vanilla |
-|---|---:|---:|---:|---:|
-| Vanilla | 56.461 s | 55.639–58.628 s | 184.3 | 1.00x |
-| Alfheim | 49.615 s | 48.600–51.478 s | 209.7 | 1.14x |
-| **Pulsar** | **48.831 s** | **48.102–49.035 s** | **213.1** | **1.16x** |
-
 These figures do not mean 16% more FPS or TPS. This test measures the total time
 to generate fresh chunks and wait for all lighting to finish, so terrain
 generation is included. It is not a pure light-propagation benchmark or a
 simulation of ordinary gameplay.
 
 <details>
-<summary>Benchmark setup and individual runs</summary>
+<summary>Chunk-generation benchmark data, setup, and individual runs</summary>
+
+| Engine | Median total | Range | Median chunks/s | Throughput vs vanilla |
+|---|---:|---:|---:|---:|
+| Vanilla | 56.461 s | 55.639–58.628 s | 184.3 | 1.00x |
+| Alfheim | 49.615 s | 48.600–51.478 s | 209.7 | 1.14x |
+| **Pulsar** | **48.831 s** | **48.102–49.035 s** | **213.1** | **1.16x** |
 
 The benchmark was recorded on 2026-08-05 using
 [Lightbench 1.0.0](https://github.com/Sumire-Labs/lightbench) in generation
@@ -235,20 +233,6 @@ Pulsar moves work away from the server thread, but that comes with costs:
   CPU-constrained systems has not yet been benchmarked.
 - Pulsar is newer and has seen less modpack testing than
   [Alfheim](https://www.curseforge.com/minecraft/mc-mods/alfheim-lighting-engine).
-
-## Troubleshooting
-
-If an area has incorrect light, an operator can queue a relight with:
-
-- `/pulsar relight` for the current chunk
-- `/pulsar relight <radius>` for nearby loaded chunks, up to a radius of 16
-- `/pulsar relight <chunkX> <chunkZ>` for a specific loaded chunk
-
-`/pulsar stats` reports whether light work is pending. `/pulsarc` prints a
-client-side light diagnostic that is useful when filing a bug report.
-
-Please attach `latest.log`, the relevant configuration files, and the output of
-`/pulsarc` when reporting a lighting problem.
 
 ## Credits
 
