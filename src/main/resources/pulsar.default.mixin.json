@@ -18,6 +18,7 @@
   "client": [
     "MixinBlockModelRendererLight",
     "MixinBlockRenderLight",
+    "MixinCeleritasWorldSlice",
     "MixinChunkCacheRenderLight",
     "MixinRenderJSONPaintingLight",
     "MixinRenderPaintingLight",
