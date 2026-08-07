@@ -361,8 +361,8 @@ public abstract class PulsarEngine extends LightEngineCache {
             final IntIterator it = sections.iterator();
             while (it.hasNext()) {
                 this.checkChunkEdge(chunkX, it.nextInt(), chunkZ);
-                this.performLightDecrease();
             }
+            this.performLightDecrease();
             this.updateVisible();
         } finally {
             this.destroyCaches();
