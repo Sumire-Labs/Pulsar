@@ -56,8 +56,17 @@ public final class LightQueue {
     private ChunkTasks getOrCreate(final long key) {
         ChunkTasks tasks = this.tasksByChunk.get(key);
         if (tasks == null) {
+            // Each queue has one consumer. An in-flight task means that
+            // consumer is active and will check the queued map again before
+            // waiting, so only a fully idle lane needs a wake-up signal.
+            // The enqueue caller keeps this monitor until the new task is
+            // populated, so waking here cannot expose partial task state.
+            final boolean signalWorker = this.tasksByChunk.isEmpty() && this.inFlightTasks.isEmpty();
             tasks = new ChunkTasks(key);
             this.tasksByChunk.put(key, tasks);
+            if (signalWorker) {
+                this.workAvailable.release(1);
+            }
             if (this.stats != null && LightStats.enabled) {
                 this.stats.chunksQueued.incrementAndGet();
             }
@@ -73,7 +82,6 @@ public final class LightQueue {
             this.blockChangeKeys.enqueue(key);
         }
         tasks.changedPositions.add((x & 15) | ((z & 15) << 4) | (y << 8));
-        this.workAvailable.release(1);
     }
 
     public synchronized void queueSectionChange(final int cx, final int sectionY, final int cz, final boolean empty) {
@@ -87,7 +95,6 @@ public final class LightQueue {
             tasks.changedSectionSet = new Boolean[this.heightContext.getTotalSections()];
         }
         tasks.changedSectionSet[sectionIndex] = empty;
-        this.workAvailable.release(1);
     }
 
     public synchronized void queueChunkLight(final int cx, final int cz, final Chunk chunk,
@@ -111,7 +118,6 @@ public final class LightQueue {
         // maintenance and will be checked again after this generation.
         tasks.initialLightEdgeGeneration = 0L;
         tasks.edgeCheckAttempts = 0;
-        this.workAvailable.release(1);
     }
 
     /**
@@ -123,7 +129,6 @@ public final class LightQueue {
         final ChunkTasks tasks = this.getOrCreate(key);
         tasks.loadInitChunk = chunk;
         tasks.loadInitEmptySections = emptySections;
-        this.workAvailable.release(1);
     }
 
     /**
@@ -156,7 +161,6 @@ public final class LightQueue {
         }
         tasks.initialLightEdgeGeneration = 0L;
         tasks.edgeCheckAttempts = 0;
-        this.workAvailable.release(1);
         return true;
     }
 
@@ -174,7 +178,6 @@ public final class LightQueue {
             }
             tasks.queuedEdgeChecksBlock.add(sectionY);
         }
-        this.workAvailable.release(1);
     }
 
     /**
@@ -184,7 +187,6 @@ public final class LightQueue {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
         this.addAllEdgeSections(tasks, isSky);
-        this.workAvailable.release(1);
     }
 
     /**
@@ -214,7 +216,6 @@ public final class LightQueue {
             tasks.initialLightEdgeGeneration = generation;
             tasks.edgeCheckAttempts = attempts;
         }
-        this.workAvailable.release(1);
         return true;
     }
 
@@ -407,8 +408,10 @@ public final class LightQueue {
     /**
      * Thin-client mode: no worker ever acquires the permits, so drop them
      * each drain to keep the semaphore from accumulating without bound.
+     *
+     * @return the number of discarded permits
      */
-    void clearWorkSignal() {
-        this.workAvailable.drainPermits();
+    int clearWorkSignal() {
+        return this.workAvailable.drainPermits();
     }
 }

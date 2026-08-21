@@ -4,11 +4,119 @@ import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class LightQueueTest {
+
+    @Test
+    void coalescesWakeSignalsWhileLaneIsActive() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
+
+        queue.queueBlockChange(1, 64, 1);
+        queue.queueBlockChange(2, 64, 2);
+        queue.queueBlockChange(2, 64, 2);
+        queue.queueEdgeCheck(0, 0, 0, true);
+        queue.queueBlockChange(32, 64, 0);
+
+        assertEquals(1, queue.clearWorkSignal());
+        assertEquals(0, queue.clearWorkSignal());
+        assertEquals(2, queue.size());
+    }
+
+    @Test
+    void inFlightTaskKeepsLaneActiveWithoutAnotherSignal() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
+        queue.queueBlockChange(1, 64, 1);
+        assertEquals(1, queue.clearWorkSignal());
+
+        final ChunkTasks first = queue.removeFirstBlockChangeTask();
+        assertNotNull(first);
+        assertTrue(queue.isEmpty());
+        assertTrue(queue.hasWork());
+
+        queue.queueBlockChange(17, 64, 1);
+
+        assertFalse(queue.isEmpty());
+        assertTrue(queue.hasWork());
+        assertEquals(0, queue.clearWorkSignal());
+
+        queue.completeTask(first);
+        final ChunkTasks second = queue.removeFirstBlockChangeTask();
+        assertNotNull(second);
+        queue.completeTask(second);
+        assertFalse(queue.hasWork());
+    }
+
+    @Test
+    void idleLaneSignalsWorkQueuedAfterWorkerEmptyCheck() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
+        queue.queueBlockChange(1, 64, 1);
+        assertTimeoutPreemptively(Duration.ofSeconds(5), queue::waitForWork);
+
+        final ChunkTasks first = queue.removeFirstBlockChangeTask();
+        assertNotNull(first);
+        queue.completeTask(first);
+        assertTrue(queue.isEmpty());
+        assertFalse(queue.hasWork());
+
+        // Models an enqueue between the worker's empty check and acquire.
+        queue.queueBlockChange(17, 64, 1);
+        assertTimeoutPreemptively(Duration.ofSeconds(5), queue::waitForWork);
+        assertEquals(0, queue.clearWorkSignal());
+
+        final ChunkTasks second = queue.removeFirstBlockChangeTask();
+        assertNotNull(second);
+        queue.completeTask(second);
+    }
+
+    @Test
+    void removedLastTaskDoesNotSuppressNextIdleTransition() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
+        final long firstKey = CoordinateUtils.getChunkKey(0, 0);
+        queue.queueBlockChange(1, 64, 1);
+        final Future<Void> firstCompletion = queue.getPendingWorkFuture(firstKey);
+        assertNotNull(firstCompletion);
+
+        queue.removeChunk(0, 0);
+
+        assertTrue(firstCompletion.isDone());
+        assertFalse(queue.hasWork());
+
+        queue.queueBlockChange(17, 64, 1);
+
+        // One stale permit remains for the removed task, and the new idle
+        // transition must still issue its own permit.
+        assertEquals(2, queue.clearWorkSignal());
+        final ChunkTasks next = queue.removeFirstBlockChangeTask();
+        assertNotNull(next);
+        queue.completeTask(next);
+        assertFalse(queue.hasWork());
+    }
+
+    @Test
+    void explicitWakeRemainsUnconditionalWhenLaneIsIdle() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
+        assertTrue(queue.isEmpty());
+        assertFalse(queue.hasWork());
+
+        queue.wakeUp();
+
+        assertEquals(1, queue.clearWorkSignal());
+    }
+
+    @Test
+    void rejectedGenerationDoesNotAddWakeSignal() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
+        assertTrue(queue.queueInitialLightEdgeCheckAllSections(0, 0, true, 9L, 0));
+        assertEquals(1, queue.clearWorkSignal());
+
+        assertFalse(queue.queueInitialLightEdgeCheckAllSections(0, 0, true, 8L, 1));
+
+        assertEquals(0, queue.clearWorkSignal());
+    }
 
     @Test
     void dequeuedValueTaskRemainsPendingUntilWorkerCompletesIt() {
