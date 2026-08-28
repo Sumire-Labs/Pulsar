@@ -1,35 +1,47 @@
-# Pulsar Lighting Engine
+# Pulsar
 
-Pulsar is an asynchronous lighting engine for Minecraft 1.12.2, built for
-[Cleanroom](https://github.com/CleanroomMC/Cleanroom). It replaces
-vanilla block and sky lighting with a Starlight-inspired implementation that
-moves most light propagation off the server thread.
+Pulsar is an async lighting engine for [CleanroomLoader](https://github.com/CleanroomMC/Cleanroom). It reimplements
+Starlight-style lighting algorithms for 1.12.2 and moves most server-side
+block-light and sky-light propagation off the main server thread.
 
-## What Pulsar does
+Unlike vanilla and Alfheim, Pulsar performs most propagation work on dedicated
+worker threads. Its goal is to provide an actively developed Cleanroom-native
+alternative to lighting engines such as Alfheim and Phosphor.
 
-Pulsar is designed to reduce server-thread stalls when lighting has a lot of
-work to do, such as during chunk generation, explosions, large building-tool
-operations, or machines that place and remove many blocks.
+## Requirements
 
-- Runs server-side block and sky light propagation on dedicated worker threads.
-- Batches large groups of block changes instead of lighting each block
+- [Cleanroom 0.5.17-alpha or newer](https://download.cleanroommc.com/)
+
+> [!IMPORTANT]
+> Pulsar requires Cleanroom. Legacy Forge environments are not supported.
+
+## Features
+
+Pulsar is designed to reduce server-thread stalls when lighting has a large
+amount of work to resolve, such as during chunk generation, explosions,
+large building-tool operations, or machine-driven block changes.
+
+- Runs server-side block-light and sky-light propagation on dedicated worker
+  threads.
+- Batches large groups of block changes instead of lighting every edit
   separately.
-- Stores Pulsar's completed lighting state in each chunk, allowing Pulsar to
-  restore it without recalculating the chunk's lighting after every reload.
-- Also keeps Minecraft's standard block-light and sky-light data up to date,
-  so the additional Pulsar cache can be discarded safely if Pulsar is removed.
+- Stores completed Pulsar light data in each chunk's NBT, avoiding unnecessary
+  full relights when valid cached chunks are loaded again.
+- Keeps Minecraft's standard block-light and sky-light data synchronized, so
+  the additional Pulsar cache can be discarded safely if Pulsar is removed.
+- Fixes vanilla propagation and rendering problems involving stairs, slabs,
+  liquids, emissive blocks, paintings, empty sections, and chunk borders.
 
 The largest gains appear under heavy lighting load. At lighter loads, Pulsar's
 main benefit is lower light-update latency rather than higher TPS.
 
-### Issues fixed in Pulsar
+## Fixed Vanilla Issues
 
-Pulsar also fixes vanilla lighting and rendering problems affecting stairs,
-slabs, paintings, liquids, chunk borders, and changing light sources:
+Pulsar includes fixes for the following vanilla lighting and rendering issues:
 
 - [MC-92](https://bugs.mojang.com/browse/MC-92)
-- [MC-1531](https://bugs.mojang.com/browse/MC-1531) — painting portion only;
-  item frames are not covered
+- [MC-1531](https://bugs.mojang.com/browse/MC-1531) — smooth lighting across
+  painting tile boundaries. Only paintings are covered; item frames are not.
 - [MC-3329](https://bugs.mojang.com/browse/MC-3329)
 - [MC-80966](https://bugs.mojang.com/browse/MC-80966)
 - [MC-104532](https://bugs.mojang.com/browse/MC-104532)
@@ -41,29 +53,35 @@ slabs, paintings, liquids, chunk borders, and changing light sources:
 ## Compatibility
 
 Pulsar should work with most biome, cave, world-generation, and dimension mods
-that use Minecraft's normal chunk and world APIs. Mods that replace the light
-engine are not compatible.
+that use Minecraft's standard chunk and world APIs. Please report combinations
+that do not work as expected.
 
 ### Supported integrations
 
-- [Celeritas](https://git.taumc.org/embeddedt/celeritas), including
-  face-aware lighting for stairs and slabs
-- [Fluidlogged API](https://modrinth.com/mod/fluidlogged-api)
+- [Celeritas](https://git.taumc.org/embeddedt/celeritas), including face-aware
+  lighting for stairs and slabs.
+- [Fluidlogged API](https://modrinth.com/mod/fluidlogged-api), including the
+  opacity and emission of fluids stored inside fluidlogged blocks.
 - [Depths Update](https://modrinth.com/mod/depths-update), including dimensions
-  that extend below Y=0 or above Y=255
+  that extend below Y=0 or above Y=255.
+- [JSON Paintings](https://www.curseforge.com/minecraft/mc-mods/json-paintings),
+  including smooth painting lighting and the renderer introduced in version
+  1.5.0 ([#9](https://github.com/Sumire-Labs/Pulsar/issues/9)).
 
-### Incompatible or unsupported
+### Incompatible
 
 - [Alfheim](https://www.curseforge.com/minecraft/mc-mods/alfheim-lighting-engine)
 - Phosphor for Forge
 - Hesperus
 - Any other mod that replaces or rewrites the lighting engine
-- The standard edition of The Aether II, which bundles Phosphor; use
+- The standard edition of The Aether II, which bundles Phosphor. Use
   [The Aether II: Phosphor Not Included](https://www.curseforge.com/minecraft/mc-mods/the-aether-ii-phosphor-not-included)
-  instead
-- CubicChunks, which uses a different world-storage model
+  instead.
 
-OptiFine is untested and not recommended with Pulsar.
+### Unsupported or untested
+
+- CubicChunks is unsupported because it uses a different world-storage model.
+- OptiFine is untested and is not currently recommended with Pulsar.
 
 ## Performance
 
@@ -157,8 +175,7 @@ worker-CPU values are in the [comparison CSV](docs/benchmarks/2026-08-06-light-u
 World-generation gains are smaller because terrain generation usually dominates
 the overall chunk-generation time.
 
-In a fresh-chunk generation benchmark on
- the test system, Pulsar completed the
+In a fresh-chunk generation benchmark on the test system, Pulsar completed the
 10,404-chunk workload in a median of 48.831 seconds, compared with 56.461
 seconds for vanilla. That is 1.16x the throughput and 13.5% less elapsed time.
 Alfheim completed it in 49.615 seconds; its measured range overlaps Pulsar's,
@@ -219,20 +236,6 @@ times. Exact per-run nanosecond values are available in the
 [comparison CSV](docs/benchmarks/2026-08-05-lightbench.csv).
 
 </details>
-
-## Trade-offs
-
-Pulsar moves work away from the server thread, but that comes with costs:
-
-- Server-side light updates are asynchronous. Code that changes a block and
-  immediately reads its light in the same call stack may briefly see the
-  previous value.
-- Pulsar keeps additional light data for loaded chunks and stores a light cache
-  in the world save, increasing memory and disk usage.
-- Heavy lighting workloads can use additional CPU cores. Performance on
-  CPU-constrained systems has not yet been benchmarked.
-- Pulsar is newer and has seen less modpack testing than
-  [Alfheim](https://www.curseforge.com/minecraft/mc-mods/alfheim-lighting-engine).
 
 ## Credits
 
