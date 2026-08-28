@@ -18,9 +18,6 @@ repositories {
 }
 
 dependencies {
-    compileOnly "com.cleanroommc:sponge-mixin:0.20.13+mixin.0.8.7"
-    // Retained as a compile-time compatibility fallback for Cleanroom 0.5.x.
-    compileOnly "zone.rong:mixinbooter:10.5"
     // Fluidlogged API: soft dependency — FluidLightBridge merges the stored
     // fluid's opacity/emission into the engine's light reads when installed.
     compileOnly "maven.modrinth:fluidlogged-api:3.3.3"

@@ -1,33 +1,21 @@
 package com.sumirelabs.pulsar.core;
 
-import com.google.common.collect.ImmutableList;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.jetbrains.annotations.Nullable;
-import zone.rong.mixinbooter.IEarlyMixinLoader;
 
-import java.util.List;
 import java.util.Map;
 
 /**
- * FML coremod entry point for Pulsar.
+ * No-op FML coremod entry point retained to match CleanroomModTemplate's
+ * coremod layout.
  *
- * <p>Implements {@link IFMLLoadingPlugin} so Forge sees Pulsar as a coremod
- * and applies the {@code FMLAT} access transformer plus the
- * {@code FMLCorePluginContainsFMLMod} attachment. CleanMix 0.6.x discovers
- * the Pulsar mixin config natively through the jar manifest (and through
- * {@code crl.dev.mixin} in development runs); {@link IEarlyMixinLoader} is
- * retained as a compatibility fallback for Cleanroom 0.5.x.
- *
- * <p>This mirrors REID's {@code JEIDLoadingPlugin} structure — REID
- * coexistence with Pulsar relies on both mods being available during the
- * early transformation phase.
+ * <p>This class does not register an ASM transformer or a mixin config.
+ * CleanMix discovers {@code pulsar.mixin.json} through the jar's
+ * {@code MixinConfigs} manifest attribute, or through {@code crl.dev.mixin}
+ * in development runs. The access transformer is declared separately in the
+ * jar manifest and the Unimined development configuration.
  */
-public class PulsarLoadingPlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
-
-    @Override
-    public List<String> getMixinConfigs() {
-        return ImmutableList.of("pulsar.mixin.json");
-    }
+public class PulsarLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
     public @Nullable String[] getASMTransformerClass() {

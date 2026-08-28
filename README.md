@@ -10,10 +10,7 @@ alternative to lighting engines such as Alfheim and Phosphor.
 
 ## Requirements
 
-- [Cleanroom 0.5.17-alpha or newer](https://download.cleanroommc.com/)
-
-> [!IMPORTANT]
-> Pulsar requires Cleanroom. Legacy Forge environments are not supported.
+- [Cleanroom 0.6.10-alpha or newer](https://github.com/CleanroomMC/Cleanroom/releases/tag/0.6.10-alpha)
 
 ## Features
 
