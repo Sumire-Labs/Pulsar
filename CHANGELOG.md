@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.2.6]
+
+### Changed
+
+- Updated the build toolchain to Gradle 9.7.1, Shadow 9.6.1,
+  Unimined 1.4.37-kappa, JUnit 6.1.3, and `actions/setup-java` v6. Release
+  workflows now use the checked-in Gradle wrapper instead of selecting a
+  separate Gradle version.
+- Added Pulsar's issue tracker URL to the generated mod metadata.
+
+### Fixed
+
+- Fixed a crash with JSON Paintings 1.5.0 after its renderer method signature
+  changed. Pulsar now targets both the legacy renderer and the 1.5.0 MCP/SRG
+  variants while preserving smooth per-vertex painting lighting
+  ([#9](https://github.com/Sumire-Labs/Pulsar/issues/9)).
+
+## [0.2.5]
+
+### Changed
+
+- Reduced redundant lighting-worker wake-ups by signalling a worker only when
+  its queue transitions from fully idle to active. Work added while that lane
+  is already queued or in flight is drained without accumulating unnecessary
+  semaphore permits.
+
 ## [0.2.4]
 
 ### Changed
