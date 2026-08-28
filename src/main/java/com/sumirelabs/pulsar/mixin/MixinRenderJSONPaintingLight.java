@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -25,9 +25,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @SideOnly(Side.CLIENT)
 public abstract class MixinRenderJSONPaintingLight {
 
-    private static final String RENDER_PAINTING =
+    private static final String RENDER_PAINTING_LEGACY =
             "renderPainting(Lnet/minecraft/entity/item/EntityPainting;"
                     + "Lgit/jbredwards/jsonpaintings/mod/common/util/IJSONPainting;)V";
+
+    private static final String RENDER_PAINTING_1_5_MCP =
+            "renderPainting(Lnet/minecraft/entity/item/EntityPainting;IIII)V";
+
+    private static final String RENDER_PAINTING_1_5_SRG =
+            "func_77010_a(Lnet/minecraft/entity/item/EntityPainting;IIII)V";
 
     private static final String BUFFER_BEGIN_MCP =
             "Lnet/minecraft/client/renderer/BufferBuilder;"
@@ -65,10 +71,27 @@ public abstract class MixinRenderJSONPaintingLight {
     @Unique
     private double pulsar$jsonVertexY;
 
-    @Inject(method = RENDER_PAINTING, at = @At("HEAD"), remap = false, require = 0)
-    private void pulsar$prepareJsonPaintingLight(final EntityPainting painting,
-                                                 @Coerce final Object definition,
-                                                 final CallbackInfo callback) {
+    // Capture the common first argument instead of using version-specific
+    // callback descriptors. Mixin may resolve the legacy selector by name when
+    // its removed IJSONPainting argument type is unavailable in 1.5.0.
+    @ModifyVariable(
+            method = {
+                    RENDER_PAINTING_LEGACY,
+                    RENDER_PAINTING_1_5_MCP,
+                    RENDER_PAINTING_1_5_SRG
+            },
+            at = @At("HEAD"),
+            argsOnly = true,
+            ordinal = 0,
+            remap = false,
+            require = 1)
+    private EntityPainting pulsar$prepareJsonPaintingLight(final EntityPainting painting) {
+        this.pulsar$createJsonPaintingLight(painting);
+        return painting;
+    }
+
+    @Unique
+    private void pulsar$createJsonPaintingLight(final EntityPainting painting) {
         this.pulsar$jsonPaintingLight = CALC_BRIGHTNESS
                 && PaintingLightSampler.isSmoothLightingEnabled()
                 ? PaintingLightSampler.create(painting)
@@ -76,7 +99,11 @@ public abstract class MixinRenderJSONPaintingLight {
     }
 
     @ModifyArg(
-            method = RENDER_PAINTING,
+            method = {
+                    RENDER_PAINTING_LEGACY,
+                    RENDER_PAINTING_1_5_MCP,
+                    RENDER_PAINTING_1_5_SRG
+            },
             at = @At(value = "INVOKE", target = BUFFER_BEGIN_MCP, remap = false),
             index = 1,
             remap = false,
@@ -87,7 +114,11 @@ public abstract class MixinRenderJSONPaintingLight {
     }
 
     @ModifyArg(
-            method = RENDER_PAINTING,
+            method = {
+                    RENDER_PAINTING_LEGACY,
+                    RENDER_PAINTING_1_5_MCP,
+                    RENDER_PAINTING_1_5_SRG
+            },
             at = @At(value = "INVOKE", target = BUFFER_BEGIN_SRG, remap = false),
             index = 1,
             remap = false,
@@ -98,7 +129,11 @@ public abstract class MixinRenderJSONPaintingLight {
     }
 
     @Redirect(
-            method = RENDER_PAINTING,
+            method = {
+                    RENDER_PAINTING_LEGACY,
+                    RENDER_PAINTING_1_5_MCP,
+                    RENDER_PAINTING_1_5_SRG
+            },
             at = @At(value = "INVOKE", target = BUFFER_POS_MCP, remap = false),
             remap = false,
             require = 0)
@@ -110,7 +145,11 @@ public abstract class MixinRenderJSONPaintingLight {
     }
 
     @Redirect(
-            method = RENDER_PAINTING,
+            method = {
+                    RENDER_PAINTING_LEGACY,
+                    RENDER_PAINTING_1_5_MCP,
+                    RENDER_PAINTING_1_5_SRG
+            },
             at = @At(value = "INVOKE", target = BUFFER_POS_SRG, remap = false),
             remap = false,
             require = 0)
@@ -122,7 +161,11 @@ public abstract class MixinRenderJSONPaintingLight {
     }
 
     @Redirect(
-            method = RENDER_PAINTING,
+            method = {
+                    RENDER_PAINTING_LEGACY,
+                    RENDER_PAINTING_1_5_MCP,
+                    RENDER_PAINTING_1_5_SRG
+            },
             at = @At(value = "INVOKE", target = BUFFER_NORMAL_MCP, remap = false),
             remap = false,
             require = 0)
@@ -134,7 +177,11 @@ public abstract class MixinRenderJSONPaintingLight {
     }
 
     @Redirect(
-            method = RENDER_PAINTING,
+            method = {
+                    RENDER_PAINTING_LEGACY,
+                    RENDER_PAINTING_1_5_MCP,
+                    RENDER_PAINTING_1_5_SRG
+            },
             at = @At(value = "INVOKE", target = BUFFER_NORMAL_SRG, remap = false),
             remap = false,
             require = 0)
@@ -145,10 +192,16 @@ public abstract class MixinRenderJSONPaintingLight {
         return this.pulsar$writeJsonPaintingVertexLight(buffer, x, y, z);
     }
 
-    @Inject(method = RENDER_PAINTING, at = @At("RETURN"), remap = false, require = 0)
-    private void pulsar$clearJsonPaintingLight(final EntityPainting painting,
-                                               @Coerce final Object definition,
-                                               final CallbackInfo callback) {
+    @Inject(
+            method = {
+                    RENDER_PAINTING_LEGACY,
+                    RENDER_PAINTING_1_5_MCP,
+                    RENDER_PAINTING_1_5_SRG
+            },
+            at = @At("RETURN"),
+            remap = false,
+            require = 1)
+    private void pulsar$clearJsonPaintingLight(final CallbackInfo callback) {
         this.pulsar$jsonPaintingLight = null;
     }
 
