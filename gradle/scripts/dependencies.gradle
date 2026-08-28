@@ -19,8 +19,7 @@ repositories {
 
 dependencies {
     compileOnly "com.cleanroommc:sponge-mixin:0.20.13+mixin.0.8.7"
-    // mixinbooter: required for IEarlyMixinLoader (PulsarLoadingPlugin uses it).
-    // Cleanroom bundles a runtime version, but we still need the API at compile time.
+    // Retained as a compile-time compatibility fallback for Cleanroom 0.5.x.
     compileOnly "zone.rong:mixinbooter:10.5"
     // Fluidlogged API: soft dependency — FluidLightBridge merges the stored
     // fluid's opacity/emission into the engine's light reads when installed.

@@ -11,21 +11,22 @@ import java.util.Map;
 /**
  * FML coremod entry point for Pulsar.
  *
- * <p>Implements both {@link IFMLLoadingPlugin} (so Forge sees Pulsar as a
- * coremod and applies the {@code FMLAT} access transformer + the
- * {@code FMLCorePluginContainsFMLMod} attachment) and
- * {@link IEarlyMixinLoader} (so mixinbooter on Cleanroom queues the Pulsar
- * mixin config during the early phase, before mods are loaded).
+ * <p>Implements {@link IFMLLoadingPlugin} so Forge sees Pulsar as a coremod
+ * and applies the {@code FMLAT} access transformer plus the
+ * {@code FMLCorePluginContainsFMLMod} attachment. CleanMix 0.6.x discovers
+ * the Pulsar mixin config natively through the jar manifest (and through
+ * {@code crl.dev.mixin} in development runs); {@link IEarlyMixinLoader} is
+ * retained as a compatibility fallback for Cleanroom 0.5.x.
  *
  * <p>This mirrors REID's {@code JEIDLoadingPlugin} structure — REID
- * coexistence with Pulsar relies on both mods being early-loaded through
- * mixinbooter.
+ * coexistence with Pulsar relies on both mods being available during the
+ * early transformation phase.
  */
 public class PulsarLoadingPlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     @Override
     public List<String> getMixinConfigs() {
-        return ImmutableList.of("pulsar.default.mixin.json");
+        return ImmutableList.of("pulsar.mixin.json");
     }
 
     @Override
