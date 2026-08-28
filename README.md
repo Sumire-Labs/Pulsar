@@ -65,8 +65,6 @@ that do not work as expected.
 - [Depths Update](https://modrinth.com/mod/depths-update), including dimensions
   that extend below Y=0 or above Y=255.
 - [JSON Paintings](https://www.curseforge.com/minecraft/mc-mods/json-paintings),
-  including smooth painting lighting and the renderer introduced in version
-  1.5.0 ([#9](https://github.com/Sumire-Labs/Pulsar/issues/9)).
 
 ### Incompatible
 
