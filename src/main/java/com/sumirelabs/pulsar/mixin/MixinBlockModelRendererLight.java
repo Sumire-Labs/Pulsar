@@ -23,11 +23,6 @@ public abstract class MixinBlockModelRendererLight {
                     + "Lnet/minecraft/client/renderer/block/model/IBakedModel;"
                     + "Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;"
                     + "Lnet/minecraft/client/renderer/BufferBuilder;ZJ)Z";
-    private static final String SRG_RENDER_MODEL =
-            "func_187493_a(Lnet/minecraft/world/IBlockAccess;"
-                    + "Lnet/minecraft/client/renderer/block/model/IBakedModel;"
-                    + "Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;"
-                    + "Lnet/minecraft/client/renderer/BufferBuilder;ZJ)Z";
     private static final String VANILLA_LIGHT_VALUE =
             "Lnet/minecraft/block/state/IBlockState;getLightValue("
                     + "Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;)I";
@@ -43,27 +38,14 @@ public abstract class MixinBlockModelRendererLight {
                     target = VANILLA_LIGHT_VALUE,
                     remap = false),
             require = 0,
-            remap = false)
+            expect = 0)
     private int pulsar$adjustAmbientOcclusionLightValue(
             final IBlockState state, final IBlockAccess access, final BlockPos pos) {
         return RenderLightRules.ambientOcclusionEmission(state.getLightValue(access, pos));
     }
 
     /**
-     * Production/SRG name for the same vanilla call site.
-     */
-    @Redirect(
-            method = SRG_RENDER_MODEL,
-            at = @At(value = "INVOKE", target = VANILLA_LIGHT_VALUE, remap = false),
-            require = 0,
-            remap = false)
-    private int pulsar$adjustAmbientOcclusionLightValueSrg(
-            final IBlockState state, final IBlockAccess access, final BlockPos pos) {
-        return RenderLightRules.ambientOcclusionEmission(state.getLightValue(access, pos));
-    }
-
-    /**
-     * Optional OptiFine call site for the MCP/development method name.
+     * Optional OptiFine call site for the same renderer method.
      */
     @Redirect(
             method = MCP_RENDER_MODEL,
@@ -72,22 +54,10 @@ public abstract class MixinBlockModelRendererLight {
                     target = OPTIFINE_LIGHT_VALUE,
                     remap = false),
             require = 0,
-            remap = false)
+            expect = 0)
     private int pulsar$adjustOptiFineAmbientOcclusionLightValue(
             final IBlockState state, final IBlockAccess access, final BlockPos pos) {
         return RenderLightRules.ambientOcclusionEmission(state.getLightValue(access, pos));
     }
 
-    /**
-     * Optional OptiFine call site for the production/SRG method name.
-     */
-    @Redirect(
-            method = SRG_RENDER_MODEL,
-            at = @At(value = "INVOKE", target = OPTIFINE_LIGHT_VALUE, remap = false),
-            require = 0,
-            remap = false)
-    private int pulsar$adjustOptiFineAmbientOcclusionLightValueSrg(
-            final IBlockState state, final IBlockAccess access, final BlockPos pos) {
-        return RenderLightRules.ambientOcclusionEmission(state.getLightValue(access, pos));
-    }
 }

@@ -20,22 +20,8 @@ public abstract class MixinSPacketChunkData {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;isEmpty()Z"),
-            require = 0,
-            remap = false)
-    private boolean pulsar$isSectionTrivialForExtractionMcp(
-            final ExtendedBlockStorage section, final PacketBuffer buffer,
-            final Chunk chunk, final boolean writeSkylight, final int changedSectionFilter) {
-        return ChunkPacketLight.isTrivialForPacket(section, writeSkylight);
-    }
-
-    @Redirect(
-            method = "func_189555_a(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/world/chunk/Chunk;ZI)I",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;func_76663_a()Z"),
-            require = 0,
-            remap = false)
-    private boolean pulsar$isSectionTrivialForExtractionSrg(
+            require = 0)
+    private boolean pulsar$isSectionTrivialForExtraction(
             final ExtendedBlockStorage section, final PacketBuffer buffer,
             final Chunk chunk, final boolean writeSkylight, final int changedSectionFilter) {
         return ChunkPacketLight.isTrivialForPacket(section, writeSkylight);
@@ -46,22 +32,8 @@ public abstract class MixinSPacketChunkData {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;isEmpty()Z"),
-            require = 0,
-            remap = false)
-    private boolean pulsar$isSectionTrivialForSizeMcp(
-            final ExtendedBlockStorage section, final Chunk chunk,
-            final boolean writeSkylight, final int changedSectionFilter) {
-        return ChunkPacketLight.isTrivialForPacket(section, writeSkylight);
-    }
-
-    @Redirect(
-            method = "func_189556_a(Lnet/minecraft/world/chunk/Chunk;ZI)I",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;func_76663_a()Z"),
-            require = 0,
-            remap = false)
-    private boolean pulsar$isSectionTrivialForSizeSrg(
+            require = 0)
+    private boolean pulsar$isSectionTrivialForSize(
             final ExtendedBlockStorage section, final Chunk chunk,
             final boolean writeSkylight, final int changedSectionFilter) {
         return ChunkPacketLight.isTrivialForPacket(section, writeSkylight);

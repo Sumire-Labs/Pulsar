@@ -107,7 +107,8 @@ public abstract class MixinRenderJSONPaintingLight {
             at = @At(value = "INVOKE", target = BUFFER_BEGIN_MCP, remap = false),
             index = 1,
             remap = false,
-            require = 0)
+            require = 0,
+            expect = 0)
     @Group(name = "pulsar$jsonPaintingBegin", min = 1)
     private VertexFormat pulsar$useJsonPaintingLightFormatMcp(final VertexFormat original) {
         return this.pulsar$useJsonPaintingLightFormat(original);
@@ -122,7 +123,8 @@ public abstract class MixinRenderJSONPaintingLight {
             at = @At(value = "INVOKE", target = BUFFER_BEGIN_SRG, remap = false),
             index = 1,
             remap = false,
-            require = 0)
+            require = 0,
+            expect = 0)
     @Group(name = "pulsar$jsonPaintingBegin", min = 1)
     private VertexFormat pulsar$useJsonPaintingLightFormatSrg(final VertexFormat original) {
         return this.pulsar$useJsonPaintingLightFormat(original);
@@ -136,7 +138,8 @@ public abstract class MixinRenderJSONPaintingLight {
             },
             at = @At(value = "INVOKE", target = BUFFER_POS_MCP, remap = false),
             remap = false,
-            require = 0)
+            require = 0,
+            expect = 0)
     @Group(name = "pulsar$jsonPaintingPosition", min = 1)
     private BufferBuilder pulsar$captureJsonPaintingVertexMcp(final BufferBuilder buffer,
                                                               final double x, final double y,
@@ -152,7 +155,8 @@ public abstract class MixinRenderJSONPaintingLight {
             },
             at = @At(value = "INVOKE", target = BUFFER_POS_SRG, remap = false),
             remap = false,
-            require = 0)
+            require = 0,
+            expect = 0)
     @Group(name = "pulsar$jsonPaintingPosition", min = 1)
     private BufferBuilder pulsar$captureJsonPaintingVertexSrg(final BufferBuilder buffer,
                                                               final double x, final double y,
@@ -168,7 +172,8 @@ public abstract class MixinRenderJSONPaintingLight {
             },
             at = @At(value = "INVOKE", target = BUFFER_NORMAL_MCP, remap = false),
             remap = false,
-            require = 0)
+            require = 0,
+            expect = 0)
     @Group(name = "pulsar$jsonPaintingNormal", min = 1)
     private BufferBuilder pulsar$writeJsonPaintingVertexLightMcp(final BufferBuilder buffer,
                                                                  final float x, final float y,
@@ -184,7 +189,8 @@ public abstract class MixinRenderJSONPaintingLight {
             },
             at = @At(value = "INVOKE", target = BUFFER_NORMAL_SRG, remap = false),
             remap = false,
-            require = 0)
+            require = 0,
+            expect = 0)
     @Group(name = "pulsar$jsonPaintingNormal", min = 1)
     private BufferBuilder pulsar$writeJsonPaintingVertexLightSrg(final BufferBuilder buffer,
                                                                  final float x, final float y,
