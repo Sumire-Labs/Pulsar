@@ -161,6 +161,25 @@ abstract class LightEngineCache {
                 chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
     }
 
+    protected final boolean isVanillaStorageSection(final int cacheIndex) {
+        final int sectionY = cacheIndex / 25 - this.chunkOffsetY;
+        return sectionY >= this.minSection && sectionY <= this.maxSection;
+    }
+
+    protected final ExtendedBlockStorage getLiveChunkSection(final int cacheIndex) {
+        final int localChunkIndex = cacheIndex % 25;
+        final Chunk chunk = this.chunkCache[localChunkIndex];
+        if (chunk == null) {
+            return null;
+        }
+        final int localSectionY = cacheIndex / 25;
+        final int sectionY = localSectionY - this.chunkOffsetY;
+        final int storageIndex = this.heightContext.getStorageIndex(sectionY);
+        final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
+        return storageIndex >= 0 && storageIndex < sections.length
+                ? sections[storageIndex] : null;
+    }
+
     protected final void setChunkSectionInCache(final int chunkX, final int chunkY, final int chunkZ,
                                                 final ExtendedBlockStorage section) {
         this.sectionCache[
