@@ -449,12 +449,13 @@ public class ScalarBlockEngine extends PulsarEngine {
 
     @Override
     protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {
-        if (nibble == null) return;
-        final int cy = cacheIndex / 25;
-        final int sectionY = cy - this.chunkOffsetY;
-        if (sectionY < this.minSection || sectionY > this.maxSection) return;
-        final ExtendedBlockStorage section = this.sectionCache[cacheIndex];
-        if (section == null) return;
+        if (nibble == null || !this.isVanillaStorageSection(cacheIndex)) {
+            return;
+        }
+        final ExtendedBlockStorage section = this.getLiveChunkSection(cacheIndex);
+        if (section == null) {
+            return;
+        }
         final byte[] srcData = nibble.getVisibleData();
         if (srcData == null) return;
         final NibbleArray vanilla = section.getBlockLight();
