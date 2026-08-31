@@ -5,11 +5,17 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.9]
+
+### Fixed
+
+- [#11](https://github.com/Sumire-Labs/Pulsar/pull/11)
 
 ## [0.2.8]
 
 ### Fixed
-- #11
+
+- [#10](https://github.com/Sumire-Labs/Pulsar/issues/10)
 
 ## [0.2.7]
 
