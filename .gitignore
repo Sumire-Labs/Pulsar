@@ -4,6 +4,8 @@
 run/
 out/
 bin/
+docs/research/
+test-fixtures/
 
 # Ignore Gradle GUI config
 gradle-app.setting

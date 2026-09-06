@@ -2,6 +2,7 @@ package com.sumirelabs.pulsar.mixin;
 
 import com.sumirelabs.pulsar.compat.FluidLightBridge;
 import com.sumirelabs.pulsar.light.PulsarChunk;
+import com.sumirelabs.pulsar.light.engine.LightAttenuation;
 import com.sumirelabs.pulsar.light.engine.LightInfo;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
@@ -197,16 +198,11 @@ public abstract class MixinChunkVanillaLighting {
             final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < storageArrays.length
                     ? storageArrays[storageIndex] : null;
             if (section == null) {
-                if (skyLevel != 15) {
-                    skyLevel = Math.max(0, skyLevel - 1);
-                }
+                skyLevel = LightAttenuation.skyAfterOpacity(skyLevel, 0);
                 continue;
             }
-            int opacity = this.pulsar$opacityAt(x, y, z);
-            if (opacity == 0 && skyLevel != 15) {
-                opacity = 1;
-            }
-            skyLevel = Math.max(0, skyLevel - opacity);
+            final int opacity = this.pulsar$opacityAt(x, y, z);
+            skyLevel = LightAttenuation.skyAfterOpacity(skyLevel, opacity);
             final NibbleArray skyArray = section.getSkyLight();
             if (skyArray != null) {
                 skyArray.set(x, y & 15, z, skyLevel);

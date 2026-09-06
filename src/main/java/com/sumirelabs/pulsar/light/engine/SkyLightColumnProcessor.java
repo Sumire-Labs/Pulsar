@@ -193,12 +193,12 @@ final class SkyLightColumnProcessor {
                 PulsarEngine.AxisDirection.POSITIVE_Y.everythingButThisDirection;
 
         final int extrudedLevel = this.getLightLevelExtruded(worldX, startY + 1, worldZ);
-        if (extrudedLevel == 0) {
+        if (extrudedLevel != 15) {
             return startY;
         }
 
         this.checkNullSection(worldX >> 4, startY >> 4, worldZ >> 4, extrudeInitialised);
-        int currentSky = extrudedLevel;
+        final int currentSky = 15;
         int aboveInfo = engine.lightInfoAt(
                 engine.getBlockState(worldX, startY + 1, worldZ),
                 worldX, startY + 1, worldZ);
@@ -210,24 +210,13 @@ final class SkyLightColumnProcessor {
             final int currentInfo = engine.lightInfoAt(
                     engine.getBlockState(worldX, startY, worldZ), worldX, startY, worldZ);
 
-            final int aboveOpacity = LightInfo.opacity(aboveInfo);
-            if (aboveOpacity > 0
-                    && ((aboveInfo & LightInfo.REGISTRY) == 0
-                    || LightInfo.isFaceSolid(aboveInfo, 5))) {
+            // Seed only full-strength direct sky. At water/partial geometry,
+            // the preceding 15-valued seed hands propagation to normal BFS.
+            // Seeding weakened values here disagreed with BFS through water
+            // and could copy non-15 sky unchanged through empty sections.
+            if (!LightAttenuation.canExtrudeDirectSky(currentSky,
+                    LightInfo.opacity(aboveInfo), LightInfo.opacity(currentInfo))) {
                 break;
-            }
-
-            final int currentOpacity = LightInfo.opacity(currentInfo);
-            if (currentOpacity > 0
-                    && ((currentInfo & LightInfo.REGISTRY) == 0
-                    || LightInfo.isFaceSolid(currentInfo, 4))) {
-                break;
-            }
-            if (currentOpacity > 0) {
-                currentSky -= currentOpacity;
-                if (currentSky <= 0) {
-                    break;
-                }
             }
 
             final long speculativeValue = PulsarEngine.encodeCoords(

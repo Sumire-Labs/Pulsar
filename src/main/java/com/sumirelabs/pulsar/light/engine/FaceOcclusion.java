@@ -4,6 +4,7 @@ import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.api.FaceLightOcclusion;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -13,6 +14,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fluids.IFluidBlock;
 
 /**
  * Per-face light occlusion registry and lookup.
@@ -65,6 +67,15 @@ public final class FaceOcclusion {
         return HAS_SIDED_TRANSPARENCY.contains(block);
     }
 
+    /** Automatic geometry only; explicit directional API implementations take precedence. */
+    @SuppressWarnings("deprecation")
+    public static boolean usesAutomaticFaces(final IBlockState state) {
+        final Block block = state.getBlock();
+        final boolean liquid = block instanceof BlockLiquid || block instanceof IFluidBlock
+                || state.getMaterial().isLiquid();
+        return LightAttenuation.usesAutomaticFaces(state.isFullCube(), liquid, state.getLightOpacity());
+    }
+
     /**
      * Returns true if the given face of a non-interface block is solid (blocks
      * light). Only valid when {@link #hasSidedTransparency(Block)} returns
@@ -95,16 +106,16 @@ public final class FaceOcclusion {
             return Math.max(1, v);
         }
         @SuppressWarnings("deprecation") final int opacity = state.getLightOpacity();
-        if (opacity > 1 && hasSidedTransparency(block)) {
-            return isFaceSolid(block, block.getMetaFromState(state), dirOrdinal) ? opacity : 1;
-        }
-        return Math.max(1, opacity);
+        final boolean sided = opacity > 1 && hasSidedTransparency(block) && usesAutomaticFaces(state);
+        return LightAttenuation.absorption(opacity, sided,
+                sided && isFaceSolid(block, block.getMetaFromState(state), dirOrdinal));
     }
 
     /**
      * Scan all registered blocks at postInit. For blocks where
-     * {@code !isFullCube() && getLightOpacity() > 0}, probe
-     * {@code isSideSolid} for all 16 metas × 6 faces.
+     * non-liquid partial geometry has positive opacity, probe
+     * {@code isSideSolid} for all 16 metas × 6 faces. Liquids retain their
+     * scalar medium opacity unless they explicitly implement the directional API.
      */
     public static void registerDefaults() {
         int count = 0;
@@ -129,8 +140,7 @@ public final class FaceOcclusion {
                 } catch (final Throwable t) {
                     continue;
                 }
-                @SuppressWarnings("deprecation") final int opacity = state.getLightOpacity();
-                if (state.isFullCube() || opacity <= 0) {
+                if (!usesAutomaticFaces(state)) {
                     continue;
                 }
                 fake.setState(state);

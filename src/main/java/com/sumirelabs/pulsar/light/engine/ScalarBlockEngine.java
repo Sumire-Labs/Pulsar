@@ -111,21 +111,19 @@ public class ScalarBlockEngine extends PulsarEngine {
 
     @Override
     protected int calculateLightValue(final int worldX, final int worldY, final int worldZ, final int expect) {
+        final IBlockState state = this.getBlockState(worldX, worldY, worldZ);
         return this.calculateLightValueWithInfo(worldX, worldY, worldZ, expect,
-                this.lightInfoAt(this.getBlockState(worldX, worldY, worldZ), worldX, worldY, worldZ));
+                state, this.lightInfoAt(state, worldX, worldY, worldZ));
     }
 
-    private int calculateLightValueWithInfo(final int worldX, final int worldY, final int worldZ, final int expect, final int info) {
+    private int calculateLightValueWithInfo(final int worldX, final int worldY, final int worldZ,
+                                           final int expect, final IBlockState state, final int info) {
         int level = LightInfo.emission(info);
 
         if (level >= 14 || level > expect) {
             return level;
         }
 
-        final int rawOpacity = LightInfo.opacity(info);
-        final boolean sidedTransparent = rawOpacity > 1 && (info & LightInfo.REGISTRY) != 0;
-        final int faceBits = LightInfo.faceBits(info);
-        final int uniformAbsorption = !sidedTransparent ? Math.max(1, rawOpacity) : 0;
         final int sectionOffset = this.chunkSectionIndexOffset;
 
         for (final AxisDirection direction : AXIS_DIRECTIONS) {
@@ -138,9 +136,7 @@ public class ScalarBlockEngine extends PulsarEngine {
 
             final int neighbourLevel = this.getLightLevel(sectionIndex, localIndex);
 
-            final int absorption = sidedTransparent
-                    ? ((faceBits & (1 << direction.ordinal())) != 0 ? rawOpacity : 1)
-                    : uniformAbsorption;
+            final int absorption = LightInfo.absorption(info, state, direction.ordinal());
             final int attenuated = neighbourLevel - absorption;
             if (attenuated > level) {
                 level = attenuated;

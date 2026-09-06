@@ -142,11 +142,8 @@ public class ScalarSkyEngine extends PulsarEngine {
         }
 
         final int sectionOffset = this.chunkSectionIndexOffset;
-        final int info = this.lightInfoAt(this.getBlockState(worldX, worldY, worldZ), worldX, worldY, worldZ);
-        final int rawOpacity = LightInfo.opacity(info);
-        final boolean sidedTransparent = rawOpacity > 1 && (info & LightInfo.REGISTRY) != 0;
-        final int faceBits = LightInfo.faceBits(info);
-        final int uniformAbsorption = !sidedTransparent ? Math.max(1, rawOpacity) : 0;
+        final IBlockState state = this.getBlockState(worldX, worldY, worldZ);
+        final int info = this.lightInfoAt(state, worldX, worldY, worldZ);
 
         int level = 0;
         for (final AxisDirection direction : AXIS_DIRECTIONS) {
@@ -159,9 +156,7 @@ public class ScalarSkyEngine extends PulsarEngine {
 
             final int neighbourLevel = this.getLightLevel(sectionIndex, localIndex);
 
-            final int absorption = sidedTransparent
-                    ? ((faceBits & (1 << direction.ordinal())) != 0 ? rawOpacity : 1)
-                    : uniformAbsorption;
+            final int absorption = LightInfo.absorption(info, state, direction.ordinal());
             final int attenuated = neighbourLevel - absorption;
             if (attenuated > level) {
                 level = attenuated;

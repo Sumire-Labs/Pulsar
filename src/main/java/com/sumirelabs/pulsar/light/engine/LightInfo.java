@@ -92,7 +92,8 @@ public final class LightInfo {
         if (dynamic) {
             info |= DYNAMIC;
         }
-        if (FaceOcclusion.hasSidedTransparency(block)) {
+        if (FaceOcclusion.hasSidedTransparency(block)
+                && (dynamic || FaceOcclusion.usesAutomaticFaces(state))) {
             info |= REGISTRY;
             if (opacity > 1) {
                 info |= SIDED;
@@ -192,10 +193,7 @@ public final class LightInfo {
         if ((info & DYNAMIC) != 0) {
             return FaceOcclusion.resolveScalarAbsorption(state, dirOrdinal);
         }
-        final int opacity = info & OPACITY_MASK;
-        if ((info & SIDED) != 0) {
-            return isFaceSolid(info, dirOrdinal) ? opacity : 1;
-        }
-        return Math.max(1, opacity);
+        return LightAttenuation.absorption(info & OPACITY_MASK,
+                (info & SIDED) != 0, isFaceSolid(info, dirOrdinal));
     }
 }
