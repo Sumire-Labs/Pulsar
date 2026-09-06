@@ -79,7 +79,7 @@ public abstract class MixinRenderPaintingLight {
         if (this.pulsar$paintingLight != null) {
             final int packed = this.pulsar$paintingLight.getLight(
                     this.pulsar$vertexX, this.pulsar$vertexY);
-            buffer.lightmap(packed & 0xFFFF, packed >>> 16 & 0xFFFF);
+            PaintingLightSampler.writeVertexLight(buffer, packed);
         }
         return buffer.normal(x, y, z);
     }

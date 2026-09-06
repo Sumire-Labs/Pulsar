@@ -234,7 +234,7 @@ public abstract class MixinRenderJSONPaintingLight {
         if (this.pulsar$jsonPaintingLight != null) {
             final int packed = this.pulsar$jsonPaintingLight.getLight(
                     this.pulsar$jsonVertexX, this.pulsar$jsonVertexY);
-            buffer.lightmap(packed & 0xFFFF, packed >>> 16 & 0xFFFF);
+            PaintingLightSampler.writeVertexLight(buffer, packed);
         }
         return buffer.normal(x, y, z);
     }

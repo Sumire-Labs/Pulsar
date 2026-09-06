@@ -220,9 +220,12 @@ shadowJar {
 
 compileTestJava {
     sourceCompatibility = targetCompatibility = JavaVersion.VERSION_25
+    // Exercise the real 1.12.2 vertex buffer, including its lightmap byte layout.
+    classpath += sourceSets.main.compileClasspath
 }
 
 test {
+    classpath += sourceSets.main.compileClasspath
     useJUnitPlatform()
     javaLauncher.set(javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(25)

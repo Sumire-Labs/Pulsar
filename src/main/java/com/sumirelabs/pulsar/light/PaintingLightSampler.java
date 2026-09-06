@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.light;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.item.EntityPainting;
@@ -23,6 +24,11 @@ public final class PaintingLightSampler {
             .addElement(DefaultVertexFormats.PADDING_1B);
 
     private PaintingLightSampler() {
+    }
+
+    /** Writes UV1 as (block, sky); 1.12.2 stores SHORT lightmap arguments in reverse order. */
+    public static void writeVertexLight(final BufferBuilder buffer, final int packed) {
+        buffer.lightmap(packed >>> 16 & 0xFFFF, packed & 0xFFFF);
     }
 
     /**
