@@ -207,9 +207,9 @@ public final class WorldLightManager {
             skyEngine.setStats(this.stats);
         }
 
-        final boolean promoteBulkChange = BulkSkyRelightPolicy.shouldPromote(
+        final boolean promoteBulkChange = BulkSkyRelightPolicy.shouldPromoteColumns(
                 task.initialLightChunk != null || task.initialLightEdgeGeneration > 0L,
-                task.changedPositions == null ? 0 : task.changedPositions.size());
+                task.changedPositions);
         if (promoteBulkChange) {
             final Chunk chunk = this.loadedChunkMap.get(task.chunkCoordinate);
             if (chunk != null) {
