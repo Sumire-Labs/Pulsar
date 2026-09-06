@@ -59,7 +59,7 @@ public abstract class MixinWorld implements PulsarWorld, ExtendedWorld {
                 return;
             }
         }
-        mgr.queueBlockChange(pos.getX(), pos.getY(), pos.getZ());
+        mgr.queueLightCheck(lightType, pos.getX(), pos.getY(), pos.getZ());
         cir.setReturnValue(true);
     }
 

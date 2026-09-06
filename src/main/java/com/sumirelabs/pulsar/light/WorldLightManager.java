@@ -11,6 +11,7 @@ import com.sumirelabs.pulsar.util.WorldUtil;
 import net.minecraft.network.play.server.SPacketChunkData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerChunkMapEntry;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
@@ -111,6 +112,13 @@ public final class WorldLightManager {
         return true;
     }
 
+    /** Queue a recheck for the requested light type, if this world has that lane. */
+    public void queueLightCheck(final EnumSkyBlock lightType, final int x, final int y, final int z) {
+        final LightQueue queue = lightType == EnumSkyBlock.SKY ? this.skyQueue : this.blockQueue;
+        if (queue != null) queue.queueBlockChange(x, y, z);
+    }
+
+    /** Queue a block change whose effects may involve both light types. */
     public void queueBlockChange(final int x, final int y, final int z) {
         if (this.skyQueue != null) this.skyQueue.queueBlockChange(x, y, z);
         if (this.blockQueue != null) this.blockQueue.queueBlockChange(x, y, z);
