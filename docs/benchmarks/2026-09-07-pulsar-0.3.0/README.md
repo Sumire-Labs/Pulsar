@@ -2,8 +2,8 @@
 
 The six formal light-update runs passed Lightbench's strict comparison. Pulsar
 0.3.0 had lower median completion latency than Alfheim 1.6 in all four tested
-workloads. Glowstone placement had a higher p95 and p99 with Pulsar; the chart
-shows p95 alongside p50 so that this difference is visible.
+workloads. Glowstone placement had a higher p95 and p99 with Pulsar, as retained
+in the detailed data. The compact chart shows p50 and the range of run p50s.
 
 ![Light-update completion](light-updates.svg)
 
@@ -42,8 +42,9 @@ Values above are recomputed from the Vanilla rows of the
 generation total was 56.461 s for 10,404 chunks, with a three-run range of
 55.639–58.628 s, from the [original generation CSV](../2026-08-05-lightbench.csv).
 The generation protocol also differs from the current schema-3 pilots.
-The historical update values appear in a separate panel in the chart, using
-a separately labeled axis range. They remain excluded from the current
+The historical update values appear on the same chart as `Vanilla*`, with an
+explicit note about their different protocol and environment. Sharing an axis
+does not establish comparability. They remain excluded from the current
 summary CSV, strict comparison report, and raw-update dataset.
 
 ## Method and environment

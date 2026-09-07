@@ -101,14 +101,14 @@ lower is better. Ratios use the unrounded values.
 
 Pulsar had lower median latency in all four workloads, but glowstone placement
 had a higher p95: **0.220 ms for Pulsar versus 0.177 ms for Alfheim**. The graph
-includes both percentiles and the full range of run p50s. These are hot,
+shows p50 and the full range of run p50s; p95/p99 remain in the detailed data. These are hot,
 repeated edits at one position, not FPS, TPS, overall gameplay speed, or a
 measurement of a single algorithm's contribution.
 
 #### Historical Vanilla reference — previous measurement
 
 The previous Vanilla results are retained below as historical reference.
-The graph includes them in a separate historical panel with its own axis range.
+The graph marks them as `Vanilla*`, with a note explaining the different conditions.
 They used **Lightbench 1.0.0, sparse light probes, Cleanroom 0.6.8-alpha,
 Azul Java 25.0.3, and seed `20260805`**. They were not remeasured for 0.3.0
 and did not undergo the current full-volume validation. Because the protocol

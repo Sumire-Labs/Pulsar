@@ -26,14 +26,14 @@ Each value is the median of three independent Minecraft/JVM-run p50s.
 
 Pulsar had lower median latency in these four workloads. For glowstone
 placement, however, the median run p95 was **0.220 ms for Pulsar versus
-0.177 ms for Alfheim**. The chart shows p50 and p95; whiskers show the full
+0.177 ms for Alfheim**. The chart shows p50; whiskers show the full
 range of run p50s. These timings describe repeated edits at one position,
 not FPS, TPS, overall game speed, or the contribution of any single algorithm.
 
 ### Historical Vanilla reference — previous measurement
 
 These are the previous Vanilla measurements, **not new 0.3.0 measurements**.
-The chart shows them in a separate historical panel with its own axis range.
+The chart marks them as `Vanilla*`, with a note explaining the different conditions.
 They used Lightbench 1.0.0 with sparse light probes, Cleanroom 0.6.8-alpha,
 Azul Java 25.0.3, and seed `20260805`. They did not undergo the current
 full-volume validation. The changed protocol and environment mean they
