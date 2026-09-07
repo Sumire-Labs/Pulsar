@@ -1,0 +1,6228 @@
+{
+  "schema_version": 2,
+  "benchmark": {
+    "mode": "updates",
+    "variant": "alfheim",
+    "cpu_replays": [
+      {
+        "workload": "sky_pairs",
+        "pairs": 200,
+        "wall_nanos": 4704945800,
+        "server_cpu_nanos": 4640625000,
+        "worker_cpu_nanos": 0,
+        "combined_cpu_nanos": 4640625000,
+        "verification_excluded": true,
+        "boundary_light_verified": true
+      },
+      {
+        "workload": "block_pairs",
+        "pairs": 5000,
+        "wall_nanos": 2027004500,
+        "server_cpu_nanos": 2031250000,
+        "worker_cpu_nanos": 0,
+        "combined_cpu_nanos": 2031250000,
+        "verification_excluded": true,
+        "boundary_light_verified": true
+      }
+    ],
+    "started_at_utc": "2026-09-06T19:36:21.078310100Z",
+    "completed_at_utc": "2026-09-06T19:36:34.678369Z",
+    "lightbench_version": "1.0.6-completion",
+    "engine": "alfheim",
+    "seed": "1",
+    "time_unit": "nanoseconds",
+    "reporting_excluded_from_measurements": true,
+    "completion_adapter": "alfheim_process_light_updates",
+    "verification_reader": "alfheim_cached_light",
+    "dimension": {
+      "id": 0,
+      "name": "overworld",
+      "provider_class": "net.minecraft.world.WorldProviderSurface",
+      "has_sky_light": true
+    },
+    "preflight": {
+      "controlled_environment": true,
+      "checked_columns": 4096,
+      "checked_air_blocks": 1024000,
+      "loaded_chunks": 49,
+      "floor_y": 3,
+      "floor_block": "minecraft:grass",
+      "floor_state": "minecraft:grass[snowy\u003dfalse]",
+      "floor_meta": 0,
+      "platform_normalized": true,
+      "initial_light_verified": true
+    },
+    "plan": {
+      "coordinate_unit": "block",
+      "logical_side": "server",
+      "measurement_scope": "block_state_change_and_server_light_completion",
+      "primary_metric": "completion_nanos",
+      "timed_interval": "before_set_block_state_to_after_completion_barrier",
+      "submission_interval": "before_to_after_set_block_state",
+      "barrier_interval": "engine_specific_completion_wait",
+      "completion_barrier": "after_each_edit",
+      "update_flags": 16,
+      "warmup_pairs": 20,
+      "measured_pairs": 200,
+      "same_position_each_sample": true,
+      "validation": "after_each_completion_outside_timed_interval",
+      "validation_protocol": "bounded-volume-v2",
+      "measured_sky_voxels_per_sample": 242172,
+      "measured_block_voxels_per_sample": 16337,
+      "measured_block_also_checks_sky": true,
+      "sky_cpu_replay_pairs": 200,
+      "block_cpu_replay_pairs": 5000,
+      "cpu_replay_scope": "separate_sky_pairs_and_block_pairs_with_only_boundary_validation",
+      "platform": {
+        "base_x": 19976,
+        "base_z": 19976,
+        "size_x": 64,
+        "size_z": 64,
+        "top_y": 254,
+        "block": "minecraft:stone",
+        "loaded_chunk_halo": 1,
+        "minimum_clear_height": 240,
+        "minimum_sample_edge_margin": 16
+      },
+      "floor": {
+        "y": 3,
+        "block": "minecraft:grass",
+        "state": "minecraft:grass[snowy\u003dfalse]",
+        "meta": 0
+      },
+      "workloads": [
+        {
+          "light_type": "sky",
+          "baseline_block": "minecraft:stone",
+          "changed_block": "minecraft:air",
+          "phase_order": [
+            "sky_remove",
+            "sky_place"
+          ],
+          "warmup_position": [
+            19992,
+            254,
+            19992
+          ],
+          "measured_position": [
+            20008,
+            254,
+            20008
+          ],
+          "open_expected_light": [
+            {
+              "position": [
+                20008,
+                253,
+                20008
+              ],
+              "level": 15
+            },
+            {
+              "position": [
+                20008,
+                128,
+                20008
+              ],
+              "level": 15
+            },
+            {
+              "position": [
+                20008,
+                4,
+                20008
+              ],
+              "level": 15
+            },
+            {
+              "position": [
+                20022,
+                4,
+                20008
+              ],
+              "level": 1
+            },
+            {
+              "position": [
+                20023,
+                4,
+                20008
+              ],
+              "level": 0
+            }
+          ],
+          "closed_expected_light": [
+            {
+              "position": [
+                20008,
+                253,
+                20008
+              ],
+              "level": 0
+            },
+            {
+              "position": [
+                20008,
+                128,
+                20008
+              ],
+              "level": 0
+            },
+            {
+              "position": [
+                20008,
+                4,
+                20008
+              ],
+              "level": 0
+            },
+            {
+              "position": [
+                20022,
+                4,
+                20008
+              ],
+              "level": 0
+            },
+            {
+              "position": [
+                20023,
+                4,
+                20008
+              ],
+              "level": 0
+            }
+          ]
+        },
+        {
+          "light_type": "block",
+          "baseline_block": "minecraft:air",
+          "changed_block": "minecraft:glowstone",
+          "phase_order": [
+            "block_place",
+            "block_remove"
+          ],
+          "warmup_position": [
+            19992,
+            4,
+            19992
+          ],
+          "measured_position": [
+            20008,
+            4,
+            20008
+          ],
+          "present_expected_light": [
+            {
+              "position": [
+                20008,
+                4,
+                20008
+              ],
+              "level": 15
+            },
+            {
+              "position": [
+                20022,
+                4,
+                20008
+              ],
+              "level": 1
+            },
+            {
+              "position": [
+                20023,
+                4,
+                20008
+              ],
+              "level": 0
+            }
+          ],
+          "absent_expected_light": [
+            {
+              "position": [
+                20008,
+                4,
+                20008
+              ],
+              "level": 0
+            },
+            {
+              "position": [
+                20022,
+                4,
+                20008
+              ],
+              "level": 0
+            },
+            {
+              "position": [
+                20023,
+                4,
+                20008
+              ],
+              "level": 0
+            }
+          ]
+        }
+      ]
+    },
+    "measurement_gc": {
+      "scope": "latency_loop_including_untimed_full_volume_validation",
+      "collection_count_delta": 1,
+      "collection_time_millis_delta": 3
+    },
+    "pulsar_worker_cpu_nanos": null,
+    "phases": [
+      {
+        "name": "sky_remove",
+        "light_type": "sky",
+        "action": "remove",
+        "position": [
+          20008,
+          254,
+          20008
+        ],
+        "sample_count": 200,
+        "all_samples_verified": true,
+        "submission_summary_nanos": {
+          "minimum": 12400,
+          "average": 19940.5,
+          "p50": 17500,
+          "p95": 28300,
+          "p99": 51500,
+          "maximum": 170400
+        },
+        "barrier_summary_nanos": {
+          "minimum": 8715500,
+          "average": 9307417.0,
+          "p50": 9488000,
+          "p95": 9698600,
+          "p99": 10106800,
+          "maximum": 10282700
+        },
+        "completion_summary_nanos": {
+          "minimum": 8732200,
+          "average": 9328433.0,
+          "p50": 9507500,
+          "p95": 9717600,
+          "p99": 10129600,
+          "maximum": 10306900
+        },
+        "samples": [
+          {
+            "ordinal": 0,
+            "submission_nanos": 32100,
+            "barrier_nanos": 8821200,
+            "completion_nanos": 8855000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 1,
+            "submission_nanos": 21600,
+            "barrier_nanos": 8740300,
+            "completion_nanos": 8764400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 2,
+            "submission_nanos": 19300,
+            "barrier_nanos": 9554500,
+            "completion_nanos": 9576200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 3,
+            "submission_nanos": 31600,
+            "barrier_nanos": 9661000,
+            "completion_nanos": 9695100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 4,
+            "submission_nanos": 25000,
+            "barrier_nanos": 9474500,
+            "completion_nanos": 9502700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 5,
+            "submission_nanos": 85500,
+            "barrier_nanos": 10146900,
+            "completion_nanos": 10235100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 6,
+            "submission_nanos": 25400,
+            "barrier_nanos": 9090600,
+            "completion_nanos": 9118400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 7,
+            "submission_nanos": 23000,
+            "barrier_nanos": 9439000,
+            "completion_nanos": 9464200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 8,
+            "submission_nanos": 170400,
+            "barrier_nanos": 9253600,
+            "completion_nanos": 9426600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 9,
+            "submission_nanos": 25500,
+            "barrier_nanos": 9257000,
+            "completion_nanos": 9285000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 10,
+            "submission_nanos": 30300,
+            "barrier_nanos": 9781100,
+            "completion_nanos": 9814000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 11,
+            "submission_nanos": 26100,
+            "barrier_nanos": 9184400,
+            "completion_nanos": 9212700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 12,
+            "submission_nanos": 21600,
+            "barrier_nanos": 9064800,
+            "completion_nanos": 9087500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 13,
+            "submission_nanos": 19800,
+            "barrier_nanos": 9438300,
+            "completion_nanos": 9459700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 14,
+            "submission_nanos": 19800,
+            "barrier_nanos": 9501000,
+            "completion_nanos": 9522100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 15,
+            "submission_nanos": 19100,
+            "barrier_nanos": 9722500,
+            "completion_nanos": 9743200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 16,
+            "submission_nanos": 23000,
+            "barrier_nanos": 9860800,
+            "completion_nanos": 9885200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 17,
+            "submission_nanos": 23400,
+            "barrier_nanos": 9829300,
+            "completion_nanos": 9854000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 18,
+            "submission_nanos": 20600,
+            "barrier_nanos": 9515600,
+            "completion_nanos": 9537500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 19,
+            "submission_nanos": 24300,
+            "barrier_nanos": 9627100,
+            "completion_nanos": 9653200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 20,
+            "submission_nanos": 20900,
+            "barrier_nanos": 10106800,
+            "completion_nanos": 10129600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 21,
+            "submission_nanos": 27500,
+            "barrier_nanos": 9367800,
+            "completion_nanos": 9400700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 22,
+            "submission_nanos": 22800,
+            "barrier_nanos": 9520800,
+            "completion_nanos": 9545300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 23,
+            "submission_nanos": 23000,
+            "barrier_nanos": 9587700,
+            "completion_nanos": 9612000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 24,
+            "submission_nanos": 23300,
+            "barrier_nanos": 9590700,
+            "completion_nanos": 9616400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 25,
+            "submission_nanos": 28300,
+            "barrier_nanos": 9506100,
+            "completion_nanos": 9536900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 26,
+            "submission_nanos": 26100,
+            "barrier_nanos": 9843500,
+            "completion_nanos": 9872100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 27,
+            "submission_nanos": 23800,
+            "barrier_nanos": 9992100,
+            "completion_nanos": 10017500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 28,
+            "submission_nanos": 22000,
+            "barrier_nanos": 10282700,
+            "completion_nanos": 10306900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 29,
+            "submission_nanos": 25600,
+            "barrier_nanos": 9682100,
+            "completion_nanos": 9710000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 30,
+            "submission_nanos": 16800,
+            "barrier_nanos": 9516300,
+            "completion_nanos": 9535100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 31,
+            "submission_nanos": 24200,
+            "barrier_nanos": 9509600,
+            "completion_nanos": 9535400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 32,
+            "submission_nanos": 14800,
+            "barrier_nanos": 9527500,
+            "completion_nanos": 9543200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 33,
+            "submission_nanos": 14400,
+            "barrier_nanos": 9513200,
+            "completion_nanos": 9528200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 34,
+            "submission_nanos": 15300,
+            "barrier_nanos": 9519300,
+            "completion_nanos": 9535600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 35,
+            "submission_nanos": 17100,
+            "barrier_nanos": 9476800,
+            "completion_nanos": 9494600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 36,
+            "submission_nanos": 15300,
+            "barrier_nanos": 9528700,
+            "completion_nanos": 9545200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 37,
+            "submission_nanos": 16800,
+            "barrier_nanos": 9530100,
+            "completion_nanos": 9547500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 38,
+            "submission_nanos": 15800,
+            "barrier_nanos": 9550300,
+            "completion_nanos": 9566700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 39,
+            "submission_nanos": 18700,
+            "barrier_nanos": 9549800,
+            "completion_nanos": 9569900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 40,
+            "submission_nanos": 18600,
+            "barrier_nanos": 9581800,
+            "completion_nanos": 9602400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 41,
+            "submission_nanos": 18700,
+            "barrier_nanos": 9522200,
+            "completion_nanos": 9542400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 42,
+            "submission_nanos": 17400,
+            "barrier_nanos": 9494100,
+            "completion_nanos": 9512500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 43,
+            "submission_nanos": 51500,
+            "barrier_nanos": 9557800,
+            "completion_nanos": 9610900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 44,
+            "submission_nanos": 41700,
+            "barrier_nanos": 9533900,
+            "completion_nanos": 9577500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 45,
+            "submission_nanos": 29800,
+            "barrier_nanos": 9520500,
+            "completion_nanos": 9551200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 46,
+            "submission_nanos": 18100,
+            "barrier_nanos": 9522700,
+            "completion_nanos": 9542100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 47,
+            "submission_nanos": 17500,
+            "barrier_nanos": 9495200,
+            "completion_nanos": 9513800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 48,
+            "submission_nanos": 19000,
+            "barrier_nanos": 9566200,
+            "completion_nanos": 9586700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 49,
+            "submission_nanos": 17200,
+            "barrier_nanos": 9526700,
+            "completion_nanos": 9545100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 50,
+            "submission_nanos": 17600,
+            "barrier_nanos": 9534600,
+            "completion_nanos": 9553400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 51,
+            "submission_nanos": 17000,
+            "barrier_nanos": 9530800,
+            "completion_nanos": 9549100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 52,
+            "submission_nanos": 17300,
+            "barrier_nanos": 9529200,
+            "completion_nanos": 9547600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 53,
+            "submission_nanos": 16700,
+            "barrier_nanos": 9598000,
+            "completion_nanos": 9615800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 54,
+            "submission_nanos": 25100,
+            "barrier_nanos": 9632400,
+            "completion_nanos": 9659500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 55,
+            "submission_nanos": 19900,
+            "barrier_nanos": 9617000,
+            "completion_nanos": 9638900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 56,
+            "submission_nanos": 19800,
+            "barrier_nanos": 9469200,
+            "completion_nanos": 9490800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 57,
+            "submission_nanos": 17600,
+            "barrier_nanos": 9495100,
+            "completion_nanos": 9514600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 58,
+            "submission_nanos": 17900,
+            "barrier_nanos": 9509100,
+            "completion_nanos": 9528600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 59,
+            "submission_nanos": 16600,
+            "barrier_nanos": 9499800,
+            "completion_nanos": 9517900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 60,
+            "submission_nanos": 18100,
+            "barrier_nanos": 9533100,
+            "completion_nanos": 9553500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 61,
+            "submission_nanos": 16300,
+            "barrier_nanos": 9491100,
+            "completion_nanos": 9509300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 62,
+            "submission_nanos": 20500,
+            "barrier_nanos": 9481300,
+            "completion_nanos": 9503200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 63,
+            "submission_nanos": 25100,
+            "barrier_nanos": 9524500,
+            "completion_nanos": 9552000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 64,
+            "submission_nanos": 18200,
+            "barrier_nanos": 9500400,
+            "completion_nanos": 9520500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 65,
+            "submission_nanos": 17100,
+            "barrier_nanos": 9484900,
+            "completion_nanos": 9503700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 66,
+            "submission_nanos": 17700,
+            "barrier_nanos": 9486300,
+            "completion_nanos": 9505600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 67,
+            "submission_nanos": 19400,
+            "barrier_nanos": 9473300,
+            "completion_nanos": 9494500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 68,
+            "submission_nanos": 18900,
+            "barrier_nanos": 9534800,
+            "completion_nanos": 9555400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 69,
+            "submission_nanos": 17400,
+            "barrier_nanos": 9504900,
+            "completion_nanos": 9524300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 70,
+            "submission_nanos": 20800,
+            "barrier_nanos": 9488000,
+            "completion_nanos": 9510300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 71,
+            "submission_nanos": 17500,
+            "barrier_nanos": 9505100,
+            "completion_nanos": 9523800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 72,
+            "submission_nanos": 17500,
+            "barrier_nanos": 9510000,
+            "completion_nanos": 9528800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 73,
+            "submission_nanos": 26700,
+            "barrier_nanos": 9663200,
+            "completion_nanos": 9692700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 74,
+            "submission_nanos": 22900,
+            "barrier_nanos": 9534500,
+            "completion_nanos": 9560300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 75,
+            "submission_nanos": 18800,
+            "barrier_nanos": 9510600,
+            "completion_nanos": 9531400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 76,
+            "submission_nanos": 17300,
+            "barrier_nanos": 9532200,
+            "completion_nanos": 9551400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 77,
+            "submission_nanos": 18600,
+            "barrier_nanos": 9519600,
+            "completion_nanos": 9540000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 78,
+            "submission_nanos": 17000,
+            "barrier_nanos": 9520700,
+            "completion_nanos": 9539300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 79,
+            "submission_nanos": 18000,
+            "barrier_nanos": 9540200,
+            "completion_nanos": 9559600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 80,
+            "submission_nanos": 17000,
+            "barrier_nanos": 9698600,
+            "completion_nanos": 9717600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 81,
+            "submission_nanos": 24700,
+            "barrier_nanos": 9536500,
+            "completion_nanos": 9564000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 82,
+            "submission_nanos": 18900,
+            "barrier_nanos": 9514600,
+            "completion_nanos": 9534900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 83,
+            "submission_nanos": 16700,
+            "barrier_nanos": 9583700,
+            "completion_nanos": 9602100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 84,
+            "submission_nanos": 16400,
+            "barrier_nanos": 9510500,
+            "completion_nanos": 9528600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 85,
+            "submission_nanos": 18100,
+            "barrier_nanos": 9614700,
+            "completion_nanos": 9644000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 86,
+            "submission_nanos": 18300,
+            "barrier_nanos": 9610600,
+            "completion_nanos": 9630100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 87,
+            "submission_nanos": 20400,
+            "barrier_nanos": 9549500,
+            "completion_nanos": 9570800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 88,
+            "submission_nanos": 32100,
+            "barrier_nanos": 9530800,
+            "completion_nanos": 9567400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 89,
+            "submission_nanos": 17700,
+            "barrier_nanos": 9524300,
+            "completion_nanos": 9542600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 90,
+            "submission_nanos": 16100,
+            "barrier_nanos": 9508600,
+            "completion_nanos": 9525400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 91,
+            "submission_nanos": 16700,
+            "barrier_nanos": 9539100,
+            "completion_nanos": 9556200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 92,
+            "submission_nanos": 16800,
+            "barrier_nanos": 9576200,
+            "completion_nanos": 9593500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 93,
+            "submission_nanos": 16100,
+            "barrier_nanos": 9557500,
+            "completion_nanos": 9574200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 94,
+            "submission_nanos": 20300,
+            "barrier_nanos": 9530900,
+            "completion_nanos": 9551700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 95,
+            "submission_nanos": 17500,
+            "barrier_nanos": 9480200,
+            "completion_nanos": 9498500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 96,
+            "submission_nanos": 16500,
+            "barrier_nanos": 9539300,
+            "completion_nanos": 9556300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 97,
+            "submission_nanos": 16000,
+            "barrier_nanos": 9484500,
+            "completion_nanos": 9500900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 98,
+            "submission_nanos": 15400,
+            "barrier_nanos": 9483800,
+            "completion_nanos": 9499600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 99,
+            "submission_nanos": 16800,
+            "barrier_nanos": 9483600,
+            "completion_nanos": 9500800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 100,
+            "submission_nanos": 16100,
+            "barrier_nanos": 9531000,
+            "completion_nanos": 9547500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 101,
+            "submission_nanos": 17600,
+            "barrier_nanos": 9490000,
+            "completion_nanos": 9508200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 102,
+            "submission_nanos": 16300,
+            "barrier_nanos": 9487700,
+            "completion_nanos": 9504700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 103,
+            "submission_nanos": 17400,
+            "barrier_nanos": 9489500,
+            "completion_nanos": 9507500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 104,
+            "submission_nanos": 18500,
+            "barrier_nanos": 9487400,
+            "completion_nanos": 9506300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 105,
+            "submission_nanos": 17000,
+            "barrier_nanos": 9534300,
+            "completion_nanos": 9551700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 106,
+            "submission_nanos": 22600,
+            "barrier_nanos": 9591700,
+            "completion_nanos": 9614700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 107,
+            "submission_nanos": 16800,
+            "barrier_nanos": 9760300,
+            "completion_nanos": 9777400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 108,
+            "submission_nanos": 16700,
+            "barrier_nanos": 9561200,
+            "completion_nanos": 9578300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 109,
+            "submission_nanos": 16500,
+            "barrier_nanos": 9536500,
+            "completion_nanos": 9553300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 110,
+            "submission_nanos": 19300,
+            "barrier_nanos": 9528900,
+            "completion_nanos": 9548500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 111,
+            "submission_nanos": 17700,
+            "barrier_nanos": 9517500,
+            "completion_nanos": 9535500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 112,
+            "submission_nanos": 15600,
+            "barrier_nanos": 9518800,
+            "completion_nanos": 9535000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 113,
+            "submission_nanos": 16400,
+            "barrier_nanos": 9525100,
+            "completion_nanos": 9541900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 114,
+            "submission_nanos": 17000,
+            "barrier_nanos": 9529900,
+            "completion_nanos": 9547300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 115,
+            "submission_nanos": 17000,
+            "barrier_nanos": 9522900,
+            "completion_nanos": 9540200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 116,
+            "submission_nanos": 16900,
+            "barrier_nanos": 9523500,
+            "completion_nanos": 9540900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 117,
+            "submission_nanos": 16300,
+            "barrier_nanos": 9542700,
+            "completion_nanos": 9559600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 118,
+            "submission_nanos": 19000,
+            "barrier_nanos": 9591300,
+            "completion_nanos": 9611100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 119,
+            "submission_nanos": 18600,
+            "barrier_nanos": 9621700,
+            "completion_nanos": 9640800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 120,
+            "submission_nanos": 19500,
+            "barrier_nanos": 9548100,
+            "completion_nanos": 9568200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 121,
+            "submission_nanos": 18600,
+            "barrier_nanos": 9519100,
+            "completion_nanos": 9538100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 122,
+            "submission_nanos": 17000,
+            "barrier_nanos": 9576800,
+            "completion_nanos": 9594000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 123,
+            "submission_nanos": 22700,
+            "barrier_nanos": 9552700,
+            "completion_nanos": 9575800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 124,
+            "submission_nanos": 16000,
+            "barrier_nanos": 9424600,
+            "completion_nanos": 9440900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 125,
+            "submission_nanos": 17100,
+            "barrier_nanos": 9384600,
+            "completion_nanos": 9402300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 126,
+            "submission_nanos": 17100,
+            "barrier_nanos": 9355400,
+            "completion_nanos": 9372800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 127,
+            "submission_nanos": 17300,
+            "barrier_nanos": 9435600,
+            "completion_nanos": 9453300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 128,
+            "submission_nanos": 18500,
+            "barrier_nanos": 9408800,
+            "completion_nanos": 9427800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 129,
+            "submission_nanos": 17100,
+            "barrier_nanos": 9388800,
+            "completion_nanos": 9406200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 130,
+            "submission_nanos": 18600,
+            "barrier_nanos": 9389000,
+            "completion_nanos": 9408100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 131,
+            "submission_nanos": 22600,
+            "barrier_nanos": 9430400,
+            "completion_nanos": 9453500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 132,
+            "submission_nanos": 28700,
+            "barrier_nanos": 8870600,
+            "completion_nanos": 8899900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 133,
+            "submission_nanos": 15900,
+            "barrier_nanos": 8747300,
+            "completion_nanos": 8763400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 134,
+            "submission_nanos": 15600,
+            "barrier_nanos": 8718000,
+            "completion_nanos": 8733900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 135,
+            "submission_nanos": 14900,
+            "barrier_nanos": 8732100,
+            "completion_nanos": 8747200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 136,
+            "submission_nanos": 20000,
+            "barrier_nanos": 8734000,
+            "completion_nanos": 8754300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 137,
+            "submission_nanos": 21000,
+            "barrier_nanos": 8916800,
+            "completion_nanos": 8938300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 138,
+            "submission_nanos": 17200,
+            "barrier_nanos": 8719700,
+            "completion_nanos": 8737400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 139,
+            "submission_nanos": 17300,
+            "barrier_nanos": 8715500,
+            "completion_nanos": 8733200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 140,
+            "submission_nanos": 16300,
+            "barrier_nanos": 8715500,
+            "completion_nanos": 8732200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 141,
+            "submission_nanos": 15000,
+            "barrier_nanos": 8724800,
+            "completion_nanos": 8740200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 142,
+            "submission_nanos": 17000,
+            "barrier_nanos": 8739900,
+            "completion_nanos": 8757200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 143,
+            "submission_nanos": 16300,
+            "barrier_nanos": 8766800,
+            "completion_nanos": 8783400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 144,
+            "submission_nanos": 14900,
+            "barrier_nanos": 8788700,
+            "completion_nanos": 8803900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 145,
+            "submission_nanos": 15800,
+            "barrier_nanos": 8761100,
+            "completion_nanos": 8777100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 146,
+            "submission_nanos": 17400,
+            "barrier_nanos": 8762200,
+            "completion_nanos": 8779900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 147,
+            "submission_nanos": 18400,
+            "barrier_nanos": 8787400,
+            "completion_nanos": 8806200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 148,
+            "submission_nanos": 15900,
+            "barrier_nanos": 8777900,
+            "completion_nanos": 8794100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 149,
+            "submission_nanos": 16000,
+            "barrier_nanos": 8828600,
+            "completion_nanos": 8844800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 150,
+            "submission_nanos": 16500,
+            "barrier_nanos": 8963100,
+            "completion_nanos": 8980300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 151,
+            "submission_nanos": 18400,
+            "barrier_nanos": 9100000,
+            "completion_nanos": 9118800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 152,
+            "submission_nanos": 15700,
+            "barrier_nanos": 9073600,
+            "completion_nanos": 9089800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 153,
+            "submission_nanos": 13400,
+            "barrier_nanos": 9114700,
+            "completion_nanos": 9128300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 154,
+            "submission_nanos": 13700,
+            "barrier_nanos": 9145200,
+            "completion_nanos": 9159100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 155,
+            "submission_nanos": 13200,
+            "barrier_nanos": 9128300,
+            "completion_nanos": 9141800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 156,
+            "submission_nanos": 14700,
+            "barrier_nanos": 9156300,
+            "completion_nanos": 9171300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 157,
+            "submission_nanos": 14300,
+            "barrier_nanos": 9188600,
+            "completion_nanos": 9203200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 158,
+            "submission_nanos": 18400,
+            "barrier_nanos": 9102700,
+            "completion_nanos": 9121500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 159,
+            "submission_nanos": 13400,
+            "barrier_nanos": 9081600,
+            "completion_nanos": 9095200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 160,
+            "submission_nanos": 13700,
+            "barrier_nanos": 9077100,
+            "completion_nanos": 9091100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 161,
+            "submission_nanos": 19900,
+            "barrier_nanos": 9104300,
+            "completion_nanos": 9124700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 162,
+            "submission_nanos": 15100,
+            "barrier_nanos": 9120500,
+            "completion_nanos": 9136000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 163,
+            "submission_nanos": 15500,
+            "barrier_nanos": 9118200,
+            "completion_nanos": 9134100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 164,
+            "submission_nanos": 17500,
+            "barrier_nanos": 9127100,
+            "completion_nanos": 9145100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 165,
+            "submission_nanos": 15300,
+            "barrier_nanos": 9139700,
+            "completion_nanos": 9155600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 166,
+            "submission_nanos": 18700,
+            "barrier_nanos": 9080100,
+            "completion_nanos": 9099400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 167,
+            "submission_nanos": 16200,
+            "barrier_nanos": 9086800,
+            "completion_nanos": 9103500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 168,
+            "submission_nanos": 19900,
+            "barrier_nanos": 8786000,
+            "completion_nanos": 8806300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 169,
+            "submission_nanos": 21700,
+            "barrier_nanos": 8850500,
+            "completion_nanos": 8873200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 170,
+            "submission_nanos": 15100,
+            "barrier_nanos": 8797100,
+            "completion_nanos": 8812800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 171,
+            "submission_nanos": 15000,
+            "barrier_nanos": 8893400,
+            "completion_nanos": 8909300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 172,
+            "submission_nanos": 21300,
+            "barrier_nanos": 8826800,
+            "completion_nanos": 8848500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 173,
+            "submission_nanos": 18000,
+            "barrier_nanos": 8832100,
+            "completion_nanos": 8850600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 174,
+            "submission_nanos": 16100,
+            "barrier_nanos": 8841000,
+            "completion_nanos": 8857500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 175,
+            "submission_nanos": 16700,
+            "barrier_nanos": 8767300,
+            "completion_nanos": 8784300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 176,
+            "submission_nanos": 19900,
+            "barrier_nanos": 8777800,
+            "completion_nanos": 8798200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 177,
+            "submission_nanos": 15700,
+            "barrier_nanos": 8777400,
+            "completion_nanos": 8793200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 178,
+            "submission_nanos": 15200,
+            "barrier_nanos": 8785700,
+            "completion_nanos": 8801100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 179,
+            "submission_nanos": 14100,
+            "barrier_nanos": 8768700,
+            "completion_nanos": 8782900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 180,
+            "submission_nanos": 14700,
+            "barrier_nanos": 8765600,
+            "completion_nanos": 8780400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 181,
+            "submission_nanos": 12400,
+            "barrier_nanos": 8754700,
+            "completion_nanos": 8767600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 182,
+            "submission_nanos": 21400,
+            "barrier_nanos": 8804500,
+            "completion_nanos": 8826200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 183,
+            "submission_nanos": 17300,
+            "barrier_nanos": 8831900,
+            "completion_nanos": 8849800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 184,
+            "submission_nanos": 15700,
+            "barrier_nanos": 8860300,
+            "completion_nanos": 8876500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 185,
+            "submission_nanos": 16600,
+            "barrier_nanos": 8818600,
+            "completion_nanos": 8835700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 186,
+            "submission_nanos": 15400,
+            "barrier_nanos": 8783100,
+            "completion_nanos": 8798700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 187,
+            "submission_nanos": 13700,
+            "barrier_nanos": 8791200,
+            "completion_nanos": 8805200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 188,
+            "submission_nanos": 14300,
+            "barrier_nanos": 8822200,
+            "completion_nanos": 8836900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 189,
+            "submission_nanos": 13900,
+            "barrier_nanos": 8813500,
+            "completion_nanos": 8827800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 190,
+            "submission_nanos": 13100,
+            "barrier_nanos": 8889900,
+            "completion_nanos": 8903300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 191,
+            "submission_nanos": 13400,
+            "barrier_nanos": 8817800,
+            "completion_nanos": 8831600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 192,
+            "submission_nanos": 20100,
+            "barrier_nanos": 8783100,
+            "completion_nanos": 8803500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 193,
+            "submission_nanos": 19500,
+            "barrier_nanos": 8811200,
+            "completion_nanos": 8831200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 194,
+            "submission_nanos": 15300,
+            "barrier_nanos": 8889900,
+            "completion_nanos": 8905400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 195,
+            "submission_nanos": 15500,
+            "barrier_nanos": 8784900,
+            "completion_nanos": 8800700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 196,
+            "submission_nanos": 15400,
+            "barrier_nanos": 8809400,
+            "completion_nanos": 8825100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 197,
+            "submission_nanos": 16800,
+            "barrier_nanos": 8762100,
+            "completion_nanos": 8779200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 198,
+            "submission_nanos": 23300,
+            "barrier_nanos": 8774500,
+            "completion_nanos": 8798200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 199,
+            "submission_nanos": 15800,
+            "barrier_nanos": 8792700,
+            "completion_nanos": 8808700,
+            "light_verified": true
+          }
+        ]
+      },
+      {
+        "name": "sky_place",
+        "light_type": "sky",
+        "action": "place",
+        "position": [
+          20008,
+          254,
+          20008
+        ],
+        "sample_count": 200,
+        "all_samples_verified": true,
+        "submission_summary_nanos": {
+          "minimum": 9200,
+          "average": 15582.5,
+          "p50": 14600,
+          "p95": 20900,
+          "p99": 30200,
+          "maximum": 82300
+        },
+        "barrier_summary_nanos": {
+          "minimum": 14215000,
+          "average": 1.5541547E7,
+          "p50": 15865600,
+          "p95": 16459300,
+          "p99": 17257800,
+          "maximum": 17574800
+        },
+        "completion_summary_nanos": {
+          "minimum": 14226100,
+          "average": 1.55581915E7,
+          "p50": 15882600,
+          "p95": 16477600,
+          "p99": 17276100,
+          "maximum": 17603700
+        },
+        "samples": [
+          {
+            "ordinal": 0,
+            "submission_nanos": 20700,
+            "barrier_nanos": 14739200,
+            "completion_nanos": 14762700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 1,
+            "submission_nanos": 15500,
+            "barrier_nanos": 14691500,
+            "completion_nanos": 14708900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 2,
+            "submission_nanos": 25900,
+            "barrier_nanos": 17574800,
+            "completion_nanos": 17603700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 3,
+            "submission_nanos": 20700,
+            "barrier_nanos": 16013700,
+            "completion_nanos": 16036600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 4,
+            "submission_nanos": 20700,
+            "barrier_nanos": 16278300,
+            "completion_nanos": 16301600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 5,
+            "submission_nanos": 23200,
+            "barrier_nanos": 15945400,
+            "completion_nanos": 15971800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 6,
+            "submission_nanos": 82300,
+            "barrier_nanos": 15732100,
+            "completion_nanos": 15816600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 7,
+            "submission_nanos": 18700,
+            "barrier_nanos": 16129200,
+            "completion_nanos": 16151300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 8,
+            "submission_nanos": 18100,
+            "barrier_nanos": 16148000,
+            "completion_nanos": 16168400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 9,
+            "submission_nanos": 18600,
+            "barrier_nanos": 15991900,
+            "completion_nanos": 16012600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 10,
+            "submission_nanos": 20200,
+            "barrier_nanos": 16474900,
+            "completion_nanos": 16497500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 11,
+            "submission_nanos": 11500,
+            "barrier_nanos": 15944800,
+            "completion_nanos": 15957800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 12,
+            "submission_nanos": 9700,
+            "barrier_nanos": 15631700,
+            "completion_nanos": 15642700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 13,
+            "submission_nanos": 13200,
+            "barrier_nanos": 15783600,
+            "completion_nanos": 15798200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 14,
+            "submission_nanos": 13000,
+            "barrier_nanos": 16123100,
+            "completion_nanos": 16137400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 15,
+            "submission_nanos": 18500,
+            "barrier_nanos": 16205300,
+            "completion_nanos": 16225900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 16,
+            "submission_nanos": 17200,
+            "barrier_nanos": 16459300,
+            "completion_nanos": 16478200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 17,
+            "submission_nanos": 15600,
+            "barrier_nanos": 15879600,
+            "completion_nanos": 15897000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 18,
+            "submission_nanos": 16300,
+            "barrier_nanos": 16459300,
+            "completion_nanos": 16477600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 19,
+            "submission_nanos": 18700,
+            "barrier_nanos": 16231100,
+            "completion_nanos": 16251700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 20,
+            "submission_nanos": 17900,
+            "barrier_nanos": 17271400,
+            "completion_nanos": 17292000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 21,
+            "submission_nanos": 14000,
+            "barrier_nanos": 16261500,
+            "completion_nanos": 16278400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 22,
+            "submission_nanos": 12400,
+            "barrier_nanos": 16323900,
+            "completion_nanos": 16337900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 23,
+            "submission_nanos": 14400,
+            "barrier_nanos": 16756600,
+            "completion_nanos": 16773500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 24,
+            "submission_nanos": 20500,
+            "barrier_nanos": 16781500,
+            "completion_nanos": 16805300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 25,
+            "submission_nanos": 20200,
+            "barrier_nanos": 16518200,
+            "completion_nanos": 16541200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 26,
+            "submission_nanos": 16400,
+            "barrier_nanos": 17257800,
+            "completion_nanos": 17276100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 27,
+            "submission_nanos": 13200,
+            "barrier_nanos": 15911100,
+            "completion_nanos": 15926400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 28,
+            "submission_nanos": 18600,
+            "barrier_nanos": 16792800,
+            "completion_nanos": 16813600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 29,
+            "submission_nanos": 16400,
+            "barrier_nanos": 16247200,
+            "completion_nanos": 16265700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 30,
+            "submission_nanos": 11700,
+            "barrier_nanos": 16423400,
+            "completion_nanos": 16436100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 31,
+            "submission_nanos": 12500,
+            "barrier_nanos": 16181900,
+            "completion_nanos": 16195800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 32,
+            "submission_nanos": 10700,
+            "barrier_nanos": 16029000,
+            "completion_nanos": 16041000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 33,
+            "submission_nanos": 9900,
+            "barrier_nanos": 16021200,
+            "completion_nanos": 16031900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 34,
+            "submission_nanos": 9700,
+            "barrier_nanos": 16046000,
+            "completion_nanos": 16056500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 35,
+            "submission_nanos": 9700,
+            "barrier_nanos": 15997300,
+            "completion_nanos": 16008000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 36,
+            "submission_nanos": 11200,
+            "barrier_nanos": 15848700,
+            "completion_nanos": 15860800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 37,
+            "submission_nanos": 10200,
+            "barrier_nanos": 15843300,
+            "completion_nanos": 15854600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 38,
+            "submission_nanos": 13500,
+            "barrier_nanos": 15912700,
+            "completion_nanos": 15927100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 39,
+            "submission_nanos": 15200,
+            "barrier_nanos": 16027500,
+            "completion_nanos": 16044200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 40,
+            "submission_nanos": 21500,
+            "barrier_nanos": 15865600,
+            "completion_nanos": 15889000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 41,
+            "submission_nanos": 16400,
+            "barrier_nanos": 16028400,
+            "completion_nanos": 16046100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 42,
+            "submission_nanos": 14100,
+            "barrier_nanos": 16011300,
+            "completion_nanos": 16026500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 43,
+            "submission_nanos": 46800,
+            "barrier_nanos": 15899700,
+            "completion_nanos": 15949300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 44,
+            "submission_nanos": 30200,
+            "barrier_nanos": 15842900,
+            "completion_nanos": 15874500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 45,
+            "submission_nanos": 15800,
+            "barrier_nanos": 15893000,
+            "completion_nanos": 15910000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 46,
+            "submission_nanos": 15300,
+            "barrier_nanos": 15862700,
+            "completion_nanos": 15879200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 47,
+            "submission_nanos": 14300,
+            "barrier_nanos": 15937500,
+            "completion_nanos": 15953000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 48,
+            "submission_nanos": 14600,
+            "barrier_nanos": 15867200,
+            "completion_nanos": 15883300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 49,
+            "submission_nanos": 13400,
+            "barrier_nanos": 15867900,
+            "completion_nanos": 15882600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 50,
+            "submission_nanos": 15100,
+            "barrier_nanos": 15810200,
+            "completion_nanos": 15826400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 51,
+            "submission_nanos": 15600,
+            "barrier_nanos": 15858200,
+            "completion_nanos": 15875200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 52,
+            "submission_nanos": 14500,
+            "barrier_nanos": 15939100,
+            "completion_nanos": 15954700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 53,
+            "submission_nanos": 15500,
+            "barrier_nanos": 16082600,
+            "completion_nanos": 16099600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 54,
+            "submission_nanos": 20900,
+            "barrier_nanos": 16014700,
+            "completion_nanos": 16037700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 55,
+            "submission_nanos": 16600,
+            "barrier_nanos": 16209200,
+            "completion_nanos": 16227900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 56,
+            "submission_nanos": 15300,
+            "barrier_nanos": 15800000,
+            "completion_nanos": 15817500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 57,
+            "submission_nanos": 15700,
+            "barrier_nanos": 15927500,
+            "completion_nanos": 15944700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 58,
+            "submission_nanos": 16300,
+            "barrier_nanos": 15942700,
+            "completion_nanos": 15960500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 59,
+            "submission_nanos": 14900,
+            "barrier_nanos": 15950900,
+            "completion_nanos": 15967100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 60,
+            "submission_nanos": 16100,
+            "barrier_nanos": 15829000,
+            "completion_nanos": 15846700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 61,
+            "submission_nanos": 14600,
+            "barrier_nanos": 15833600,
+            "completion_nanos": 15849600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 62,
+            "submission_nanos": 14800,
+            "barrier_nanos": 16580700,
+            "completion_nanos": 16597500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 63,
+            "submission_nanos": 16400,
+            "barrier_nanos": 15874600,
+            "completion_nanos": 15892900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 64,
+            "submission_nanos": 14600,
+            "barrier_nanos": 15957800,
+            "completion_nanos": 15973900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 65,
+            "submission_nanos": 15200,
+            "barrier_nanos": 15850900,
+            "completion_nanos": 15867500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 66,
+            "submission_nanos": 14300,
+            "barrier_nanos": 15830900,
+            "completion_nanos": 15846800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 67,
+            "submission_nanos": 14300,
+            "barrier_nanos": 15835500,
+            "completion_nanos": 15851200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 68,
+            "submission_nanos": 15500,
+            "barrier_nanos": 15841700,
+            "completion_nanos": 15858800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 69,
+            "submission_nanos": 20400,
+            "barrier_nanos": 15856100,
+            "completion_nanos": 15878400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 70,
+            "submission_nanos": 16900,
+            "barrier_nanos": 15832700,
+            "completion_nanos": 15851000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 71,
+            "submission_nanos": 16000,
+            "barrier_nanos": 15848400,
+            "completion_nanos": 15865800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 72,
+            "submission_nanos": 15700,
+            "barrier_nanos": 15971000,
+            "completion_nanos": 15988900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 73,
+            "submission_nanos": 16300,
+            "barrier_nanos": 16098700,
+            "completion_nanos": 16117700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 74,
+            "submission_nanos": 16900,
+            "barrier_nanos": 15884400,
+            "completion_nanos": 15903500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 75,
+            "submission_nanos": 16700,
+            "barrier_nanos": 15853000,
+            "completion_nanos": 15871800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 76,
+            "submission_nanos": 16300,
+            "barrier_nanos": 15935700,
+            "completion_nanos": 15953900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 77,
+            "submission_nanos": 14600,
+            "barrier_nanos": 15941000,
+            "completion_nanos": 15957300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 78,
+            "submission_nanos": 14900,
+            "barrier_nanos": 15918800,
+            "completion_nanos": 15935300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 79,
+            "submission_nanos": 15600,
+            "barrier_nanos": 16157900,
+            "completion_nanos": 16174900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 80,
+            "submission_nanos": 21500,
+            "barrier_nanos": 16156000,
+            "completion_nanos": 16179600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 81,
+            "submission_nanos": 18100,
+            "barrier_nanos": 15901100,
+            "completion_nanos": 15921600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 82,
+            "submission_nanos": 17200,
+            "barrier_nanos": 15813100,
+            "completion_nanos": 15832100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 83,
+            "submission_nanos": 14800,
+            "barrier_nanos": 15858600,
+            "completion_nanos": 15874700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 84,
+            "submission_nanos": 15100,
+            "barrier_nanos": 15897600,
+            "completion_nanos": 15914300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 85,
+            "submission_nanos": 18800,
+            "barrier_nanos": 15969900,
+            "completion_nanos": 15994500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 86,
+            "submission_nanos": 17600,
+            "barrier_nanos": 16139300,
+            "completion_nanos": 16158400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 87,
+            "submission_nanos": 20400,
+            "barrier_nanos": 15784100,
+            "completion_nanos": 15805300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 88,
+            "submission_nanos": 14900,
+            "barrier_nanos": 16124000,
+            "completion_nanos": 16139100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 89,
+            "submission_nanos": 15000,
+            "barrier_nanos": 15996500,
+            "completion_nanos": 16011900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 90,
+            "submission_nanos": 14500,
+            "barrier_nanos": 16002900,
+            "completion_nanos": 16017900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 91,
+            "submission_nanos": 14600,
+            "barrier_nanos": 16036700,
+            "completion_nanos": 16051600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 92,
+            "submission_nanos": 14100,
+            "barrier_nanos": 16099500,
+            "completion_nanos": 16114100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 93,
+            "submission_nanos": 20500,
+            "barrier_nanos": 16091800,
+            "completion_nanos": 16112800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 94,
+            "submission_nanos": 15300,
+            "barrier_nanos": 16026100,
+            "completion_nanos": 16041800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 95,
+            "submission_nanos": 14400,
+            "barrier_nanos": 16013200,
+            "completion_nanos": 16028000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 96,
+            "submission_nanos": 15000,
+            "barrier_nanos": 15953500,
+            "completion_nanos": 15968900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 97,
+            "submission_nanos": 13900,
+            "barrier_nanos": 15973400,
+            "completion_nanos": 15988200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 98,
+            "submission_nanos": 14200,
+            "barrier_nanos": 15963900,
+            "completion_nanos": 15978400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 99,
+            "submission_nanos": 14700,
+            "barrier_nanos": 15971400,
+            "completion_nanos": 15986400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 100,
+            "submission_nanos": 13900,
+            "barrier_nanos": 16005200,
+            "completion_nanos": 16019600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 101,
+            "submission_nanos": 13900,
+            "barrier_nanos": 15982900,
+            "completion_nanos": 15997300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 102,
+            "submission_nanos": 14100,
+            "barrier_nanos": 16016900,
+            "completion_nanos": 16031600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 103,
+            "submission_nanos": 13200,
+            "barrier_nanos": 16068100,
+            "completion_nanos": 16081800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 104,
+            "submission_nanos": 14000,
+            "barrier_nanos": 16107400,
+            "completion_nanos": 16121700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 105,
+            "submission_nanos": 13900,
+            "barrier_nanos": 16297200,
+            "completion_nanos": 16311400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 106,
+            "submission_nanos": 16600,
+            "barrier_nanos": 16098900,
+            "completion_nanos": 16116100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 107,
+            "submission_nanos": 14500,
+            "barrier_nanos": 15874500,
+            "completion_nanos": 15889600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 108,
+            "submission_nanos": 14300,
+            "barrier_nanos": 15962400,
+            "completion_nanos": 15977000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 109,
+            "submission_nanos": 19900,
+            "barrier_nanos": 16088700,
+            "completion_nanos": 16109200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 110,
+            "submission_nanos": 15700,
+            "barrier_nanos": 15997900,
+            "completion_nanos": 16013800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 111,
+            "submission_nanos": 14000,
+            "barrier_nanos": 16005600,
+            "completion_nanos": 16019900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 112,
+            "submission_nanos": 14900,
+            "barrier_nanos": 16068400,
+            "completion_nanos": 16083700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 113,
+            "submission_nanos": 13900,
+            "barrier_nanos": 16010100,
+            "completion_nanos": 16024500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 114,
+            "submission_nanos": 14100,
+            "barrier_nanos": 16011900,
+            "completion_nanos": 16026400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 115,
+            "submission_nanos": 14000,
+            "barrier_nanos": 15977500,
+            "completion_nanos": 15991900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 116,
+            "submission_nanos": 14300,
+            "barrier_nanos": 15970800,
+            "completion_nanos": 15985700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 117,
+            "submission_nanos": 13200,
+            "barrier_nanos": 16371600,
+            "completion_nanos": 16385100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 118,
+            "submission_nanos": 20600,
+            "barrier_nanos": 15889700,
+            "completion_nanos": 15910800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 119,
+            "submission_nanos": 19000,
+            "barrier_nanos": 16030100,
+            "completion_nanos": 16049800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 120,
+            "submission_nanos": 15100,
+            "barrier_nanos": 16110700,
+            "completion_nanos": 16126200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 121,
+            "submission_nanos": 14400,
+            "barrier_nanos": 16008800,
+            "completion_nanos": 16023500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 122,
+            "submission_nanos": 14500,
+            "barrier_nanos": 16126300,
+            "completion_nanos": 16141400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 123,
+            "submission_nanos": 16200,
+            "barrier_nanos": 15998500,
+            "completion_nanos": 16015200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 124,
+            "submission_nanos": 14700,
+            "barrier_nanos": 15814500,
+            "completion_nanos": 15829800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 125,
+            "submission_nanos": 14800,
+            "barrier_nanos": 15796400,
+            "completion_nanos": 15811800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 126,
+            "submission_nanos": 14500,
+            "barrier_nanos": 15729700,
+            "completion_nanos": 15744400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 127,
+            "submission_nanos": 21100,
+            "barrier_nanos": 15818100,
+            "completion_nanos": 15839700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 128,
+            "submission_nanos": 14800,
+            "barrier_nanos": 15874200,
+            "completion_nanos": 15889500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 129,
+            "submission_nanos": 27400,
+            "barrier_nanos": 15904900,
+            "completion_nanos": 15932800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 130,
+            "submission_nanos": 13700,
+            "barrier_nanos": 15742000,
+            "completion_nanos": 15756200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 131,
+            "submission_nanos": 15500,
+            "barrier_nanos": 15746900,
+            "completion_nanos": 15763000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 132,
+            "submission_nanos": 11700,
+            "barrier_nanos": 14482200,
+            "completion_nanos": 14494300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 133,
+            "submission_nanos": 12000,
+            "barrier_nanos": 14493400,
+            "completion_nanos": 14505700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 134,
+            "submission_nanos": 13600,
+            "barrier_nanos": 14454600,
+            "completion_nanos": 14468300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 135,
+            "submission_nanos": 13700,
+            "barrier_nanos": 14498200,
+            "completion_nanos": 14512400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 136,
+            "submission_nanos": 18800,
+            "barrier_nanos": 14515000,
+            "completion_nanos": 14534600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 137,
+            "submission_nanos": 21700,
+            "barrier_nanos": 14433100,
+            "completion_nanos": 14455400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 138,
+            "submission_nanos": 14400,
+            "barrier_nanos": 14352900,
+            "completion_nanos": 14367900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 139,
+            "submission_nanos": 13600,
+            "barrier_nanos": 14408900,
+            "completion_nanos": 14422800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 140,
+            "submission_nanos": 14200,
+            "barrier_nanos": 14442800,
+            "completion_nanos": 14457500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 141,
+            "submission_nanos": 14200,
+            "barrier_nanos": 14484300,
+            "completion_nanos": 14499000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 142,
+            "submission_nanos": 14300,
+            "barrier_nanos": 14449700,
+            "completion_nanos": 14464600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 143,
+            "submission_nanos": 11000,
+            "barrier_nanos": 14407700,
+            "completion_nanos": 14419200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 144,
+            "submission_nanos": 14600,
+            "barrier_nanos": 14581600,
+            "completion_nanos": 14596600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 145,
+            "submission_nanos": 13500,
+            "barrier_nanos": 14789900,
+            "completion_nanos": 14803800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 146,
+            "submission_nanos": 14500,
+            "barrier_nanos": 14647100,
+            "completion_nanos": 14662500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 147,
+            "submission_nanos": 15200,
+            "barrier_nanos": 14552400,
+            "completion_nanos": 14568000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 148,
+            "submission_nanos": 13900,
+            "barrier_nanos": 14593500,
+            "completion_nanos": 14607900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 149,
+            "submission_nanos": 11100,
+            "barrier_nanos": 14549700,
+            "completion_nanos": 14561300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 150,
+            "submission_nanos": 14000,
+            "barrier_nanos": 15197000,
+            "completion_nanos": 15211500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 151,
+            "submission_nanos": 13200,
+            "barrier_nanos": 14968000,
+            "completion_nanos": 14981900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 152,
+            "submission_nanos": 11300,
+            "barrier_nanos": 14883200,
+            "completion_nanos": 14895000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 153,
+            "submission_nanos": 11200,
+            "barrier_nanos": 15030700,
+            "completion_nanos": 15042000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 154,
+            "submission_nanos": 9800,
+            "barrier_nanos": 15077700,
+            "completion_nanos": 15087700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 155,
+            "submission_nanos": 11100,
+            "barrier_nanos": 15024600,
+            "completion_nanos": 15036100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 156,
+            "submission_nanos": 12600,
+            "barrier_nanos": 14924300,
+            "completion_nanos": 14937200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 157,
+            "submission_nanos": 11900,
+            "barrier_nanos": 15008700,
+            "completion_nanos": 15020700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 158,
+            "submission_nanos": 18600,
+            "barrier_nanos": 14777600,
+            "completion_nanos": 14796600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 159,
+            "submission_nanos": 12900,
+            "barrier_nanos": 14873700,
+            "completion_nanos": 14886800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 160,
+            "submission_nanos": 13700,
+            "barrier_nanos": 14794800,
+            "completion_nanos": 14808700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 161,
+            "submission_nanos": 14800,
+            "barrier_nanos": 14816300,
+            "completion_nanos": 14831400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 162,
+            "submission_nanos": 14500,
+            "barrier_nanos": 14983000,
+            "completion_nanos": 14997800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 163,
+            "submission_nanos": 13800,
+            "barrier_nanos": 14981300,
+            "completion_nanos": 14995700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 164,
+            "submission_nanos": 15200,
+            "barrier_nanos": 15157300,
+            "completion_nanos": 15173100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 165,
+            "submission_nanos": 19400,
+            "barrier_nanos": 14823400,
+            "completion_nanos": 14843400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 166,
+            "submission_nanos": 15000,
+            "barrier_nanos": 15008100,
+            "completion_nanos": 15023600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 167,
+            "submission_nanos": 13000,
+            "barrier_nanos": 14798400,
+            "completion_nanos": 14812100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 168,
+            "submission_nanos": 14500,
+            "barrier_nanos": 14445700,
+            "completion_nanos": 14460800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 169,
+            "submission_nanos": 18400,
+            "barrier_nanos": 14365400,
+            "completion_nanos": 14384600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 170,
+            "submission_nanos": 15200,
+            "barrier_nanos": 14547200,
+            "completion_nanos": 14563100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 171,
+            "submission_nanos": 19900,
+            "barrier_nanos": 14549300,
+            "completion_nanos": 14569600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 172,
+            "submission_nanos": 15100,
+            "barrier_nanos": 14309300,
+            "completion_nanos": 14324900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 173,
+            "submission_nanos": 13800,
+            "barrier_nanos": 14344900,
+            "completion_nanos": 14359700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 174,
+            "submission_nanos": 13600,
+            "barrier_nanos": 14667700,
+            "completion_nanos": 14682000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 175,
+            "submission_nanos": 11300,
+            "barrier_nanos": 14351200,
+            "completion_nanos": 14362900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 176,
+            "submission_nanos": 12400,
+            "barrier_nanos": 15158900,
+            "completion_nanos": 15171600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 177,
+            "submission_nanos": 10400,
+            "barrier_nanos": 14923400,
+            "completion_nanos": 14934200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 178,
+            "submission_nanos": 11100,
+            "barrier_nanos": 14545000,
+            "completion_nanos": 14556400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 179,
+            "submission_nanos": 11300,
+            "barrier_nanos": 14530300,
+            "completion_nanos": 14542100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 180,
+            "submission_nanos": 9200,
+            "barrier_nanos": 14577200,
+            "completion_nanos": 14586700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 181,
+            "submission_nanos": 12000,
+            "barrier_nanos": 14270800,
+            "completion_nanos": 14283100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 182,
+            "submission_nanos": 13600,
+            "barrier_nanos": 14468500,
+            "completion_nanos": 14482900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 183,
+            "submission_nanos": 15700,
+            "barrier_nanos": 14388200,
+            "completion_nanos": 14404500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 184,
+            "submission_nanos": 14300,
+            "barrier_nanos": 14549800,
+            "completion_nanos": 14564600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 185,
+            "submission_nanos": 14100,
+            "barrier_nanos": 14367100,
+            "completion_nanos": 14381900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 186,
+            "submission_nanos": 9200,
+            "barrier_nanos": 14501100,
+            "completion_nanos": 14510700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 187,
+            "submission_nanos": 12000,
+            "barrier_nanos": 14388700,
+            "completion_nanos": 14401000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 188,
+            "submission_nanos": 13800,
+            "barrier_nanos": 14425200,
+            "completion_nanos": 14439500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 189,
+            "submission_nanos": 11400,
+            "barrier_nanos": 14445700,
+            "completion_nanos": 14457400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 190,
+            "submission_nanos": 11500,
+            "barrier_nanos": 14446700,
+            "completion_nanos": 14458600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 191,
+            "submission_nanos": 10000,
+            "barrier_nanos": 14399200,
+            "completion_nanos": 14409500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 192,
+            "submission_nanos": 10700,
+            "barrier_nanos": 14466800,
+            "completion_nanos": 14478000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 193,
+            "submission_nanos": 12800,
+            "barrier_nanos": 14424900,
+            "completion_nanos": 14438600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 194,
+            "submission_nanos": 16300,
+            "barrier_nanos": 14262200,
+            "completion_nanos": 14278900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 195,
+            "submission_nanos": 10500,
+            "barrier_nanos": 14290500,
+            "completion_nanos": 14301500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 196,
+            "submission_nanos": 15700,
+            "barrier_nanos": 14305100,
+            "completion_nanos": 14321200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 197,
+            "submission_nanos": 10500,
+            "barrier_nanos": 14338600,
+            "completion_nanos": 14349400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 198,
+            "submission_nanos": 14400,
+            "barrier_nanos": 14261800,
+            "completion_nanos": 14276700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 199,
+            "submission_nanos": 11000,
+            "barrier_nanos": 14215000,
+            "completion_nanos": 14226100,
+            "light_verified": true
+          }
+        ]
+      },
+      {
+        "name": "block_place",
+        "light_type": "block",
+        "action": "place",
+        "position": [
+          20008,
+          4,
+          20008
+        ],
+        "sample_count": 200,
+        "all_samples_verified": true,
+        "submission_summary_nanos": {
+          "minimum": 200,
+          "average": 655.0,
+          "p50": 400,
+          "p95": 1000,
+          "p99": 2700,
+          "maximum": 26100
+        },
+        "barrier_summary_nanos": {
+          "minimum": 150300,
+          "average": 156933.0,
+          "p50": 156000,
+          "p95": 165900,
+          "p99": 179600,
+          "maximum": 208300
+        },
+        "completion_summary_nanos": {
+          "minimum": 150600,
+          "average": 157868.5,
+          "p50": 156600,
+          "p95": 169600,
+          "p99": 200000,
+          "maximum": 208600
+        },
+        "samples": [
+          {
+            "ordinal": 0,
+            "submission_nanos": 6400,
+            "barrier_nanos": 197300,
+            "completion_nanos": 203700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 1,
+            "submission_nanos": 1000,
+            "barrier_nanos": 176100,
+            "completion_nanos": 177200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 2,
+            "submission_nanos": 700,
+            "barrier_nanos": 171300,
+            "completion_nanos": 172000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 3,
+            "submission_nanos": 1000,
+            "barrier_nanos": 168600,
+            "completion_nanos": 169600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 4,
+            "submission_nanos": 800,
+            "barrier_nanos": 165600,
+            "completion_nanos": 166400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 5,
+            "submission_nanos": 1400,
+            "barrier_nanos": 179600,
+            "completion_nanos": 181100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 6,
+            "submission_nanos": 1100,
+            "barrier_nanos": 172600,
+            "completion_nanos": 173700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 7,
+            "submission_nanos": 900,
+            "barrier_nanos": 165100,
+            "completion_nanos": 166100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 8,
+            "submission_nanos": 600,
+            "barrier_nanos": 162400,
+            "completion_nanos": 163100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 9,
+            "submission_nanos": 900,
+            "barrier_nanos": 158700,
+            "completion_nanos": 159600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 10,
+            "submission_nanos": 800,
+            "barrier_nanos": 159100,
+            "completion_nanos": 159900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 11,
+            "submission_nanos": 900,
+            "barrier_nanos": 158400,
+            "completion_nanos": 159300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 12,
+            "submission_nanos": 700,
+            "barrier_nanos": 156700,
+            "completion_nanos": 157500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 13,
+            "submission_nanos": 1000,
+            "barrier_nanos": 158100,
+            "completion_nanos": 159200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 14,
+            "submission_nanos": 900,
+            "barrier_nanos": 158600,
+            "completion_nanos": 159500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 15,
+            "submission_nanos": 800,
+            "barrier_nanos": 154600,
+            "completion_nanos": 155400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 16,
+            "submission_nanos": 700,
+            "barrier_nanos": 157100,
+            "completion_nanos": 157900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 17,
+            "submission_nanos": 1000,
+            "barrier_nanos": 158600,
+            "completion_nanos": 159600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 18,
+            "submission_nanos": 1000,
+            "barrier_nanos": 158400,
+            "completion_nanos": 159400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 19,
+            "submission_nanos": 900,
+            "barrier_nanos": 154600,
+            "completion_nanos": 155500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 20,
+            "submission_nanos": 800,
+            "barrier_nanos": 159100,
+            "completion_nanos": 159900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 21,
+            "submission_nanos": 800,
+            "barrier_nanos": 156000,
+            "completion_nanos": 156900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 22,
+            "submission_nanos": 900,
+            "barrier_nanos": 156700,
+            "completion_nanos": 157600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 23,
+            "submission_nanos": 700,
+            "barrier_nanos": 155800,
+            "completion_nanos": 156500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 24,
+            "submission_nanos": 800,
+            "barrier_nanos": 156400,
+            "completion_nanos": 157200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 25,
+            "submission_nanos": 900,
+            "barrier_nanos": 156100,
+            "completion_nanos": 157100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 26,
+            "submission_nanos": 700,
+            "barrier_nanos": 156200,
+            "completion_nanos": 157000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 27,
+            "submission_nanos": 800,
+            "barrier_nanos": 157400,
+            "completion_nanos": 158300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 28,
+            "submission_nanos": 1000,
+            "barrier_nanos": 156300,
+            "completion_nanos": 157300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 29,
+            "submission_nanos": 1100,
+            "barrier_nanos": 156300,
+            "completion_nanos": 157400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 30,
+            "submission_nanos": 800,
+            "barrier_nanos": 157900,
+            "completion_nanos": 158700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 31,
+            "submission_nanos": 900,
+            "barrier_nanos": 156000,
+            "completion_nanos": 156900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 32,
+            "submission_nanos": 700,
+            "barrier_nanos": 156700,
+            "completion_nanos": 157500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 33,
+            "submission_nanos": 800,
+            "barrier_nanos": 159500,
+            "completion_nanos": 160500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 34,
+            "submission_nanos": 900,
+            "barrier_nanos": 158000,
+            "completion_nanos": 159000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 35,
+            "submission_nanos": 800,
+            "barrier_nanos": 155900,
+            "completion_nanos": 156800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 36,
+            "submission_nanos": 800,
+            "barrier_nanos": 158800,
+            "completion_nanos": 159600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 37,
+            "submission_nanos": 900,
+            "barrier_nanos": 154400,
+            "completion_nanos": 155400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 38,
+            "submission_nanos": 1700,
+            "barrier_nanos": 160500,
+            "completion_nanos": 162200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 39,
+            "submission_nanos": 800,
+            "barrier_nanos": 164100,
+            "completion_nanos": 165100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 40,
+            "submission_nanos": 800,
+            "barrier_nanos": 169800,
+            "completion_nanos": 170800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 41,
+            "submission_nanos": 900,
+            "barrier_nanos": 156300,
+            "completion_nanos": 157300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 42,
+            "submission_nanos": 600,
+            "barrier_nanos": 159900,
+            "completion_nanos": 160600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 43,
+            "submission_nanos": 800,
+            "barrier_nanos": 156300,
+            "completion_nanos": 157100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 44,
+            "submission_nanos": 700,
+            "barrier_nanos": 177600,
+            "completion_nanos": 178400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 45,
+            "submission_nanos": 900,
+            "barrier_nanos": 157100,
+            "completion_nanos": 158000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 46,
+            "submission_nanos": 800,
+            "barrier_nanos": 154600,
+            "completion_nanos": 155400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 47,
+            "submission_nanos": 700,
+            "barrier_nanos": 156000,
+            "completion_nanos": 156700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 48,
+            "submission_nanos": 700,
+            "barrier_nanos": 155800,
+            "completion_nanos": 156600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 49,
+            "submission_nanos": 800,
+            "barrier_nanos": 154400,
+            "completion_nanos": 155300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 50,
+            "submission_nanos": 800,
+            "barrier_nanos": 165000,
+            "completion_nanos": 165800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 51,
+            "submission_nanos": 900,
+            "barrier_nanos": 163500,
+            "completion_nanos": 164600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 52,
+            "submission_nanos": 800,
+            "barrier_nanos": 158000,
+            "completion_nanos": 158900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 53,
+            "submission_nanos": 500,
+            "barrier_nanos": 158900,
+            "completion_nanos": 159400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 54,
+            "submission_nanos": 400,
+            "barrier_nanos": 163900,
+            "completion_nanos": 164300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 55,
+            "submission_nanos": 500,
+            "barrier_nanos": 156200,
+            "completion_nanos": 156800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 56,
+            "submission_nanos": 400,
+            "barrier_nanos": 156400,
+            "completion_nanos": 156900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 57,
+            "submission_nanos": 300,
+            "barrier_nanos": 156500,
+            "completion_nanos": 156800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 58,
+            "submission_nanos": 400,
+            "barrier_nanos": 156300,
+            "completion_nanos": 156700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 59,
+            "submission_nanos": 400,
+            "barrier_nanos": 157600,
+            "completion_nanos": 158100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 60,
+            "submission_nanos": 400,
+            "barrier_nanos": 156300,
+            "completion_nanos": 156700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 61,
+            "submission_nanos": 400,
+            "barrier_nanos": 155500,
+            "completion_nanos": 155900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 62,
+            "submission_nanos": 400,
+            "barrier_nanos": 159100,
+            "completion_nanos": 159500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 63,
+            "submission_nanos": 500,
+            "barrier_nanos": 154900,
+            "completion_nanos": 155400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 64,
+            "submission_nanos": 900,
+            "barrier_nanos": 158400,
+            "completion_nanos": 159400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 65,
+            "submission_nanos": 700,
+            "barrier_nanos": 156300,
+            "completion_nanos": 157000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 66,
+            "submission_nanos": 500,
+            "barrier_nanos": 157200,
+            "completion_nanos": 157700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 67,
+            "submission_nanos": 400,
+            "barrier_nanos": 156800,
+            "completion_nanos": 157200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 68,
+            "submission_nanos": 400,
+            "barrier_nanos": 156900,
+            "completion_nanos": 157300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 69,
+            "submission_nanos": 500,
+            "barrier_nanos": 159400,
+            "completion_nanos": 159900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 70,
+            "submission_nanos": 300,
+            "barrier_nanos": 157000,
+            "completion_nanos": 157500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 71,
+            "submission_nanos": 400,
+            "barrier_nanos": 155600,
+            "completion_nanos": 156000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 72,
+            "submission_nanos": 500,
+            "barrier_nanos": 154700,
+            "completion_nanos": 155200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 73,
+            "submission_nanos": 500,
+            "barrier_nanos": 157000,
+            "completion_nanos": 157500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 74,
+            "submission_nanos": 200,
+            "barrier_nanos": 157500,
+            "completion_nanos": 157700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 75,
+            "submission_nanos": 400,
+            "barrier_nanos": 155900,
+            "completion_nanos": 156300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 76,
+            "submission_nanos": 500,
+            "barrier_nanos": 154400,
+            "completion_nanos": 154900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 77,
+            "submission_nanos": 600,
+            "barrier_nanos": 156900,
+            "completion_nanos": 157500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 78,
+            "submission_nanos": 400,
+            "barrier_nanos": 156600,
+            "completion_nanos": 157000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 79,
+            "submission_nanos": 300,
+            "barrier_nanos": 155900,
+            "completion_nanos": 156300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 80,
+            "submission_nanos": 400,
+            "barrier_nanos": 155700,
+            "completion_nanos": 156200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 81,
+            "submission_nanos": 400,
+            "barrier_nanos": 156300,
+            "completion_nanos": 156700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 82,
+            "submission_nanos": 400,
+            "barrier_nanos": 160100,
+            "completion_nanos": 160500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 83,
+            "submission_nanos": 400,
+            "barrier_nanos": 156400,
+            "completion_nanos": 156800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 84,
+            "submission_nanos": 500,
+            "barrier_nanos": 157000,
+            "completion_nanos": 157500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 85,
+            "submission_nanos": 500,
+            "barrier_nanos": 158800,
+            "completion_nanos": 159300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 86,
+            "submission_nanos": 400,
+            "barrier_nanos": 159100,
+            "completion_nanos": 159500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 87,
+            "submission_nanos": 200,
+            "barrier_nanos": 158900,
+            "completion_nanos": 159100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 88,
+            "submission_nanos": 400,
+            "barrier_nanos": 159600,
+            "completion_nanos": 160100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 89,
+            "submission_nanos": 600,
+            "barrier_nanos": 158300,
+            "completion_nanos": 158900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 90,
+            "submission_nanos": 400,
+            "barrier_nanos": 156000,
+            "completion_nanos": 156600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 91,
+            "submission_nanos": 500,
+            "barrier_nanos": 155700,
+            "completion_nanos": 156200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 92,
+            "submission_nanos": 600,
+            "barrier_nanos": 157200,
+            "completion_nanos": 157900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 93,
+            "submission_nanos": 400,
+            "barrier_nanos": 158300,
+            "completion_nanos": 158900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 94,
+            "submission_nanos": 200,
+            "barrier_nanos": 157100,
+            "completion_nanos": 157300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 95,
+            "submission_nanos": 400,
+            "barrier_nanos": 156100,
+            "completion_nanos": 156500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 96,
+            "submission_nanos": 400,
+            "barrier_nanos": 156800,
+            "completion_nanos": 157300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 97,
+            "submission_nanos": 400,
+            "barrier_nanos": 158400,
+            "completion_nanos": 158900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 98,
+            "submission_nanos": 500,
+            "barrier_nanos": 156500,
+            "completion_nanos": 157100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 99,
+            "submission_nanos": 400,
+            "barrier_nanos": 157200,
+            "completion_nanos": 157600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 100,
+            "submission_nanos": 400,
+            "barrier_nanos": 154200,
+            "completion_nanos": 154600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 101,
+            "submission_nanos": 500,
+            "barrier_nanos": 156800,
+            "completion_nanos": 157300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 102,
+            "submission_nanos": 400,
+            "barrier_nanos": 154400,
+            "completion_nanos": 154800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 103,
+            "submission_nanos": 400,
+            "barrier_nanos": 156500,
+            "completion_nanos": 156900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 104,
+            "submission_nanos": 500,
+            "barrier_nanos": 156100,
+            "completion_nanos": 156600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 105,
+            "submission_nanos": 200,
+            "barrier_nanos": 154500,
+            "completion_nanos": 154900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 106,
+            "submission_nanos": 500,
+            "barrier_nanos": 153600,
+            "completion_nanos": 154100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 107,
+            "submission_nanos": 500,
+            "barrier_nanos": 162300,
+            "completion_nanos": 162800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 108,
+            "submission_nanos": 400,
+            "barrier_nanos": 157300,
+            "completion_nanos": 157800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 109,
+            "submission_nanos": 400,
+            "barrier_nanos": 154300,
+            "completion_nanos": 154800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 110,
+            "submission_nanos": 400,
+            "barrier_nanos": 154600,
+            "completion_nanos": 155000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 111,
+            "submission_nanos": 700,
+            "barrier_nanos": 154300,
+            "completion_nanos": 155000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 112,
+            "submission_nanos": 500,
+            "barrier_nanos": 155200,
+            "completion_nanos": 155700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 113,
+            "submission_nanos": 400,
+            "barrier_nanos": 156900,
+            "completion_nanos": 157400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 114,
+            "submission_nanos": 300,
+            "barrier_nanos": 154800,
+            "completion_nanos": 155100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 115,
+            "submission_nanos": 300,
+            "barrier_nanos": 152300,
+            "completion_nanos": 152600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 116,
+            "submission_nanos": 300,
+            "barrier_nanos": 152800,
+            "completion_nanos": 153100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 117,
+            "submission_nanos": 300,
+            "barrier_nanos": 151200,
+            "completion_nanos": 151500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 118,
+            "submission_nanos": 200,
+            "barrier_nanos": 156000,
+            "completion_nanos": 156300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 119,
+            "submission_nanos": 200,
+            "barrier_nanos": 154200,
+            "completion_nanos": 154400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 120,
+            "submission_nanos": 300,
+            "barrier_nanos": 157400,
+            "completion_nanos": 157700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 121,
+            "submission_nanos": 200,
+            "barrier_nanos": 152100,
+            "completion_nanos": 152400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 122,
+            "submission_nanos": 300,
+            "barrier_nanos": 154300,
+            "completion_nanos": 154600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 123,
+            "submission_nanos": 300,
+            "barrier_nanos": 153200,
+            "completion_nanos": 153600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 124,
+            "submission_nanos": 300,
+            "barrier_nanos": 153900,
+            "completion_nanos": 154200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 125,
+            "submission_nanos": 300,
+            "barrier_nanos": 154200,
+            "completion_nanos": 154500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 126,
+            "submission_nanos": 300,
+            "barrier_nanos": 152800,
+            "completion_nanos": 153100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 127,
+            "submission_nanos": 300,
+            "barrier_nanos": 153900,
+            "completion_nanos": 154300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 128,
+            "submission_nanos": 200,
+            "barrier_nanos": 153900,
+            "completion_nanos": 154300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 129,
+            "submission_nanos": 300,
+            "barrier_nanos": 155100,
+            "completion_nanos": 155400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 130,
+            "submission_nanos": 300,
+            "barrier_nanos": 208300,
+            "completion_nanos": 208600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 131,
+            "submission_nanos": 1000,
+            "barrier_nanos": 166600,
+            "completion_nanos": 167700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 132,
+            "submission_nanos": 400,
+            "barrier_nanos": 163200,
+            "completion_nanos": 163600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 133,
+            "submission_nanos": 300,
+            "barrier_nanos": 156200,
+            "completion_nanos": 156500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 134,
+            "submission_nanos": 300,
+            "barrier_nanos": 157200,
+            "completion_nanos": 157500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 135,
+            "submission_nanos": 300,
+            "barrier_nanos": 154000,
+            "completion_nanos": 154300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 136,
+            "submission_nanos": 200,
+            "barrier_nanos": 153500,
+            "completion_nanos": 153800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 137,
+            "submission_nanos": 300,
+            "barrier_nanos": 154300,
+            "completion_nanos": 154700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 138,
+            "submission_nanos": 300,
+            "barrier_nanos": 153300,
+            "completion_nanos": 153600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 139,
+            "submission_nanos": 300,
+            "barrier_nanos": 152600,
+            "completion_nanos": 152900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 140,
+            "submission_nanos": 300,
+            "barrier_nanos": 163500,
+            "completion_nanos": 163800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 141,
+            "submission_nanos": 500,
+            "barrier_nanos": 153400,
+            "completion_nanos": 153900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 142,
+            "submission_nanos": 600,
+            "barrier_nanos": 150700,
+            "completion_nanos": 151300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 143,
+            "submission_nanos": 200,
+            "barrier_nanos": 155200,
+            "completion_nanos": 155500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 144,
+            "submission_nanos": 200,
+            "barrier_nanos": 154300,
+            "completion_nanos": 154500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 145,
+            "submission_nanos": 200,
+            "barrier_nanos": 153700,
+            "completion_nanos": 154000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 146,
+            "submission_nanos": 300,
+            "barrier_nanos": 150300,
+            "completion_nanos": 150600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 147,
+            "submission_nanos": 400,
+            "barrier_nanos": 152300,
+            "completion_nanos": 152700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 148,
+            "submission_nanos": 200,
+            "barrier_nanos": 152500,
+            "completion_nanos": 152800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 149,
+            "submission_nanos": 200,
+            "barrier_nanos": 152700,
+            "completion_nanos": 153000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 150,
+            "submission_nanos": 200,
+            "barrier_nanos": 153300,
+            "completion_nanos": 153600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 151,
+            "submission_nanos": 300,
+            "barrier_nanos": 154300,
+            "completion_nanos": 154600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 152,
+            "submission_nanos": 200,
+            "barrier_nanos": 153400,
+            "completion_nanos": 153700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 153,
+            "submission_nanos": 200,
+            "barrier_nanos": 153600,
+            "completion_nanos": 153800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 154,
+            "submission_nanos": 200,
+            "barrier_nanos": 153000,
+            "completion_nanos": 153200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 155,
+            "submission_nanos": 300,
+            "barrier_nanos": 153800,
+            "completion_nanos": 154100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 156,
+            "submission_nanos": 300,
+            "barrier_nanos": 152800,
+            "completion_nanos": 153100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 157,
+            "submission_nanos": 300,
+            "barrier_nanos": 154400,
+            "completion_nanos": 154800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 158,
+            "submission_nanos": 300,
+            "barrier_nanos": 155700,
+            "completion_nanos": 156000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 159,
+            "submission_nanos": 300,
+            "barrier_nanos": 152800,
+            "completion_nanos": 153100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 160,
+            "submission_nanos": 200,
+            "barrier_nanos": 151100,
+            "completion_nanos": 151500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 161,
+            "submission_nanos": 300,
+            "barrier_nanos": 152300,
+            "completion_nanos": 152600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 162,
+            "submission_nanos": 300,
+            "barrier_nanos": 154000,
+            "completion_nanos": 154300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 163,
+            "submission_nanos": 400,
+            "barrier_nanos": 152800,
+            "completion_nanos": 153200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 164,
+            "submission_nanos": 200,
+            "barrier_nanos": 165900,
+            "completion_nanos": 166100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 165,
+            "submission_nanos": 400,
+            "barrier_nanos": 155200,
+            "completion_nanos": 155600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 166,
+            "submission_nanos": 200,
+            "barrier_nanos": 153800,
+            "completion_nanos": 154000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 167,
+            "submission_nanos": 300,
+            "barrier_nanos": 152400,
+            "completion_nanos": 152800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 168,
+            "submission_nanos": 200,
+            "barrier_nanos": 153400,
+            "completion_nanos": 153600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 169,
+            "submission_nanos": 200,
+            "barrier_nanos": 153800,
+            "completion_nanos": 154000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 170,
+            "submission_nanos": 300,
+            "barrier_nanos": 151700,
+            "completion_nanos": 152000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 171,
+            "submission_nanos": 200,
+            "barrier_nanos": 152800,
+            "completion_nanos": 153100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 172,
+            "submission_nanos": 300,
+            "barrier_nanos": 153100,
+            "completion_nanos": 153400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 173,
+            "submission_nanos": 26100,
+            "barrier_nanos": 155500,
+            "completion_nanos": 181700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 174,
+            "submission_nanos": 200,
+            "barrier_nanos": 155900,
+            "completion_nanos": 156200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 175,
+            "submission_nanos": 200,
+            "barrier_nanos": 156800,
+            "completion_nanos": 157100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 176,
+            "submission_nanos": 300,
+            "barrier_nanos": 152500,
+            "completion_nanos": 152900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 177,
+            "submission_nanos": 400,
+            "barrier_nanos": 153700,
+            "completion_nanos": 154100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 178,
+            "submission_nanos": 300,
+            "barrier_nanos": 156200,
+            "completion_nanos": 156600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 179,
+            "submission_nanos": 300,
+            "barrier_nanos": 153700,
+            "completion_nanos": 154000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 180,
+            "submission_nanos": 200,
+            "barrier_nanos": 154300,
+            "completion_nanos": 154600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 181,
+            "submission_nanos": 300,
+            "barrier_nanos": 151200,
+            "completion_nanos": 151500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 182,
+            "submission_nanos": 200,
+            "barrier_nanos": 152200,
+            "completion_nanos": 152500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 183,
+            "submission_nanos": 2700,
+            "barrier_nanos": 151600,
+            "completion_nanos": 154300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 184,
+            "submission_nanos": 200,
+            "barrier_nanos": 152100,
+            "completion_nanos": 152400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 185,
+            "submission_nanos": 400,
+            "barrier_nanos": 152500,
+            "completion_nanos": 152900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 186,
+            "submission_nanos": 200,
+            "barrier_nanos": 153100,
+            "completion_nanos": 153400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 187,
+            "submission_nanos": 400,
+            "barrier_nanos": 152500,
+            "completion_nanos": 152900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 188,
+            "submission_nanos": 300,
+            "barrier_nanos": 151600,
+            "completion_nanos": 151900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 189,
+            "submission_nanos": 300,
+            "barrier_nanos": 152500,
+            "completion_nanos": 152900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 190,
+            "submission_nanos": 300,
+            "barrier_nanos": 157000,
+            "completion_nanos": 157400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 191,
+            "submission_nanos": 300,
+            "barrier_nanos": 153400,
+            "completion_nanos": 153700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 192,
+            "submission_nanos": 300,
+            "barrier_nanos": 152200,
+            "completion_nanos": 152500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 193,
+            "submission_nanos": 300,
+            "barrier_nanos": 150700,
+            "completion_nanos": 151000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 194,
+            "submission_nanos": 200,
+            "barrier_nanos": 152600,
+            "completion_nanos": 152900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 195,
+            "submission_nanos": 200,
+            "barrier_nanos": 152900,
+            "completion_nanos": 153200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 196,
+            "submission_nanos": 300,
+            "barrier_nanos": 152100,
+            "completion_nanos": 200000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 197,
+            "submission_nanos": 200,
+            "barrier_nanos": 151700,
+            "completion_nanos": 152000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 198,
+            "submission_nanos": 300,
+            "barrier_nanos": 151300,
+            "completion_nanos": 151600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 199,
+            "submission_nanos": 300,
+            "barrier_nanos": 153000,
+            "completion_nanos": 153300,
+            "light_verified": true
+          }
+        ]
+      },
+      {
+        "name": "block_remove",
+        "light_type": "block",
+        "action": "remove",
+        "position": [
+          20008,
+          4,
+          20008
+        ],
+        "sample_count": 200,
+        "all_samples_verified": true,
+        "submission_summary_nanos": {
+          "minimum": 200,
+          "average": 657.5,
+          "p50": 400,
+          "p95": 1000,
+          "p99": 2400,
+          "maximum": 27500
+        },
+        "barrier_summary_nanos": {
+          "minimum": 250100,
+          "average": 260736.5,
+          "p50": 258100,
+          "p95": 276000,
+          "p99": 307500,
+          "maximum": 317400
+        },
+        "completion_summary_nanos": {
+          "minimum": 250500,
+          "average": 261460.5,
+          "p50": 259200,
+          "p95": 277700,
+          "p99": 307900,
+          "maximum": 322300
+        },
+        "samples": [
+          {
+            "ordinal": 0,
+            "submission_nanos": 1900,
+            "barrier_nanos": 317400,
+            "completion_nanos": 319300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 1,
+            "submission_nanos": 1000,
+            "barrier_nanos": 301700,
+            "completion_nanos": 302800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 2,
+            "submission_nanos": 1000,
+            "barrier_nanos": 292500,
+            "completion_nanos": 293500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 3,
+            "submission_nanos": 700,
+            "barrier_nanos": 283400,
+            "completion_nanos": 284200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 4,
+            "submission_nanos": 7300,
+            "barrier_nanos": 314500,
+            "completion_nanos": 322300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 5,
+            "submission_nanos": 1300,
+            "barrier_nanos": 291100,
+            "completion_nanos": 292400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 6,
+            "submission_nanos": 800,
+            "barrier_nanos": 283700,
+            "completion_nanos": 284700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 7,
+            "submission_nanos": 1100,
+            "barrier_nanos": 276000,
+            "completion_nanos": 277100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 8,
+            "submission_nanos": 800,
+            "barrier_nanos": 273300,
+            "completion_nanos": 274300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 9,
+            "submission_nanos": 700,
+            "barrier_nanos": 271300,
+            "completion_nanos": 272100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 10,
+            "submission_nanos": 900,
+            "barrier_nanos": 266700,
+            "completion_nanos": 267700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 11,
+            "submission_nanos": 800,
+            "barrier_nanos": 262400,
+            "completion_nanos": 263200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 12,
+            "submission_nanos": 800,
+            "barrier_nanos": 261400,
+            "completion_nanos": 262300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 13,
+            "submission_nanos": 900,
+            "barrier_nanos": 259900,
+            "completion_nanos": 260800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 14,
+            "submission_nanos": 700,
+            "barrier_nanos": 266600,
+            "completion_nanos": 267300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 15,
+            "submission_nanos": 800,
+            "barrier_nanos": 258300,
+            "completion_nanos": 259200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 16,
+            "submission_nanos": 800,
+            "barrier_nanos": 265700,
+            "completion_nanos": 266600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 17,
+            "submission_nanos": 700,
+            "barrier_nanos": 260500,
+            "completion_nanos": 261200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 18,
+            "submission_nanos": 700,
+            "barrier_nanos": 263100,
+            "completion_nanos": 263800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 19,
+            "submission_nanos": 700,
+            "barrier_nanos": 255400,
+            "completion_nanos": 256100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 20,
+            "submission_nanos": 1000,
+            "barrier_nanos": 260600,
+            "completion_nanos": 261700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 21,
+            "submission_nanos": 800,
+            "barrier_nanos": 259500,
+            "completion_nanos": 260300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 22,
+            "submission_nanos": 700,
+            "barrier_nanos": 259500,
+            "completion_nanos": 260200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 23,
+            "submission_nanos": 700,
+            "barrier_nanos": 261600,
+            "completion_nanos": 262300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 24,
+            "submission_nanos": 1000,
+            "barrier_nanos": 257500,
+            "completion_nanos": 258500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 25,
+            "submission_nanos": 700,
+            "barrier_nanos": 257600,
+            "completion_nanos": 258500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 26,
+            "submission_nanos": 1000,
+            "barrier_nanos": 257900,
+            "completion_nanos": 258900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 27,
+            "submission_nanos": 900,
+            "barrier_nanos": 256800,
+            "completion_nanos": 257700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 28,
+            "submission_nanos": 800,
+            "barrier_nanos": 255100,
+            "completion_nanos": 255900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 29,
+            "submission_nanos": 1000,
+            "barrier_nanos": 259900,
+            "completion_nanos": 260900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 30,
+            "submission_nanos": 800,
+            "barrier_nanos": 259700,
+            "completion_nanos": 260500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 31,
+            "submission_nanos": 800,
+            "barrier_nanos": 255500,
+            "completion_nanos": 256300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 32,
+            "submission_nanos": 900,
+            "barrier_nanos": 256400,
+            "completion_nanos": 257300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 33,
+            "submission_nanos": 700,
+            "barrier_nanos": 255500,
+            "completion_nanos": 256400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 34,
+            "submission_nanos": 800,
+            "barrier_nanos": 259500,
+            "completion_nanos": 260500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 35,
+            "submission_nanos": 900,
+            "barrier_nanos": 255200,
+            "completion_nanos": 256100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 36,
+            "submission_nanos": 700,
+            "barrier_nanos": 254800,
+            "completion_nanos": 255600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 37,
+            "submission_nanos": 1100,
+            "barrier_nanos": 263100,
+            "completion_nanos": 264400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 38,
+            "submission_nanos": 800,
+            "barrier_nanos": 282500,
+            "completion_nanos": 283500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 39,
+            "submission_nanos": 900,
+            "barrier_nanos": 266000,
+            "completion_nanos": 267000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 40,
+            "submission_nanos": 1000,
+            "barrier_nanos": 260500,
+            "completion_nanos": 261600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 41,
+            "submission_nanos": 800,
+            "barrier_nanos": 265400,
+            "completion_nanos": 266300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 42,
+            "submission_nanos": 800,
+            "barrier_nanos": 256600,
+            "completion_nanos": 257500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 43,
+            "submission_nanos": 900,
+            "barrier_nanos": 257800,
+            "completion_nanos": 258800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 44,
+            "submission_nanos": 700,
+            "barrier_nanos": 256000,
+            "completion_nanos": 256800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 45,
+            "submission_nanos": 800,
+            "barrier_nanos": 268600,
+            "completion_nanos": 269400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 46,
+            "submission_nanos": 800,
+            "barrier_nanos": 255300,
+            "completion_nanos": 256100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 47,
+            "submission_nanos": 800,
+            "barrier_nanos": 254800,
+            "completion_nanos": 255600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 48,
+            "submission_nanos": 700,
+            "barrier_nanos": 254600,
+            "completion_nanos": 255400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 49,
+            "submission_nanos": 700,
+            "barrier_nanos": 259200,
+            "completion_nanos": 259900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 50,
+            "submission_nanos": 900,
+            "barrier_nanos": 256800,
+            "completion_nanos": 257800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 51,
+            "submission_nanos": 700,
+            "barrier_nanos": 256600,
+            "completion_nanos": 257300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 52,
+            "submission_nanos": 600,
+            "barrier_nanos": 264300,
+            "completion_nanos": 265000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 53,
+            "submission_nanos": 400,
+            "barrier_nanos": 276400,
+            "completion_nanos": 276800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 54,
+            "submission_nanos": 400,
+            "barrier_nanos": 263300,
+            "completion_nanos": 263700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 55,
+            "submission_nanos": 500,
+            "barrier_nanos": 259400,
+            "completion_nanos": 259900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 56,
+            "submission_nanos": 500,
+            "barrier_nanos": 262900,
+            "completion_nanos": 263400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 57,
+            "submission_nanos": 400,
+            "barrier_nanos": 261200,
+            "completion_nanos": 261800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 58,
+            "submission_nanos": 500,
+            "barrier_nanos": 264900,
+            "completion_nanos": 265400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 59,
+            "submission_nanos": 300,
+            "barrier_nanos": 260100,
+            "completion_nanos": 260500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 60,
+            "submission_nanos": 400,
+            "barrier_nanos": 260800,
+            "completion_nanos": 261400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 61,
+            "submission_nanos": 400,
+            "barrier_nanos": 267500,
+            "completion_nanos": 267900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 62,
+            "submission_nanos": 400,
+            "barrier_nanos": 265800,
+            "completion_nanos": 266200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 63,
+            "submission_nanos": 400,
+            "barrier_nanos": 269600,
+            "completion_nanos": 270100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 64,
+            "submission_nanos": 400,
+            "barrier_nanos": 265600,
+            "completion_nanos": 266100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 65,
+            "submission_nanos": 300,
+            "barrier_nanos": 275800,
+            "completion_nanos": 276300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 66,
+            "submission_nanos": 400,
+            "barrier_nanos": 264200,
+            "completion_nanos": 264700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 67,
+            "submission_nanos": 400,
+            "barrier_nanos": 270500,
+            "completion_nanos": 270900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 68,
+            "submission_nanos": 400,
+            "barrier_nanos": 260100,
+            "completion_nanos": 260500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 69,
+            "submission_nanos": 200,
+            "barrier_nanos": 265800,
+            "completion_nanos": 266100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 70,
+            "submission_nanos": 300,
+            "barrier_nanos": 262900,
+            "completion_nanos": 263400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 71,
+            "submission_nanos": 400,
+            "barrier_nanos": 265200,
+            "completion_nanos": 265600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 72,
+            "submission_nanos": 600,
+            "barrier_nanos": 265900,
+            "completion_nanos": 266600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 73,
+            "submission_nanos": 400,
+            "barrier_nanos": 267500,
+            "completion_nanos": 267900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 74,
+            "submission_nanos": 400,
+            "barrier_nanos": 264300,
+            "completion_nanos": 264700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 75,
+            "submission_nanos": 500,
+            "barrier_nanos": 260400,
+            "completion_nanos": 260900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 76,
+            "submission_nanos": 400,
+            "barrier_nanos": 262700,
+            "completion_nanos": 263100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 77,
+            "submission_nanos": 500,
+            "barrier_nanos": 263900,
+            "completion_nanos": 264400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 78,
+            "submission_nanos": 500,
+            "barrier_nanos": 262800,
+            "completion_nanos": 263300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 79,
+            "submission_nanos": 400,
+            "barrier_nanos": 259200,
+            "completion_nanos": 259600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 80,
+            "submission_nanos": 400,
+            "barrier_nanos": 266800,
+            "completion_nanos": 267200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 81,
+            "submission_nanos": 500,
+            "barrier_nanos": 259000,
+            "completion_nanos": 259500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 82,
+            "submission_nanos": 500,
+            "barrier_nanos": 265300,
+            "completion_nanos": 265800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 83,
+            "submission_nanos": 600,
+            "barrier_nanos": 267400,
+            "completion_nanos": 268000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 84,
+            "submission_nanos": 500,
+            "barrier_nanos": 261700,
+            "completion_nanos": 262200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 85,
+            "submission_nanos": 400,
+            "barrier_nanos": 268200,
+            "completion_nanos": 268700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 86,
+            "submission_nanos": 400,
+            "barrier_nanos": 263400,
+            "completion_nanos": 263800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 87,
+            "submission_nanos": 400,
+            "barrier_nanos": 263700,
+            "completion_nanos": 264100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 88,
+            "submission_nanos": 500,
+            "barrier_nanos": 266900,
+            "completion_nanos": 267400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 89,
+            "submission_nanos": 400,
+            "barrier_nanos": 258100,
+            "completion_nanos": 258500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 90,
+            "submission_nanos": 400,
+            "barrier_nanos": 267000,
+            "completion_nanos": 267500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 91,
+            "submission_nanos": 400,
+            "barrier_nanos": 264800,
+            "completion_nanos": 265400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 92,
+            "submission_nanos": 500,
+            "barrier_nanos": 257400,
+            "completion_nanos": 257900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 93,
+            "submission_nanos": 200,
+            "barrier_nanos": 260400,
+            "completion_nanos": 260700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 94,
+            "submission_nanos": 400,
+            "barrier_nanos": 264800,
+            "completion_nanos": 265300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 95,
+            "submission_nanos": 400,
+            "barrier_nanos": 267800,
+            "completion_nanos": 268300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 96,
+            "submission_nanos": 600,
+            "barrier_nanos": 260300,
+            "completion_nanos": 260900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 97,
+            "submission_nanos": 400,
+            "barrier_nanos": 258300,
+            "completion_nanos": 258700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 98,
+            "submission_nanos": 500,
+            "barrier_nanos": 262300,
+            "completion_nanos": 262800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 99,
+            "submission_nanos": 400,
+            "barrier_nanos": 266200,
+            "completion_nanos": 266700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 100,
+            "submission_nanos": 500,
+            "barrier_nanos": 266700,
+            "completion_nanos": 267200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 101,
+            "submission_nanos": 500,
+            "barrier_nanos": 262400,
+            "completion_nanos": 262900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 102,
+            "submission_nanos": 400,
+            "barrier_nanos": 263300,
+            "completion_nanos": 263800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 103,
+            "submission_nanos": 200,
+            "barrier_nanos": 264600,
+            "completion_nanos": 264900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 104,
+            "submission_nanos": 500,
+            "barrier_nanos": 267900,
+            "completion_nanos": 268400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 105,
+            "submission_nanos": 400,
+            "barrier_nanos": 261600,
+            "completion_nanos": 262000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 106,
+            "submission_nanos": 400,
+            "barrier_nanos": 274000,
+            "completion_nanos": 274400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 107,
+            "submission_nanos": 400,
+            "barrier_nanos": 259800,
+            "completion_nanos": 260200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 108,
+            "submission_nanos": 700,
+            "barrier_nanos": 269800,
+            "completion_nanos": 270500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 109,
+            "submission_nanos": 400,
+            "barrier_nanos": 263200,
+            "completion_nanos": 263600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 110,
+            "submission_nanos": 400,
+            "barrier_nanos": 264900,
+            "completion_nanos": 265300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 111,
+            "submission_nanos": 400,
+            "barrier_nanos": 269100,
+            "completion_nanos": 269500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 112,
+            "submission_nanos": 400,
+            "barrier_nanos": 260700,
+            "completion_nanos": 261100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 113,
+            "submission_nanos": 200,
+            "barrier_nanos": 255000,
+            "completion_nanos": 255200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 114,
+            "submission_nanos": 200,
+            "barrier_nanos": 275200,
+            "completion_nanos": 275400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 115,
+            "submission_nanos": 200,
+            "barrier_nanos": 253700,
+            "completion_nanos": 254000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 116,
+            "submission_nanos": 300,
+            "barrier_nanos": 252800,
+            "completion_nanos": 253100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 117,
+            "submission_nanos": 300,
+            "barrier_nanos": 253700,
+            "completion_nanos": 254100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 118,
+            "submission_nanos": 300,
+            "barrier_nanos": 257300,
+            "completion_nanos": 257700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 119,
+            "submission_nanos": 200,
+            "barrier_nanos": 254100,
+            "completion_nanos": 254300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 120,
+            "submission_nanos": 300,
+            "barrier_nanos": 254500,
+            "completion_nanos": 254900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 121,
+            "submission_nanos": 200,
+            "barrier_nanos": 253000,
+            "completion_nanos": 253200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 122,
+            "submission_nanos": 300,
+            "barrier_nanos": 252000,
+            "completion_nanos": 252300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 123,
+            "submission_nanos": 300,
+            "barrier_nanos": 252500,
+            "completion_nanos": 252800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 124,
+            "submission_nanos": 300,
+            "barrier_nanos": 253000,
+            "completion_nanos": 253300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 125,
+            "submission_nanos": 300,
+            "barrier_nanos": 253300,
+            "completion_nanos": 253600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 126,
+            "submission_nanos": 200,
+            "barrier_nanos": 252100,
+            "completion_nanos": 252500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 127,
+            "submission_nanos": 300,
+            "barrier_nanos": 254100,
+            "completion_nanos": 254400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 128,
+            "submission_nanos": 400,
+            "barrier_nanos": 255000,
+            "completion_nanos": 255400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 129,
+            "submission_nanos": 300,
+            "barrier_nanos": 256700,
+            "completion_nanos": 257000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 130,
+            "submission_nanos": 2400,
+            "barrier_nanos": 275300,
+            "completion_nanos": 277700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 131,
+            "submission_nanos": 500,
+            "barrier_nanos": 265100,
+            "completion_nanos": 265600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 132,
+            "submission_nanos": 300,
+            "barrier_nanos": 260700,
+            "completion_nanos": 261000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 133,
+            "submission_nanos": 200,
+            "barrier_nanos": 256100,
+            "completion_nanos": 256300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 134,
+            "submission_nanos": 300,
+            "barrier_nanos": 256000,
+            "completion_nanos": 256400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 135,
+            "submission_nanos": 300,
+            "barrier_nanos": 255300,
+            "completion_nanos": 255600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 136,
+            "submission_nanos": 400,
+            "barrier_nanos": 256700,
+            "completion_nanos": 257100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 137,
+            "submission_nanos": 300,
+            "barrier_nanos": 253600,
+            "completion_nanos": 253900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 138,
+            "submission_nanos": 300,
+            "barrier_nanos": 256500,
+            "completion_nanos": 256800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 139,
+            "submission_nanos": 300,
+            "barrier_nanos": 251200,
+            "completion_nanos": 251500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 140,
+            "submission_nanos": 300,
+            "barrier_nanos": 251500,
+            "completion_nanos": 251800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 141,
+            "submission_nanos": 300,
+            "barrier_nanos": 254700,
+            "completion_nanos": 255100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 142,
+            "submission_nanos": 300,
+            "barrier_nanos": 251200,
+            "completion_nanos": 251600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 143,
+            "submission_nanos": 300,
+            "barrier_nanos": 252500,
+            "completion_nanos": 252800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 144,
+            "submission_nanos": 300,
+            "barrier_nanos": 251500,
+            "completion_nanos": 251900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 145,
+            "submission_nanos": 200,
+            "barrier_nanos": 255000,
+            "completion_nanos": 255200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 146,
+            "submission_nanos": 300,
+            "barrier_nanos": 252100,
+            "completion_nanos": 252400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 147,
+            "submission_nanos": 200,
+            "barrier_nanos": 250700,
+            "completion_nanos": 250900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 148,
+            "submission_nanos": 300,
+            "barrier_nanos": 250100,
+            "completion_nanos": 250500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 149,
+            "submission_nanos": 200,
+            "barrier_nanos": 256900,
+            "completion_nanos": 257200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 150,
+            "submission_nanos": 300,
+            "barrier_nanos": 254000,
+            "completion_nanos": 254300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 151,
+            "submission_nanos": 200,
+            "barrier_nanos": 252300,
+            "completion_nanos": 252600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 152,
+            "submission_nanos": 300,
+            "barrier_nanos": 255900,
+            "completion_nanos": 256300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 153,
+            "submission_nanos": 200,
+            "barrier_nanos": 255300,
+            "completion_nanos": 255500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 154,
+            "submission_nanos": 400,
+            "barrier_nanos": 254700,
+            "completion_nanos": 255100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 155,
+            "submission_nanos": 300,
+            "barrier_nanos": 256900,
+            "completion_nanos": 257300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 156,
+            "submission_nanos": 300,
+            "barrier_nanos": 259000,
+            "completion_nanos": 259400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 157,
+            "submission_nanos": 300,
+            "barrier_nanos": 252300,
+            "completion_nanos": 252600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 158,
+            "submission_nanos": 200,
+            "barrier_nanos": 251200,
+            "completion_nanos": 251500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 159,
+            "submission_nanos": 200,
+            "barrier_nanos": 252100,
+            "completion_nanos": 252400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 160,
+            "submission_nanos": 300,
+            "barrier_nanos": 253800,
+            "completion_nanos": 254100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 161,
+            "submission_nanos": 200,
+            "barrier_nanos": 251000,
+            "completion_nanos": 251300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 162,
+            "submission_nanos": 300,
+            "barrier_nanos": 250600,
+            "completion_nanos": 251000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 163,
+            "submission_nanos": 300,
+            "barrier_nanos": 253400,
+            "completion_nanos": 253700,
+            "light_verified": true
+          },
+          {
+            "ordinal": 164,
+            "submission_nanos": 300,
+            "barrier_nanos": 252200,
+            "completion_nanos": 252500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 165,
+            "submission_nanos": 200,
+            "barrier_nanos": 252900,
+            "completion_nanos": 253300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 166,
+            "submission_nanos": 300,
+            "barrier_nanos": 256200,
+            "completion_nanos": 256500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 167,
+            "submission_nanos": 300,
+            "barrier_nanos": 250600,
+            "completion_nanos": 250900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 168,
+            "submission_nanos": 300,
+            "barrier_nanos": 251900,
+            "completion_nanos": 252200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 169,
+            "submission_nanos": 300,
+            "barrier_nanos": 252000,
+            "completion_nanos": 252300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 170,
+            "submission_nanos": 500,
+            "barrier_nanos": 251700,
+            "completion_nanos": 252200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 171,
+            "submission_nanos": 200,
+            "barrier_nanos": 251900,
+            "completion_nanos": 252300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 172,
+            "submission_nanos": 300,
+            "barrier_nanos": 251300,
+            "completion_nanos": 251600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 173,
+            "submission_nanos": 400,
+            "barrier_nanos": 256000,
+            "completion_nanos": 256400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 174,
+            "submission_nanos": 300,
+            "barrier_nanos": 251000,
+            "completion_nanos": 251400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 175,
+            "submission_nanos": 200,
+            "barrier_nanos": 252200,
+            "completion_nanos": 252500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 176,
+            "submission_nanos": 300,
+            "barrier_nanos": 268600,
+            "completion_nanos": 269000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 177,
+            "submission_nanos": 300,
+            "barrier_nanos": 251300,
+            "completion_nanos": 251600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 178,
+            "submission_nanos": 500,
+            "barrier_nanos": 253600,
+            "completion_nanos": 254100,
+            "light_verified": true
+          },
+          {
+            "ordinal": 179,
+            "submission_nanos": 300,
+            "barrier_nanos": 258000,
+            "completion_nanos": 258300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 180,
+            "submission_nanos": 200,
+            "barrier_nanos": 251500,
+            "completion_nanos": 251800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 181,
+            "submission_nanos": 200,
+            "barrier_nanos": 253800,
+            "completion_nanos": 254200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 182,
+            "submission_nanos": 27500,
+            "barrier_nanos": 252800,
+            "completion_nanos": 280300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 183,
+            "submission_nanos": 300,
+            "barrier_nanos": 252100,
+            "completion_nanos": 252500,
+            "light_verified": true
+          },
+          {
+            "ordinal": 184,
+            "submission_nanos": 400,
+            "barrier_nanos": 307500,
+            "completion_nanos": 307900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 185,
+            "submission_nanos": 200,
+            "barrier_nanos": 251900,
+            "completion_nanos": 252200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 186,
+            "submission_nanos": 500,
+            "barrier_nanos": 253300,
+            "completion_nanos": 254000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 187,
+            "submission_nanos": 200,
+            "barrier_nanos": 252900,
+            "completion_nanos": 253300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 188,
+            "submission_nanos": 500,
+            "barrier_nanos": 255100,
+            "completion_nanos": 255600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 189,
+            "submission_nanos": 300,
+            "barrier_nanos": 251600,
+            "completion_nanos": 252000,
+            "light_verified": true
+          },
+          {
+            "ordinal": 190,
+            "submission_nanos": 200,
+            "barrier_nanos": 252000,
+            "completion_nanos": 252200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 191,
+            "submission_nanos": 300,
+            "barrier_nanos": 251600,
+            "completion_nanos": 251900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 192,
+            "submission_nanos": 300,
+            "barrier_nanos": 253300,
+            "completion_nanos": 253800,
+            "light_verified": true
+          },
+          {
+            "ordinal": 193,
+            "submission_nanos": 300,
+            "barrier_nanos": 254000,
+            "completion_nanos": 254300,
+            "light_verified": true
+          },
+          {
+            "ordinal": 194,
+            "submission_nanos": 300,
+            "barrier_nanos": 253300,
+            "completion_nanos": 253600,
+            "light_verified": true
+          },
+          {
+            "ordinal": 195,
+            "submission_nanos": 200,
+            "barrier_nanos": 252100,
+            "completion_nanos": 252400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 196,
+            "submission_nanos": 300,
+            "barrier_nanos": 255900,
+            "completion_nanos": 259400,
+            "light_verified": true
+          },
+          {
+            "ordinal": 197,
+            "submission_nanos": 300,
+            "barrier_nanos": 253600,
+            "completion_nanos": 253900,
+            "light_verified": true
+          },
+          {
+            "ordinal": 198,
+            "submission_nanos": 200,
+            "barrier_nanos": 270000,
+            "completion_nanos": 270200,
+            "light_verified": true
+          },
+          {
+            "ordinal": 199,
+            "submission_nanos": 300,
+            "barrier_nanos": 252300,
+            "completion_nanos": 252600,
+            "light_verified": true
+          }
+        ]
+      }
+    ]
+  },
+  "environment": {
+    "minecraft_version": "1.12.2",
+    "forge_version": "14.23.5.2864",
+    "mcp_version": "9.42",
+    "java": {
+      "version": "25.0.4.1",
+      "vendor": "Eclipse Adoptium",
+      "vm_name": "OpenJDK 64-Bit Server VM",
+      "vm_version": "25.0.4.1+1-LTS",
+      "max_heap_bytes": 8589934592,
+      "logical_processors": 32,
+      "performance_arguments": [
+        "-XX:+UseCompactObjectHeaders",
+        "-Xms8192m",
+        "-Xmx8192m"
+      ],
+      "garbage_collectors": [
+        "G1 Young Generation",
+        "G1 Concurrent GC",
+        "G1 Old Generation"
+      ]
+    },
+    "operating_system": {
+      "name": "Windows 11",
+      "version": "10.0",
+      "arch": "amd64",
+      "processor_identifier": "AMD64 Family 26 Model 112 Stepping 0, AuthenticAMD"
+    },
+    "world_settings": {
+      "terrain_type": "flat",
+      "generator_options": "",
+      "map_features": false,
+      "difficulty": "peaceful"
+    },
+    "server": {
+      "dedicated": false,
+      "implementation_class": "net.minecraft.server.integrated.IntegratedServer"
+    },
+    "config_fingerprint": {
+      "status": "ok",
+      "file_count": 9,
+      "sha256": "bcf581abfbaf1fc593e251fa99f5b95651a7b86a5703595c43aa5292c08a4bb6",
+      "excluded_volatile_files": [
+        "cleanroom_load_timings.dat"
+      ],
+      "canonicalized_property_files": [
+        "splash.properties"
+      ]
+    }
+  },
+  "mods": [
+    {
+      "id": "FML",
+      "name": "Forge Mod Loader",
+      "version": "8.0.99.99",
+      "source_name": "cleanroom-0.6.12-alpha.jar",
+      "source_type": "file",
+      "source_size_bytes": 6502296,
+      "source_sha256": "48043f4ea69605ec9b1250b9bd01106b07023b78614bac734a8a296e690e7893"
+    },
+    {
+      "id": "alfheim",
+      "name": "Alfheim",
+      "version": "1.6",
+      "source_name": "Alfheim-1.6.jar",
+      "source_type": "file",
+      "source_size_bytes": 70512,
+      "source_sha256": "730bb0425c97d394c86712e27f71c93069d5b95877bd54f70fc56235eeef33ef"
+    },
+    {
+      "id": "cleanmix",
+      "name": "CleanMix",
+      "version": "0.7.2",
+      "source_name": "cleanmix-0.7.2.jar",
+      "source_type": "file",
+      "source_size_bytes": 1095887,
+      "source_sha256": "0b92f8443dd5972346e4ee60a421407cf0215dbf1c9cd06b6f435e3f5f9a0d04"
+    },
+    {
+      "id": "cleanroom",
+      "name": "Cleanroom",
+      "version": "0.6.12-alpha",
+      "source_name": "cleanroom-0.6.12-alpha.jar",
+      "source_type": "file",
+      "source_size_bytes": 6502296,
+      "source_sha256": "48043f4ea69605ec9b1250b9bd01106b07023b78614bac734a8a296e690e7893"
+    },
+    {
+      "id": "cleanroom-relauncher",
+      "name": "Cleanroom Relauncher",
+      "version": "1.1.2",
+      "source_name": "-cleanroom-relauncher-1.1.2.jar",
+      "source_type": "file",
+      "source_size_bytes": 2793712,
+      "source_sha256": "e120adafabb0145eff704633ed5304c356d0e20c1cd4831347a8530d152164b3"
+    },
+    {
+      "id": "configanytime",
+      "name": "ConfigAnytime",
+      "version": "3.0",
+      "source_name": "cleanroom-0.6.12-alpha.jar",
+      "source_type": "file",
+      "source_size_bytes": 6502296,
+      "source_sha256": "48043f4ea69605ec9b1250b9bd01106b07023b78614bac734a8a296e690e7893"
+    },
+    {
+      "id": "forge",
+      "name": "Minecraft Forge",
+      "version": "14.23.5.2864",
+      "source_name": "cleanroom-0.6.12-alpha.jar",
+      "source_type": "file",
+      "source_size_bytes": 6502296,
+      "source_sha256": "48043f4ea69605ec9b1250b9bd01106b07023b78614bac734a8a296e690e7893"
+    },
+    {
+      "id": "fugue",
+      "name": "Fugue",
+      "version": "0.24.3",
+      "source_name": "+Fugue-0.24.3.jar",
+      "source_type": "file",
+      "source_size_bytes": 305146,
+      "source_sha256": "00dc2de461b8a9bf0d9b684aa0377713bda85ca63da5ec93028c226ed2119efd"
+    },
+    {
+      "id": "kirino_ecs",
+      "name": "Kirino ECS",
+      "version": "epoch-1.a3",
+      "source_name": "cleanroom-0.6.12-alpha.jar",
+      "source_type": "file",
+      "source_size_bytes": 6502296,
+      "source_sha256": "48043f4ea69605ec9b1250b9bd01106b07023b78614bac734a8a296e690e7893"
+    },
+    {
+      "id": "kirino_engine",
+      "name": "Kirino Engine",
+      "version": "epoch-1.a5",
+      "source_name": "cleanroom-0.6.12-alpha.jar",
+      "source_type": "file",
+      "source_size_bytes": 6502296,
+      "source_sha256": "48043f4ea69605ec9b1250b9bd01106b07023b78614bac734a8a296e690e7893"
+    },
+    {
+      "id": "kirino_gl",
+      "name": "Kirino GL",
+      "version": "epoch-1.a2",
+      "source_name": "cleanroom-0.6.12-alpha.jar",
+      "source_type": "file",
+      "source_size_bytes": 6502296,
+      "source_sha256": "48043f4ea69605ec9b1250b9bd01106b07023b78614bac734a8a296e690e7893"
+    },
+    {
+      "id": "lightbench",
+      "name": "Lightbench",
+      "version": "1.0.6-completion",
+      "source_name": "lightbench-1.0.6-completion.jar",
+      "source_type": "file",
+      "source_size_bytes": 115039,
+      "source_sha256": "9322744250f75752ed09e181e2c02ac9f07e2bb81ba4477dde558c3f9da1ee9a"
+    },
+    {
+      "id": "mcp",
+      "name": "Minecraft Coder Pack",
+      "version": "9.42"
+    },
+    {
+      "id": "minecraft",
+      "name": "Minecraft",
+      "version": "1.12.2"
+    },
+    {
+      "id": "mixinbooter",
+      "name": "MixinBooter",
+      "version": "11.8",
+      "source_name": "cleanroom-0.6.12-alpha.jar",
+      "source_type": "file",
+      "source_size_bytes": 6502296,
+      "source_sha256": "48043f4ea69605ec9b1250b9bd01106b07023b78614bac734a8a296e690e7893"
+    },
+    {
+      "id": "redcore",
+      "name": "Red Core",
+      "version": "0.7.1",
+      "source_name": "-Red-Core-MC-1.8-1.12-0.7.1.jar",
+      "source_type": "file",
+      "source_size_bytes": 149374,
+      "source_sha256": "9935912816062ca46a2ecd020d813ee2dde8e6b228daec068b465eb72ea51368"
+    },
+    {
+      "id": "scalar",
+      "name": "Scalar",
+      "version": "3.8.4",
+      "source_name": "scalar-3.8.4-1.jar",
+      "source_type": "file",
+      "source_size_bytes": 8751162,
+      "source_sha256": "a4c2cd912c36cd5a5055153ec950455349eed6daefeb747013b5f675190eb1fd"
+    }
+  ]
+}

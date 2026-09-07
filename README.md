@@ -80,157 +80,103 @@ that do not work as expected.
 
 ## Performance
 
-Pulsar is built for workloads where lighting has a lot of work to resolve at
-once, such as large block changes or skylight edits spanning tall columns.
-Small, isolated block-light edits may already be quick in vanilla, while larger
-affected areas show much greater differences between engines.
+### Light updates — Pulsar 0.3.0
 
-### Light updates
+The September 7, 2026 benchmark measures the time from a block edit until its
+server-side lighting has completed. Each measured edit passed full-volume
+light checks outside the timed interval. Each engine was measured across
+three separate Minecraft/JVM launches; all six runs passed strict comparison.
 
-Lightbench measured from immediately before each block edit until the resulting
-server-side lighting update had fully completed. It verified the stored light
-values after every sample, outside the timed interval. Each launch produced its
-own median result; the graph shows the middle value from three separate
-launches. Lower is better.
+![Pulsar 0.3.0 light-update benchmark](docs/benchmarks/2026-09-07-pulsar-0.3.0/light-updates.svg)
 
-![Light-update completion benchmark](docs/benchmarks/2026-08-06-light-updates.svg)
+Each value below is the median of three run p50s. Times are milliseconds;
+lower is better. Ratios use the unrounded values.
 
-Pulsar's largest gains appeared in the demanding skylight tests. These results
-measure lighting-completion time for the tested edits, not overall FPS, TPS, or
-game speed.
+| Edit | Alfheim 1.6 | Pulsar 0.3.0 | Alfheim / Pulsar |
+|---|---:|---:|---:|
+| Open roof column (SKY increases) | 9.674 | 0.621 | 15.58x |
+| Close roof column (SKY decreases) | 15.822 | 0.617 | 25.66x |
+| Place glowstone (BLOCK increases) | 0.167 | 0.072 | 2.31x |
+| Remove glowstone (BLOCK decreases) | 0.272 | 0.077 | 3.54x |
+
+Pulsar had lower median latency in all four workloads, but glowstone placement
+had a higher p95: **0.220 ms for Pulsar versus 0.177 ms for Alfheim**. The graph
+includes both percentiles and the full range of run p50s. These are hot,
+repeated edits at one position, not FPS, TPS, overall gameplay speed, or a
+measurement of a single algorithm's contribution.
+
+#### Historical Vanilla reference — previous measurement
+
+The previous Vanilla results are retained below as historical reference.
+The graph includes them in a separate historical panel with its own axis range.
+They used **Lightbench 1.0.0, sparse light probes, Cleanroom 0.6.8-alpha,
+Azul Java 25.0.3, and seed `20260805`**. They were not remeasured for 0.3.0
+and did not undergo the current full-volume validation. Because the protocol
+and environment differ, these values must not be used to calculate speedup
+against the current Pulsar or Alfheim results.
+
+| Edit | Historical Vanilla p50, ms | Range of three run p50s, ms |
+|---|---:|---:|
+| Open roof column (SKY increases) | 45.541 | 38.084–46.356 |
+| Close roof column (SKY decreases) | 847.284 | 762.866–848.995 |
+| Place glowstone (BLOCK increases) | 2.028 | 1.768–2.092 |
+| Remove glowstone (BLOCK decreases) | 2.820 | 2.510–2.880 |
+
+Recorded August 6, 2026 (JST); each value is the median of three run p50s.
+[Original update CSV](docs/benchmarks/2026-08-06-light-updates.csv).
 
 <details>
-<summary>Light-update benchmark data, setup, and individual runs</summary>
+<summary>Measurement setup and validation limits</summary>
 
-Each cell below is the median of three independent run p50s; parentheses show
-the range of those run p50s. Times are milliseconds and lower is better.
+- Minecraft 1.12.2 / Cleanroom 0.6.12-alpha, integrated server, Windows 11.
+- AMD Ryzen AI MAX+ 395, 32 logical processors, Eclipse Adoptium Java
+  25.0.4.1, 8 GiB heap, G1, compact object headers enabled.
+- Lightbench 1.0.6-completion, a local validation build with raw JAR hashes.
+- Same common mods and frozen configuration in both engines, including
+  Red Core 0.7.1. Render distance 2, 60 FPS limit, VSync off.
+- Fresh copy of the same seed-1 Superflat template per launch, floor Y=3,
+  64×64 stone roof at Y=254. Sky edits open/close one roof column; glowstone
+  edits occur at Y=4.
+- 20 warmup pairs per workload, then 200 samples per phase. Prespecified
+  launch order: Alfheim, Pulsar, Pulsar, Alfheim, Alfheim, Pulsar.
+- Full-volume checks after every measured edit: 31×31×252 cells for SKY,
+  31×31×17 cells for BLOCK and unchanged SKY. These checks warm the data.
+- End-to-end completion includes deferred lighting work. Validation scans,
+  raw JSON writing, and separate CPU replays are outside latency samples.
 
-| Edit and resulting light change | Vanilla | Alfheim | **Pulsar** | Vanilla / Pulsar |
-|---|---:|---:|---:|---:|
-| Open roof column (skylight increases) | 45.541 (38.084–46.356) | 6.635 (6.368–6.716) | **0.808 (0.760–0.816)** | **56.39x** |
-| Close roof column (skylight decreases) | 847.284 (762.866–848.995) | 14.768 (13.749–14.978) | **1.541 (1.468–1.972)** | **550.01x** |
-| Place glowstone (block light increases) | 2.028 (1.767–2.092) | 0.200 (0.193–0.215) | **0.083 (0.082–0.098)** | **24.43x** |
-| Remove glowstone (block light decreases) | 2.820 (2.510–2.880) | 0.303 (0.291–0.329) | **0.097 (0.097–0.126)** | **28.98x** |
+Vanilla was also attempted but failed the stronger volume checks, including
+after correcting the harness to drain Vanilla's deferred sky-gap maintenance.
+There is no validated new Vanilla update score or Vanilla/Pulsar ratio.
+The remaining discrepancy needs investigation; failure alone does not identify
+its cause. The historical August sparse-probe values above are separate
+reference data, not a validated current baseline.
 
-The largest ratio came from closing the roof column: vanilla took 847.284 ms,
-Alfheim 14.768 ms, and Pulsar 1.541 ms at the median p50. This is deliberately
-a demanding skylight workload, with a roof at Y=254 above a floor at Y=3. The
-550.01x ratio describes that one light-completion workload; it is not a claim of
-550x more FPS, TPS, or overall game speed.
+Three independent launches per engine provide a descriptive comparison, not a
+confidence interval or a guarantee for other machines, worlds, or modpacks.
+This setup differs from the old benchmark, so it does not measure the speedup
+from an older Pulsar release to 0.3.0.
 
-The benchmark was recorded on 2026-08-06 using
-[Lightbench 1.0.0](https://github.com/Sumire-Labs/lightbench) in update mode.
-The same controlled Superflat world was used for nine separate Minecraft
-launches, in the interleaved order `Vanilla, Pulsar, Alfheim`, repeated three
-times. All nine runs in the final series were retained.
-
-- Minecraft 1.12.2 with Cleanroom 0.6.8-alpha, on an integrated server
-- Azul Java 25.0.3 on Windows 11, with an 8 GB heap
-- AMD Ryzen AI Max+ 395, 32 logical processors
-- Fixed seed `20260805`, Overworld, grass floor at Y=3
-- Controlled 64x64 stone roof at Y=254, with a 16-block minimum sample margin
-- Skylight workload: remove and replace one roof block, opening and closing the
-  column to the sky
-- Block-light workload: place and remove one glowstone block at Y=4
-- Warm-up: 20 edit pairs per workload; measured work: 200 samples per phase
-- The same block was reused within a run, with a completion barrier and
-  correctness check after every edit
-
-Lightbench's strict comparison accepted all nine result files. It checked the
-fixed protocol, every raw sample, per-edit light-probe correctness, benchmark
-plan, seed, dimension, runtime, world settings, controlled preflight, config
-fingerprint, and non-engine mods. Red Core 0.7.1 was installed only for Alfheim
-1.6, which requires it, and was the only explicitly excluded dependency when
-comparing mod lists.
-
-| Run | Engine | Open roof | Close roof | Place glowstone | Remove glowstone |
-|---|---|---:|---:|---:|---:|
-| V1 | Vanilla | 45.541 | 847.284 | 2.028 | 2.820 |
-| V2 | Vanilla | 46.356 | 848.995 | 2.092 | 2.880 |
-| V3 | Vanilla | 38.084 | 762.866 | 1.767 | 2.510 |
-| A1 | Alfheim | 6.635 | 14.978 | 0.193 | 0.291 |
-| A2 | Alfheim | 6.716 | 14.768 | 0.200 | 0.303 |
-| A3 | Alfheim | 6.368 | 13.749 | 0.215 | 0.329 |
-| P1 | Pulsar | 0.808 | 1.541 | 0.082 | 0.097 |
-| P2 | Pulsar | 0.816 | 1.972 | 0.098 | 0.126 |
-| P3 | Pulsar | 0.760 | 1.468 | 0.083 | 0.097 |
-
-The 200 samples within each phase are repeated hot measurements at one
-position; the Minecraft restart is the independent comparison unit. Aggregate
-medians use Lightbench's nearest-rank definition. The engine order was
-interleaved but not rotated, so run-order and thermal effects remain a
-limitation; the full per-run range is shown rather than a confidence interval.
-Exact per-run p50, p95, p99, maximum, submission, barrier, GC, and Pulsar
-worker-CPU values are in the [comparison CSV](docs/benchmarks/2026-08-06-light-updates.csv).
+[Full method, raw JSON, run ranges, p95/p99, source snapshot, and failure records](docs/benchmarks/2026-09-07-pulsar-0.3.0/README.md)
+· [Run-level CSV](docs/benchmarks/2026-09-07-pulsar-0.3.0/runs.csv)
+· [PNG version](docs/benchmarks/2026-09-07-pulsar-0.3.0/light-updates.png)
 
 </details>
 
 ### Chunk generation
 
-World-generation gains are smaller because terrain generation usually dominates
-the overall chunk-generation time.
+No new generation-speed ranking is published for 0.3.0. Fresh-world pilots
+completed with Vanilla, Alfheim, and Pulsar, but strict comparison found
+different terrain and light hashes across the 10,404 core chunks. Matching
+generation output must be established before comparing these times. The old
+generation chart has therefore been retired from this section.
 
-In a fresh-chunk generation benchmark on the test system, Pulsar completed the
-10,404-chunk workload in a median of 48.831 seconds, compared with 56.461
-seconds for vanilla. That is 1.16x the throughput and 13.5% less elapsed time.
-Alfheim completed it in 49.615 seconds; its measured range overlaps Pulsar's,
-so the two should be considered broadly similar in this workload.
+For historical reference only, the previous Vanilla generation measurement
+was **56.461 s** for 10,404 chunks (three-run range **55.639–58.628 s**).
+This used the older Lightbench 1.0.0 protocol and does not meet the current
+terrain/light parity gate; no comparison with the new generation pilots is
+made. [Original generation CSV](docs/benchmarks/2026-08-05-lightbench.csv).
 
-![Fresh chunk generation benchmark](docs/benchmarks/2026-08-05-chunk-generation.svg)
-
-These figures do not mean 16% more FPS or TPS. This test measures the total time
-to generate fresh chunks and wait for all lighting to finish, so terrain
-generation is included. It is not a pure light-propagation benchmark or a
-simulation of ordinary gameplay.
-
-<details>
-<summary>Chunk-generation benchmark data, setup, and individual runs</summary>
-
-| Engine | Median total | Range | Median chunks/s | Throughput vs vanilla |
-|---|---:|---:|---:|---:|
-| Vanilla | 56.461 s | 55.639–58.628 s | 184.3 | 1.00x |
-| Alfheim | 49.615 s | 48.600–51.478 s | 209.7 | 1.14x |
-| **Pulsar** | **48.831 s** | **48.102–49.035 s** | **213.1** | **1.16x** |
-
-The benchmark was recorded on 2026-08-05 using
-[Lightbench 1.0.0](https://github.com/Sumire-Labs/lightbench) in generation
-mode. Each engine was tested three times in a fresh world, in the interleaved
-order `Vanilla, Pulsar, Alfheim`, repeated three times.
-
-- Minecraft 1.12.2 with Cleanroom 0.6.8-alpha
-- Azul Java 25.0.3 on Windows 11, with an 8 GB heap
-- AMD Ryzen AI Max+ 395, 32 logical processors
-- Fixed seed `20260805`, Overworld, default terrain, structures enabled
-- Warm-up: a 101x101-chunk region centred at chunk `-10000, -10000`
-- Measured work: 36 separate 17x17-chunk regions, totalling 10,404 chunks
-- At most five chunks generated per batch, followed by a lighting-completion
-  barrier after every batch
-- Preflight checked each target plus a one-chunk border: all 23,605 checked
-  chunks were ungenerated before every run
-
-Lightbench's strict comparison accepted all nine result files and verified that
-their benchmark plan, seed, dimension, runtime, world settings, configuration,
-and non-engine mods matched. Red Core 0.7.1 was present only for Alfheim 1.6,
-which requires it; the Pulsar runs used Pulsar 0.1.0.
-
-| Run | Engine | Total | Chunks/s | Batch p99 | Region p95 |
-|---|---|---:|---:|---:|---:|
-| V1 | Vanilla | 58.628 s | 177.5 | 66.436 ms | 2.084 s |
-| V2 | Vanilla | 55.639 s | 187.0 | 61.383 ms | 1.976 s |
-| V3 | Vanilla | 56.461 s | 184.3 | 60.503 ms | 2.007 s |
-| A1 | Alfheim | 51.478 s | 202.1 | 47.187 ms | 1.767 s |
-| A2 | Alfheim | 49.615 s | 209.7 | 45.836 ms | 1.701 s |
-| A3 | Alfheim | 48.600 s | 214.1 | 41.701 ms | 1.566 s |
-| P1 | Pulsar | 48.831 s | 213.1 | 42.263 ms | 1.642 s |
-| P2 | Pulsar | 48.102 s | 216.3 | 44.101 ms | 1.567 s |
-| P3 | Pulsar | 49.035 s | 212.2 | 45.082 ms | 1.555 s |
-
-The median batch p99 was 44.101 ms for Pulsar and 61.383 ms for vanilla. Batch
-and region percentiles describe this benchmark's work units, not Minecraft tick
-times. Exact per-run nanosecond values are available in the
-[comparison CSV](docs/benchmarks/2026-08-05-lightbench.csv).
-
-</details>
+[Generation parity results and diagnostic data](docs/benchmarks/2026-09-07-pulsar-0.3.0/README.md#why-there-is-no-new-chunk-generation-ranking)
 
 ## Credits
 

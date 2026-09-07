@@ -1,0 +1,10 @@
+{
+  "date_local": "2026-09-07 JST",
+  "pulsar_source": "b5dece9 plus 0.3.0 version/CHANGELOG changes",
+  "lightbench_base": "e5084fe5b0207d8c2f9626e76e5bfe0c64a2b681",
+  "artifacts": {
+    "pulsar-0.3.0.jar": "0d9f5758441e7ed8eda163633b8f5b632c60a3d25a7e015a0797cae6ff79908e",
+    "Alfheim-1.6.jar": "730bb0425c97d394c86712e27f71c93069d5b95877bd54f70fc56235eeef33ef",
+    "lightbench-1.0.6-completion.jar": "9322744250f75752ed09e181e2c02ac9f07e2bb81ba4477dde558c3f9da1ee9a"
+  }
+}

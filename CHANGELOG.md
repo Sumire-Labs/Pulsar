@@ -5,6 +5,27 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0]
+
+### Changed
+
+- Reduced unnecessary lighting work by queuing light checks only for the
+  requested light type (sky light or block light).
+- Kept batches of updates within a single vertical block column on the
+  incremental skylight update path, avoiding unnecessary full skylight rebuilds.
+
+### Fixed
+
+- Fixed water and other liquids losing their configured light attenuation
+  through automatic face-transparency handling. Water now uses its vanilla
+  attenuation of 3 instead of 1.
+- Fixed weakened skylight propagating downward without further attenuation,
+  including through empty sections.
+- Fixed swapped block-light and sky-light channels in smooth painting rendering,
+  which could make paintings appear dark near torches at night. The correction
+  applies to both vanilla paintings and JSON Paintings
+  ([#12](https://github.com/Sumire-Labs/Pulsar/issues/12)).
+
 ## [0.2.9]
 
 ### Fixed

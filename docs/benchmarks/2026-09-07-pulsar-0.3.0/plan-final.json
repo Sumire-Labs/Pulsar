@@ -1,0 +1,16 @@
+{
+  "vanilla": "v103 and v106 both failed baseline on pristine fixture and measured sky increase on prepared fixture; all attempts retained",
+  "date": "2026-09-06T19:23:17.7751557Z",
+  "runs": [
+    "r04-alfheim",
+    "r04-pulsar",
+    "r05-pulsar",
+    "r05-alfheim",
+    "r06-alfheim",
+    "r06-pulsar"
+  ],
+  "generation": "three pilots pending, separate from formal updates",
+  "repetitions": 3,
+  "harness": "1.0.6-completion",
+  "aggregation": "median of independent run p50s, full min-max"
+}

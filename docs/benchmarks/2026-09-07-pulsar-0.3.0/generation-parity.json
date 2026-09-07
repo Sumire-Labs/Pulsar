@@ -1,0 +1,23 @@
+[
+  {
+    "pair": "vanilla vs alfheim",
+    "chunks": 10404,
+    "terrain_mismatch": 598,
+    "light_mismatch": 3155,
+    "light_mismatch_on_identical_terrain": 2745
+  },
+  {
+    "pair": "vanilla vs pulsar",
+    "chunks": 10404,
+    "terrain_mismatch": 1019,
+    "light_mismatch": 3680,
+    "light_mismatch_on_identical_terrain": 2978
+  },
+  {
+    "pair": "alfheim vs pulsar",
+    "chunks": 10404,
+    "terrain_mismatch": 904,
+    "light_mismatch": 1456,
+    "light_mismatch_on_identical_terrain": 1109
+  }
+]

@@ -1,0 +1,257 @@
+diff --git a/README.md b/README.md
+index d02ef39..ee72248 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,10 @@
+ # Lightbench for Minecraft 1.12.2
+ 
+-This local validation build (`1.0.1-validation`, result schema 2) changes the experiment protocol. Do not combine its results with the historical schema-1 runs below.
++This local validation build (`1.0.6-completion`, updates schema 2 and generation schema 3) changes the experiment protocol. Do not combine its results with the historical schema-1 runs below.
++
++For update measurements, Vanilla's completion adapter now drains ordinary deferred sky-gap maintenance with `Chunk.onTick(false)` on already loaded chunks. This time is included in the completion interval. It is bounded and fails if pending gap work does not settle; it does not force lighting values or readiness flags. Legacy schema-1 results used the inline-only adapter. The stricter fixture can still fail Vanilla validation; failed runs must not be given timing scores.
++
++Generation schema 3 adds a two-chunk generated halo, bounded ordinary chunk maintenance, and full core terrain/raw-light hashes. This produces 11,025 warmup and 15,876 measured generated chunks, including halos, with 10,404 measured core chunks. The timing includes halos and maintenance; strict comparison requires matching output hashes. The original generation dimensions and assumptions documented below are historical, not the v3 protocol.
+ 
+ - `/lightbench updates <variant>` runs the four latency workloads and separate CPU replays. A variant is a lowercase identifier such as `a0-stock`, `a1-packed`, or `pulsar`.
+ - For UI-driven runs, `/u` runs updates and `/g` runs generation. Both require a UTF-8 `lightbench-variant.txt` beside the instance's `config` directory. The label is read before the benchmark and included in the raw JSON. Missing or invalid labels abort the command.
+@@ -56,7 +60,7 @@ The fixed update plan is:
+ - Wait for the installed engine's server-side lighting work after every individual edit.
+ - Check the resulting Sky or Block light after every sample, including light level 1 at distance 14 and level 0 at distance 15. Verification happens after the timed interval. A failed check aborts the run without writing a result.
+ 
+-The primary metric is `completion_nanos`: wall time from immediately before `setBlockState` until the engine-specific completion barrier has returned. This includes the block-state submission path because engines divide synchronous and deferred work differently; timing only one internal executor would omit Vanilla's inline work and would not be an equivalent comparison. `submission_nanos` and `barrier_nanos` are retained as diagnostics, but neither should be used alone to rank engines. Vanilla performs lighting inline and therefore has a zero-duration barrier.
++The primary metric is `completion_nanos`: wall time from immediately before `setBlockState` until the engine-specific completion barrier has returned. This includes the block-state submission path because engines divide synchronous and deferred work differently; timing only one internal executor would omit Vanilla's inline work and would not be an equivalent comparison. `submission_nanos` and `barrier_nanos` are retained as diagnostics, but neither should be used alone to rank engines. In v1.0.6 updates, Vanilla's barrier also includes pending deferred sky-gap maintenance; only the legacy inline adapter reports zero barrier duration.
+ 
+ The 200 samples in one phase share a JVM, world, chunk and measured position. They describe the distribution of this deliberately hot, local workload; they are not 200 independent benchmark runs and must not be treated as such for confidence claims. Use separate Minecraft restarts as the independent repetitions summarized by the comparator.
+ 
+diff --git a/gradle.properties b/gradle.properties
+index 7d9dc0a..e36c6c9 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -43,7 +43,7 @@ use_spotless = true
+ 
+ # ---- Mod information ---------------------------------------------------------------------------
+ # HIGHLY recommend complying with SemVer for mod_version: https://semver.org/
+-mod_version = 1.0.4-diagnostic
++mod_version = 1.0.6-completion
+ root_package = com.sumirelabs
+ mod_id = lightbench
+ mod_name = Lightbench
+diff --git a/src/benchmarkTools/java/com/sumirelabs/lightbench/BenchmarkComparison.java b/src/benchmarkTools/java/com/sumirelabs/lightbench/BenchmarkComparison.java
+index b7d1389..ce80971 100644
+--- a/src/benchmarkTools/java/com/sumirelabs/lightbench/BenchmarkComparison.java
++++ b/src/benchmarkTools/java/com/sumirelabs/lightbench/BenchmarkComparison.java
+@@ -140,7 +140,9 @@ final class BenchmarkComparison {
+             }
+             final String adapter = "pulsar".equals(engine)
+                     ? "pulsar_chunk_future_then_atomic_queues"
+-                    : "alfheim".equals(engine) ? "alfheim_process_light_updates" : "vanilla_inline";
++                    : "alfheim".equals(engine)
++                            ? "alfheim_process_light_updates"
++                            : "updates".equals(mode) ? "vanilla_inline_then_sky_gap_ticks" : "vanilla_inline";
+             requireStringValue(root, "/benchmark/completion_adapter", adapter, normalized);
+         }
+         requiredNonEmptyString(root, "/benchmark/lightbench_version", normalized);
+@@ -315,7 +317,8 @@ final class BenchmarkComparison {
+                     source,
+                     plan.phases.get(index),
+                     plan.measuredPairs,
+-                    engine));
++                    engine,
++                    requiredInt(root, "/schema_version", source) == 1));
+         }
+ 
+         return new Run(
+@@ -1041,7 +1044,9 @@ final class BenchmarkComparison {
+         final String expectedBarrier;
+         final String expectedReader;
+         if ("vanilla".equals(engine)) {
+-            expectedBarrier = "vanilla_inline";
++            expectedBarrier = requiredInt(root, "/schema_version", source) == 2
++                    ? "vanilla_inline_then_sky_gap_ticks"
++                    : "vanilla_inline";
+             expectedReader = "world_stored_light";
+         } else if ("alfheim".equals(engine)) {
+             expectedBarrier = "alfheim_process_light_updates";
+@@ -1141,7 +1146,8 @@ final class BenchmarkComparison {
+             final Path source,
+             final UpdatePhaseSpec expected,
+             final int measuredPairs,
+-            final String engine)
++            final String engine,
++            final boolean legacyInline)
+             throws InvalidResultException {
+         requireStringValue(phase, path + "/name", expected.name, source);
+         requireStringValue(phase, path + "/light_type", expected.lightType, source);
+@@ -1180,7 +1186,7 @@ final class BenchmarkComparison {
+                 throw invalid(
+                         source, samplePath + "/completion_nanos", "is less than submission_nanos + barrier_nanos");
+             }
+-            if ("vanilla".equals(engine) && barrierNanos[index] != 0) {
++            if (legacyInline && "vanilla".equals(engine) && barrierNanos[index] != 0) {
+                 throw invalid(source, samplePath + "/barrier_nanos", "must be zero for the vanilla_inline adapter");
+             }
+             if (!requiredBoolean(sample, samplePath + "/light_verified", source)) {
+diff --git a/src/main/java/com/sumirelabs/lightbench/LightProbe.java b/src/main/java/com/sumirelabs/lightbench/LightProbe.java
+index 1356780..4d5c439 100644
+--- a/src/main/java/com/sumirelabs/lightbench/LightProbe.java
++++ b/src/main/java/com/sumirelabs/lightbench/LightProbe.java
+@@ -6,11 +6,15 @@ import java.lang.management.ThreadInfo;
+ import java.lang.management.ThreadMXBean;
+ import java.lang.reflect.Field;
+ import java.lang.reflect.Method;
++import java.util.ArrayList;
++import java.util.List;
+ import java.util.concurrent.locks.ReentrantLock;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.world.EnumSkyBlock;
+ import net.minecraft.world.World;
++import net.minecraft.world.WorldServer;
+ import net.minecraft.world.chunk.Chunk;
++import net.minecraftforge.fml.relauncher.ReflectionHelper;
+ 
+ /**
+  * Engine detection + the minimal per-engine adapters, all via reflection so
+@@ -32,6 +36,8 @@ public final class LightProbe {
+     private final Object alfheimEngine; // dev.redstudio.alfheim.lighting.LightingEngine
+     private final Method alfheimProcess;
+     private final Method alfheimCachedLight;
++    private World vanillaWorld;
++    private Field vanillaGapPending;
+ 
+     private LightProbe(
+             final Engine engine,
+@@ -94,7 +100,9 @@ public final class LightProbe {
+             }
+         } catch (final Throwable ignored) {
+         }
+-        return new LightProbe(Engine.VANILLA, null, null, null, null, null, null);
++        final LightProbe vanilla = new LightProbe(Engine.VANILLA, null, null, null, null, null, null);
++        vanilla.vanillaWorld = world;
++        return vanilla;
+     }
+ 
+     public Engine engine() {
+@@ -155,7 +163,7 @@ public final class LightProbe {
+             case ALFHEIM:
+                 return "alfheim_process_light_updates";
+             case VANILLA:
+-                return "vanilla_inline";
++                return this.vanillaGapPending == null ? "vanilla_inline" : "vanilla_inline_then_sky_gap_ticks";
+             default:
+                 throw new IllegalStateException("unknown light engine " + this.engine);
+         }
+@@ -166,6 +174,9 @@ public final class LightProbe {
+     }
+ 
+     public void requireUpdateBenchmarkSupport() {
++        if (this.engine == Engine.VANILLA) {
++            this.vanillaGapPending = ReflectionHelper.findField(Chunk.class, "isGapLightingUpdated", "field_76650_s");
++        }
+         if (this.engine == Engine.PULSAR && this.pulsarAwaitPendingWork == null) {
+             throw new IllegalStateException(
+                     "this Pulsar build lacks the per-chunk completion future required by the update benchmark");
+@@ -178,7 +189,8 @@ public final class LightProbe {
+ 
+     /**
+      * Block until the engine has fully lit everything generated so far.
+-     * Returns the wall nanos spent draining. Vanilla lights inline → 0.
++     * Returns the wall nanos spent draining. Vanilla update measurements also
++     * drain deferred sky-gap maintenance; its legacy inline adapter returns 0.
+      */
+     public long drainLight() throws Exception {
+         return drainLight(null);
+@@ -192,7 +204,10 @@ public final class LightProbe {
+      */
+     public long drainLight(final BlockPos affectedPosition) throws Exception {
+         if (this.engine == Engine.VANILLA) {
+-            return 0;
++            if (this.vanillaGapPending == null) return 0;
++            final long start = System.nanoTime();
++            this.drainVanillaSkyGaps(affectedPosition);
++            return System.nanoTime() - start;
+         }
+         final long start = System.nanoTime();
+         switch (this.engine) {
+@@ -228,6 +243,40 @@ public final class LightProbe {
+         return System.nanoTime() - start;
+     }
+ 
++    /** Run ordinary deferred sky-gap maintenance; never write lighting values or readiness flags. */
++    private void drainVanillaSkyGaps(final BlockPos position) throws IllegalAccessException {
++        final List<Chunk> chunks = new ArrayList<>();
++        if (position == null) {
++            for (final Chunk chunk :
++                    ((WorldServer) this.vanillaWorld).getChunkProvider().getLoadedChunks()) {
++                // Ignore unrelated boundary chunks whose ordinary tick cannot run without its halo.
++                if (this.vanillaWorld.isAreaLoaded(new BlockPos(chunk.x * 16 + 8, 0, chunk.z * 16 + 8), 16, false)) {
++                    chunks.add(chunk);
++                }
++            }
++        } else {
++            for (int x = (position.getX() >> 4) - 1; x <= (position.getX() >> 4) + 1; ++x) {
++                for (int z = (position.getZ() >> 4) - 1; z <= (position.getZ() >> 4) + 1; ++z) {
++                    final Chunk chunk = this.vanillaWorld.getChunkProvider().getLoadedChunk(x, z);
++                    if (chunk == null)
++                        throw new IllegalStateException("missing update completion halo: " + x + "," + z);
++                    chunks.add(chunk);
++                }
++            }
++        }
++        for (int pass = 0; pass < 8; ++pass) {
++            boolean pending = false;
++            for (final Chunk chunk : chunks) {
++                if (this.vanillaGapPending.getBoolean(chunk)) {
++                    pending = true;
++                    chunk.onTick(false);
++                }
++            }
++            if (!pending) return;
++        }
++        throw new IllegalStateException("vanilla sky-gap maintenance did not settle in 8 passes");
++    }
++
+     /**
+      * Read a stored light value without processing deferred work. Alfheim's
+      * normal Chunk#getLightFor method drains its queue before reading, which
+diff --git a/src/test/java/com/sumirelabs/lightbench/BenchmarkComparisonTest.java b/src/test/java/com/sumirelabs/lightbench/BenchmarkComparisonTest.java
+index 3379576..237c8f0 100644
+--- a/src/test/java/com/sumirelabs/lightbench/BenchmarkComparisonTest.java
++++ b/src/test/java/com/sumirelabs/lightbench/BenchmarkComparisonTest.java
+@@ -230,6 +230,27 @@ class BenchmarkComparisonTest {
+                 () -> BenchmarkComparison.compare(Arrays.asList(first, second), Collections.emptySet()));
+     }
+ 
++    @Test
++    void vanillaVolumeRequiresDeferredCompletionAndAllowsItsMeasuredTime(@TempDir final Path temporary)
++            throws Exception {
++        final JsonObject valid = volumeResult("vanilla", "stock");
++        valid.getAsJsonObject("benchmark")
++                .add(
++                        "phases",
++                        volumeResult("alfheim", "stock")
++                                .getAsJsonObject("benchmark")
++                                .get("phases"));
++        final Path first = write(temporary.resolve("first.json"), valid);
++        final Path second = write(temporary.resolve("second.json"), valid);
++        BenchmarkComparison.compare(Arrays.asList(first, second), Collections.emptySet());
++        valid.getAsJsonObject("benchmark").addProperty("completion_adapter", "vanilla_inline");
++        write(second, valid);
++        final BenchmarkComparison.InvalidResultException failure = assertThrows(
++                BenchmarkComparison.InvalidResultException.class,
++                () -> BenchmarkComparison.compare(Arrays.asList(first, second), Collections.emptySet()));
++        assertTrue(failure.getMessage().contains("vanilla_inline_then_sky_gap_ticks"));
++    }
++
+     private static JsonObject volumeResult(final String engine, final String variant) {
+         final JsonObject root = updateResult(engine, 1000);
+         root.addProperty("schema_version", 2);
+@@ -238,6 +259,9 @@ class BenchmarkComparisonTest {
+         if ("pulsar".equals(engine)) {
+             benchmark.addProperty("completion_adapter", "pulsar_chunk_future_then_atomic_queues");
+         }
++        if ("vanilla".equals(engine)) {
++            benchmark.addProperty("completion_adapter", "vanilla_inline_then_sky_gap_ticks");
++        }
+         final JsonObject plan = benchmark.getAsJsonObject("plan");
+         plan.addProperty("validation_protocol", "bounded-volume-v2");
+         plan.addProperty("measured_sky_voxels_per_sample", 31 * 31 * 252);
