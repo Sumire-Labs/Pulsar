@@ -63,6 +63,23 @@ that do not work as expected.
   that extend below Y=0 or above Y=255.
 - [JSON Paintings](https://www.curseforge.com/minecraft/mc-mods/json-paintings),
 
+### Thaumcraft crystal lighting (experimental)
+
+Placed Thaumcraft 6 vis crystal clusters can illuminate nearby blocks using
+normal, uncolored block light. All seven crystal types use a minimum light
+level of **10** by default (a torch emits 14). This changes actual world
+lighting, including light checks used for mob spawning; it is not only a
+rendering effect.
+
+In `config/pulsar.cfg`, set `features.thaumcraftCrystalLightLevel` to a value
+from 1 to 15, or **0** to preserve Thaumcraft's original emission. Higher
+emission supplied by another mod is preserved. Restart the game/server after
+changing this setting. Existing chunks are relit as they load when the
+setting changes. Use matching settings on the server and clients.
+
+This integration targets placed crystal clusters in Thaumcraft 6; it does
+not add handheld dynamic lights or RGB lighting. Thaumcraft is optional.
+
 ### Incompatible
 
 - [Alfheim](https://www.curseforge.com/minecraft/mc-mods/alfheim-lighting-engine)

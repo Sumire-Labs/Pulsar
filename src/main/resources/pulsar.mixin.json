@@ -12,6 +12,7 @@
     "MixinChunkSectionChanges",
     "MixinChunkVanillaLighting",
     "MixinSPacketChunkData",
+    "MixinThaumcraftCrystalLight",
     "MixinWorld",
     "MixinWorldEntitySpawner"
   ],

@@ -28,3 +28,5 @@ gradle-app.setting
 # IDEA config
 .idea
 
+# Pulsar Colored Lighting Addon
+pcla/

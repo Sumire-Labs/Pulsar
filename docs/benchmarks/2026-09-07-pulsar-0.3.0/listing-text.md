@@ -1,72 +1,39 @@
-# Modrinth / CurseForge replacement text
+## Performance
 
-Replace the previous **Performance** section and both old benchmark images.
-Upload `light-updates.png` from this directory with the platform's image
-uploader, then insert that image below the first paragraph. The text below is
-ready to copy. The GitHub data link becomes available once this directory is
-published on the repository's default branch; these files have not been posted.
+In controlled tests, Pulsar 0.3.0 achieved lower median lighting-update times
+than Alfheim 1.6 in all four tested workloads, with the largest gains in skylight
+updates. Actual gains depend on your hardware and workload; these results do
+not translate directly into higher FPS or TPS.
 
----
+<details>
+<summary>Light-update benchmark — Pulsar 0.3.0</summary>
 
-## Performance — Pulsar 0.3.0
+[![Lighting-update times for Pulsar 0.3.0 and Alfheim 1.6, with historical Vanilla reference values. Lower is better.](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/docs/benchmarks/2026-09-07-pulsar-0.3.0/light-updates.png)](https://github.com/Sumire-Labs/Pulsar/blob/main/docs/benchmarks/2026-09-07-pulsar-0.3.0/light-updates.png)
 
-Recorded on September 7, 2026. Lightbench measured from each block edit until
-server-side lighting completed, then checked the stored light values across
-the affected volume outside timing. All six formal runs passed validation.
+Each update was timed until server-side lighting completed. Markers show the
+median of three run medians; horizontal lines show their range.
 
-Each value is the median of three independent Minecraft/JVM-run p50s.
-**Lower is better.**
+**Vanilla* uses older measurements under different conditions and is provided
+for reference only.** Current results were recorded on September 7, 2026.
+Pulsar's median times were lower, though Alfheim had a lower p95 for light-source
+placement; full percentile data is linked below.
 
-| Workload | Alfheim 1.6 | Pulsar 0.3.0 | Alfheim / Pulsar |
-|---|---:|---:|---:|
-| Open roof column (SKY increases) | 9.674 ms | 0.621 ms | 15.58x |
-| Close roof column (SKY decreases) | 15.822 ms | 0.617 ms | 25.66x |
-| Place glowstone (BLOCK increases) | 0.167 ms | 0.072 ms | 2.31x |
-| Remove glowstone (BLOCK decreases) | 0.272 ms | 0.077 ms | 3.54x |
+</details>
 
-Pulsar had lower median latency in these four workloads. For glowstone
-placement, however, the median run p95 was **0.220 ms for Pulsar versus
-0.177 ms for Alfheim**. The chart shows p50; whiskers show the full
-range of run p50s. These timings describe repeated edits at one position,
-not FPS, TPS, overall game speed, or the contribution of any single algorithm.
+<details>
+<summary>Chunk-generation benchmark — historical results, Pulsar 0.1.0</summary>
 
-### Historical Vanilla reference — previous measurement
+**This is a previous-version benchmark, not a measurement of Pulsar 0.3.0.**
 
-These are the previous Vanilla measurements, **not new 0.3.0 measurements**.
-The chart marks them as `Vanilla*`, with a note explaining the different conditions.
-They used Lightbench 1.0.0 with sparse light probes, Cleanroom 0.6.8-alpha,
-Azul Java 25.0.3, and seed `20260805`. They did not undergo the current
-full-volume validation. The changed protocol and environment mean they
-**cannot be used to calculate speedup against the current results above**.
+[![Historical chunk-generation benchmark using Pulsar 0.1.0, Alfheim, and Vanilla.](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/docs/benchmarks/2026-08-05-chunk-generation.svg)](https://github.com/Sumire-Labs/Pulsar/blob/main/docs/benchmarks/2026-08-05-chunk-generation.svg)
 
-| Workload | Historical Vanilla p50 | Range of three run p50s |
-|---|---:|---:|
-| Open roof column | 45.541 ms | 38.084–46.356 ms |
-| Close roof column | 847.284 ms | 762.866–848.995 ms |
-| Place glowstone | 2.028 ms | 1.768–2.092 ms |
-| Remove glowstone | 2.820 ms | 2.510–2.880 ms |
+The older 10,404-chunk test recorded median totals of **48.831 s for Pulsar**,
+**49.615 s for Alfheim**, and **56.461 s for Vanilla**. This includes terrain
+generation and lighting.
 
-Recorded August 6, 2026 (JST); each value is the median of three run p50s.
-The historical Vanilla generation result was **56.461 s** for 10,404 chunks
-(three-run range **55.639–58.628 s**), also using the old Lightbench 1.0.0
-protocol. It is reference data only, not a baseline for the new generation pilots.
+No new generation-speed comparison is published for 0.3.0 because the latest
+runs produced differing terrain and lighting results.
 
-### Current measurement setup and limitations
+</details>
 
-Test setup: Minecraft 1.12.2, Cleanroom 0.6.12-alpha, integrated server,
-Windows 11, AMD Ryzen AI MAX+ 395, Eclipse Adoptium Java 25.0.4.1, 8 GiB heap,
-and Lightbench 1.0.6-completion (local validation build). Both engines used
-the same common mods and configuration. Each launch used a fresh copy of a
-seed-1 Superflat template with a 64×64 roof at Y=254 above a floor at Y=3.
-Each phase had 200 measured samples after 20 warmup pairs. Launch order was
-Alfheim, Pulsar, Pulsar, Alfheim, Alfheim, Pulsar.
-
-**Vanilla and generation results:** Vanilla failed the stronger update-volume
-checks, even after the harness was corrected to drain deferred sky-gap
-maintenance, so no new Vanilla/Pulsar ratio is reported. Generation pilots
-also produced differing terrain and light hashes; a generation-speed ranking
-is withheld until output equivalence is established. Historical benchmark
-numbers are not presented as 0.3.0 results, and the changed protocol does not
-measure improvement over older Pulsar releases.
-
-[Full methodology, raw measurements, reproducible chart, and validation records](https://github.com/Sumire-Labs/Pulsar/tree/HEAD/docs/benchmarks/2026-09-07-pulsar-0.3.0)
+[Measurement details and raw data](https://github.com/Sumire-Labs/Pulsar/tree/main/docs/benchmarks/2026-09-07-pulsar-0.3.0)

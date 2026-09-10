@@ -1,11 +1,13 @@
 package com.sumirelabs.pulsar;
 
 import com.sumirelabs.pulsar.command.CommandPulsar;
+import com.sumirelabs.pulsar.compat.ThaumcraftCrystalLighting;
 import com.sumirelabs.pulsar.config.PulsarConfig;
 import com.sumirelabs.pulsar.light.engine.FaceOcclusion;
 import com.sumirelabs.pulsar.proxy.IProxy;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -47,6 +49,12 @@ public class Pulsar {
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
+        ThaumcraftCrystalLighting.initialize(Loader.isModLoaded("thaumcraft"),
+                PulsarConfig.features.thaumcraftCrystalLightLevel);
+        if (Loader.isModLoaded("thaumcraft")) {
+            LOGGER.info("Thaumcraft crystal minimum block light: {} (0 preserves original emission)",
+                    ThaumcraftCrystalLighting.cacheProfile());
+        }
         FaceOcclusion.registerDefaults();
         LOGGER.info("{} ready - Pulsar Lighting Engine active.", Reference.MOD_NAME);
     }

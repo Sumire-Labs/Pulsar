@@ -28,6 +28,17 @@ public class PulsarConfig {
     public static class Features {
 
         @Config.Comment({
+                "Minimum block-light level for Thaumcraft 6's placed vis crystal clusters.",
+                "0 keeps Thaumcraft's original emission. Default 10 is dimmer than a torch (14).",
+                "Uses normal uncolored block-light propagation; held items are not affected.",
+                "Restart Minecraft/the server to apply. Saved light is recalculated on chunk load.",
+                "Stronger emission from other mods is preserved. Use matching settings on both sides."
+        })
+        @Config.RangeInt(min = 0, max = 15)
+        @Config.RequiresMcRestart
+        public int thaumcraftCrystalLightLevel = 10;
+
+        @Config.Comment({
                 "Allow the server to send chunks to clients before initial lighting has propagated.",
                 "1.12.2 has no light-update packet, so light sent wrong stays wrong on the client",
                 "until a block change. Chunks with valid persisted light are ready instantly, so",
