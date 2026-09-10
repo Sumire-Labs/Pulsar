@@ -1,6 +1,8 @@
 package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.api.lighting.LightingBackendRegistry;
+import com.sumirelabs.pulsar.api.lighting.WorldLightingBackend;
 import com.sumirelabs.pulsar.light.engine.PulsarEngine;
 import com.sumirelabs.pulsar.light.engine.ScalarBlockEngine;
 import com.sumirelabs.pulsar.light.engine.ScalarSkyEngine;
@@ -37,6 +39,8 @@ public final class WorldLightManager {
      */
     private final World world;
     private final WorldHeightContext heightContext;
+    private final WorldLightingBackend lightingBackend;
+    private final String lightingBackendKey;
 
     private final SnapshotChunkMap loadedChunkMap = new SnapshotChunkMap();
 
@@ -55,6 +59,14 @@ public final class WorldLightManager {
     public WorldLightManager(final World world, final boolean hasSkyLight, final boolean hasBlockLight) {
         this.world = world;
         this.heightContext = WorldUtil.getHeightContext(world);
+        this.lightingBackend = LightingBackendRegistry.create(world, this.heightContext);
+        this.lightingBackendKey = this.lightingBackend == null ? "" : this.lightingBackend.cacheKey();
+        if (this.lightingBackend != null && (this.lightingBackendKey == null || this.lightingBackendKey.isEmpty())) {
+            throw new IllegalArgumentException("A lighting backend must supply a nonempty cache key");
+        }
+        new LightCacheIdentity(this.lightingBackendKey, 0); // Validate before starting worker threads.
+        final java.util.function.Supplier<PulsarEngine> extraSky = this.lightingBackend == null ? null : this.lightingBackend.skyEngineFactory();
+        final java.util.function.Supplier<PulsarEngine> extraBlock = this.lightingBackend == null ? null : this.lightingBackend.blockEngineFactory();
         this.skyQueue = hasSkyLight ? new LightQueue(this.heightContext) : null;
         this.blockQueue = hasBlockLight ? new LightQueue(this.heightContext) : null;
         this.stats = new LightStats(world.isRemote);
@@ -64,7 +76,7 @@ public final class WorldLightManager {
                 this.loadedChunkMap, this.skyQueue, this.blockQueue, this::scheduleUpdate);
         this.skyWorker = hasSkyLight ? new LightEngineWorker(
                 this.skyQueue,
-                () -> new ScalarSkyEngine(world, this.heightContext),
+                extraSky == null ? () -> new ScalarSkyEngine(world, this.heightContext) : extraSky,
                 this::processSkyTask,
                 this.stats.skyChangeBudgetYields,
                 this.stats.edgeBudgetYields,
@@ -73,7 +85,7 @@ public final class WorldLightManager {
                 !world.isRemote) : null;
         this.blockWorker = hasBlockLight ? new LightEngineWorker(
                 this.blockQueue,
-                () -> new ScalarBlockEngine(world, this.heightContext),
+                extraBlock == null ? () -> new ScalarBlockEngine(world, this.heightContext) : extraBlock,
                 this::processBlockTask,
                 this.stats.blockChangeBudgetYields,
                 this.stats.edgeBudgetYields,
@@ -81,6 +93,10 @@ public final class WorldLightManager {
                 "Pulsar-Block",
                 !world.isRemote) : null;
     }
+
+    public WorldLightingBackend getLightingBackend() { return this.lightingBackend; }
+
+    public String getLightingBackendKey() { return this.lightingBackendKey; }
 
     public void registerChunk(final Chunk chunk) {
         this.loadedChunkMap.put(CoordinateUtils.getChunkKey(chunk.x, chunk.z), chunk);
