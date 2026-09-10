@@ -16,6 +16,7 @@ public abstract class MixinWorldServer {
         final WorldLightManager mgr = ((PulsarWorld) (Object) this).pulsar$getLightManager();
         if (mgr != null) {
             mgr.scheduleUpdate();
+            mgr.processDeferredChunkUpdates();
         }
     }
 }

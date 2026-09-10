@@ -43,6 +43,8 @@ public final class WorldLightManager {
     private final String lightingBackendKey;
 
     private final SnapshotChunkMap loadedChunkMap = new SnapshotChunkMap();
+    // Only accessed by server-thread packet/update callbacks, never by workers.
+    private final DeferredChunkUpdates<Chunk> deferredChunkUpdates = new DeferredChunkUpdates<>();
 
     // Queues for sky and block light. On the server each is drained by its
     // own worker thread; on the client (thin mode) both are drained on the
@@ -104,6 +106,7 @@ public final class WorldLightManager {
     }
 
     public void unregisterChunk(final int cx, final int cz) {
+        this.deferredChunkUpdates.remove(CoordinateUtils.getChunkKey(cx,cz));
         if (this.lightingBackend != null) this.lightingBackend.chunkUnloaded(cx, cz);
         this.loadedChunkMap.remove(CoordinateUtils.getChunkKey(cx, cz));
     }
@@ -209,6 +212,39 @@ public final class WorldLightManager {
         final int skySize = this.skyQueue != null ? this.skyQueue.size() : 0;
         final int blockSize = this.blockQueue != null ? this.blockQueue.size() : 0;
         this.stats.tick(skySize, blockSize);
+    }
+
+    /** A block update packet has no scalar light; a section packet does, and must wait. */
+    public boolean canSendUpdatedChunkLight(final int cx,final int cz) {
+        final Chunk chunk=this.getLoadedChunk(cx,cz);
+        if(chunk==null || !((PulsarChunk)chunk).pulsar$isLightReady()) return false;
+        // Propagation from a neighboring task can also write this chunk's nibbles.
+        for(int dx=-1;dx<=1;dx++) for(int dz=-1;dz<=1;dz++) {
+            if(this.hasChunkPendingLight(cx+dx,cz+dz)) return false;
+        }
+        return true;
+    }
+
+    public void deferChunkPacketUpdate(final Chunk chunk) {
+        this.deferredChunkUpdates.defer(CoordinateUtils.getChunkKey(chunk.x,chunk.z),chunk);
+    }
+
+    /** PlayerChunkMap clears its changed-entry set after update(), so it cannot own retries. */
+    public void processDeferredChunkUpdates() {
+        if(!(this.world instanceof WorldServer serverWorld)) return;
+        this.deferredChunkUpdates.drain((key,chunk)-> {
+            final PlayerChunkMapEntry entry=serverWorld.getPlayerChunkMap().getEntry(chunk.x,chunk.z);
+            if(this.loadedChunkMap.get(key)!=chunk || entry==null || entry.getChunk()!=chunk)
+                return DeferredChunkUpdates.Decision.DROP;
+            return this.canSendUpdatedChunkLight(chunk.x,chunk.z)
+                    ? DeferredChunkUpdates.Decision.SEND : DeferredChunkUpdates.Decision.WAIT;
+        },(key,chunk)->serverWorld.getPlayerChunkMap().getEntry(chunk.x,chunk.z).update());
+    }
+
+    /** Refresh an existing client chunk without unloading its tracked entities. */
+    public void sendChunkLightRefresh(final PlayerChunkMapEntry entry,final Chunk chunk,final int mask) {
+        for(int part:ChunkUpdateMasks.split(mask,this.heightContext.getFullChunkSectionMask()))
+            entry.sendPacket(new SPacketChunkData(chunk,part));
     }
 
     private void processSkyTask(final ChunkTasks task, final PulsarEngine skyEngine) {
@@ -520,8 +556,7 @@ public final class WorldLightManager {
                     final Chunk current = this.loadedChunkMap.get(key);
                     if (entry != null && current == completion.chunk
                             && ((PulsarChunk) current).pulsar$isLightReady()) {
-                        entry.sendPacket(new SPacketChunkData(
-                                current, this.heightContext.getFullChunkSectionMask()));
+                        this.sendChunkLightRefresh(entry,current,this.heightContext.getFullChunkSectionMask());
                     }
                 });
             }, Runnable::run);
@@ -591,6 +626,7 @@ public final class WorldLightManager {
     }
 
     public void shutdown() {
+        this.deferredChunkUpdates.clear();
         if (this.lightingBackend != null) this.lightingBackend.close();
         if (this.skyWorker != null) this.skyWorker.requestStop();
         if (this.blockWorker != null) this.blockWorker.requestStop();
