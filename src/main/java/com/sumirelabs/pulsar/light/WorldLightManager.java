@@ -100,9 +100,11 @@ public final class WorldLightManager {
 
     public void registerChunk(final Chunk chunk) {
         this.loadedChunkMap.put(CoordinateUtils.getChunkKey(chunk.x, chunk.z), chunk);
+        if (this.lightingBackend != null) this.lightingBackend.chunkLoaded(chunk);
     }
 
     public void unregisterChunk(final int cx, final int cz) {
+        if (this.lightingBackend != null) this.lightingBackend.chunkUnloaded(cx, cz);
         this.loadedChunkMap.remove(CoordinateUtils.getChunkKey(cx, cz));
     }
 
@@ -131,11 +133,14 @@ public final class WorldLightManager {
     /** Queue a recheck for the requested light type, if this world has that lane. */
     public void queueLightCheck(final EnumSkyBlock lightType, final int x, final int y, final int z) {
         final LightQueue queue = lightType == EnumSkyBlock.SKY ? this.skyQueue : this.blockQueue;
+        if (queue != null && lightType == EnumSkyBlock.BLOCK && this.lightingBackend != null)
+            this.lightingBackend.blockLightQueuedAt(x, y, z);
         if (queue != null) queue.queueBlockChange(x, y, z);
     }
 
     /** Queue a block change whose effects may involve both light types. */
     public void queueBlockChange(final int x, final int y, final int z) {
+        if (this.blockQueue != null && this.lightingBackend != null) this.lightingBackend.blockLightQueuedAt(x, y, z);
         if (this.skyQueue != null) this.skyQueue.queueBlockChange(x, y, z);
         if (this.blockQueue != null) this.blockQueue.queueBlockChange(x, y, z);
     }
@@ -144,11 +149,18 @@ public final class WorldLightManager {
      * A section's emptiness changed (e.g. a block placed into a new EBS).
      */
     public void queueSectionChange(final int cx, final int sectionY, final int cz, final boolean empty) {
+        if (this.blockQueue != null && this.lightingBackend != null) this.lightingBackend.blockLightQueued(cx, cz);
         if (this.skyQueue != null) this.skyQueue.queueSectionChange(cx, sectionY, cz, empty);
         if (this.blockQueue != null) this.blockQueue.queueSectionChange(cx, sectionY, cz, empty);
     }
 
+    public void backendBlockStateChanged(final int x, final int y, final int z) {
+        if (this.lightingBackend != null && this.lightingBackend.needsBlockStateUpdate(x, y, z))
+            this.queueLightCheck(EnumSkyBlock.BLOCK, x, y, z);
+    }
+
     public void queueChunkLight(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
+        if (this.blockQueue != null && this.lightingBackend != null) this.lightingBackend.blockLightQueued(cx, cz);
         this.initialLighting.queue(cx, cz, chunk, emptySections);
     }
 
@@ -158,6 +170,7 @@ public final class WorldLightManager {
      * {@code lightReady}.
      */
     public void queueChunkLoadInit(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
+        if (this.blockQueue != null && this.lightingBackend != null) this.lightingBackend.blockLightQueued(cx, cz);
         if (this.skyQueue != null) this.skyQueue.queueChunkLoadInit(cx, cz, chunk, emptySections);
         if (this.blockQueue != null) this.blockQueue.queueChunkLoadInit(cx, cz, chunk, emptySections);
     }
@@ -398,6 +411,9 @@ public final class WorldLightManager {
                 edgeOverflowed |= blockEngine.wasQueueOverflowed();
             }
 
+            if (!valueOverflowed && !edgeOverflowed && this.lightingBackend != null) {
+                this.lightingBackend.afterBlockTask(cx, cz);
+            }
             if (valueOverflowed) {
                 if (this.requeueAfterOverflow(this.blockQueue, task, cx, cz, "Block")) {
                     finishInitial = false;
@@ -575,6 +591,7 @@ public final class WorldLightManager {
     }
 
     public void shutdown() {
+        if (this.lightingBackend != null) this.lightingBackend.close();
         if (this.skyWorker != null) this.skyWorker.requestStop();
         if (this.blockWorker != null) this.blockWorker.requestStop();
         if (this.skyWorker != null) this.skyWorker.awaitStop();
