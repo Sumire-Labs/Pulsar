@@ -10,6 +10,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
@@ -37,6 +39,28 @@ public abstract class MixinPlayerChunkMapEntry {
     @Shadow
     @Nullable
     private Chunk chunk;
+    @Shadow private int changes;
+    @Shadow private int changedSectionFilter;
+    @Shadow public abstract void sendPacket(net.minecraft.network.Packet<?> packet);
+
+    @Inject(method="update",at=@At("HEAD"),cancellable=true)
+    private void pulsar$waitForSectionPacketLight(final CallbackInfo ci) {
+        if(this.chunk==null || this.changes<net.minecraftforge.common.ForgeModContainer.clumpingThreshold) return;
+        final WorldLightManager manager=((PulsarWorld)this.chunk.getWorld()).pulsar$getLightManager();
+        if(manager!=null && !manager.canSendUpdatedChunkLight(this.chunk.x,this.chunk.z)) {
+            manager.deferChunkPacketUpdate(this.chunk);
+            ci.cancel(); // Keep changes and changedSectionFilter for the manager's retry.
+        }
+    }
+
+    @Redirect(method="update",at=@At(value="INVOKE",target="Lnet/minecraft/server/management/PlayerChunkMapEntry;sendPacket(Lnet/minecraft/network/Packet;)V"))
+    private void pulsar$preserveEntitiesOnSectionRefresh(final PlayerChunkMapEntry entry,final net.minecraft.network.Packet<?> packet) {
+        if(packet instanceof net.minecraft.network.play.server.SPacketChunkData data && data.isFullChunk() && this.chunk!=null) {
+            final WorldLightManager manager=((PulsarWorld)this.chunk.getWorld()).pulsar$getLightManager();
+            if(manager!=null) { manager.sendChunkLightRefresh(entry,this.chunk,this.changedSectionFilter); return; }
+        }
+        this.sendPacket(packet);
+    }
 
     @Inject(method = "sendToPlayers", at = @At("HEAD"), cancellable = true, require = 0)
     private void pulsar$gateSendOnLight(final CallbackInfoReturnable<Boolean> cir) {

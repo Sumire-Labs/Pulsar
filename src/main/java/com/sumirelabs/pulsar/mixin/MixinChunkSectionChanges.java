@@ -66,6 +66,10 @@ public abstract class MixinChunkSectionChanges {
     @Inject(method = "setBlockState", at = @At("RETURN"), require = 0)
     private void pulsar$postSetBlockState(final BlockPos pos, final IBlockState state,
                                           final CallbackInfoReturnable<IBlockState> cir) {
+        if (cir.getReturnValue() != null) {
+            final WorldLightManager backendManager = ((PulsarWorld) this.world).pulsar$getLightManager();
+            if (backendManager != null) backendManager.backendBlockStateChanged(pos.getX(), pos.getY(), pos.getZ());
+        }
         if (!this.pulsar$sectionWasEmpty || cir.getReturnValue() == null) {
             return;
         }

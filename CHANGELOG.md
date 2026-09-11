@@ -5,6 +5,16 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Applied server lighting and chunk-send hooks to integrated servers as well as
+  dedicated servers.
+- Deferred bulk section updates until queued lighting work completes, preventing
+  stale scalar light from being sent to clients.
+- Preserved existing client entities when refreshing chunks after relighting.
+
 ## [0.3.0]
 
 ### Changed

@@ -46,11 +46,12 @@ public final class LightDataSerializer {
     // v6: invalidated light computed before the 2026-07-26 correctness batch
     // (UNINIT-as-15 sync, missing extrude, decrease re-seed/continuation
     // fixes) — old data relights once on load.
-    public static final int LIGHT_VERSION = 10;
+    public static final int LIGHT_VERSION = LightCacheIdentity.SCALAR_VERSION;
 
     private static final String TAG_ROOT = "PulsarLight";
     private static final String TAG_VERSION = "version";
     private static final String TAG_CRYSTAL_LIGHT = "thaumcraftCrystalLight";
+    private static final String TAG_BACKEND = "lightingBackend";
     private static final String TAG_SECTIONS = "sections";
     private static final String TAG_Y = "y";
     private static final String TAG_BLOCK_STATE = "bs";
@@ -93,6 +94,7 @@ public final class LightDataSerializer {
     }
 
     private void saveLight(final ChunkDataEvent.Save event) {
+        event.getData().removeTag(TAG_ROOT);
         final Chunk chunk = event.getChunk();
         final PulsarChunk pc = (PulsarChunk) chunk;
         if (!pc.pulsar$isLightReady()) {
@@ -148,9 +150,12 @@ public final class LightDataSerializer {
         }
 
         final NBTTagCompound root = new NBTTagCompound();
-        root.setInteger(TAG_VERSION, LIGHT_VERSION);
+        final LightCacheIdentity identity = new LightCacheIdentity(mgr.getLightingBackendKey(), ThaumcraftCrystalLighting.cacheProfile());
+        root.setInteger(TAG_VERSION, identity.version());
+        if (!identity.backendKey().isEmpty()) root.setString(TAG_BACKEND, identity.backendKey());
         root.setInteger(TAG_CRYSTAL_LIGHT, ThaumcraftCrystalLighting.cacheProfile());
         root.setTag(TAG_SECTIONS, sections);
+        if (mgr.getLightingBackend() != null && !mgr.getLightingBackend().saveLight(chunk, root)) return;
         event.getData().setTag(TAG_ROOT, root);
     }
 
@@ -160,10 +165,9 @@ public final class LightDataSerializer {
             return;
         }
         final NBTTagCompound root = data.getCompoundTag(TAG_ROOT);
-        if (root.getInteger(TAG_VERSION) != LIGHT_VERSION) {
-            return;
-        }
-        if (root.getInteger(TAG_CRYSTAL_LIGHT) != ThaumcraftCrystalLighting.cacheProfile()) {
+        final WorldLightManager mgr = ((PulsarWorld) event.getChunk().getWorld()).pulsar$getLightManager();
+        final LightCacheIdentity identity = new LightCacheIdentity(mgr.getLightingBackendKey(), ThaumcraftCrystalLighting.cacheProfile());
+        if (!identity.accepts(root.getInteger(TAG_VERSION), root.getString(TAG_BACKEND), root.getInteger(TAG_CRYSTAL_LIGHT))) {
             return;
         }
 
@@ -194,6 +198,7 @@ public final class LightDataSerializer {
             }
         }
 
+        if (mgr.getLightingBackend() != null && !mgr.getLightingBackend().loadLight(event.getChunk(), root)) return;
         final PulsarChunk pc = (PulsarChunk) event.getChunk();
         pc.pulsar$setBlockNibbles(blockNibbles);
         pc.pulsar$setSkyNibbles(skyNibbles);
