@@ -138,6 +138,11 @@ public final class WorldLightManager {
         final LightQueue queue = lightType == EnumSkyBlock.SKY ? this.skyQueue : this.blockQueue;
         if (queue != null && lightType == EnumSkyBlock.BLOCK && this.lightingBackend != null)
             this.lightingBackend.blockLightQueuedAt(x, y, z);
+        if(queue!=null && lightType==EnumSkyBlock.SKY && this.blockQueue!=null && this.lightingBackend!=null
+                && this.lightingBackend.needsBlockWorkForSkyCheck(x,y,z)) {
+            this.lightingBackend.blockLightQueuedAt(x,y,z);
+            this.blockQueue.queueBlockChange(x,y,z);
+        }
         if (queue != null) queue.queueBlockChange(x, y, z);
     }
 

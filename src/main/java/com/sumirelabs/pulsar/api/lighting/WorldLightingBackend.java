@@ -33,6 +33,9 @@ public interface WorldLightingBackend {
      */
     default boolean needsBlockStateUpdate(int x, int y, int z) { return false; }
 
+    /** A sidecar serialized on the BLOCK worker can opt in to relevant SKY-only requests. */
+    default boolean needsBlockWorkForSkyCheck(int x,int y,int z) { return false; }
+
     /**
      * Runs on the block lane after successful scalar work and before its completion signal.
      * Additional channels have their own availability state: this callback must not mark
