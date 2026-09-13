@@ -43,6 +43,22 @@ public interface WorldLightingBackend {
      */
     default void afterBlockTask(int chunkX, int chunkZ) {}
 
+    /**
+     * Receives a thread-safe coalescing wake-up after the BLOCK worker exists.
+     * Requests do not enqueue scalar tasks or invalidate block coordinates.
+     * The callback may request another turn while executing; no new block edit
+     * is needed to resume. Late requests after worker shutdown are ignored.
+     */
+    default void bindBlockContinuation(Runnable request) {}
+
+    /**
+     * One continuation turn, serialized on the BLOCK lane after its scalar drain.
+     * Bound work here and request another turn if needed. Do not wait on this lane,
+     * load missing chunks or mark scalar tasks ready. Scalar completion does not
+     * wait for these additional channels. close() must reject in-flight publication.
+     */
+    default void runBlockContinuation() {}
+
     /** Stop accepting publications, including from a worker that exceeded the shutdown join timeout. */
     default void close() {}
 

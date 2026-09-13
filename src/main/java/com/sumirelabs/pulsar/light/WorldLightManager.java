@@ -93,7 +93,10 @@ public final class WorldLightManager {
                 this.stats.edgeBudgetYields,
                 "propagateBlockChanges",
                 "Pulsar-Block",
-                !world.isRemote) : null;
+                !world.isRemote,
+                this.lightingBackend==null?()->{}:this.lightingBackend::runBlockContinuation) : null;
+        if(this.lightingBackend!=null && this.blockWorker!=null)
+            this.lightingBackend.bindBlockContinuation(this.blockWorker::requestContinuation);
     }
 
     public WorldLightingBackend getLightingBackend() { return this.lightingBackend; }
