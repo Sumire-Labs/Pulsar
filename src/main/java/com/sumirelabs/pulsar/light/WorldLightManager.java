@@ -37,6 +37,7 @@ public final class WorldLightManager {
      */
     private final World world;
     private final WorldHeightContext heightContext;
+    private final ContextualLightManager contextualLight;
 
     private final SnapshotChunkMap loadedChunkMap = new SnapshotChunkMap();
 
@@ -55,6 +56,7 @@ public final class WorldLightManager {
     public WorldLightManager(final World world, final boolean hasSkyLight, final boolean hasBlockLight) {
         this.world = world;
         this.heightContext = WorldUtil.getHeightContext(world);
+        this.contextualLight = new ContextualLightManager(world, this.heightContext);
         this.skyQueue = hasSkyLight ? new LightQueue(this.heightContext) : null;
         this.blockQueue = hasBlockLight ? new LightQueue(this.heightContext) : null;
         this.stats = new LightStats(world.isRemote);
@@ -83,11 +85,22 @@ public final class WorldLightManager {
     }
 
     public void registerChunk(final Chunk chunk) {
+        if (!this.world.isRemote) this.contextualLight.load(chunk);
         this.loadedChunkMap.put(CoordinateUtils.getChunkKey(chunk.x, chunk.z), chunk);
     }
 
     public void unregisterChunk(final int cx, final int cz) {
         this.loadedChunkMap.remove(CoordinateUtils.getChunkKey(cx, cz));
+        this.contextualLight.unload(cx, cz);
+    }
+
+    public ContextualLightManager contextualLight() {
+        return this.contextualLight;
+    }
+
+    /** Forge WorldTick END includes tile ticks, unlike WorldServer.tick TAIL. */
+    public void publishContextualLight() {
+        if (!this.world.isRemote) this.contextualLight.flush(this);
     }
 
     public Chunk getLoadedChunk(final int chunkX, final int chunkZ) {
@@ -114,12 +127,18 @@ public final class WorldLightManager {
 
     /** Queue a recheck for the requested light type, if this world has that lane. */
     public void queueLightCheck(final EnumSkyBlock lightType, final int x, final int y, final int z) {
+        if (!this.world.isRemote) this.contextualLight.request(x, y, z);
         final LightQueue queue = lightType == EnumSkyBlock.SKY ? this.skyQueue : this.blockQueue;
         if (queue != null) queue.queueBlockChange(x, y, z);
     }
 
     /** Queue a block change whose effects may involve both light types. */
     public void queueBlockChange(final int x, final int y, final int z) {
+        if (!this.world.isRemote) this.contextualLight.request(x, y, z);
+        this.queueSampledBlockChange(x, y, z);
+    }
+
+    void queueSampledBlockChange(final int x, final int y, final int z) {
         if (this.skyQueue != null) this.skyQueue.queueBlockChange(x, y, z);
         if (this.blockQueue != null) this.blockQueue.queueBlockChange(x, y, z);
     }
@@ -468,6 +487,7 @@ public final class WorldLightManager {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final Chunk chunk = this.loadedChunkMap.get(key);
         if (chunk == null) return false;
+        if (!this.world.isRemote) this.contextualLight.load(chunk);
         final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(chunk);
         final ChunkLightCompletion completion = this.initialLighting.queue(cx, cz, chunk, emptySections);
         this.scheduleUpdate();
@@ -505,6 +525,7 @@ public final class WorldLightManager {
      * persist as valid.
      */
     public boolean hasPendingLightWork(final int cx, final int cz) {
+        if (this.contextualLight.hasPending(cx, cz)) return true;
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         if (this.initialLighting.hasPending(key)) {
             return true;
