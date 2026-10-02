@@ -11,9 +11,11 @@
     "MixinChunk",
     "MixinChunkSectionChanges",
     "MixinChunkVanillaLighting",
+    "MixinPlayerChunkMapEntry",
     "MixinSPacketChunkData",
     "MixinThaumcraftCrystalLight",
     "MixinWorld",
+    "MixinWorldServer",
     "MixinWorldEntitySpawner"
   ],
   "client": [
@@ -24,10 +26,6 @@
     "MixinRenderJSONPaintingLight",
     "MixinRenderPaintingLight",
     "MixinWorldRenderLight"
-  ],
-  "server": [
-    "MixinPlayerChunkMapEntry",
-    "MixinWorldServer"
   ],
   "setSourceFile": true,
   "minVersion": "0.8.7",

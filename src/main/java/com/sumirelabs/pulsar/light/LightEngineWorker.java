@@ -28,6 +28,8 @@ final class LightEngineWorker {
     private final AtomicInteger edgeBudgetYields;
     private final String operationName;
     private final Thread thread;
+    private final ContinuationSignal continuationSignal;
+    private final Runnable continuation;
 
     private volatile boolean running = true;
 
@@ -39,12 +41,26 @@ final class LightEngineWorker {
                       final String operationName,
                       final String threadName,
                       final boolean startThread) {
+        this(queue,engineFactory,taskProcessor,changeBudgetYields,edgeBudgetYields,operationName,threadName,startThread,()->{});
+    }
+
+    LightEngineWorker(final LightQueue queue,
+                      final Supplier<PulsarEngine> engineFactory,
+                      final BiConsumer<ChunkTasks,PulsarEngine> taskProcessor,
+                      final AtomicInteger changeBudgetYields,
+                      final AtomicInteger edgeBudgetYields,
+                      final String operationName,
+                      final String threadName,
+                      final boolean startThread,
+                      final Runnable continuation) {
         this.queue = queue;
         this.engineFactory = engineFactory;
         this.taskProcessor = taskProcessor;
         this.changeBudgetYields = changeBudgetYields;
         this.edgeBudgetYields = edgeBudgetYields;
         this.operationName = operationName;
+        this.continuation=java.util.Objects.requireNonNull(continuation);
+        this.continuationSignal=new ContinuationSignal(queue::wakeUp);
 
         if (startThread) {
             this.thread = new Thread(this::run, threadName);
@@ -57,18 +73,33 @@ final class LightEngineWorker {
 
     private void run() {
         while (this.running) {
-            if (this.queue.isEmpty()) {
+            if (this.queue.isEmpty() && !this.continuationSignal.pending()) {
                 try {
                     this.queue.waitForWork();
                 } catch (final InterruptedException e) {
                     break;
                 }
             }
-            this.processPending();
+            if(this.running) {
+                // Pending tasks/signal state remain observable independently of permits.
+                // Repeated self-continuations must not accumulate wake permits forever.
+                this.queue.clearWorkSignal();
+                this.processPending();
+            }
         }
     }
 
     void processPending() {
+        if(!this.running)return;
+        if(!this.queue.isEmpty())this.processScalarPending();
+        if(this.running)try {
+            this.continuationSignal.runOne(this.continuation);
+        } catch(final Throwable t) {Pulsar.LOGGER.error("Exception in backend continuation for " + this.operationName,t);}
+    }
+
+    void requestContinuation() {this.continuationSignal.request();}
+
+    private void processScalarPending() {
         final PulsarEngine engine = this.acquireEngine();
         try {
             final long changeDeadline = System.nanoTime() + BLOCK_CHANGE_BUDGET_NS;
@@ -141,6 +172,7 @@ final class LightEngineWorker {
 
     void requestStop() {
         this.running = false;
+        this.continuationSignal.close();
         this.queue.wakeUp();
     }
 
