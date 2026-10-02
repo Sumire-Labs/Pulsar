@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added optional lighting-backend hooks for addon lifecycle, cache data and
+  block updates, including coalesced BLOCK-worker continuations for RGB work.
+
 ### Fixed
 
 - Applied server lighting and chunk-send hooks to integrated servers as well as
@@ -14,6 +19,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deferred bulk section updates until queued lighting work completes, preventing
   stale scalar light from being sent to clients.
 - Preserved existing client entities when refreshing chunks after relighting.
+
+## [0.3.2]
+
+### Fixed
+
+- Prevented server lighting workers from invoking world-aware emission and
+  opacity callbacks that can create or access TileEntities during multiblock
+  construction. This addresses a suspected cause of Immersive Engineering
+  multiblock duplication ([#14](https://github.com/Sumire-Labs/Pulsar/issues/14));
+  confirmation in-game is still pending.
+- Included pending contextual-light samples in light-save validity checks,
+  preventing unfinished updates from being saved as a valid lighting cache.
+
+### Changed
+
+- Sample position-dependent block and Fluidlogged API fluid light values on
+  the world thread and cache them per chunk. Refresh requests are coalesced
+  at the end of the world tick, while ordinary blocks retain their existing
+  state-only lighting path.
+- Lighting workers use static values temporarily when a sample is unavailable
+  and request a corrective update without waiting for the world thread.
+
+### Notes
+
+- Initial chunk loading and explicit relighting perform additional sampling
+  work and require cache memory. Dynamic server light values may wait until
+  the end of the tick before asynchronous propagation; gameplay performance
+  impact has not yet been measured.
+
+## [0.3.1]
+
+### Changed
+
+- Added Natural Lighting for Thaumcraft 6 Crystal
 
 ## [0.3.0]
 

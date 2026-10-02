@@ -66,9 +66,14 @@ public abstract class MixinChunkSectionChanges {
     @Inject(method = "setBlockState", at = @At("RETURN"), require = 0)
     private void pulsar$postSetBlockState(final BlockPos pos, final IBlockState state,
                                           final CallbackInfoReturnable<IBlockState> cir) {
+        // checkLight may be skipped when static opacity/emission is unchanged.
+        // Refresh contextual samples and RGB inputs after the state was set.
         if (cir.getReturnValue() != null) {
-            final WorldLightManager backendManager = ((PulsarWorld) this.world).pulsar$getLightManager();
-            if (backendManager != null) backendManager.backendBlockStateChanged(pos.getX(), pos.getY(), pos.getZ());
+            final WorldLightManager manager = ((PulsarWorld) this.world).pulsar$getLightManager();
+            if (manager != null) {
+                if (!this.world.isRemote) manager.contextualLight().request(pos.getX(), pos.getY(), pos.getZ());
+                manager.backendBlockStateChanged(pos.getX(), pos.getY(), pos.getZ());
+            }
         }
         if (!this.pulsar$sectionWasEmpty || cir.getReturnValue() == null) {
             return;

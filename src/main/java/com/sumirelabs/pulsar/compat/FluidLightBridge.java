@@ -44,6 +44,15 @@ public final class FluidLightBridge {
         return IFluidStateCapability.get(chunk);
     }
 
+    /** Main-thread snapshot source; null means no stored fluid at this cell. */
+    public static IBlockState stateAt(final Chunk chunk, final int x, final int y, final int z) {
+        if (!LOADED) return null;
+        final IFluidStateCapability capability = IFluidStateCapability.get(chunk);
+        if (capability == null) return null;
+        final FluidState fluid = capability.getContainer(y).getFluidState(x, y, z, FluidState.EMPTY);
+        return fluid.isEmpty() ? null : fluid.getState();
+    }
+
     /**
      * Max the fluid's opacity/emission at (x, y, z) into packed
      * {@link LightInfo} bits. The fluid fills the whole block space, so the

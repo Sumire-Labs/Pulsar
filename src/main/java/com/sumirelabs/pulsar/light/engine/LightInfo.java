@@ -2,10 +2,13 @@ package com.sumirelabs.pulsar.light.engine;
 
 import com.sumirelabs.pulsar.api.FaceLightOcclusion;
 import com.sumirelabs.pulsar.light.LightCachedState;
+import com.sumirelabs.pulsar.light.WorldLightManager;
+import com.sumirelabs.pulsar.world.PulsarWorld;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 /**
  * Packed per-{@link IBlockState} light attributes, memoised on the state
@@ -33,8 +36,9 @@ import net.minecraft.world.IBlockAccess;
  * <p>The scalar values remain cached for blocks that inherit Forge's default
  * context methods. If a block class overrides either context method, the
  * corresponding flag keeps only that value out of the cache; the engines
- * resolve it against the current world position with a reusable mutable
- * {@link BlockPos}, without allocating in the BFS hot loops.
+ * resolve it against the current world position. Server workers read values
+ * sampled on the world thread; client/main-thread callers use a reusable
+ * mutable {@link BlockPos} for direct callbacks.
  */
 public final class LightInfo {
 
@@ -136,6 +140,15 @@ public final class LightInfo {
         final int flags = info & CONTEXT_MASK;
         if (flags == 0) {
             return info;
+        }
+
+        // Forge callbacks may create a TileEntity through World.getTileEntity.
+        // Never invoke them from a lighting worker (including fluid callbacks).
+        if (access instanceof World && !((World) access).isRemote && access instanceof PulsarWorld) {
+            final WorldLightManager manager = ((PulsarWorld) access).pulsar$getLightManager();
+            if (manager != null && !manager.contextualLight().isOwnerThread()) {
+                return manager.contextualLight().read(info, state, x, y, z);
+            }
         }
 
         int opacity = opacity(info);

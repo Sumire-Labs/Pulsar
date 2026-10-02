@@ -41,6 +41,7 @@ public final class WorldLightManager {
     private final WorldHeightContext heightContext;
     private final WorldLightingBackend lightingBackend;
     private final String lightingBackendKey;
+    private final ContextualLightManager contextualLight;
 
     private final SnapshotChunkMap loadedChunkMap = new SnapshotChunkMap();
     // Only accessed by server-thread packet/update callbacks, never by workers.
@@ -61,6 +62,7 @@ public final class WorldLightManager {
     public WorldLightManager(final World world, final boolean hasSkyLight, final boolean hasBlockLight) {
         this.world = world;
         this.heightContext = WorldUtil.getHeightContext(world);
+        this.contextualLight = new ContextualLightManager(world, this.heightContext);
         this.lightingBackend = LightingBackendRegistry.create(world, this.heightContext);
         this.lightingBackendKey = this.lightingBackend == null ? "" : this.lightingBackend.cacheKey();
         if (this.lightingBackend != null && (this.lightingBackendKey == null || this.lightingBackendKey.isEmpty())) {
@@ -104,6 +106,7 @@ public final class WorldLightManager {
     public String getLightingBackendKey() { return this.lightingBackendKey; }
 
     public void registerChunk(final Chunk chunk) {
+        if (!this.world.isRemote) this.contextualLight.load(chunk);
         this.loadedChunkMap.put(CoordinateUtils.getChunkKey(chunk.x, chunk.z), chunk);
         if (this.lightingBackend != null) this.lightingBackend.chunkLoaded(chunk);
     }
@@ -112,6 +115,16 @@ public final class WorldLightManager {
         this.deferredChunkUpdates.remove(CoordinateUtils.getChunkKey(cx,cz));
         if (this.lightingBackend != null) this.lightingBackend.chunkUnloaded(cx, cz);
         this.loadedChunkMap.remove(CoordinateUtils.getChunkKey(cx, cz));
+        this.contextualLight.unload(cx, cz);
+    }
+
+    public ContextualLightManager contextualLight() {
+        return this.contextualLight;
+    }
+
+    /** Forge WorldTick END includes tile ticks, unlike WorldServer.tick TAIL. */
+    public void publishContextualLight() {
+        if (!this.world.isRemote) this.contextualLight.flush(this);
     }
 
     public Chunk getLoadedChunk(final int chunkX, final int chunkZ) {
@@ -138,6 +151,7 @@ public final class WorldLightManager {
 
     /** Queue a recheck for the requested light type, if this world has that lane. */
     public void queueLightCheck(final EnumSkyBlock lightType, final int x, final int y, final int z) {
+        if (!this.world.isRemote) this.contextualLight.request(x, y, z);
         final LightQueue queue = lightType == EnumSkyBlock.SKY ? this.skyQueue : this.blockQueue;
         if (queue != null && lightType == EnumSkyBlock.BLOCK && this.lightingBackend != null)
             this.lightingBackend.blockLightQueuedAt(x, y, z);
@@ -151,6 +165,12 @@ public final class WorldLightManager {
 
     /** Queue a block change whose effects may involve both light types. */
     public void queueBlockChange(final int x, final int y, final int z) {
+        if (!this.world.isRemote) this.contextualLight.request(x, y, z);
+        this.queueSampledBlockChange(x, y, z);
+    }
+
+    void queueSampledBlockChange(final int x, final int y, final int z) {
+        // Contextual samples also affect addons; invalidate before either worker sees the edit.
         if (this.blockQueue != null && this.lightingBackend != null) this.lightingBackend.blockLightQueuedAt(x, y, z);
         if (this.skyQueue != null) this.skyQueue.queueBlockChange(x, y, z);
         if (this.blockQueue != null) this.blockQueue.queueBlockChange(x, y, z);
@@ -544,6 +564,7 @@ public final class WorldLightManager {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final Chunk chunk = this.loadedChunkMap.get(key);
         if (chunk == null) return false;
+        if (!this.world.isRemote) this.contextualLight.load(chunk);
         final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(chunk);
         final ChunkLightCompletion completion = this.initialLighting.queue(cx, cz, chunk, emptySections);
         this.scheduleUpdate();
@@ -580,6 +601,7 @@ public final class WorldLightManager {
      * persist as valid.
      */
     public boolean hasPendingLightWork(final int cx, final int cz) {
+        if (this.contextualLight.hasPending(cx, cz)) return true;
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         if (this.initialLighting.hasPending(key)) {
             return true;
