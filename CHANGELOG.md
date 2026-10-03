@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed Nature's Compass teleport packets loading chunks on a network thread,
+  causing a contextual-light sampling exception and disconnect. Its existing
+  teleport handler now runs on the server world thread ([#17](https://github.com/Sumire-Labs/Pulsar/issues/17)).
 - Applied server lighting and chunk-send hooks to integrated servers as well as
   dedicated servers.
 - Deferred bulk section updates until queued lighting work completes, preventing

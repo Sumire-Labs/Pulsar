@@ -11,6 +11,7 @@
     "MixinChunk",
     "MixinChunkSectionChanges",
     "MixinChunkVanillaLighting",
+    "MixinNaturesCompassTeleport",
     "MixinPlayerChunkMapEntry",
     "MixinSPacketChunkData",
     "MixinThaumcraftCrystalLight",
