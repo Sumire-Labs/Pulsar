@@ -5,12 +5,14 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Removed
+
+- Removed the Pulsar Colored Lighting Addon backend API, lifecycle and cache
+  hooks, and BLOCK-worker continuations. Pulsar uses its built-in scalar engines.
+
 ## [0.4.0]
-
-### Added
-
-- Added optional lighting-backend hooks for addon lifecycle, cache data and
-  block updates, including coalesced BLOCK-worker continuations for RGB work.
 
 ### Fixed
 

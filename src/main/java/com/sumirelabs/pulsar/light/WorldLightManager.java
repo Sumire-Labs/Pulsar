@@ -1,8 +1,6 @@
 package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.Pulsar;
-import com.sumirelabs.pulsar.api.lighting.LightingBackendRegistry;
-import com.sumirelabs.pulsar.api.lighting.WorldLightingBackend;
 import com.sumirelabs.pulsar.light.engine.PulsarEngine;
 import com.sumirelabs.pulsar.light.engine.ScalarBlockEngine;
 import com.sumirelabs.pulsar.light.engine.ScalarSkyEngine;
@@ -39,8 +37,6 @@ public final class WorldLightManager {
      */
     private final World world;
     private final WorldHeightContext heightContext;
-    private final WorldLightingBackend lightingBackend;
-    private final String lightingBackendKey;
     private final ContextualLightManager contextualLight;
 
     private final SnapshotChunkMap loadedChunkMap = new SnapshotChunkMap();
@@ -63,14 +59,6 @@ public final class WorldLightManager {
         this.world = world;
         this.heightContext = WorldUtil.getHeightContext(world);
         this.contextualLight = new ContextualLightManager(world, this.heightContext);
-        this.lightingBackend = LightingBackendRegistry.create(world, this.heightContext);
-        this.lightingBackendKey = this.lightingBackend == null ? "" : this.lightingBackend.cacheKey();
-        if (this.lightingBackend != null && (this.lightingBackendKey == null || this.lightingBackendKey.isEmpty())) {
-            throw new IllegalArgumentException("A lighting backend must supply a nonempty cache key");
-        }
-        new LightCacheIdentity(this.lightingBackendKey, 0); // Validate before starting worker threads.
-        final java.util.function.Supplier<PulsarEngine> extraSky = this.lightingBackend == null ? null : this.lightingBackend.skyEngineFactory();
-        final java.util.function.Supplier<PulsarEngine> extraBlock = this.lightingBackend == null ? null : this.lightingBackend.blockEngineFactory();
         this.skyQueue = hasSkyLight ? new LightQueue(this.heightContext) : null;
         this.blockQueue = hasBlockLight ? new LightQueue(this.heightContext) : null;
         this.stats = new LightStats(world.isRemote);
@@ -80,7 +68,7 @@ public final class WorldLightManager {
                 this.loadedChunkMap, this.skyQueue, this.blockQueue, this::scheduleUpdate);
         this.skyWorker = hasSkyLight ? new LightEngineWorker(
                 this.skyQueue,
-                extraSky == null ? () -> new ScalarSkyEngine(world, this.heightContext) : extraSky,
+                () -> new ScalarSkyEngine(world, this.heightContext),
                 this::processSkyTask,
                 this.stats.skyChangeBudgetYields,
                 this.stats.edgeBudgetYields,
@@ -89,31 +77,22 @@ public final class WorldLightManager {
                 !world.isRemote) : null;
         this.blockWorker = hasBlockLight ? new LightEngineWorker(
                 this.blockQueue,
-                extraBlock == null ? () -> new ScalarBlockEngine(world, this.heightContext) : extraBlock,
+                () -> new ScalarBlockEngine(world, this.heightContext),
                 this::processBlockTask,
                 this.stats.blockChangeBudgetYields,
                 this.stats.edgeBudgetYields,
                 "propagateBlockChanges",
                 "Pulsar-Block",
-                !world.isRemote,
-                this.lightingBackend==null?()->{}:this.lightingBackend::runBlockContinuation) : null;
-        if(this.lightingBackend!=null && this.blockWorker!=null)
-            this.lightingBackend.bindBlockContinuation(this.blockWorker::requestContinuation);
+                !world.isRemote) : null;
     }
-
-    public WorldLightingBackend getLightingBackend() { return this.lightingBackend; }
-
-    public String getLightingBackendKey() { return this.lightingBackendKey; }
 
     public void registerChunk(final Chunk chunk) {
         if (!this.world.isRemote) this.contextualLight.load(chunk);
         this.loadedChunkMap.put(CoordinateUtils.getChunkKey(chunk.x, chunk.z), chunk);
-        if (this.lightingBackend != null) this.lightingBackend.chunkLoaded(chunk);
     }
 
     public void unregisterChunk(final int cx, final int cz) {
         this.deferredChunkUpdates.remove(CoordinateUtils.getChunkKey(cx,cz));
-        if (this.lightingBackend != null) this.lightingBackend.chunkUnloaded(cx, cz);
         this.loadedChunkMap.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.contextualLight.unload(cx, cz);
     }
@@ -153,13 +132,6 @@ public final class WorldLightManager {
     public void queueLightCheck(final EnumSkyBlock lightType, final int x, final int y, final int z) {
         if (!this.world.isRemote) this.contextualLight.request(x, y, z);
         final LightQueue queue = lightType == EnumSkyBlock.SKY ? this.skyQueue : this.blockQueue;
-        if (queue != null && lightType == EnumSkyBlock.BLOCK && this.lightingBackend != null)
-            this.lightingBackend.blockLightQueuedAt(x, y, z);
-        if(queue!=null && lightType==EnumSkyBlock.SKY && this.blockQueue!=null && this.lightingBackend!=null
-                && this.lightingBackend.needsBlockWorkForSkyCheck(x,y,z)) {
-            this.lightingBackend.blockLightQueuedAt(x,y,z);
-            this.blockQueue.queueBlockChange(x,y,z);
-        }
         if (queue != null) queue.queueBlockChange(x, y, z);
     }
 
@@ -170,8 +142,6 @@ public final class WorldLightManager {
     }
 
     void queueSampledBlockChange(final int x, final int y, final int z) {
-        // Contextual samples also affect addons; invalidate before either worker sees the edit.
-        if (this.blockQueue != null && this.lightingBackend != null) this.lightingBackend.blockLightQueuedAt(x, y, z);
         if (this.skyQueue != null) this.skyQueue.queueBlockChange(x, y, z);
         if (this.blockQueue != null) this.blockQueue.queueBlockChange(x, y, z);
     }
@@ -180,18 +150,11 @@ public final class WorldLightManager {
      * A section's emptiness changed (e.g. a block placed into a new EBS).
      */
     public void queueSectionChange(final int cx, final int sectionY, final int cz, final boolean empty) {
-        if (this.blockQueue != null && this.lightingBackend != null) this.lightingBackend.blockLightQueued(cx, cz);
         if (this.skyQueue != null) this.skyQueue.queueSectionChange(cx, sectionY, cz, empty);
         if (this.blockQueue != null) this.blockQueue.queueSectionChange(cx, sectionY, cz, empty);
     }
 
-    public void backendBlockStateChanged(final int x, final int y, final int z) {
-        if (this.lightingBackend != null && this.lightingBackend.needsBlockStateUpdate(x, y, z))
-            this.queueLightCheck(EnumSkyBlock.BLOCK, x, y, z);
-    }
-
     public void queueChunkLight(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
-        if (this.blockQueue != null && this.lightingBackend != null) this.lightingBackend.blockLightQueued(cx, cz);
         this.initialLighting.queue(cx, cz, chunk, emptySections);
     }
 
@@ -201,7 +164,6 @@ public final class WorldLightManager {
      * {@code lightReady}.
      */
     public void queueChunkLoadInit(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
-        if (this.blockQueue != null && this.lightingBackend != null) this.lightingBackend.blockLightQueued(cx, cz);
         if (this.skyQueue != null) this.skyQueue.queueChunkLoadInit(cx, cz, chunk, emptySections);
         if (this.blockQueue != null) this.blockQueue.queueChunkLoadInit(cx, cz, chunk, emptySections);
     }
@@ -475,9 +437,6 @@ public final class WorldLightManager {
                 edgeOverflowed |= blockEngine.wasQueueOverflowed();
             }
 
-            if (!valueOverflowed && !edgeOverflowed && this.lightingBackend != null) {
-                this.lightingBackend.afterBlockTask(cx, cz);
-            }
             if (valueOverflowed) {
                 if (this.requeueAfterOverflow(this.blockQueue, task, cx, cz, "Block")) {
                     finishInitial = false;
@@ -657,7 +616,6 @@ public final class WorldLightManager {
 
     public void shutdown() {
         this.deferredChunkUpdates.clear();
-        if (this.lightingBackend != null) this.lightingBackend.close();
         if (this.skyWorker != null) this.skyWorker.requestStop();
         if (this.blockWorker != null) this.blockWorker.requestStop();
         if (this.skyWorker != null) this.skyWorker.awaitStop();
