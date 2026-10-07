@@ -19,6 +19,7 @@ import java.util.concurrent.Semaphore;
 public final class LightQueue {
 
     private final WorldHeightContext heightContext;
+    private final boolean densePositions;
     private final Long2ObjectLinkedOpenHashMap<ChunkTasks> tasksByChunk = new Long2ObjectLinkedOpenHashMap<>();
     // Each queue has exactly one consumer. A task is moved here while still
     // holding this queue's monitor, closing the observability gap between
@@ -41,7 +42,12 @@ public final class LightQueue {
     private int initialLightCount;
 
     public LightQueue(final WorldHeightContext heightContext) {
+        this(heightContext, false);
+    }
+
+    LightQueue(final WorldHeightContext heightContext, final boolean densePositions) {
         this.heightContext = heightContext;
+        this.densePositions = densePositions;
     }
 
     private static boolean changesLightValues(final ChunkTasks tasks) {
@@ -92,7 +98,25 @@ public final class LightQueue {
             tasks.changedPositions = new IntOpenHashSet();
             this.blockChangeKeys.enqueue(key);
         }
-        tasks.changedPositions.add((x & 15) | ((z & 15) << 4) | (y << 8));
+        final int packedPosition = (x & 15) | ((z & 15) << 4) | (y << 8);
+        if (!this.densePositions) {
+            ((IntOpenHashSet) tasks.changedPositions).add(packedPosition);
+            return;
+        }
+        if (tasks.changedPositions instanceof IntOpenHashSet sparse) {
+            sparse.add(packedPosition);
+            if (sparse.size() >= tasks.nextPositionPromotionCheck) {
+                final AdaptiveChangedPositions.PromotionResult promotion =
+                        AdaptiveChangedPositions.considerPromotion(sparse);
+                if (promotion.promoted != null) {
+                    tasks.changedPositions = promotion.promoted;
+                } else {
+                    tasks.nextPositionPromotionCheck = promotion.nextCheckSize;
+                }
+            }
+        } else {
+            tasks.changedPositions.add(packedPosition);
+        }
     }
 
     public synchronized void queueSectionChange(final int cx, final int sectionY, final int cz, final boolean empty) {

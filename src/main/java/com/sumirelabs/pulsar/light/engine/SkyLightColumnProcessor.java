@@ -2,7 +2,7 @@ package com.sumirelabs.pulsar.light.engine;
 
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
@@ -243,7 +243,7 @@ final class SkyLightColumnProcessor {
     }
 
     void processBlockPositionChanges(final int chunkX, final int chunkZ,
-                                     final IntOpenHashSet changedPositions) {
+                                     final IntSet changedPositions) {
         final ScalarSkyEngine engine = this.engine;
         this.rewriteNibbleCache();
         Arrays.fill(this.nullPropagationChecks, false);

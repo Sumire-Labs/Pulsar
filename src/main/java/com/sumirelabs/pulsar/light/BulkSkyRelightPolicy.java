@@ -1,7 +1,7 @@
 package com.sumirelabs.pulsar.light;
 
 import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 /**
  * Chooses when a dense skylight edit needs a full rebuild within the sky lane.
@@ -15,7 +15,7 @@ public final class BulkSkyRelightPolicy {
 
     /** Keep single-column batches on the column-aware incremental path. */
     public static boolean shouldPromoteColumns(final boolean coordinatedTask,
-                                        final IntOpenHashSet changedPositions) {
+                                        final IntSet changedPositions) {
         if (!shouldPromote(coordinatedTask, changedPositions == null ? 0 : changedPositions.size())) {
             return false;
         }

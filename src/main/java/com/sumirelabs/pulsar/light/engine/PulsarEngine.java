@@ -7,6 +7,7 @@ import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -198,7 +199,7 @@ public abstract class PulsarEngine extends LightEngineCache {
         }
     }
 
-    public final void blocksChangedInChunk(final int chunkX, final int chunkZ, final IntOpenHashSet changedPositions, final Boolean[] changedSections) {
+    public final void blocksChangedInChunk(final int chunkX, final int chunkZ, final IntSet changedPositions, final Boolean[] changedSections) {
         this.lastBfsIncreaseTotal = 0;
         this.lastBfsDecreaseTotal = 0;
         this.lastPositionsProcessed = 0;
@@ -236,7 +237,7 @@ public abstract class PulsarEngine extends LightEngineCache {
      * second, ordering-independent opportunity to detect that transition.
      */
     private Boolean[] reconcileSectionChanges(final Chunk chunk,
-                                              final IntOpenHashSet changedPositions,
+                                              final IntSet changedPositions,
                                               final Boolean[] changedSections) {
         if (changedPositions == null || changedPositions.isEmpty()) {
             return changedSections;
@@ -274,7 +275,7 @@ public abstract class PulsarEngine extends LightEngineCache {
         return effectiveChanges;
     }
 
-    protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ, final IntOpenHashSet changedPositions) {
+    protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ, final IntSet changedPositions) {
         final int minBlockY = this.heightContext.getMinBlockY();
         final int maxBlockY = this.heightContext.getMaxBlockY();
         final IntIterator it = changedPositions.iterator();

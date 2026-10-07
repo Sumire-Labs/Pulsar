@@ -4,7 +4,7 @@ import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -157,7 +157,7 @@ public class ScalarBlockEngine extends PulsarEngine {
     }
 
     @Override
-    protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ, final IntOpenHashSet changedPositions) {
+    protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ, final IntSet changedPositions) {
         final int minBlockY = this.heightContext.getMinBlockY();
         final int maxBlockY = this.heightContext.getMaxBlockY();
         final IntIterator it = changedPositions.iterator();

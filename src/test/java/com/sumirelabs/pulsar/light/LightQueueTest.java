@@ -2,6 +2,7 @@ package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -197,6 +198,58 @@ class LightQueueTest {
         assertEquals(9L, task.initialLightEdgeGeneration);
         assertEquals(0, task.edgeCheckAttempts);
 
+        queue.completeTask(task);
+    }
+
+    @Test
+    void promotesCompactChangedPositionBatchToDenseStorage() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA, true);
+        for (int index = 0; index < AdaptiveChangedPositions.DENSE_THRESHOLD; ++index) {
+            queue.queueBlockChange(index & 15, 64 + (index >>> 8), (index >>> 4) & 15);
+        }
+
+        final ChunkTasks task = queue.removeFirstBlockChangeTask();
+        assertNotNull(task);
+        assertTrue(task.changedPositions instanceof AdaptiveChangedPositions);
+        assertEquals(AdaptiveChangedPositions.DENSE_THRESHOLD, task.changedPositions.size());
+        assertEquals(AdaptiveChangedPositions.DENSE_THRESHOLD, countPositions(task));
+        queue.completeTask(task);
+    }
+
+    @Test
+    void keepsVerticallyScatteredExtendedBatchSparse() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA, true);
+        for (int index = 0; index < AdaptiveChangedPositions.DENSE_THRESHOLD; ++index) {
+            queue.queueBlockChange(index & 15, index << 4, (index >>> 4) & 15);
+        }
+
+        final ChunkTasks task = queue.removeFirstBlockChangeTask();
+        assertNotNull(task);
+        assertTrue(task.changedPositions instanceof IntOpenHashSet);
+        assertEquals(AdaptiveChangedPositions.DENSE_THRESHOLD, task.changedPositions.size());
+        queue.completeTask(task);
+    }
+
+    private static int countPositions(final ChunkTasks task) {
+        int count = 0;
+        final it.unimi.dsi.fastutil.ints.IntIterator iterator = task.changedPositions.iterator();
+        while (iterator.hasNext()) {
+            iterator.nextInt();
+            ++count;
+        }
+        return count;
+    }
+
+    @Test
+    void skyQueueRetainsHashStorageForDenseBatches() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
+        for (int index = 0; index < 8192; ++index) {
+            queue.queueBlockChange(index & 15, 64 + (index >>> 8), (index >>> 4) & 15);
+        }
+        final ChunkTasks task = queue.removeFirstBlockChangeTask();
+        assertNotNull(task);
+        assertTrue(task.changedPositions instanceof IntOpenHashSet);
+        assertEquals(8192, task.changedPositions.size());
         queue.completeTask(task);
     }
 }

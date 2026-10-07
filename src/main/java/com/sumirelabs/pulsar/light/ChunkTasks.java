@@ -2,6 +2,7 @@ package com.sumirelabs.pulsar.light;
 
 import com.google.common.util.concurrent.SettableFuture;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.world.chunk.Chunk;
 
 /**
@@ -14,7 +15,8 @@ public final class ChunkTasks {
     public final long chunkCoordinate;
     public final SettableFuture<Void> onComplete;
     public final long enqueueTimeNs;
-    public IntOpenHashSet changedPositions;
+    public IntSet changedPositions;
+    int nextPositionPromotionCheck = AdaptiveChangedPositions.DENSE_THRESHOLD;
     /**
      * Per-section emptiness changes. Tri-state:
      * {@code null} = no change, {@code TRUE} = empty, {@code FALSE} = non-empty.

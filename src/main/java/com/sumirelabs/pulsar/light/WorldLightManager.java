@@ -63,7 +63,9 @@ public final class WorldLightManager {
         this.heightContext = WorldUtil.getHeightContext(world);
         this.contextualLight = new ContextualLightManager(world, this.heightContext);
         this.skyQueue = hasSkyLight ? new LightQueue(this.heightContext) : null;
-        this.blockQueue = hasBlockLight ? new LightQueue(this.heightContext) : null;
+        // Block propagation consumes every position. Bulk sky work only peeks
+        // at the set before rebuilding, so retain its cheaper hash-only enqueue path.
+        this.blockQueue = hasBlockLight ? new LightQueue(this.heightContext, true) : null;
         this.stats = new LightStats(world.isRemote);
         if (this.skyQueue != null) this.skyQueue.setStats(this.stats);
         if (this.blockQueue != null) this.blockQueue.setStats(this.stats);
