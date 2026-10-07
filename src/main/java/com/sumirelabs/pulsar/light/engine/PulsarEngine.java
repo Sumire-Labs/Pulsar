@@ -309,20 +309,12 @@ public abstract class PulsarEngine extends LightEngineCache {
             }
             this.lightChunk(chunk, checkEdges);
             this.updateVisible();
-            this.setNibbles(chunk, this.getNibblesFromCache(chunk));
+            NibbleArrayPublication.mergeFullLight(
+                    nibbles, this.getNibblesForChunkFromCache(chunkX, chunkZ));
+            this.setNibbles(chunk, nibbles);
         } finally {
             this.destroyCaches();
         }
-    }
-
-    private SWMRNibbleArray[] getNibblesFromCache(final Chunk chunk) {
-        final int chunkX = chunk.x;
-        final int chunkZ = chunk.z;
-        final SWMRNibbleArray[] nibbles = new SWMRNibbleArray[this.maxLightSection - this.minLightSection + 1];
-        for (int cy = this.minLightSection; cy <= this.maxLightSection; ++cy) {
-            nibbles[cy - this.minLightSection] = this.getNibbleFromCache(chunkX, cy, chunkZ);
-        }
-        return nibbles;
     }
 
     /**

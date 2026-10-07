@@ -14,12 +14,19 @@ import java.util.Arrays;
  */
 final class SkyLightColumnProcessor {
 
+    private static final int COLUMN_COUNT = 16 * 16;
+    private static final int COLUMN_MASK_WORDS = COLUMN_COUNT / Long.SIZE;
+
     private final ScalarSkyEngine engine;
     private final boolean[] nullPropagationChecks;
+    private final SWMRNibbleArray[] removedNibbleCache;
+    private final int[] columnMaxY = new int[COLUMN_COUNT];
+    private final long[] changedColumnMask = new long[COLUMN_MASK_WORDS];
 
     SkyLightColumnProcessor(final ScalarSkyEngine engine) {
         this.engine = engine;
         this.nullPropagationChecks = new boolean[engine.heightContext.getTotalLightSections()];
+        this.removedNibbleCache = new SWMRNibbleArray[engine.nibbleCache.length];
     }
 
     void initNibble(final int chunkX, final int chunkY, final int chunkZ,
@@ -31,10 +38,10 @@ final class SkyLightColumnProcessor {
         }
         SWMRNibbleArray nibble = engine.getNibbleFromCache(chunkX, chunkY, chunkZ);
         if (nibble == null) {
-            if (!initRemovedNibbles) {
-                return;
-            }
-            nibble = new SWMRNibbleArray(null, true);
+            final int cacheIndex = chunkX + 5 * chunkZ + (5 * 5) * chunkY + engine.chunkSectionIndexOffset;
+            nibble = NibbleArrayPublication.takeRemovedNibble(
+                    this.removedNibbleCache, cacheIndex, initRemovedNibbles);
+            if (nibble == null) return;
             engine.setNibbleInCache(chunkX, chunkY, chunkZ, nibble);
         }
         this.initSkyNibble(nibble, chunkX, chunkY, chunkZ, extrude);
@@ -106,10 +113,19 @@ final class SkyLightColumnProcessor {
         for (int index = 0; index < cache.length; ++index) {
             final SWMRNibbleArray nibble = cache[index];
             if (nibble != null && nibble.isNullNibbleUpdating()) {
+                this.removedNibbleCache[index] = nibble;
                 cache[index] = null;
-                nibble.updateVisible();
+                // A stable NULL nibble has no visible bytes to publish or copy.
+                // Avoid a chunk lock and map lookup for every empty section.
+                if (nibble.isDirty()) {
+                    this.engine.publishCacheNibble(index, nibble, false);
+                }
             }
         }
+    }
+
+    void clearRemovedNibbles() {
+        Arrays.fill(this.removedNibbleCache, null);
     }
 
     void resetNullPropagationChecks() {
@@ -250,8 +266,7 @@ final class SkyLightColumnProcessor {
 
         final int minBlockY = engine.heightContext.getMinBlockY();
         final int maxBlockY = engine.heightContext.getMaxBlockY();
-        final int[] columnMaxY = new int[256];
-        Arrays.fill(columnMaxY, Integer.MIN_VALUE);
+        Arrays.fill(this.changedColumnMask, 0L);
 
         IntIterator iterator = changedPositions.iterator();
         while (iterator.hasNext()) {
@@ -261,25 +276,34 @@ final class SkyLightColumnProcessor {
                 continue;
             }
             final int column = packed & 255;
-            if (worldY > columnMaxY[column]) {
-                columnMaxY[column] = worldY;
+            final int wordIndex = column >>> 6;
+            final long columnBit = 1L << (column & 63);
+            if ((this.changedColumnMask[wordIndex] & columnBit) == 0L) {
+                this.columnMaxY[column] = worldY;
+                this.changedColumnMask[wordIndex] |= columnBit;
+            } else if (worldY > this.columnMaxY[column]) {
+                this.columnMaxY[column] = worldY;
             }
         }
 
         final long propagateDirection =
                 PulsarEngine.AxisDirection.POSITIVE_Y.everythingButThisDirection;
         final int encodeOffset = engine.coordinateOffset;
-        for (int column = 0; column < 256; ++column) {
-            final int maximumY = columnMaxY[column];
-            if (maximumY == Integer.MIN_VALUE) {
-                continue;
+        // Bit order keeps the prior ascending-column queue seed order while
+        // skipping untouched columns in sparse bulk edits.
+        for (int wordIndex = 0; wordIndex < COLUMN_MASK_WORDS; ++wordIndex) {
+            long columns = this.changedColumnMask[wordIndex];
+            while (columns != 0L) {
+                final int column = (wordIndex << 6) + Long.numberOfTrailingZeros(columns);
+                columns &= columns - 1;
+                final int maximumY = this.columnMaxY[column];
+                final int worldX = (chunkX << 4) | (column & 15);
+                final int worldZ = (chunkZ << 4) | (column >> 4);
+                final int maximumPropagationY =
+                        this.tryPropagateSkylight(worldX, maximumY, worldZ, true, true);
+                this.seedFullColumnDecrease(
+                        worldX, maximumPropagationY, worldZ, propagateDirection, encodeOffset);
             }
-            final int worldX = (chunkX << 4) | (column & 15);
-            final int worldZ = (chunkZ << 4) | (column >> 4);
-            final int maximumPropagationY =
-                    this.tryPropagateSkylight(worldX, maximumY, worldZ, true, true);
-            this.seedFullColumnDecrease(
-                    worldX, maximumPropagationY, worldZ, propagateDirection, encodeOffset);
         }
 
         this.applyDelayedQueue(engine.increaseQueue, engine.increaseQueueInitialLength, true);

@@ -53,6 +53,8 @@ public final class LightInfo {
     public static final int FACE_SHIFT = 16;
     public static final int FACE_MASK = 0x3F;
     public static final int COMPUTED = 1 << 30;
+    private static final int LIGHT_CHANGE_MASK = OPACITY_MASK | (OPACITY_MASK << EMISSION_SHIFT)
+            | REGISTRY | DYNAMIC | SIDED | CONTEXT_MASK | (FACE_MASK << FACE_SHIFT);
 
     /**
      * Reflection runs once per concrete block class, never per state lookup.
@@ -127,6 +129,19 @@ public final class LightInfo {
 
     public static boolean hasContextualValues(final int info) {
         return (info & CONTEXT_MASK) != 0;
+    }
+
+    /**
+     * Whether replacing a state can change any light-engine input. Dynamic or
+     * contextual implementations may depend on the new state even when their
+     * packed static values compare equal.
+     */
+    public static boolean requiresBlockChange(final IBlockState previous, final IBlockState next) {
+        if (previous == next) return false;
+        final int previousInfo = of(previous);
+        final int nextInfo = of(next);
+        if (((previousInfo | nextInfo) & (DYNAMIC | CONTEXT_MASK)) != 0) return true;
+        return ((previousInfo ^ nextInfo) & LIGHT_CHANGE_MASK) != 0;
     }
 
     /**

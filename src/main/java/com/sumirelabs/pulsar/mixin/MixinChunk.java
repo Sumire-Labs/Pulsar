@@ -167,18 +167,26 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
             return;
         }
 
-        // Wait before removing the completion entry; the reverse order makes
-        // awaitPendingWork a no-op while a worker may still mutate this chunk.
-        if (!this.world.isRemote) {
-            final boolean workFinished = manager.awaitPendingWork(this.x, this.z);
-            if (!workFinished || manager.hasPendingLightWork(this.x, this.z)) {
-                // Invalidating readiness makes the save omit the cache so the
-                // chunk relights instead of preserving a partial snapshot.
+        final Chunk self = (Chunk) (Object) this;
+        // Never hold the publication monitor while waiting for worker futures:
+        // their final visible-light publication uses the same monitor.
+        final boolean workFinished = this.world.isRemote
+                || manager.awaitPendingWork(this.x, this.z);
+        synchronized (self) {
+            if (!this.world.isRemote
+                    && (!workFinished || manager.hasPendingLightWorkNear(this.x, this.z))) {
+                // onUnload runs before chunk serialization. Keep this false
+                // only when light work may still be in flight; a clean unload
+                // must retain valid persisted light through ChunkDataEvent.Save.
                 this.pulsar$lightReady = false;
+                manager.recordUnloadLightInvalidation();
             }
+            // Prevent any newly prepared engine cache from treating this
+            // instance as a usable neighbour while it is being detached.
+            this.pulsar$lightUsable = false;
+            manager.removeChunkFromQueues(this.x, this.z);
+            manager.unregisterChunk(this.x, this.z);
         }
-        manager.removeChunkFromQueues(this.x, this.z);
-        manager.unregisterChunk(this.x, this.z);
     }
 
     /**

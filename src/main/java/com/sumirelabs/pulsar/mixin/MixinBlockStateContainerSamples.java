@@ -12,9 +12,11 @@ public abstract class MixinBlockStateContainerSamples implements ContextualLight
     @Shadow protected IBlockStatePalette palette;
 
     @Override
-    public boolean pulsar$needsContextualSamples() {
+    public int pulsar$lightPaletteFlags() {
         // A modded subclass can store states outside the inherited palette.
-        if (((Object) this).getClass() != BlockStateContainer.class) return true;
-        return ContextualLightPaletteChecks.mayNeedSamples(this.palette);
+        if (((Object) this).getClass() != BlockStateContainer.class) {
+            return ContextualLightPalette.CONSERVATIVE_FLAGS;
+        }
+        return ContextualLightPaletteChecks.flags(this.palette);
     }
 }

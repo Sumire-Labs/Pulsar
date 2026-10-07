@@ -100,6 +100,9 @@ dependencies {
     if (enable_junit_testing.toBoolean()) {
         testImplementation 'org.junit.jupiter:junit-jupiter:6.1.3'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        // Exercise the optional sparse-fluid compatibility adapter with the
+        // real Fluidlogged container implementation without shipping it.
+        testRuntimeOnly 'maven.modrinth:fluidlogged-api:3.3.3'
         // Unit tests that exercise the light queue need the libraries bundled
         // by the 1.12.2 runtime; Unimined does not expose them on testRuntimeClasspath.
         testRuntimeOnly 'com.google.guava:guava:21.0'

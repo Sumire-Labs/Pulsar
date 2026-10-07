@@ -10,6 +10,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
@@ -103,10 +104,6 @@ abstract class LightEngineCache {
                 }
 
                 this.setChunkInCache(chunkX, chunkZ, chunk);
-                if (FluidLightBridge.LOADED) {
-                    this.fluidCapCache[chunkX + 5 * chunkZ + this.chunkIndexOffset] =
-                            FluidLightBridge.capabilityOf(chunk);
-                }
                 this.setEmptinessMapCache(chunkX, chunkZ, this.getEmptinessMap(chunk));
                 if (!isTwoRadius) {
                     this.setBlocksForChunkInCache(chunkX, chunkZ, chunk.getBlockStorageArray());
@@ -133,7 +130,13 @@ abstract class LightEngineCache {
     }
 
     protected final void setChunkInCache(final int chunkX, final int chunkZ, final Chunk chunk) {
-        this.chunkCache[chunkX + 5 * chunkZ + this.chunkIndexOffset] = chunk;
+        final int index = chunkX + 5 * chunkZ + this.chunkIndexOffset;
+        this.chunkCache[index] = chunk;
+        // Initial lighting force-inserts its unready center after setupCaches
+        // skips it. Keep the fluid capability attached on that path too.
+        if (FluidLightBridge.LOADED) {
+            this.fluidCapCache[index] = FluidLightBridge.capabilityOf(chunk);
+        }
     }
 
     /**
@@ -234,14 +237,78 @@ abstract class LightEngineCache {
             if (!notify && (nibble == null || !nibble.isDirty())) {
                 continue;
             }
-            if (nibble != null) {
-                nibble.updateVisible();
-            }
-            this.onNibbleVisible(index, nibble);
-            if (notify && this.isClientSide) {
-                this.markRenderUpdate(index, this.notifyBoundsCache[index]);
-            }
+            this.publishCacheNibble(index, nibble, notify);
         }
+    }
+
+    /** Publish a cache nibble only while its owning server chunk remains registered. */
+    protected final void publishCacheNibble(final int index, final SWMRNibbleArray nibble,
+                                            final boolean notify) {
+        if (this.isClientSide) {
+            this.publishVisibleNibble(index, nibble, notify);
+            return;
+        }
+
+        // On the server, chunk save follows onUnload synchronously. Hold the
+        // same chunk monitor as onUnload across both SWMR publication and the
+        // vanilla NibbleArray copy, so a timed-out worker cannot race either
+        // saved representation after the chunk is detached.
+        final Chunk chunk = this.chunkCache[index % (5 * 5)];
+        if (chunk == null) {
+            return;
+        }
+        synchronized (chunk) {
+            if (!(this.world instanceof ExtendedWorld)
+                    || ((ExtendedWorld) this.world).pulsar$getAnyChunkImmediately(
+                    chunk.x, chunk.z) != chunk) {
+                return;
+            }
+            this.publishVisibleNibble(index, nibble, notify);
+        }
+    }
+
+    private void publishVisibleNibble(final int index, final SWMRNibbleArray nibble,
+                                      final boolean notify) {
+        if (nibble != null) {
+            nibble.updateVisible();
+        }
+        this.onNibbleVisible(index, nibble);
+        if (notify && this.isClientSide) {
+            this.markRenderUpdate(index, this.notifyBoundsCache[index]);
+        }
+    }
+
+    protected final void copyVisibleNibbleToVanilla(final int cacheIndex,
+                                                     final SWMRNibbleArray nibble,
+                                                     final boolean skyLight) {
+        if (nibble == null || !this.isVanillaStorageSection(cacheIndex)) {
+            return;
+        }
+        final ExtendedBlockStorage section = this.getLiveChunkSection(cacheIndex);
+        if (section == null) {
+            return;
+        }
+        final byte[] source = nibble.getVisibleData();
+        if (source == null) {
+            return;
+        }
+        final NibbleArray vanilla = skyLight ? section.getSkyLight() : section.getBlockLight();
+        if (vanilla == null) {
+            return;
+        }
+        final byte[] destination = vanilla.getData();
+        if (destination != source) {
+            System.arraycopy(source, 0, destination, 0, source.length);
+        }
+    }
+
+    protected final SWMRNibbleArray[] getNibblesForChunkFromCache(final int chunkX, final int chunkZ) {
+        final SWMRNibbleArray[] result = new SWMRNibbleArray[this.heightContext.getTotalLightSections()];
+        for (int sectionY = this.minLightSection; sectionY <= this.maxLightSection; sectionY++) {
+            result[NibbleArrayPublication.lightIndex(this.heightContext, sectionY)] =
+                    this.getNibbleFromCache(chunkX, sectionY, chunkZ);
+        }
+        return result;
     }
 
     private void markRenderUpdate(final int cacheIndex, final long bounds) {
@@ -272,7 +339,11 @@ abstract class LightEngineCache {
         if (this.isClientSide) {
             Arrays.fill(this.notifyUpdateCache, false);
         }
+        this.onDestroyCaches();
     }
+
+    /** Hook for engine-specific task-scoped cache references. */
+    protected void onDestroyCaches() {}
 
     protected final IBlockState getBlockState(final int worldX, final int worldY, final int worldZ) {
         final int sectionIndex = (worldX >> 4) + 5 * (worldZ >> 4)

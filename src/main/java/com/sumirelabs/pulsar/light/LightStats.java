@@ -51,6 +51,12 @@ public final class LightStats {
     // Budget yield stats (multi-thread write)
     final AtomicInteger blockBudgetYields = new AtomicInteger();
     final AtomicInteger skyBudgetYields = new AtomicInteger();
+    // Main-thread server chunk unload diagnostics.
+    final AtomicLong unloadWaitNs = new AtomicLong();
+    final AtomicLong unloadWaitMaxNs = new AtomicLong();
+    final AtomicInteger unloadWaitTimeouts = new AtomicInteger();
+    final AtomicInteger unloadWaitBudgetExhausted = new AtomicInteger();
+    final AtomicInteger unloadLightInvalidations = new AtomicInteger();
     // Queue stats (multi-thread write)
     final AtomicInteger chunksQueued = new AtomicInteger();
     private final String side;
@@ -105,6 +111,24 @@ public final class LightStats {
         this.totalQueueLatencyNs += latency;
     }
 
+    void recordUnloadWait(final long elapsedNs) {
+        if (!enabled) return;
+        this.unloadWaitNs.addAndGet(elapsedNs);
+        this.unloadWaitMaxNs.updateAndGet(current -> Math.max(current, elapsedNs));
+    }
+
+    void recordUnloadWaitTimeout() {
+        if (enabled) this.unloadWaitTimeouts.incrementAndGet();
+    }
+
+    void recordUnloadWaitBudgetExhausted() {
+        if (enabled) this.unloadWaitBudgetExhausted.incrementAndGet();
+    }
+
+    void recordUnloadLightInvalidation() {
+        if (enabled) this.unloadLightInvalidations.incrementAndGet();
+    }
+
     private void dump() {
         if (this.writer == null) {
             if (this.writerFailed) return;
@@ -153,6 +177,15 @@ public final class LightStats {
             sb.append(" maxLatencyMs=").append(String.format(Locale.US, "%.1f", this.maxQueueLatencyNs / 1_000_000.0));
         }
 
+        if (this.unloadWaitNs.get() > 0 || this.unloadWaitTimeouts.get() > 0
+                || this.unloadWaitBudgetExhausted.get() > 0 || this.unloadLightInvalidations.get() > 0) {
+            sb.append(" unloadWaitMs=").append(String.format(Locale.US, "%.1f", this.unloadWaitNs.get() / 1_000_000.0));
+            sb.append(" unloadWaitMaxMs=").append(String.format(Locale.US, "%.2f", this.unloadWaitMaxNs.get() / 1_000_000.0));
+            sb.append(" unloadTimeouts=").append(this.unloadWaitTimeouts.get());
+            sb.append(" unloadBudgetExhausted=").append(this.unloadWaitBudgetExhausted.get());
+            sb.append(" unloadLightInvalidations=").append(this.unloadLightInvalidations.get());
+        }
+
         final long edgePairs = this.edgeSectionPairsChecked.get();
         if (edgePairs > 0) {
             sb.append(" edgeStats sectionPairs=").append(edgePairs);
@@ -185,6 +218,11 @@ public final class LightStats {
         engineRenderMarks = 0;
         this.blockBudgetYields.set(0);
         this.skyBudgetYields.set(0);
+        this.unloadWaitNs.set(0);
+        this.unloadWaitMaxNs.set(0);
+        this.unloadWaitTimeouts.set(0);
+        this.unloadWaitBudgetExhausted.set(0);
+        this.unloadLightInvalidations.set(0);
         this.chunksQueued.set(0);
         this.blockPositionsProcessed.set(0);
         this.edgeSectionPairsChecked.set(0);

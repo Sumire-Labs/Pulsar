@@ -1,5 +1,7 @@
 package com.sumirelabs.pulsar.light.engine;
 
+import com.sumirelabs.pulsar.compat.FluidLightBridge;
+import com.sumirelabs.pulsar.light.ContextualLightPalette;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
@@ -8,7 +10,6 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 /**
@@ -180,12 +181,24 @@ public class ScalarBlockEngine extends PulsarEngine {
         final int offX = chunk.x << 4;
         final int offZ = chunk.z << 4;
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
+        final Object fluidCapability = this.fluidCapCache[
+                chunk.x + 5 * chunk.z + this.chunkIndexOffset];
+        final boolean mayHaveFluidStates = FluidLightBridge.mayHaveFluidStates(
+                fluidCapability, this.minSection, this.maxSection);
 
         for (int sectionY = this.minSection; sectionY <= this.maxSection; ++sectionY) {
             final int storageIndex = this.heightContext.getStorageIndex(sectionY);
             final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < sections.length
                     ? sections[storageIndex] : null;
             if (section == null || section.isEmpty()) {
+                continue;
+            }
+            // Local palettes can rule out all emitters with a bounded state scan.
+            // Unknown containers and Fluidlogged remain on the full cell scan.
+            final Object blockData = section.getData();
+            if (!mayHaveFluidStates && blockData instanceof ContextualLightPalette
+                    && ((((ContextualLightPalette) blockData).pulsar$lightPaletteFlags()
+                    & ContextualLightPalette.MAY_EMIT) == 0)) {
                 continue;
             }
 
@@ -445,19 +458,6 @@ public class ScalarBlockEngine extends PulsarEngine {
 
     @Override
     protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {
-        if (nibble == null || !this.isVanillaStorageSection(cacheIndex)) {
-            return;
-        }
-        final ExtendedBlockStorage section = this.getLiveChunkSection(cacheIndex);
-        if (section == null) {
-            return;
-        }
-        final byte[] srcData = nibble.getVisibleData();
-        if (srcData == null) return;
-        final NibbleArray vanilla = section.getBlockLight();
-        if (vanilla == null) return;
-        final byte[] dst = vanilla.getData();
-        if (dst == srcData) return; // thin client: SWMR shares the vanilla storage
-        System.arraycopy(srcData, 0, dst, 0, srcData.length);
+        this.copyVisibleNibbleToVanilla(cacheIndex, nibble, false);
     }
 }

@@ -10,7 +10,7 @@ import net.minecraft.world.chunk.IBlockStatePalette;
 public final class ContextualLightPaletteChecks {
     private ContextualLightPaletteChecks() {}
 
-    public static boolean mayNeedSamples(final IBlockStatePalette palette) {
+    public static int flags(final IBlockStatePalette palette) {
         final int capacity;
         if (palette != null && palette.getClass() == BlockStatePaletteLinear.class) {
             capacity = 16;
@@ -18,12 +18,28 @@ public final class ContextualLightPaletteChecks {
             capacity = 256;
         } else {
             // Registry palettes, replacements and subclasses keep the full scan.
-            return true;
+            return ContextualLightPalette.CONSERVATIVE_FLAGS;
         }
+        int flags = 0;
         for (int index = 0; index < capacity; index++) {
             final IBlockState state = palette.getBlockState(index);
-            if (state != null && LightInfo.hasContextualValues(LightInfo.of(state))) return true;
+            if (state == null) continue;
+            final int info = LightInfo.of(state);
+            if (LightInfo.emission(info) > 0 || (info & LightInfo.CONTEXT_EMISSION) != 0) {
+                flags |= ContextualLightPalette.MAY_EMIT;
+            }
+            if ((info & LightInfo.CONTEXT_OPACITY) != 0) {
+                flags |= ContextualLightPalette.CONTEXT_OPACITY;
+            }
+            if ((info & LightInfo.CONTEXT_EMISSION) != 0) {
+                flags |= ContextualLightPalette.CONTEXT_EMISSION;
+            }
+            if (flags == ContextualLightPalette.CONSERVATIVE_FLAGS) break;
         }
-        return false;
+        return flags;
+    }
+
+    public static boolean mayNeedSamples(final IBlockStatePalette palette) {
+        return (flags(palette) & ContextualLightPalette.CONTEXT_MASK) != 0;
     }
 }

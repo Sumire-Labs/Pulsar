@@ -50,6 +50,16 @@ class ContextualLightPaletteChecksTest {
         palette.idFor(Blocks.STONE.getDefaultState());
         palette.idFor(Blocks.GLOWSTONE.getDefaultState());
         assertFalse(ContextualLightPaletteChecks.mayNeedSamples(palette));
+        assertTrue((ContextualLightPaletteChecks.flags(palette)
+                & ContextualLightPalette.MAY_EMIT) != 0);
+    }
+
+    @Test void paletteWithoutEmittersCanSkipTheInitialSourceScan() {
+        final var palette = new BlockStatePaletteLinear(4, null);
+        palette.idFor(Blocks.AIR.getDefaultState());
+        palette.idFor(Blocks.STONE.getDefaultState());
+        assertEquals(0, ContextualLightPaletteChecks.flags(palette)
+                & ContextualLightPalette.MAY_EMIT);
     }
 
     @Test void contextualEmissionCannotBeSkippedEvenWithStaticEmissionZero() {
@@ -57,6 +67,9 @@ class ContextualLightPaletteChecksTest {
         palette.idFor(Blocks.STONE.getDefaultState());
         palette.idFor(new ContextEmissionBlock().getDefaultState());
         assertTrue(ContextualLightPaletteChecks.mayNeedSamples(palette));
+        final int flags = ContextualLightPaletteChecks.flags(palette);
+        assertNotEquals(0, flags & ContextualLightPalette.CONTEXT_EMISSION);
+        assertNotEquals(0, flags & ContextualLightPalette.MAY_EMIT);
     }
 
     @Test void contextualOpacityInAHashPaletteRetainsSampling() {
@@ -66,6 +79,9 @@ class ContextualLightPaletteChecksTest {
         assertFalse(ContextualLightPaletteChecks.mayNeedSamples(palette));
         palette.idFor(new ContextOpacityBlock().getDefaultState());
         assertTrue(ContextualLightPaletteChecks.mayNeedSamples(palette));
+        final int flags = ContextualLightPaletteChecks.flags(palette);
+        assertNotEquals(0, flags & ContextualLightPalette.CONTEXT_OPACITY);
+        assertEquals(0, flags & ContextualLightPalette.MAY_EMIT);
     }
 
     @Test void reclassifiesAPaletteAfterABlockIsAdded() {
@@ -78,10 +94,16 @@ class ContextualLightPaletteChecksTest {
 
     @Test void unknownAndSubclassedPalettesTakeTheConservativePath() {
         assertTrue(ContextualLightPaletteChecks.mayNeedSamples(null));
+        assertEquals(ContextualLightPalette.CONSERVATIVE_FLAGS,
+                ContextualLightPaletteChecks.flags(null));
         assertTrue(ContextualLightPaletteChecks.mayNeedSamples(new BlockStatePaletteRegistry()));
+        assertEquals(ContextualLightPalette.CONSERVATIVE_FLAGS,
+                ContextualLightPaletteChecks.flags(new BlockStatePaletteRegistry()));
         final var palette = new BlockStatePaletteLinear(4, null) {
             @Override public IBlockState getBlockState(int index) { fail("Custom palette must not be probed"); return null; }
         };
         assertTrue(ContextualLightPaletteChecks.mayNeedSamples(palette));
+        assertEquals(ContextualLightPalette.CONSERVATIVE_FLAGS,
+                ContextualLightPaletteChecks.flags(palette));
     }
 }

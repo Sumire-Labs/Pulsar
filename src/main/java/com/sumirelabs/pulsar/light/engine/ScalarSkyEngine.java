@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 /**
@@ -63,6 +62,11 @@ public class ScalarSkyEngine extends PulsarEngine {
     @Override
     protected void setNibbleNull(final int chunkX, final int chunkY, final int chunkZ) {
         this.columnProcessor.setNibbleNull(chunkX, chunkY, chunkZ);
+    }
+
+    @Override
+    protected void onDestroyCaches() {
+        this.columnProcessor.clearRemovedNibbles();
     }
 
     private void rewriteNibbleCacheForSkylight() {
@@ -464,19 +468,6 @@ public class ScalarSkyEngine extends PulsarEngine {
 
     @Override
     protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {
-        if (nibble == null || !this.isVanillaStorageSection(cacheIndex)) {
-            return;
-        }
-        final ExtendedBlockStorage section = this.getLiveChunkSection(cacheIndex);
-        if (section == null) {
-            return;
-        }
-        final byte[] srcData = nibble.getVisibleData();
-        if (srcData == null) return;
-        final NibbleArray vanilla = section.getSkyLight();
-        if (vanilla == null) return;
-        final byte[] dst = vanilla.getData();
-        if (dst == srcData) return; // thin client: SWMR shares the vanilla storage
-        System.arraycopy(srcData, 0, dst, 0, srcData.length);
+        this.copyVisibleNibbleToVanilla(cacheIndex, nibble, true);
     }
 }

@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Reduce chunk-load contextual-light sampling using vanilla palette flags and
+  Fluidlogged API's known vanilla position index. Unknown implementations keep
+  the conservative scanning path.
+- Skip initial block-light source scans in known sections without possible emitters.
+- Reuse sky-column tracking storage between tasks and avoid publishing unchanged
+  empty sky-light nibbles.
+- Spread internal chunk-map keys to avoid hash collisions along diagonal travel.
+- Share a 10 ms lighting wait allowance across server chunk unloads in each world
+  tick, replacing the previous 50 ms allowance for every chunk. Unfinished light
+  is invalidated for relighting on the next load.
+
+### Fixed
+
+- Preserve empty sky-light nibble objects across full and incremental lighting,
+  preventing stale sky light after changes to opaque and shaped blocks.
+- Recheck lighting after successful changes to light-relevant block states,
+  including contextual and sided-face behavior.
+- Include the center chunk's Fluidlogged capability during initial lighting.
+- Prevent detached server chunks from receiving visible or vanilla light-array
+  publication after unload, while retaining valid caches on clean unloads.
+- Exclude unfinished neighboring lighting work from periodic light-cache saves,
+  and serialize cache snapshots under the chunk's publication monitor.
+- Bump the persisted lighting cache version to 11. Older caches are relit once
+  when their chunks next load.
+
 ### Removed
 
 - Removed the Pulsar Colored Lighting Addon backend API, lifecycle and cache

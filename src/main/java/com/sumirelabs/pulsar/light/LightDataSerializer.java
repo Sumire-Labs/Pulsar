@@ -35,6 +35,8 @@ public final class LightDataSerializer {
     /**
      * Bump when the on-disk layout or BFS semantics change incompatibly.
      */
+    // v11: rebuilds caches that may contain direct-sky columns left stale
+    // after Java-null nibble slots prevented later section initialization.
     // v10: tracks the configured Thaumcraft crystal emission. Older Pulsar
     // builds must also reject these caches when rolling back the enhancement.
     // v9: invalidates v8 caches computed without Forge's contextual block
@@ -46,7 +48,7 @@ public final class LightDataSerializer {
     // v6: invalidated light computed before the 2026-07-26 correctness batch
     // (UNINIT-as-15 sync, missing extrude, decrease re-seed/continuation
     // fixes) — old data relights once on load.
-    public static final int LIGHT_VERSION = 10;
+    public static final int LIGHT_VERSION = 11;
 
     private static final String TAG_ROOT = "PulsarLight";
     private static final String TAG_VERSION = "version";
@@ -93,66 +95,66 @@ public final class LightDataSerializer {
     }
 
     private void saveLight(final ChunkDataEvent.Save event) {
-        event.getData().removeTag(TAG_ROOT);
         final Chunk chunk = event.getChunk();
-        final PulsarChunk pc = (PulsarChunk) chunk;
-        if (!pc.pulsar$isLightReady()) {
-            return;
-        }
-
-        final SWMRNibbleArray[] blockNibbles = pc.pulsar$getBlockNibbles();
-        final SWMRNibbleArray[] skyNibbles = pc.pulsar$getSkyNibbles();
-        if (blockNibbles == null || skyNibbles == null) {
-            return;
-        }
-
-        // Queued initial-light/block-change work means the SWMR values are
-        // still in flux (e.g. a lava pocket just turned to stone but its
-        // light removal hasn't run). Persisting them as valid would freeze
-        // phantom light into the save — skip the tag and let the chunk
-        // relight on next load instead.
-        final WorldLightManager mgr = ((PulsarWorld) chunk.getWorld()).pulsar$getLightManager();
-        if (mgr != null && mgr.hasPendingLightWork(chunk.x, chunk.z)) {
-            return;
-        }
-        final boolean hasSky = chunk.getWorld().provider.hasSkyLight();
-        final WorldHeightContext heightContext = WorldUtil.getHeightContext(chunk.getWorld());
-        final int minLightSection = heightContext.getMinLightSection();
-
-        final NBTTagList sections = new NBTTagList();
-        for (int i = 0, len = blockNibbles.length; i < len; ++i) {
-            // Null elements are legal: the sky engine's rewriteNibbleCacheForSkylight
-            // replaces NULL-state nibbles with java nulls before the arrays are
-            // published to the chunk. Treat them as NULL (nothing to save).
-            final SWMRNibbleArray blockNib = blockNibbles[i];
-            final SWMRNibbleArray skyNib = hasSky ? skyNibbles[i] : null;
-            final SWMRNibbleArray.SaveState blockState = blockNib == null ? null : blockNib.getSaveState();
-            final SWMRNibbleArray.SaveState skyState = skyNib == null ? null : skyNib.getSaveState();
-            if (blockState == null && skyState == null) {
-                continue;
+        // Serialize a single visible-light generation. Server publication uses
+        // this monitor through updateVisible; onUnload uses it while detaching.
+        synchronized (chunk) {
+            event.getData().removeTag(TAG_ROOT);
+            final PulsarChunk pc = (PulsarChunk) chunk;
+            if (!pc.pulsar$isLightReady()) {
+                return;
             }
-            final NBTTagCompound section = new NBTTagCompound();
-            section.setInteger(TAG_Y, i + minLightSection);
-            if (blockState != null) {
-                section.setByte(TAG_BLOCK_STATE, (byte) blockState.state);
-                if (blockState.data != null) {
-                    section.setByteArray(TAG_BLOCK_DATA, blockState.data);
+
+            final SWMRNibbleArray[] blockNibbles = pc.pulsar$getBlockNibbles();
+            final SWMRNibbleArray[] skyNibbles = pc.pulsar$getSkyNibbles();
+            if (blockNibbles == null || skyNibbles == null) {
+                return;
+            }
+
+            // Any queued work in the 3x3 light cache can still update this
+            // chunk's seam nibbles. Do not persist a mixed generation.
+            final WorldLightManager mgr = ((PulsarWorld) chunk.getWorld()).pulsar$getLightManager();
+            if (mgr != null && mgr.hasPendingLightWorkNear(chunk.x, chunk.z)) {
+                return;
+            }
+            final boolean hasSky = chunk.getWorld().provider.hasSkyLight();
+            final WorldHeightContext heightContext = WorldUtil.getHeightContext(chunk.getWorld());
+            final int minLightSection = heightContext.getMinLightSection();
+
+            final NBTTagList sections = new NBTTagList();
+            for (int i = 0, len = blockNibbles.length; i < len; ++i) {
+                // Java-null elements can remain in legacy or empty section
+                // slots; serialize them like an absent null nibble.
+                final SWMRNibbleArray blockNib = blockNibbles[i];
+                final SWMRNibbleArray skyNib = hasSky ? skyNibbles[i] : null;
+                final SWMRNibbleArray.SaveState blockState = blockNib == null ? null : blockNib.getSaveState();
+                final SWMRNibbleArray.SaveState skyState = skyNib == null ? null : skyNib.getSaveState();
+                if (blockState == null && skyState == null) {
+                    continue;
                 }
-            }
-            if (skyState != null) {
-                section.setByte(TAG_SKY_STATE, (byte) skyState.state);
-                if (skyState.data != null) {
-                    section.setByteArray(TAG_SKY_DATA, skyState.data);
+                final NBTTagCompound section = new NBTTagCompound();
+                section.setInteger(TAG_Y, i + minLightSection);
+                if (blockState != null) {
+                    section.setByte(TAG_BLOCK_STATE, (byte) blockState.state);
+                    if (blockState.data != null) {
+                        section.setByteArray(TAG_BLOCK_DATA, blockState.data);
+                    }
                 }
+                if (skyState != null) {
+                    section.setByte(TAG_SKY_STATE, (byte) skyState.state);
+                    if (skyState.data != null) {
+                        section.setByteArray(TAG_SKY_DATA, skyState.data);
+                    }
+                }
+                sections.appendTag(section);
             }
-            sections.appendTag(section);
-        }
 
-        final NBTTagCompound root = new NBTTagCompound();
-        root.setInteger(TAG_VERSION, LIGHT_VERSION);
-        root.setInteger(TAG_CRYSTAL_LIGHT, ThaumcraftCrystalLighting.cacheProfile());
-        root.setTag(TAG_SECTIONS, sections);
-        event.getData().setTag(TAG_ROOT, root);
+            final NBTTagCompound root = new NBTTagCompound();
+            root.setInteger(TAG_VERSION, LIGHT_VERSION);
+            root.setInteger(TAG_CRYSTAL_LIGHT, ThaumcraftCrystalLighting.cacheProfile());
+            root.setTag(TAG_SECTIONS, sections);
+            event.getData().setTag(TAG_ROOT, root);
+        }
     }
 
     private void loadLight(final ChunkDataEvent.Load event) {

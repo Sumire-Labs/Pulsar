@@ -47,16 +47,30 @@ public final class ContextualLightManager {
         final Entry entry = new Entry(chunk, new ContextualLightSnapshot<>());
         // Publish only after capture, before the chunk becomes worker-visible.
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
+        final int[] fluidPositions = FluidLightBridge.LOADED
+                ? FluidLightBridge.fluidPositions(chunk, this.height.getMinSection(), this.height.getMaxSection())
+                : null;
+        final boolean[] scannedSections = fluidPositions == null && FluidLightBridge.LOADED
+                ? null : new boolean[sections.length];
         for (int sectionY = this.height.getMinSection(); sectionY <= this.height.getMaxSection(); sectionY++) {
             final int index = this.height.getStorageIndex(sectionY);
             final ExtendedBlockStorage section = index >= 0 && index < sections.length ? sections[index] : null;
-            if (!FluidLightBridge.LOADED) {
-                if (section == null || section.isEmpty()) continue;
-                // No cached answer: classify the current palette on each load.
-                // Fluids live outside it, so Fluidlogged retains full sampling.
+            final boolean hasBlocks = section != null && !section.isEmpty();
+            boolean contextualBlocks = false;
+            if (hasBlocks) {
+                // Palette classification is cheap relative to visiting 4096 cells.
+                // Contextual states need position-specific callbacks; static states do not.
                 final Object data = section.getData();
-                if (data instanceof ContextualLightPalette
-                        && !((ContextualLightPalette) data).pulsar$needsContextualSamples()) continue;
+                final int paletteFlags = data instanceof ContextualLightPalette
+                        ? ((ContextualLightPalette) data).pulsar$lightPaletteFlags()
+                        : ContextualLightPalette.CONSERVATIVE_FLAGS;
+                contextualBlocks = (paletteFlags & ContextualLightPalette.CONTEXT_MASK) != 0;
+            }
+            final boolean fullScan = shouldScanSection(hasBlocks, contextualBlocks,
+                    FluidLightBridge.LOADED, fluidPositions != null);
+            if (!fullScan) continue;
+            if (scannedSections != null && index >= 0 && index < scannedSections.length) {
+                scannedSections[index] = true;
             }
             for (int y = sectionY << 4; y < (sectionY + 1) << 4; y++) {
                 for (int z = 0; z < 16; z++) {
@@ -64,17 +78,35 @@ public final class ContextualLightManager {
                 }
             }
         }
-        final Entry previous = this.chunks.put(CoordinateUtils.getChunkKey(chunk.x, chunk.z), entry);
+        if (fluidPositions != null) {
+            for (final int key : fluidPositions) {
+                final int y = key >> 8;
+                if (!this.height.containsBlockY(y)) continue;
+                final int sectionIndex = this.height.getStorageIndex(y >> 4);
+                if (scannedSections != null && sectionIndex >= 0 && sectionIndex < scannedSections.length
+                        && scannedSections[sectionIndex]) continue;
+                this.capture(entry, key & 15, y, (key >>> 4) & 15);
+            }
+        }
+        final Entry previous = this.chunks.put(
+                CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(chunk.x, chunk.z)), entry);
         if (previous != null) this.pendingChunks.remove(previous);
     }
 
+    static boolean shouldScanSection(final boolean hasBlocks, final boolean contextualBlocks,
+                                     final boolean fluidlogged, final boolean fluidIndexAvailable) {
+        return (hasBlocks && contextualBlocks) || (fluidlogged && !fluidIndexAvailable);
+    }
+
     public void unload(final int x, final int z) {
-        final Entry entry = this.chunks.remove(CoordinateUtils.getChunkKey(x, z));
+        final Entry entry = this.chunks.remove(
+                CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(x, z)));
         if (entry != null) this.pendingChunks.remove(entry);
     }
 
     public int read(final int info, final IBlockState state, final int x, final int y, final int z) {
-        final Entry entry = this.chunks.get(CoordinateUtils.getChunkKey(x >> 4, z >> 4));
+        final Entry entry = this.chunks.get(CoordinateUtils.mixChunkKey(
+                CoordinateUtils.getChunkKey(x >> 4, z >> 4)));
         if (entry == null || !this.height.containsBlockY(y)) return info;
         final int result = entry.snapshot.read(pack(x, y, z), state, info);
         if (entry.snapshot.hasPending()) this.pendingChunks.add(entry);
@@ -94,7 +126,8 @@ public final class ContextualLightManager {
 
     private void requestCell(final int x, final int y, final int z, final boolean discover) {
         if (!this.height.containsBlockY(y)) return;
-        final Entry entry = this.chunks.get(CoordinateUtils.getChunkKey(x >> 4, z >> 4));
+        final Entry entry = this.chunks.get(CoordinateUtils.mixChunkKey(
+                CoordinateUtils.getChunkKey(x >> 4, z >> 4)));
         if (entry == null) return;
         final int key = pack(x, y, z);
         // Off-thread requests must not inspect live world state.
@@ -107,7 +140,7 @@ public final class ContextualLightManager {
     }
 
     public boolean hasPending(final int x, final int z) {
-        final Entry entry = this.chunks.get(CoordinateUtils.getChunkKey(x, z));
+        final Entry entry = this.chunks.get(CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(x, z)));
         return entry != null && entry.snapshot.hasPending();
     }
 
@@ -116,7 +149,8 @@ public final class ContextualLightManager {
         if (this.pendingChunks.isEmpty()) return;
         for (final Entry entry : new HashSet<>(this.pendingChunks)) {
             this.pendingChunks.remove(entry);
-            if (this.chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x, entry.chunk.z)) != entry) continue;
+            if (this.chunks.get(CoordinateUtils.mixChunkKey(
+                    CoordinateUtils.getChunkKey(entry.chunk.x, entry.chunk.z))) != entry) continue;
             for (final int key : entry.snapshot.takePending()) {
                 final int x = key & 15;
                 final int z = (key >>> 4) & 15;

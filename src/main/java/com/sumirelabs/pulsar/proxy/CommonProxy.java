@@ -19,9 +19,17 @@ public class CommonProxy implements IProxy {
 
     @SubscribeEvent
     public void onWorldTick(final TickEvent.WorldTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && !event.world.isRemote && event.world instanceof PulsarWorld) {
-            final WorldLightManager manager = ((PulsarWorld) event.world).pulsar$getLightManager();
-            if (manager != null) manager.publishContextualLight();
+        if (event.world.isRemote || !(event.world instanceof PulsarWorld)) {
+            return;
+        }
+        final WorldLightManager manager = ((PulsarWorld) event.world).pulsar$getLightManager();
+        if (manager == null) {
+            return;
+        }
+        if (event.phase == TickEvent.Phase.START) {
+            manager.beginTickUnloadWaitBudget();
+        } else if (event.phase == TickEvent.Phase.END) {
+            manager.publishContextualLight();
         }
     }
 

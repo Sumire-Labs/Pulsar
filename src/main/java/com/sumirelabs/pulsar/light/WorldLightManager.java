@@ -18,6 +18,8 @@ import net.minecraft.world.chunk.Chunk;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.CancellationException;
 
 /**
  * Per-{@link World} light manager. Owns the worker threads, engine pools and
@@ -57,6 +59,8 @@ public final class WorldLightManager {
     private final LightEngineWorker blockWorker;
 
     private final LightStats stats;
+    private final UnloadWaitBudget unloadWaitBudget = new UnloadWaitBudget(
+            UnloadWaitBudget.DEFAULT_BUDGET_NS, System::nanoTime);
 
     public WorldLightManager(final World world, final boolean hasSkyLight, final boolean hasBlockLight) {
         this.world = world;
@@ -71,6 +75,7 @@ public final class WorldLightManager {
         if (this.blockQueue != null) this.blockQueue.setStats(this.stats);
         this.initialLighting = new InitialLightCoordinator(
                 this.loadedChunkMap, this.skyQueue, this.blockQueue, this::scheduleUpdate);
+        if (!world.isRemote) this.unloadWaitBudget.beginTick();
         this.skyWorker = hasSkyLight ? new LightEngineWorker(
                 this.skyQueue,
                 () -> new ScalarSkyEngine(world, this.heightContext),
@@ -217,6 +222,13 @@ public final class WorldLightManager {
         final int skySize = this.skyQueue != null ? this.skyQueue.size() : 0;
         final int blockSize = this.blockQueue != null ? this.blockQueue.size() : 0;
         this.stats.tick(skySize, blockSize);
+    }
+
+    /** Starts the shared unload-wait allowance for this world's next tick. */
+    public void beginTickUnloadWaitBudget() {
+        if (!this.world.isRemote) {
+            this.unloadWaitBudget.beginTick();
+        }
     }
 
     /** A block update packet has no scalar light; a section packet does, and must wait. */
@@ -584,40 +596,78 @@ public final class WorldLightManager {
                 || (this.blockQueue != null && this.blockQueue.hasPendingLightWork(key));
     }
 
+    /** Any 3x3 light or contextual task can still publish data into this chunk. */
+    public boolean hasPendingLightWorkNear(final int cx, final int cz) {
+        for (int dz = -1; dz <= 1; ++dz) {
+            for (int dx = -1; dx <= 1; ++dx) {
+                final long key = CoordinateUtils.getChunkKey(cx + dx, cz + dz);
+                if (this.contextualLight.hasPending(cx + dx, cz + dz)
+                        || this.getPendingWorkFutureAt(key) != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Wait briefly for all queued or in-flight work touching a chunk. Returns
      * {@code false} on timeout/interruption so unload can invalidate the saved
      * light instead of serialising data while a worker may still mutate it.
      */
     public boolean awaitPendingWork(final int cx, final int cz) {
-        final long key = CoordinateUtils.getChunkKey(cx, cz);
-        final long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(50L);
+        if (this.world.isRemote) {
+            return true;
+        }
 
+        long waitedNs = 0L;
         while (true) {
-            final Future<Void> pending = this.getPendingWorkFuture(key);
+            final Future<Void> pending = this.getPendingWorkFutureNear(cx, cz);
             if (pending == null) {
-                return true;
+                return this.finishUnloadWait(waitedNs, true);
             }
-            final long remaining = deadline - System.nanoTime();
+            final long remaining = this.unloadWaitBudget.remainingNs();
             if (remaining <= 0L) {
-                break;
+                this.stats.recordUnloadWaitBudgetExhausted();
+                return this.finishUnloadWait(waitedNs, false);
             }
+            final long waitStartedAtNs = System.nanoTime();
             try {
                 pending.get(remaining, TimeUnit.NANOSECONDS);
             } catch (final InterruptedException e) {
+                waitedNs += this.recordUnloadWaitSince(waitStartedAtNs);
                 Thread.currentThread().interrupt();
                 Pulsar.LOGGER.warn("Interrupted while waiting for light work on chunk ({}, {})", cx, cz);
-                return false;
-            } catch (final Exception e) {
-                break;
+                return this.finishUnloadWait(waitedNs, false);
+            } catch (final TimeoutException e) {
+                waitedNs += this.recordUnloadWaitSince(waitStartedAtNs);
+                this.stats.recordUnloadWaitTimeout();
+                if (this.unloadWaitBudget.remainingNs() == 0L) {
+                    this.stats.recordUnloadWaitBudgetExhausted();
+                }
+                return this.finishUnloadWait(waitedNs, false);
+            } catch (final CancellationException | java.util.concurrent.ExecutionException e) {
+                waitedNs += this.recordUnloadWaitSince(waitStartedAtNs);
+                return this.finishUnloadWait(waitedNs, false);
             }
+            waitedNs += this.recordUnloadWaitSince(waitStartedAtNs);
         }
-
-        Pulsar.LOGGER.warn("Timed out waiting for light work on chunk ({}, {})", cx, cz);
-        return false;
     }
 
-    private Future<Void> getPendingWorkFuture(final long key) {
+    private long recordUnloadWaitSince(final long startedAtNs) {
+        return this.unloadWaitBudget.recordWaitSince(startedAtNs);
+    }
+
+    private boolean finishUnloadWait(final long waitedNs, final boolean settled) {
+        this.stats.recordUnloadWait(waitedNs);
+        return settled;
+    }
+
+    public void recordUnloadLightInvalidation() {
+        this.stats.recordUnloadLightInvalidation();
+    }
+
+    private Future<Void> getPendingWorkFutureAt(final long key) {
         Future<Void> future = this.skyQueue == null ? null : this.skyQueue.getPendingWorkFuture(key);
         if (future != null) {
             return future;
@@ -627,6 +677,10 @@ public final class WorldLightManager {
             return future;
         }
         return this.initialLighting.getPendingFuture(key);
+    }
+
+    private Future<Void> getPendingWorkFutureNear(final int cx, final int cz) {
+        return ChunkWorkNeighborhood.findPendingFuture(cx, cz, this::getPendingWorkFutureAt);
     }
 
     public void shutdown() {

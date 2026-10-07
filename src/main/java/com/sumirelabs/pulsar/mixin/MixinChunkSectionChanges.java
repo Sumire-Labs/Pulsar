@@ -4,6 +4,7 @@ import com.sumirelabs.pulsar.light.ChunkLightHelper;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.light.WorldLightManager;
+import com.sumirelabs.pulsar.light.engine.LightInfo;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import com.sumirelabs.pulsar.world.PulsarWorld;
@@ -66,41 +67,46 @@ public abstract class MixinChunkSectionChanges {
     @Inject(method = "setBlockState", at = @At("RETURN"), require = 0)
     private void pulsar$postSetBlockState(final BlockPos pos, final IBlockState state,
                                           final CallbackInfoReturnable<IBlockState> cir) {
-        // checkLight may be skipped when static opacity/emission is unchanged.
-        // Still invalidate position-dependent values, after the state was set.
-        if (cir.getReturnValue() != null && !this.world.isRemote) {
-            final WorldLightManager manager = ((PulsarWorld) this.world).pulsar$getLightManager();
-            if (manager != null) manager.contextualLight().request(pos.getX(), pos.getY(), pos.getZ());
-        }
-        if (!this.pulsar$sectionWasEmpty || cir.getReturnValue() == null) {
-            return;
-        }
-
-        final WorldHeightContext heightContext = this.pulsar$getSectionHeightContext();
-        final int sectionY = pos.getY() >> 4;
-        final int storageIndex = heightContext.getStorageIndex(sectionY);
-        final ExtendedBlockStorage[] storage = this.getBlockStorageArray();
-        if (storageIndex < 0 || storageIndex >= storage.length) {
-            return;
-        }
-        final ExtendedBlockStorage section = storage[storageIndex];
-        if (section == Chunk.NULL_BLOCK_STORAGE) {
-            return;
-        }
-
-        this.pulsar$sectionWasEmpty = false;
-        final PulsarChunk pulsarChunk = (PulsarChunk) (Object) this;
-        ChunkLightHelper.fillVanillaFromEngine(
-                heightContext, pulsarChunk.pulsar$getSkyNibbles(), pulsarChunk.pulsar$getBlockNibbles(),
-                section, sectionY, this.world.provider.hasSkyLight());
-
-        if (this.world.isRemote) {
-            this.pulsar$rewrapClientNibbles(pulsarChunk, section, sectionY);
-        }
+        final IBlockState previousState = cir.getReturnValue();
+        if (previousState == null) return;
 
         final WorldLightManager manager = ((PulsarWorld) this.world).pulsar$getLightManager();
-        if (manager != null) {
-            manager.queueSectionChange(this.x, sectionY, this.z, false);
+        // checkLight may be skipped when static opacity/emission is unchanged.
+        // Still invalidate position-dependent values, after the state was set.
+        if (!this.world.isRemote && manager != null) {
+            manager.contextualLight().request(pos.getX(), pos.getY(), pos.getZ());
+        }
+
+        if (this.pulsar$sectionWasEmpty) {
+            final WorldHeightContext heightContext = this.pulsar$getSectionHeightContext();
+            final int sectionY = pos.getY() >> 4;
+            final int storageIndex = heightContext.getStorageIndex(sectionY);
+            final ExtendedBlockStorage[] storage = this.getBlockStorageArray();
+            final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < storage.length
+                    ? storage[storageIndex] : Chunk.NULL_BLOCK_STORAGE;
+            if (section != Chunk.NULL_BLOCK_STORAGE) {
+                this.pulsar$sectionWasEmpty = false;
+                final PulsarChunk pulsarChunk = (PulsarChunk) (Object) this;
+                ChunkLightHelper.fillVanillaFromEngine(
+                        heightContext, pulsarChunk.pulsar$getSkyNibbles(), pulsarChunk.pulsar$getBlockNibbles(),
+                        section, sectionY, this.world.provider.hasSkyLight());
+
+                if (this.world.isRemote) {
+                    this.pulsar$rewrapClientNibbles(pulsarChunk, section, sectionY);
+                }
+
+                if (manager != null) {
+                    manager.queueSectionChange(this.x, sectionY, this.z, false);
+                }
+            }
+        }
+
+        if (manager != null && (!this.world.isRemote
+                || ((PulsarChunk) (Object) this).pulsar$isLightReady())
+                && LightInfo.requiresBlockChange(previousState, state)) {
+            // New-section initialization above must enter the queues first,
+            // so the recheck sees the materialized nibble.
+            manager.queueBlockChange(pos.getX(), pos.getY(), pos.getZ());
         }
     }
 
