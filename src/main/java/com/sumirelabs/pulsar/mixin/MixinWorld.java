@@ -35,9 +35,8 @@ public abstract class MixinWorld implements PulsarWorld, ExtendedWorld {
      * <p>Server side: the worker threads drain the queue asynchronously.
      *
      * <p>Client side (thin mode): the queue is drained on the main thread at
-     * the end of the same tick, before that tick's frame renders — so player
-     * place/break is still visually instant without a separate synchronous
-     * fast path.
+     * the end of each tick with a shared budget. Ordinary edits usually finish
+     * before rendering; a large backlog continues on subsequent ticks.
      */
     @Inject(method = "checkLightFor", at = @At("HEAD"), cancellable = true)
     private void pulsar$checkLightFor(final EnumSkyBlock lightType, final BlockPos pos,

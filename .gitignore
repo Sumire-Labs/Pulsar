@@ -7,6 +7,10 @@ bin/
 docs/research/
 test-fixtures/
 
+# Keep local benchmark tools, reports and raw measurement data out of new commits.
+/benchmarks/
+/docs/benchmarks/
+
 # Ignore Gradle GUI config
 gradle-app.setting
 

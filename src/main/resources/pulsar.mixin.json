@@ -8,6 +8,7 @@
     "MixinBlockSlabFaceLight",
     "MixinBlockStairsFaceLight",
     "MixinBlockStateImplementation",
+    "MixinBlockStateContainerSamples",
     "MixinChunk",
     "MixinChunkSectionChanges",
     "MixinChunkVanillaLighting",

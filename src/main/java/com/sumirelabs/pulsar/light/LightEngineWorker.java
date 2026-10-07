@@ -17,15 +17,14 @@ import java.util.function.Supplier;
 final class LightEngineWorker {
 
     private static final int MAX_CACHED_ENGINES = 4;
-    private static final long EDGE_CHECK_BUDGET_NS = 10_000_000L;
-    private static final long BLOCK_CHANGE_BUDGET_NS = 5_000_000L;
+    private static final long SERVER_BATCH_BUDGET_NS = 15_000_000L;
 
     private final LightQueue queue;
+    private final LightTaskScheduler scheduler;
     private final ConcurrentLinkedDeque<PulsarEngine> enginePool = new ConcurrentLinkedDeque<>();
     private final Supplier<PulsarEngine> engineFactory;
     private final BiConsumer<ChunkTasks, PulsarEngine> taskProcessor;
-    private final AtomicInteger changeBudgetYields;
-    private final AtomicInteger edgeBudgetYields;
+    private final AtomicInteger budgetYields;
     private final String operationName;
     private final Thread thread;
 
@@ -34,16 +33,15 @@ final class LightEngineWorker {
     LightEngineWorker(final LightQueue queue,
                       final Supplier<PulsarEngine> engineFactory,
                       final BiConsumer<ChunkTasks, PulsarEngine> taskProcessor,
-                      final AtomicInteger changeBudgetYields,
-                      final AtomicInteger edgeBudgetYields,
+                      final AtomicInteger budgetYields,
                       final String operationName,
                       final String threadName,
                       final boolean startThread) {
         this.queue = queue;
+        this.scheduler = new LightTaskScheduler(queue, System::nanoTime);
         this.engineFactory = engineFactory;
         this.taskProcessor = taskProcessor;
-        this.changeBudgetYields = changeBudgetYields;
-        this.edgeBudgetYields = edgeBudgetYields;
+        this.budgetYields = budgetYields;
         this.operationName = operationName;
 
         if (startThread) {
@@ -72,65 +70,24 @@ final class LightEngineWorker {
     }
 
     void processPending() {
+        this.processPendingUntil(System.nanoTime() + SERVER_BATCH_BUDGET_NS);
+    }
+
+    void processPendingUntil(final long deadline) {
         if (!this.running || this.queue.isEmpty()) {
             return;
         }
+        if (System.nanoTime() - deadline >= 0L) return;
         final PulsarEngine engine = this.acquireEngine();
         try {
-            final long changeDeadline = System.nanoTime() + BLOCK_CHANGE_BUDGET_NS;
-            ChunkTasks task;
-            while ((task = this.queue.removeFirstBlockChangeTask()) != null) {
-                this.processTask(task, engine);
-                if (System.nanoTime() > changeDeadline) {
-                    if (LightStats.enabled) {
-                        this.changeBudgetYields.incrementAndGet();
-                    }
-                    break;
-                }
-            }
-
-            boolean moreWork = true;
-            while (moreWork) {
-                moreWork = false;
-                while ((task = this.queue.removeFirstInitialLightTask()) != null) {
-                    this.processTask(task, engine);
-                    ChunkTasks priorityTask;
-                    while ((priorityTask = this.queue.removeFirstBlockChangeTask()) != null) {
-                        this.processTask(priorityTask, engine);
-                    }
-                }
-
-                final long edgeDeadline = System.nanoTime() + EDGE_CHECK_BUDGET_NS;
-                while ((task = this.queue.removeFirstTask()) != null) {
-                    this.processTask(task, engine);
-                    ChunkTasks priorityTask;
-                    while ((priorityTask = this.queue.removeFirstBlockChangeTask()) != null) {
-                        this.processTask(priorityTask, engine);
-                    }
-                    if (this.queue.hasInitialLightTask()) {
-                        moreWork = true;
-                        break;
-                    }
-                    if (System.nanoTime() > edgeDeadline) {
-                        if (LightStats.enabled) {
-                            this.edgeBudgetYields.incrementAndGet();
-                        }
-                        break;
-                    }
-                }
+            if (this.scheduler.drainUntil(deadline, () -> this.running,
+                    task -> this.taskProcessor.accept(task, engine)) && LightStats.enabled) {
+                this.budgetYields.incrementAndGet();
             }
         } catch (final Throwable t) {
             Pulsar.LOGGER.error("Exception in " + this.operationName, t);
         } finally {
             this.releaseEngine(engine);
-        }
-    }
-
-    private void processTask(final ChunkTasks task, final PulsarEngine engine) {
-        try {
-            this.taskProcessor.accept(task, engine);
-        } finally {
-            this.queue.completeTask(task);
         }
     }
 

@@ -10,6 +10,62 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ContextualLightSnapshotTest {
     @Test
+    void emissionOnlyChangesDoNotRequireSkyButOpacityStateAndMissesDo() {
+        final var snapshot = new ContextualLightSnapshot<Object>();
+        final Object block = new Object();
+        final Object fluid = new Object();
+        final int emissionMask = 0xF0;
+        assertEquals(3, snapshot.publishChanges(1, block, 0x10, fluid, 0x20, emissionMask));
+        assertEquals(0, snapshot.publishChanges(1, block, 0x10, fluid, 0x20, emissionMask));
+        assertEquals(1, snapshot.publishChanges(1, block, 0x30, fluid, 0x20, emissionMask));
+        assertEquals(1, snapshot.publishChanges(1, block, 0x30, fluid, 0x40, emissionMask));
+        assertEquals(3, snapshot.publishChanges(1, block, 0x31, fluid, 0x40, emissionMask));
+        assertEquals(3, snapshot.publishChanges(1, block, 0x31, fluid, 0x42, emissionMask));
+        final Object replacement = new Object();
+        assertEquals(3, snapshot.publishChanges(1, replacement, 0x31, fluid, 0x42, emissionMask));
+        snapshot.read(1, block, 0);
+        snapshot.takePending();
+        assertEquals(3, snapshot.publishChanges(1, replacement, 0x31, fluid, 0x42, emissionMask));
+        assertEquals(3, snapshot.publishChanges(1, null, 0, null, 0, emissionMask));
+    }
+
+    @Test
+    void identicalSamplesDoNotNeedAnotherPropagationPass() {
+        final var snapshot = new ContextualLightSnapshot<Object>();
+        final Object block = new Object();
+        final Object fluid = new Object();
+        assertEquals(3, snapshot.publishChanges(4, block, 7, fluid, 10, 0));
+        snapshot.request(4);
+        snapshot.takePending();
+        assertEquals(0, snapshot.publishChanges(4, block, 7, fluid, 10, 0));
+        assertEquals(3, snapshot.publishChanges(4, block, 8, fluid, 10, 0));
+        assertEquals(3, snapshot.publishChanges(4, block, 8, fluid, 11, 0));
+        assertEquals(3, snapshot.publishChanges(4, new Object(), 8, fluid, 11, 0));
+        assertEquals(3, snapshot.publishChanges(4, null, 0, null, 0, 0));
+        assertEquals(0, snapshot.publishChanges(4, null, 9, null, 15, 0));
+    }
+
+    @Test
+    void transientFallbackStillNeedsCorrectionWhenStateReturnsToItsOldSample() {
+        final var snapshot = new ContextualLightSnapshot<Object>();
+        final Object original = new Object();
+        snapshot.publish(8, original, 12, null, 0);
+        assertEquals(0, snapshot.read(8, new Object(), 0));
+        snapshot.takePending();
+        assertEquals(3, snapshot.publishChanges(8, original, 12, null, 0, 0));
+        assertEquals(0, snapshot.publishChanges(8, original, 12, null, 0, 0));
+    }
+
+    @Test
+    void missingSampleForARemovedContextualBlockStillNeedsCorrection() {
+        final var snapshot = new ContextualLightSnapshot<Object>();
+        assertEquals(0, snapshot.read(2, new Object(), 0));
+        snapshot.takePending();
+        assertEquals(3, snapshot.publishChanges(2, null, 0, null, 0, 0));
+        assertEquals(0, snapshot.publishChanges(2, null, 0, null, 0, 0));
+    }
+
+    @Test
     void workersReadPublishedBlockAndFluidWithoutExecutingWorldCallbacks() throws Exception {
         final var snapshot = new ContextualLightSnapshot<Object>();
         final Object block = new Object();

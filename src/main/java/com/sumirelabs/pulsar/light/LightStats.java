@@ -49,9 +49,8 @@ public final class LightStats {
     final AtomicLong skyTasksProcessed = new AtomicLong();
     final AtomicLong blockTasksProcessed = new AtomicLong();
     // Budget yield stats (multi-thread write)
-    final AtomicInteger edgeBudgetYields = new AtomicInteger();
-    final AtomicInteger blockChangeBudgetYields = new AtomicInteger();
-    final AtomicInteger skyChangeBudgetYields = new AtomicInteger();
+    final AtomicInteger blockBudgetYields = new AtomicInteger();
+    final AtomicInteger skyBudgetYields = new AtomicInteger();
     // Queue stats (multi-thread write)
     final AtomicInteger chunksQueued = new AtomicInteger();
     private final String side;
@@ -138,17 +137,13 @@ public final class LightStats {
         final int blockBl = this.blockBacklog;
         sb.append(" skyBacklog=").append(skyBl);
         sb.append(" blockBacklog=").append(blockBl);
-        final int yields = this.edgeBudgetYields.get();
-        if (yields > 0) {
-            sb.append(" edgeBudgetYields=").append(yields);
-        }
-        final int blockYields = this.blockChangeBudgetYields.get();
+        final int blockYields = this.blockBudgetYields.get();
         if (blockYields > 0) {
-            sb.append(" blockChangeBudgetYields=").append(blockYields);
+            sb.append(" blockBudgetYields=").append(blockYields);
         }
-        final int skyYields = this.skyChangeBudgetYields.get();
+        final int skyYields = this.skyBudgetYields.get();
         if (skyYields > 0) {
-            sb.append(" skyChangeBudgetYields=").append(skyYields);
+            sb.append(" skyBudgetYields=").append(skyYields);
         }
 
         if (processed > 0 && this.totalQueueLatencyNs > 0) {
@@ -188,9 +183,8 @@ public final class LightStats {
         this.maxQueueLatencyNs = 0;
         this.totalQueueLatencyNs = 0;
         engineRenderMarks = 0;
-        this.edgeBudgetYields.set(0);
-        this.blockChangeBudgetYields.set(0);
-        this.skyChangeBudgetYields.set(0);
+        this.blockBudgetYields.set(0);
+        this.skyBudgetYields.set(0);
         this.chunksQueued.set(0);
         this.blockPositionsProcessed.set(0);
         this.edgeSectionPairsChecked.set(0);

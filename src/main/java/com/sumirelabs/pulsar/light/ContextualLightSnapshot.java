@@ -11,10 +11,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * The type parameter keeps this concurrency primitive independent of Minecraft.
  */
 public final class ContextualLightSnapshot<S> {
+    public static final int BLOCK_CHANGED = 1;
+    public static final int SKY_CHANGED = 2;
+    public static final int BOTH_CHANGED = BLOCK_CHANGED | SKY_CHANGED;
     private record Cell<S>(S block, int blockInfo, S fluid, int fluidInfo) {}
 
     private final ConcurrentHashMap<Integer, Cell<S>> cells = new ConcurrentHashMap<>();
     private final Set<Integer> pending = ConcurrentHashMap.newKeySet();
+    private final Set<Integer> missed = ConcurrentHashMap.newKeySet();
     private final Thread owner = Thread.currentThread();
 
     public int read(final int position, final S state, final int fallback) {
@@ -25,20 +29,44 @@ public final class ContextualLightSnapshot<S> {
         }
         // A worker can observe a newly placed block before the end-of-tick
         // publication. Use the static value temporarily and request correction.
+        this.missed.add(position);
         this.pending.add(position);
         return fallback;
     }
 
     public void publish(final int position, final S block, final int blockInfo,
                         final S fluid, final int fluidInfo) {
+        this.publishChanges(position, block, blockInfo, fluid, fluidInfo, 0);
+    }
+
+    /**
+     * Returns the lanes requiring correction; identical samples allocate no new cell.
+     * The caller specifies packed fields which affect only block light (emission).
+     */
+    public int publishChanges(final int position, final S block, final int blockInfo,
+                              final S fluid, final int fluidInfo, final int blockOnlyMask) {
         if (Thread.currentThread() != this.owner) {
             throw new IllegalStateException("Only the world thread may publish contextual light");
         }
+        final Cell<S> previous = this.cells.get(position);
+        final boolean changed = previous == null ? block != null || fluid != null
+                : previous.block != block || previous.fluid != fluid
+                || (block != null && previous.blockInfo != blockInfo)
+                || (fluid != null && previous.fluidInfo != fluidInfo);
         if (block == null && fluid == null) {
-            this.cells.remove(position);
-        } else {
+            if (previous != null) this.cells.remove(position);
+        } else if (changed) {
             this.cells.put(position, new Cell<>(block, blockInfo, fluid, fluidInfo));
         }
+        // A worker may have used a static fallback even when capture returns
+        // to the previously sampled state. That miss still needs a correction.
+        final boolean correction = !this.missed.isEmpty() && this.missed.remove(position);
+        if (correction) return BOTH_CHANGED;
+        if (!changed) return 0;
+        if (previous == null || previous.block != block || previous.fluid != fluid) return BOTH_CHANGED;
+        final int changedBits = (block == null ? 0 : previous.blockInfo ^ blockInfo)
+                | (fluid == null ? 0 : previous.fluidInfo ^ fluidInfo);
+        return (changedBits & ~blockOnlyMask) == 0 ? BLOCK_CHANGED : BOTH_CHANGED;
     }
 
     public boolean contains(final int position) {

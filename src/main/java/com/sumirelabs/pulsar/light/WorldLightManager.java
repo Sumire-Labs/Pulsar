@@ -27,6 +27,9 @@ import java.util.concurrent.TimeUnit;
  */
 public final class WorldLightManager {
 
+    private static final long CLIENT_LIGHT_BUDGET_NS = 5_000_000L;
+    private boolean blockFirstClientTick;
+
     /**
      * Dense asynchronous edits can span several chunk tasks. Processing each
      * chunk's skylight decrease independently lets a still-stale neighbour
@@ -70,8 +73,7 @@ public final class WorldLightManager {
                 this.skyQueue,
                 () -> new ScalarSkyEngine(world, this.heightContext),
                 this::processSkyTask,
-                this.stats.skyChangeBudgetYields,
-                this.stats.edgeBudgetYields,
+                this.stats.skyBudgetYields,
                 "propagateSkyChanges",
                 "Pulsar-Sky",
                 !world.isRemote) : null;
@@ -79,8 +81,7 @@ public final class WorldLightManager {
                 this.blockQueue,
                 () -> new ScalarBlockEngine(world, this.heightContext),
                 this::processBlockTask,
-                this.stats.blockChangeBudgetYields,
-                this.stats.edgeBudgetYields,
+                this.stats.blockBudgetYields,
                 "propagateBlockChanges",
                 "Pulsar-Block",
                 !world.isRemote) : null;
@@ -142,8 +143,14 @@ public final class WorldLightManager {
     }
 
     void queueSampledBlockChange(final int x, final int y, final int z) {
-        if (this.skyQueue != null) this.skyQueue.queueBlockChange(x, y, z);
-        if (this.blockQueue != null) this.blockQueue.queueBlockChange(x, y, z);
+        this.queueSampledBlockChange(x, y, z, ContextualLightSnapshot.BOTH_CHANGED);
+    }
+
+    void queueSampledBlockChange(final int x, final int y, final int z, final int changes) {
+        if (this.skyQueue != null && (changes & ContextualLightSnapshot.SKY_CHANGED) != 0)
+            this.skyQueue.queueBlockChange(x, y, z);
+        if (this.blockQueue != null && (changes & ContextualLightSnapshot.BLOCK_CHANGED) != 0)
+            this.blockQueue.queueBlockChange(x, y, z);
     }
 
     /**
@@ -183,14 +190,20 @@ public final class WorldLightManager {
     }
 
     /**
-     * Thin-client tick: drain both light queues on the main thread. The
+     * Thin-client tick: process both queues within a shared main-thread budget. The
      * engines write into SWMR arrays that share storage with the vanilla
      * nibbles and mark render updates directly, so there is no separate
      * publish/drain step.
      */
     public void processClientRenderUpdates() {
-        if (this.skyWorker != null) this.skyWorker.processPending();
-        if (this.blockWorker != null) this.blockWorker.processPending();
+        final long deadline = System.nanoTime() + CLIENT_LIGHT_BUDGET_NS;
+        // Alternate the first lane so an expensive atomic task cannot always
+        // consume the other lane's entire shared budget.
+        final LightEngineWorker first = this.blockFirstClientTick ? this.blockWorker : this.skyWorker;
+        final LightEngineWorker second = this.blockFirstClientTick ? this.skyWorker : this.blockWorker;
+        this.blockFirstClientTick = !this.blockFirstClientTick;
+        if (first != null) first.processPendingUntil(deadline);
+        if (second != null) second.processPendingUntil(deadline);
         if (this.skyQueue != null) this.skyQueue.clearWorkSignal();
         if (this.blockQueue != null) this.blockQueue.clearWorkSignal();
         final int skySize = this.skyQueue != null ? this.skyQueue.size() : 0;

@@ -46,6 +46,7 @@ public final class ChunkTasks {
     public long initialLightEdgeGeneration;
     public int edgeCheckAttempts;
     public int relightAttempts;
+    boolean maintenanceIndexed;
 
     public ChunkTasks(final long chunkCoordinate) {
         this.chunkCoordinate = chunkCoordinate;

@@ -15,6 +15,7 @@ class ServerMixinSelectionTest {
             var common=new HashSet<String>(); config.getAsJsonArray("mixins").forEach(value->common.add(value.getAsString()));
             assertTrue(common.contains("MixinPlayerChunkMapEntry"),"Physical CLIENT also hosts a logical server");
             assertTrue(common.contains("MixinWorldServer"),"Deferred sends must tick in singleplayer");
+            assertTrue(common.contains("MixinBlockStateContainerSamples"),"Palette sampling classification also runs on logical servers");
         }
     }
 }

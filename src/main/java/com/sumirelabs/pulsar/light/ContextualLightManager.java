@@ -49,8 +49,15 @@ public final class ContextualLightManager {
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
         for (int sectionY = this.height.getMinSection(); sectionY <= this.height.getMaxSection(); sectionY++) {
             final int index = this.height.getStorageIndex(sectionY);
-            if (!FluidLightBridge.LOADED && (index >= sections.length || sections[index] == null
-                    || sections[index].isEmpty())) continue;
+            final ExtendedBlockStorage section = index >= 0 && index < sections.length ? sections[index] : null;
+            if (!FluidLightBridge.LOADED) {
+                if (section == null || section.isEmpty()) continue;
+                // No cached answer: classify the current palette on each load.
+                // Fluids live outside it, so Fluidlogged retains full sampling.
+                final Object data = section.getData();
+                if (data instanceof ContextualLightPalette
+                        && !((ContextualLightPalette) data).pulsar$needsContextualSamples()) continue;
+            }
             for (int y = sectionY << 4; y < (sectionY + 1) << 4; y++) {
                 for (int z = 0; z < 16; z++) {
                     for (int x = 0; x < 16; x++) this.capture(entry, x, y, z);
@@ -114,14 +121,16 @@ public final class ContextualLightManager {
                 final int x = key & 15;
                 final int z = (key >>> 4) & 15;
                 final int y = key >> 8;
-                this.capture(entry, x, y, z);
-                // Publish before enqueueing; bypass request() to avoid a refresh loop.
-                manager.queueSampledBlockChange((entry.chunk.x << 4) + x, y, (entry.chunk.z << 4) + z);
+                final int changes = this.capture(entry, x, y, z);
+                if (changes != 0) {
+                    // Publish before enqueueing; bypass request() to avoid a refresh loop.
+                    manager.queueSampledBlockChange((entry.chunk.x << 4) + x, y, (entry.chunk.z << 4) + z, changes);
+                }
             }
         }
     }
 
-    private void capture(final Entry entry, final int x, final int y, final int z) {
+    private int capture(final Entry entry, final int x, final int y, final int z) {
         final int worldX = (entry.chunk.x << 4) + (x & 15);
         final int worldZ = (entry.chunk.z << 4) + (z & 15);
         IBlockState block = entry.chunk.getBlockState(x, y, z);
@@ -136,9 +145,8 @@ public final class ContextualLightManager {
             if (fluid != null) fluidInfo = LightInfo.resolveContextual(fluidInfo, fluid, this.world, pos, worldX, y, worldZ);
         }
         final int key = pack(x, y, z);
-        if (block != null || fluid != null || entry.snapshot.contains(key)) {
-            entry.snapshot.publish(key, block, blockInfo, fluid, fluidInfo);
-        }
+        return entry.snapshot.publishChanges(key, block, blockInfo, fluid, fluidInfo,
+                LightInfo.OPACITY_MASK << LightInfo.EMISSION_SHIFT);
     }
 
     /** Signed Y, independent of storage order and vanilla's 0..255 limits. */

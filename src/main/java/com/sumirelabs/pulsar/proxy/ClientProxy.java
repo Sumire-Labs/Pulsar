@@ -29,8 +29,8 @@ public class ClientProxy extends CommonProxy {
     /**
      * Thin-client drive: drain Pulsar's light queues on the main thread at
      * the end of each client tick. This runs before the tick's frame renders,
-     * so queued block changes (including the player's own place/break) are
-     * lit and render-marked within the same frame.
+     * with a shared time budget. Unfinished tasks remain queued for the next
+     * tick, keeping large packet bursts from draining without a deadline.
      */
     @SubscribeEvent
     public void onClientTick(final TickEvent.ClientTickEvent event) {

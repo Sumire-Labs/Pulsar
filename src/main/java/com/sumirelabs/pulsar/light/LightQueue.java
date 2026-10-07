@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import net.minecraft.world.chunk.Chunk;
 
+import java.util.ArrayDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 
@@ -33,6 +34,9 @@ public final class LightQueue {
     // initial light leaves the map.
     private final LongArrayFIFOQueue blockChangeKeys = new LongArrayFIFOQueue();
     private final LongArrayFIFOQueue initialLightKeys = new LongArrayFIFOQueue();
+    // Identity validation prevents a removed/reloaded chunk's stale entry
+    // from consuming its replacement batch. No map scan in the drain loop.
+    private final ArrayDeque<ChunkTasks> maintenanceTasks = new ArrayDeque<>();
     private LightStats stats;
     private int initialLightCount;
 
@@ -74,6 +78,13 @@ public final class LightQueue {
         return tasks;
     }
 
+    private void indexMaintenance(final ChunkTasks tasks) {
+        if (!tasks.maintenanceIndexed) {
+            tasks.maintenanceIndexed = true;
+            this.maintenanceTasks.addLast(tasks);
+        }
+    }
+
     public synchronized void queueBlockChange(final int x, final int y, final int z) {
         final long key = CoordinateUtils.getChunkKey(x >> 4, z >> 4);
         final ChunkTasks tasks = this.getOrCreate(key);
@@ -95,6 +106,7 @@ public final class LightQueue {
             tasks.changedSectionSet = new Boolean[this.heightContext.getTotalSections()];
         }
         tasks.changedSectionSet[sectionIndex] = empty;
+        this.indexMaintenance(tasks);
     }
 
     public synchronized void queueChunkLight(final int cx, final int cz, final Chunk chunk,
@@ -129,6 +141,7 @@ public final class LightQueue {
         final ChunkTasks tasks = this.getOrCreate(key);
         tasks.loadInitChunk = chunk;
         tasks.loadInitEmptySections = emptySections;
+        this.indexMaintenance(tasks);
     }
 
     /**
@@ -167,6 +180,7 @@ public final class LightQueue {
     public synchronized void queueEdgeCheck(final int cx, final int cz, final int sectionY, final boolean isSky) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
+        this.indexMaintenance(tasks);
         if (isSky) {
             if (tasks.queuedEdgeChecksSky == null) {
                 tasks.queuedEdgeChecksSky = new IntOpenHashSet();
@@ -220,6 +234,7 @@ public final class LightQueue {
     }
 
     private void addAllEdgeSections(final ChunkTasks tasks, final boolean isSky) {
+        this.indexMaintenance(tasks);
         if (isSky) {
             if (tasks.queuedEdgeChecksSky == null) {
                 tasks.queuedEdgeChecksSky = new IntOpenHashSet();
@@ -263,6 +278,22 @@ public final class LightQueue {
         final ChunkTasks task = this.tasksByChunk.remove(key);
         this.onTaskDequeued(task);
         return task;
+    }
+
+    /** Load init, section-only changes and edges get a turn under sustained generation. */
+    synchronized ChunkTasks removeFirstMaintenanceTask() {
+        while (!this.maintenanceTasks.isEmpty()) {
+            final ChunkTasks task = this.maintenanceTasks.removeFirst();
+            if (this.tasksByChunk.get(task.chunkCoordinate) != task
+                    || task.initialLightChunk != null
+                    || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
+                continue;
+            }
+            this.tasksByChunk.remove(task.chunkCoordinate);
+            this.onTaskDequeued(task);
+            return task;
+        }
+        return null;
     }
 
     /**
