@@ -12,6 +12,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LightTaskSchedulerTest {
     @Test
+    void blockedEditCandidatesAreCheckedOncePerClaimAndBecomeAvailableOnTheNextClaim() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
+        final LightTaskScheduler scheduler = new LightTaskScheduler(queue, () -> 0L);
+        for (int x = 0; x < 100; x++) queue.queueBlockChange(x << 4, 64, 0);
+        final AtomicInteger checks = new AtomicInteger();
+        assertNull(scheduler.claimAvailable(key -> { checks.incrementAndGet(); return false; }));
+        assertEquals(100, checks.get());
+        final ChunkTasks task = scheduler.claimAvailable(key -> true);
+        assertNotNull(task);
+        queue.completeTask(task);
+        assertEquals(99, queue.size());
+    }
+
+    @Test
     void parallelClaimsSkipBlockedCentersAndKeepQueuedAndInFlightFuturesDistinct() {
         final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
         final LightTaskScheduler scheduler = new LightTaskScheduler(queue, () -> 0L);

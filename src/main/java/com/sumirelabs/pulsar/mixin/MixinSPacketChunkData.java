@@ -29,7 +29,10 @@ public abstract class MixinSPacketChunkData {
         if (chunk instanceof PulsarChunk) {
             final PulsarChunk pulsarChunk = (PulsarChunk) chunk;
             if (pulsarChunk.pulsar$isLightReady()) {
-                pulsarChunk.pulsar$syncLightToVanilla();
+                // Vanilla treats 0xFFFF as a full lifecycle packet. Retain a
+                // full sync there for height mods which append storage slots.
+                pulsarChunk.pulsar$syncLightToVanilla(
+                        changedSectionFilter == 0xFFFF ? -1 : changedSectionFilter);
             }
         }
     }

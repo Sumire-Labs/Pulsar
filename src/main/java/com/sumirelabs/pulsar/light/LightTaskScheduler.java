@@ -22,13 +22,18 @@ final class LightTaskScheduler {
 
     /** The shared dispatcher serializes priority turns and task claims. */
     ChunkTasks claimAvailable(final LongPredicate allowed) {
+        boolean editsUnavailable = false;
         for (int tried = 0; tried < 6; tried++) {
             final int slot = this.turn;
             this.turn = (this.turn + 1) % 6;
+            // A failed edit scan already checked every candidate against the
+            // current reservations. Preserve weighted turns without rescanning.
+            if (slot < 4 && editsUnavailable) continue;
             final ChunkTasks task = slot < 4 ? this.queue.removeFirstBlockChangeTask(allowed)
                     : slot == 4 ? this.queue.removeFirstInitialLightTask(allowed)
                     : this.queue.removeFirstMaintenanceTask(allowed);
             if (task != null) return task;
+            if (slot < 4) editsUnavailable = true;
         }
         return null;
     }

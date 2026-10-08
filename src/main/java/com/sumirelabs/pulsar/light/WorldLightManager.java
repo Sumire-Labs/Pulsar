@@ -178,7 +178,8 @@ public final class WorldLightManager {
         this.queueSampledBlockChange(x, y, z);
     }
 
-    void queueSampledBlockChange(final int x, final int y, final int z) {
+    /** Enqueue both lanes after the caller has requested or published contextual samples. */
+    public void queueSampledBlockChange(final int x, final int y, final int z) {
         this.queueSampledBlockChange(x, y, z, ContextualLightSnapshot.BOTH_CHANGED);
     }
 

@@ -23,6 +23,11 @@ public interface PulsarChunk extends ExtendedChunk {
      */
     void pulsar$syncLightToVanilla();
 
+    /** Packet selection uses physical storage indices, including height extensions. */
+    default void pulsar$syncLightToVanilla(final int sectionMask) {
+        this.pulsar$syncLightToVanilla();
+    }
+
     void pulsar$setLightReady(boolean ready);
 
     /**

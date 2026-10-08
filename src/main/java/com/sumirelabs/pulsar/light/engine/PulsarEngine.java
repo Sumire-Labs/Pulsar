@@ -17,6 +17,7 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -80,6 +81,7 @@ public abstract class PulsarEngine extends LightEngineCache {
 
     protected final boolean skylightPropagator;
     private final LightSectionProcessor sectionProcessor;
+    private final BitSet reconciledSections = new BitSet();
     // Diagnostic counters — accumulated across propagateBlockChanges calls
     public int lastBfsIncreaseTotal;
     public int lastBfsDecreaseTotal;
@@ -255,13 +257,15 @@ public abstract class PulsarEngine extends LightEngineCache {
         }
 
         final boolean[] knownEmptiness = this.getEmptinessMap(chunk.x, chunk.z);
+        this.reconciledSections.clear();
         final IntIterator iterator = changedPositions.iterator();
         while (iterator.hasNext()) {
             final int sectionY = (iterator.nextInt() >> 8) >> 4;
             final int sectionIndex = this.heightContext.getSectionIndex(sectionY);
-            if (sectionIndex < 0) {
+            if (sectionIndex < 0 || this.reconciledSections.get(sectionIndex)) {
                 continue;
             }
+            this.reconciledSections.set(sectionIndex);
 
             final ExtendedBlockStorage section = this.getChunkSection(chunk.x, sectionY, chunk.z);
             final boolean isEmpty = section == null || section.isEmpty();

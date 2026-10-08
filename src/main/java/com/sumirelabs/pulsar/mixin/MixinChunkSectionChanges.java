@@ -106,7 +106,8 @@ public abstract class MixinChunkSectionChanges {
                 && LightInfo.requiresBlockChange(previousState, state)) {
             // New-section initialization above must enter the queues first,
             // so the recheck sees the materialized nibble.
-            manager.queueBlockChange(pos.getX(), pos.getY(), pos.getZ());
+            // Server sampling was already requested above; enqueue only the lanes.
+            manager.queueSampledBlockChange(pos.getX(), pos.getY(), pos.getZ());
         }
     }
 

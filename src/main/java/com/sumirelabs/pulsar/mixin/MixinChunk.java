@@ -268,11 +268,16 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
 
     @Override
     public void pulsar$syncLightToVanilla() {
+        this.pulsar$syncLightToVanilla(-1);
+    }
+
+    @Override
+    public void pulsar$syncLightToVanilla(final int sectionMask) {
         ChunkLightHelper.syncBlockToVanilla(
-                this.pulsar$getHeightContext(), this.pulsar$blockNibbles, this.getBlockStorageArray());
+                this.pulsar$getHeightContext(), this.pulsar$blockNibbles, this.getBlockStorageArray(), sectionMask);
         if (this.world.provider.hasSkyLight()) {
             ChunkLightHelper.syncSkyToVanilla(
-                    this.pulsar$getHeightContext(), this.pulsar$skyNibbles, this.getBlockStorageArray());
+                    this.pulsar$getHeightContext(), this.pulsar$skyNibbles, this.getBlockStorageArray(), sectionMask);
         }
     }
 
