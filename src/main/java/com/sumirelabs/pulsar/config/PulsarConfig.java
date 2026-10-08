@@ -27,6 +27,9 @@ public class PulsarConfig {
 
     public static class Features {
 
+        @Config.Comment("Track contextual TileEntity light values on the world thread each tick.")
+        public boolean trackTileEntityLight = true;
+
         @Config.Comment("Coalesce client lighting render notifications within each tick. Disable for comparison.")
         public boolean coalesceClientRenderUpdates = true;
 

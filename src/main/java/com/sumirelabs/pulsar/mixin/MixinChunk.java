@@ -69,6 +69,25 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     @Shadow
     public abstract ExtendedBlockStorage[] getBlockStorageArray();
 
+    @Inject(method = "addTileEntity(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/tileentity/TileEntity;)V",
+            at = @At("RETURN"))
+    private void pulsar$trackTileAdded(final BlockPos pos, final net.minecraft.tileentity.TileEntity tile,
+                                     final CallbackInfo ci) {
+        this.pulsar$requestTileSample(pos);
+    }
+
+    @Inject(method = "removeTileEntity", at = @At("RETURN"))
+    private void pulsar$trackTileRemoved(final BlockPos pos, final CallbackInfo ci) {
+        this.pulsar$requestTileSample(pos);
+    }
+
+    @Unique
+    private void pulsar$requestTileSample(final BlockPos pos) {
+        if (this.world.isRemote) return;
+        final WorldLightManager manager = ((PulsarWorld) this.world).pulsar$getLightManager();
+        if (manager != null) manager.contextualLight().tileEntityChanged(pos);
+    }
+
     @Unique
     private WorldHeightContext pulsar$getHeightContext() {
         if (this.pulsar$heightContext == null) {

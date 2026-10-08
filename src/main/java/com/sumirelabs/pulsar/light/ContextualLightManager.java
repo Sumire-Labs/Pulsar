@@ -1,11 +1,13 @@
 package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.compat.FluidLightBridge;
+import com.sumirelabs.pulsar.config.PulsarConfig;
 import com.sumirelabs.pulsar.light.engine.LightInfo;
 import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
@@ -18,16 +20,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * Captures contextual emission/opacity on the world thread, including optional
  * fluid states. No World or TileEntity callback is made by a lighting worker.
  * Chunks are scanned once on load; subsequent refreshes visit requested cells
- * and their immediate neighbours, never all loaded chunks' blocks every tick.
+ * and tracked contextual tile sources, never all loaded chunks' blocks every tick.
  */
 public final class ContextualLightManager {
-    private record Entry(Chunk chunk, ContextualLightSnapshot<IBlockState> snapshot) {}
+    private record Entry(Chunk chunk, ContextualLightSnapshot<IBlockState> snapshot,
+                         TrackedLightSources<BlockPos, TileEntity> tracked) {}
 
     private final World world;
     private final WorldHeightContext height;
     private final Thread owner = Thread.currentThread();
     private final ConcurrentHashMap<Long, Entry> chunks = new ConcurrentHashMap<>();
     private final Set<Entry> pendingChunks = ConcurrentHashMap.newKeySet();
+    private final Set<Entry> trackedChunks = new HashSet<>();
 
     public ContextualLightManager(final World world, final WorldHeightContext height) {
         this.world = world;
@@ -44,7 +48,7 @@ public final class ContextualLightManager {
 
     public void load(final Chunk chunk) {
         this.requireOwner();
-        final Entry entry = new Entry(chunk, new ContextualLightSnapshot<>());
+        final Entry entry = new Entry(chunk, new ContextualLightSnapshot<>(), new TrackedLightSources<>());
         // Publish only after capture, before the chunk becomes worker-visible.
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
         final int[] fluidPositions = FluidLightBridge.LOADED
@@ -90,7 +94,12 @@ public final class ContextualLightManager {
         }
         final Entry previous = this.chunks.put(
                 CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(chunk.x, chunk.z)), entry);
-        if (previous != null) this.pendingChunks.remove(previous);
+        if (previous != null) {
+            this.pendingChunks.remove(previous);
+            this.trackedChunks.remove(previous);
+        }
+        for (final BlockPos pos : new HashSet<>(chunk.getTileEntityMap().keySet())) this.track(entry, pos);
+        if (!entry.tracked.isEmpty()) this.trackedChunks.add(entry);
     }
 
     static boolean shouldScanSection(final boolean hasBlocks, final boolean contextualBlocks,
@@ -101,7 +110,10 @@ public final class ContextualLightManager {
     public void unload(final int x, final int z) {
         final Entry entry = this.chunks.remove(
                 CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(x, z)));
-        if (entry != null) this.pendingChunks.remove(entry);
+        if (entry != null) {
+            this.pendingChunks.remove(entry);
+            this.trackedChunks.remove(entry);
+        }
     }
 
     public int read(final int info, final IBlockState state, final int x, final int y, final int z) {
@@ -146,6 +158,13 @@ public final class ContextualLightManager {
 
     public void flush(final WorldLightManager manager) {
         this.requireOwner();
+        for (final Entry entry : PulsarConfig.features.trackTileEntityLight && !this.trackedChunks.isEmpty()
+                ? new HashSet<>(this.trackedChunks) : java.util.Collections.<Entry>emptySet()) {
+            entry.tracked.tick((pos, tile) -> !tile.isInvalid()
+                    && entry.chunk.getTileEntityMap().get(pos) == tile,
+                    pos -> this.request(pos.getX(), pos.getY(), pos.getZ()));
+            if (entry.tracked.isEmpty()) this.trackedChunks.remove(entry);
+        }
         if (this.pendingChunks.isEmpty()) return;
         for (final Entry entry : new HashSet<>(this.pendingChunks)) {
             this.pendingChunks.remove(entry);
@@ -156,12 +175,31 @@ public final class ContextualLightManager {
                 final int z = (key >>> 4) & 15;
                 final int y = key >> 8;
                 final int changes = this.capture(entry, x, y, z);
+                this.track(entry, new BlockPos((entry.chunk.x << 4) + x, y, (entry.chunk.z << 4) + z));
                 if (changes != 0) {
                     // Publish before enqueueing; bypass request() to avoid a refresh loop.
                     manager.queueSampledBlockChange((entry.chunk.x << 4) + x, y, (entry.chunk.z << 4) + z, changes);
                 }
             }
         }
+    }
+
+    /** Called after tile installation/removal; never calls World.getTileEntity. */
+    public void tileEntityChanged(final BlockPos pos) {
+        final Entry entry = this.chunks.get(CoordinateUtils.mixChunkKey(
+                CoordinateUtils.getChunkKey(pos.getX() >> 4, pos.getZ() >> 4)));
+        if (entry == null || !this.height.containsBlockY(pos.getY())) return;
+        entry.snapshot.request(pack(pos.getX(), pos.getY(), pos.getZ()));
+        this.pendingChunks.add(entry);
+    }
+
+    private void track(final Entry entry, final BlockPos pos) {
+        final TileEntity tile = entry.chunk.getTileEntityMap().get(pos);
+        final boolean contextual = this.height.containsBlockY(pos.getY()) && tile != null && !tile.isInvalid()
+                && LightInfo.hasContextualValues(LightInfo.of(entry.chunk.getBlockState(pos)));
+        entry.tracked.update(pos.toImmutable(), contextual ? tile : null);
+        if (entry.tracked.isEmpty()) this.trackedChunks.remove(entry);
+        else this.trackedChunks.add(entry);
     }
 
     private int capture(final Entry entry, final int x, final int y, final int z) {
