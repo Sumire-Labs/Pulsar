@@ -31,6 +31,16 @@ public class PulsarConfig {
         public boolean coalesceClientRenderUpdates = true;
 
         @Config.Comment({
+                "Experimental shared server lighting pool. 0 keeps the dedicated sky/block workers.",
+                "Positive values bound total lighting threads across worlds. Tasks reserve a 5x5",
+                "chunk footprint shared by both lanes; only non-overlapping tasks run together.",
+                "Off by default. More threads do not necessarily improve FPS or lighting latency."
+        })
+        @Config.RangeInt(min = 0, max = 16)
+        @Config.RequiresMcRestart
+        public int experimentalServerLightThreads = 0;
+
+        @Config.Comment({
                 "Shared client lighting budget per tick in milliseconds. Default 2 favors frame pacing.",
                 "Sky and block tasks alternate. A task already running may exceed this soft limit.",
                 "Higher values finish queued lighting sooner but can delay rendering. Client only."

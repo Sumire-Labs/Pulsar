@@ -11,19 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `features.coalesceClientRenderUpdates` for direct same-build ON/OFF
   comparisons.
+- Add an opt-in bounded shared server lighting pool with world/5x5 task exclusion
+  (`features.experimentalServerLightThreads`), disabled by default while
+  performance and compatibility are evaluated.
 - Coalesce client light render notifications across sky/block tasks within each
   tick, preserving the original neighboring renderer-section coverage and
   discarding notifications for unloaded or replaced chunks.
-
 - Alternate client sky/block lighting after each task with a configurable shared
   budget (`features.clientLightBudgetMs`, default 2 ms). The budget is a soft
   limit: an individual task still finishes before another can start.
-
 - Advance lighting statistics once per world tick instead of on task submission
   or worker callbacks. Add dimension IDs, individual task maxima, client drain
   and overshoot timings, and main-thread contextual sampling timings. Server
   statistics no longer reset client render marks.
-
 - Reduce chunk-load contextual-light sampling using vanilla palette flags and
   Fluidlogged API's known vanilla position index. Unknown implementations keep
   the conservative scanning path.

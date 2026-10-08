@@ -11,7 +11,34 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LightTaskSchedulerTest {
-
+    @Test
+    void parallelClaimsSkipBlockedCentersAndKeepQueuedAndInFlightFuturesDistinct() {
+        final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
+        final LightTaskScheduler scheduler = new LightTaskScheduler(queue, () -> 0L);
+        queue.queueBlockChange(0, 64, 0);
+        queue.queueBlockChange(16 * 6, 64, 0);
+        final long blocked = CoordinateUtils.getChunkKey(0, 0);
+        final var waiting = queue.getPendingWorkFuture(blocked);
+        final ChunkTasks independent = scheduler.claimAvailable(key -> key != blocked);
+        assertEquals(CoordinateUtils.getChunkKey(6, 0), independent.chunkCoordinate);
+        assertFalse(waiting.isDone());
+        assertNull(scheduler.claimAvailable(key -> key != blocked));
+        final ChunkTasks first = scheduler.claimAvailable(key -> true);
+        assertEquals(blocked, first.chunkCoordinate);
+        queue.queueBlockChange(0, 65, 0);
+        // Do not replace inFlightTasks[key] with a subsequent generation.
+        assertNull(queue.removeFirstTask());
+        assertNull(scheduler.claimAvailable(key -> true));
+        assertSame(first.onComplete, queue.getPendingWorkFuture(blocked));
+        queue.completeTask(first);
+        assertTrue(waiting.isDone());
+        final ChunkTasks next = scheduler.claimAvailable(key -> true);
+        assertNotNull(next);
+        assertFalse(next.onComplete.isDone());
+        queue.completeTask(next);
+        queue.completeTask(independent);
+        assertFalse(queue.hasWork());
+    }
 
     @Test
     void singleTaskTurnsAllowBothLanesToProgressWithinASharedBudget() {

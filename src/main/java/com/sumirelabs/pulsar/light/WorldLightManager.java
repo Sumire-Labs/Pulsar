@@ -30,7 +30,6 @@ import java.util.concurrent.CancellationException;
  */
 public final class WorldLightManager {
 
-
     private boolean blockFirstClientTick;
     private final ClientRenderUpdates<Chunk> clientRenderUpdates = new ClientRenderUpdates<>();
 
@@ -85,7 +84,7 @@ public final class WorldLightManager {
                 this.stats.skyBudgetYields,
                 "propagateSkyChanges",
                 "Pulsar-Sky",
-                !world.isRemote) : null;
+                !world.isRemote, world, this.stats.parallelJobsMax) : null;
         this.blockWorker = hasBlockLight ? new LightEngineWorker(
                 this.blockQueue,
                 () -> new ScalarBlockEngine(world, this.heightContext),
@@ -93,7 +92,7 @@ public final class WorldLightManager {
                 this.stats.blockBudgetYields,
                 "propagateBlockChanges",
                 "Pulsar-Block",
-                !world.isRemote) : null;
+                !world.isRemote, world, this.stats.parallelJobsMax) : null;
     }
 
     public void registerChunk(final Chunk chunk) {
@@ -250,10 +249,6 @@ public final class WorldLightManager {
         final int blockSize = this.blockQueue != null ? this.blockQueue.size() : 0;
         this.stats.tick(skySize, blockSize);
     }
-
-
-
-
 
     public void queueClientRenderUpdate(final Chunk chunk, final int sectionY, final long bounds) {
         if (!this.world.isRemote) throw new IllegalStateException("Client render notification on a server world");
@@ -743,6 +738,8 @@ public final class WorldLightManager {
     }
 
     public void shutdown() {
+        // Late jobs must fail the same registration checks as chunk unload.
+        this.loadedChunkMap.clear();
         this.clientRenderUpdates.clear();
         this.deferredChunkUpdates.clear();
         if (this.skyWorker != null) this.skyWorker.requestStop();

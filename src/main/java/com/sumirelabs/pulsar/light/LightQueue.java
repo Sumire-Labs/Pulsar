@@ -11,6 +11,7 @@ import net.minecraft.world.chunk.Chunk;
 import java.util.ArrayDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
+import java.util.function.LongPredicate;
 
 /**
  * Synchronized insertion-ordered queue of per-chunk light tasks. Main thread
@@ -21,11 +22,15 @@ public final class LightQueue {
     private final WorldHeightContext heightContext;
     private final boolean densePositions;
     private final Long2ObjectLinkedOpenHashMap<ChunkTasks> tasksByChunk = new Long2ObjectLinkedOpenHashMap<>();
-    // Each queue has exactly one consumer. A task is moved here while still
+    // Claims are serialized (one dedicated consumer or the shared dispatcher).
+    // A task is moved here while still
     // holding this queue's monitor, closing the observability gap between
     // dequeue and worker completion.
     private final Long2ObjectOpenHashMap<ChunkTasks> inFlightTasks = new Long2ObjectOpenHashMap<>();
     private final Semaphore workAvailable = new Semaphore(0);
+    private volatile Runnable parallelWakeup;
+
+    void setParallelWakeup(final Runnable wakeup) { this.parallelWakeup = wakeup; }
     // Priority lookup support. The drain loop asks for "first task with block
     // changes" / "first task with initial light" once per task processed, so
     // these must be O(1): keys are enqueued on the transition into each class
@@ -74,7 +79,11 @@ public final class LightQueue {
             final boolean signalWorker = this.tasksByChunk.isEmpty() && this.inFlightTasks.isEmpty();
             tasks = new ChunkTasks(key);
             this.tasksByChunk.put(key, tasks);
-            if (signalWorker) {
+            final Runnable wakeup = this.parallelWakeup;
+            if (wakeup != null) {
+                // Notification only; never take a dispatcher lock under the queue monitor.
+                wakeup.run();
+            } else if (signalWorker) {
                 this.workAvailable.release(1);
             }
             if (this.stats != null && LightStats.enabled) {
@@ -281,11 +290,19 @@ public final class LightQueue {
      * prioritize initial lights over edge-check-only tasks.
      */
     public synchronized ChunkTasks removeFirstInitialLightTask() {
-        while (!this.initialLightKeys.isEmpty()) {
+        return this.removeFirstInitialLightTask(key -> true);
+    }
+
+    synchronized ChunkTasks removeFirstInitialLightTask(final LongPredicate allowed) {
+        for (int remaining = this.initialLightKeys.size(); remaining > 0; remaining--) {
             final long key = this.initialLightKeys.dequeueLong();
             final ChunkTasks task = this.tasksByChunk.get(key);
             if (task == null || task.initialLightChunk == null) {
                 continue; // stale entry: task left the map through another path
+            }
+            if (this.inFlightTasks.containsKey(key) || !allowed.test(key)) {
+                this.initialLightKeys.enqueue(key);
+                continue;
             }
             this.tasksByChunk.remove(key);
             this.onTaskDequeued(task);
@@ -294,23 +311,38 @@ public final class LightQueue {
         return null;
     }
 
+    /** Legacy serial dequeue; shared dispatch must also supply a footprint filter. */
     public synchronized ChunkTasks removeFirstTask() {
-        if (this.tasksByChunk.isEmpty()) {
-            return null;
+        // The sorted fastIterator return type differs between Minecraft's
+        // fastutil 7.1 and newer compile-time versions. Use the stable JDK view
+        // on this legacy, non-hot dequeue path.
+        var entries = ((java.util.Map<Long, ChunkTasks>) this.tasksByChunk).entrySet().iterator();
+        while (entries.hasNext()) {
+            var entry = entries.next();
+            if (this.inFlightTasks.containsKey(entry.getKey().longValue())) continue;
+            final ChunkTasks task = entry.getValue();
+            entries.remove();
+            this.onTaskDequeued(task);
+            return task;
         }
-        final long key = this.tasksByChunk.firstLongKey();
-        final ChunkTasks task = this.tasksByChunk.remove(key);
-        this.onTaskDequeued(task);
-        return task;
+        return null;
     }
 
     /** Load init, section-only changes and edges get a turn under sustained generation. */
     synchronized ChunkTasks removeFirstMaintenanceTask() {
-        while (!this.maintenanceTasks.isEmpty()) {
+        return this.removeFirstMaintenanceTask(key -> true);
+    }
+
+    synchronized ChunkTasks removeFirstMaintenanceTask(final LongPredicate allowed) {
+        for (int remaining = this.maintenanceTasks.size(); remaining > 0; remaining--) {
             final ChunkTasks task = this.maintenanceTasks.removeFirst();
             if (this.tasksByChunk.get(task.chunkCoordinate) != task
                     || task.initialLightChunk != null
                     || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
+                continue;
+            }
+            if (this.inFlightTasks.containsKey(task.chunkCoordinate) || !allowed.test(task.chunkCoordinate)) {
+                this.maintenanceTasks.addLast(task);
                 continue;
             }
             this.tasksByChunk.remove(task.chunkCoordinate);
@@ -327,11 +359,19 @@ public final class LightQueue {
      * placement/breaking over chunk loading.
      */
     public synchronized ChunkTasks removeFirstBlockChangeTask() {
-        while (!this.blockChangeKeys.isEmpty()) {
+        return this.removeFirstBlockChangeTask(key -> true);
+    }
+
+    synchronized ChunkTasks removeFirstBlockChangeTask(final LongPredicate allowed) {
+        for (int remaining = this.blockChangeKeys.size(); remaining > 0; remaining--) {
             final long key = this.blockChangeKeys.dequeueLong();
             final ChunkTasks task = this.tasksByChunk.get(key);
             if (task == null || task.changedPositions == null || task.changedPositions.isEmpty()) {
                 continue; // stale entry: task left the map through another path
+            }
+            if (this.inFlightTasks.containsKey(key) || !allowed.test(key)) {
+                this.blockChangeKeys.enqueue(key);
+                continue;
             }
             this.tasksByChunk.remove(key);
             this.onTaskDequeued(task);

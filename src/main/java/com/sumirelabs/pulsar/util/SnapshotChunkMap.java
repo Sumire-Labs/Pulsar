@@ -39,4 +39,6 @@ public final class SnapshotChunkMap {
     public Chunk get(final long key) {
         return map.get(CoordinateUtils.mixChunkKey(key));
     }
+
+    public void clear() { this.map.clear(); }
 }

@@ -55,6 +55,7 @@ public final class LightStats {
     // Budget yield stats (multi-thread write)
     final AtomicInteger blockBudgetYields = new AtomicInteger();
     final AtomicInteger skyBudgetYields = new AtomicInteger();
+    final AtomicInteger parallelJobsMax = new AtomicInteger();
     // Main-thread server chunk unload diagnostics.
     final AtomicLong unloadWaitNs = new AtomicLong();
     final AtomicLong unloadWaitMaxNs = new AtomicLong();
@@ -186,6 +187,7 @@ public final class LightStats {
         sb.append(" blockTaskMaxMs=").append(String.format(Locale.US, "%.3f", this.blockTaskMaxNs.get() / 1_000_000.0));
         sb.append(" skyTasks=").append(this.skyTasksProcessed.get());
         sb.append(" blockTasks=").append(this.blockTasksProcessed.get());
+        sb.append(" parallelJobsMax=").append(this.parallelJobsMax.get());
         sb.append(" blockPos=").append(this.blockPositionsProcessed.get());
         final int skyBl = this.skyBacklog;
         final int blockBl = this.blockBacklog;
@@ -265,6 +267,7 @@ public final class LightStats {
         this.clientOvershootMaxNs = 0;
         this.blockBudgetYields.set(0);
         this.skyBudgetYields.set(0);
+        this.parallelJobsMax.set(0);
         this.unloadWaitNs.set(0);
         this.unloadWaitMaxNs.set(0);
         this.unloadWaitTimeouts.set(0);

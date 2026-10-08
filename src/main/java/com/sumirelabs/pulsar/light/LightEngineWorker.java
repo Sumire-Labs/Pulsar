@@ -1,17 +1,20 @@
 package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.config.PulsarConfig;
 import com.sumirelabs.pulsar.light.engine.PulsarEngine;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.function.LongPredicate;
 
 /**
  * Drains one light lane and owns that lane's thread and reusable engine pool.
  *
- * <p>The server runs one instance per lane on a daemon thread. The thin client
+ * <p>The server uses dedicated daemon lanes or the optional shared dispatcher.
+ * The thin client
  * invokes {@link #processPending()} from its main-thread tick instead.
  */
 final class LightEngineWorker {
@@ -27,6 +30,11 @@ final class LightEngineWorker {
     private final AtomicInteger budgetYields;
     private final String operationName;
     private final Thread thread;
+    private final ParallelLightScheduler parallel;
+    private final Object lockOwner;
+    private final AtomicInteger parallelJobsMax;
+    private final Object completionMonitor = new Object();
+    private int activeJobs;
 
     private volatile boolean running = true;
 
@@ -36,19 +44,29 @@ final class LightEngineWorker {
                       final AtomicInteger budgetYields,
                       final String operationName,
                       final String threadName,
-                      final boolean startThread) {
+                      final boolean startThread,
+                      final Object lockOwner,
+                      final AtomicInteger parallelJobsMax) {
         this.queue = queue;
         this.scheduler = new LightTaskScheduler(queue, System::nanoTime);
         this.engineFactory = engineFactory;
         this.taskProcessor = taskProcessor;
         this.budgetYields = budgetYields;
         this.operationName = operationName;
+        this.lockOwner = lockOwner;
+        this.parallelJobsMax = parallelJobsMax;
 
-        if (startThread) {
+        if (startThread && PulsarConfig.features.experimentalServerLightThreads > 0) {
+            this.thread = null;
+            this.parallel = ParallelLightScheduler.shared(PulsarConfig.features.experimentalServerLightThreads);
+            this.parallel.register(this);
+        } else if (startThread) {
+            this.parallel = null;
             this.thread = new Thread(this::run, threadName);
             this.thread.setDaemon(true);
             this.thread.start();
         } else {
+            this.parallel = null;
             this.thread = null;
         }
     }
@@ -71,6 +89,36 @@ final class LightEngineWorker {
 
     void processPending() {
         this.processPendingUntil(System.nanoTime() + SERVER_BATCH_BUDGET_NS);
+    }
+
+    Object lockOwner() { return this.lockOwner; }
+    void setParallelWakeup(Runnable wakeup) { this.queue.setParallelWakeup(wakeup); }
+
+    ChunkTasks claimAvailable(LongPredicate allowed) {
+        return this.running ? this.scheduler.claimAvailable(allowed) : null;
+    }
+
+    void jobClaimed(int simultaneousWorldJobs) {
+        synchronized (this.completionMonitor) { this.activeJobs++; }
+        if (LightStats.enabled) this.parallelJobsMax.accumulateAndGet(simultaneousWorldJobs, Math::max);
+    }
+
+    void jobFinished() {
+        synchronized (this.completionMonitor) {
+            this.activeJobs--;
+            this.completionMonitor.notifyAll();
+        }
+    }
+
+    void processClaimedTask(ChunkTasks task) {
+        PulsarEngine engine = null;
+        try {
+            engine = this.acquireEngine();
+            this.taskProcessor.accept(task, engine);
+        } finally {
+            if (engine != null) this.releaseEngine(engine);
+            this.queue.completeTask(task);
+        }
     }
 
     /** Client lanes take turns after each complete task, sharing one deadline. */
@@ -119,11 +167,21 @@ final class LightEngineWorker {
 
     void requestStop() {
         this.running = false;
+        if (this.parallel != null) this.parallel.unregister(this);
         this.queue.wakeUp();
     }
 
     void awaitStop() {
         if (this.thread == null) {
+            final long deadline = System.nanoTime() + 1_000_000_000L;
+            synchronized (this.completionMonitor) {
+                while (this.activeJobs != 0) {
+                    long remaining = deadline - System.nanoTime();
+                    if (remaining <= 0L) break;
+                    try { this.completionMonitor.wait(Math.max(1L, remaining / 1_000_000L)); }
+                    catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); break; }
+                }
+            }
             return;
         }
         try {

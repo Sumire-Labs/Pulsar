@@ -106,15 +106,23 @@ cannot inherit queued notifications.
 Set `features.coalesceClientRenderUpdates=false` to compare the direct
 notification path using the same build.
 
+The experimental server lighting pool requires a restart and defaults to off:
+
+- `features.experimentalServerLightThreads=4` enables a process-wide pool with
+  four threads. Both light lanes share per-world 5x5 chunk reservations; only
+  non-overlapping jobs run concurrently. `0` retains the dedicated lanes.
+
+The pool does not have an established FPS advantage. With debug statistics enabled,
+`parallelJobsMax` records the
+maximum simultaneous reserved jobs in that world. `engineRequests` counts
+incoming client light render notifications; `engineMarks` counts actual emitted
+notifications after coalescing. Neither is a count of completed mesh rebuilds.
+
 The development build alternates client sky/block tasks within a shared
 `features.clientLightBudgetMs` budget (default **2 ms**, configurable from 1
 to 10). Increasing it can shorten lighting backlog at the cost of longer
 render-thread stalls. This is a soft limit checked between tasks; one expensive
 task can exceed it. No FPS improvement has been measured for this change yet.
-
-With debug statistics enabled, `engineRequests` counts incoming client light
-render notifications and `engineMarks` counts emitted notifications after
-coalescing. Neither counts completed mesh rebuilds.
 
 Enable `debug.enableDebugStats` to write `logs/pulsar-stats.log`. Each dimension
 reports once per 20 actual world/client ticks; server `skyMs` and `blockMs` can
@@ -135,7 +143,6 @@ measurement. These statistics do not measure packet deserialization, mesh
 rebuilding, GPU time, or GC; use a runtime profile if stalls remain while the
 measured lighting work is small. Debug logging itself adds overhead, so repeat
 the frame-time comparison with it disabled.
-
 
 ### Light updates — Pulsar 0.3.0
 

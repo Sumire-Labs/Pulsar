@@ -3,6 +3,7 @@ package com.sumirelabs.pulsar.light;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.LongSupplier;
+import java.util.function.LongPredicate;
 
 /** Weighted turns survive budget yields: four edits, one initial light, one maintenance task. */
 final class LightTaskScheduler {
@@ -16,12 +17,17 @@ final class LightTaskScheduler {
     }
 
     private ChunkTasks nextTask() {
+        return this.claimAvailable(key -> true);
+    }
+
+    /** The shared dispatcher serializes priority turns and task claims. */
+    ChunkTasks claimAvailable(final LongPredicate allowed) {
         for (int tried = 0; tried < 6; tried++) {
             final int slot = this.turn;
             this.turn = (this.turn + 1) % 6;
-            final ChunkTasks task = slot < 4 ? this.queue.removeFirstBlockChangeTask()
-                    : slot == 4 ? this.queue.removeFirstInitialLightTask()
-                    : this.queue.removeFirstMaintenanceTask();
+            final ChunkTasks task = slot < 4 ? this.queue.removeFirstBlockChangeTask(allowed)
+                    : slot == 4 ? this.queue.removeFirstInitialLightTask(allowed)
+                    : this.queue.removeFirstMaintenanceTask(allowed);
             if (task != null) return task;
         }
         return null;

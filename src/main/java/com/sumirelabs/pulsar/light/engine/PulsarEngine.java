@@ -5,6 +5,7 @@ import com.sumirelabs.pulsar.light.LightStats;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
+import com.sumirelabs.pulsar.api.ExtendedWorld;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -304,14 +305,17 @@ public abstract class PulsarEngine extends LightEngineCache {
             this.setEmptinessMapCache(chunkX, chunkZ, this.getEmptinessMap(chunk));
 
             final boolean[] ret = this.handleEmptySectionChanges(chunk, emptySections, true);
-            if (ret != null) {
-                this.setEmptinessMap(chunk, ret);
-            }
             this.lightChunk(chunk, checkEdges);
+            // This can publish neighboring chunks; never hold the center
+            // monitor while acquiring their monitors (dedicated lanes overlap).
             this.updateVisible();
-            NibbleArrayPublication.mergeFullLight(
-                    nibbles, this.getNibblesForChunkFromCache(chunkX, chunkZ));
-            this.setNibbles(chunk, nibbles);
+            synchronized (chunk) {
+                if (((ExtendedWorld) this.world).pulsar$getAnyChunkImmediately(chunkX, chunkZ) != chunk) return;
+                NibbleArrayPublication.mergeFullLight(
+                        nibbles, this.getNibblesForChunkFromCache(chunkX, chunkZ));
+                if (ret != null) this.setEmptinessMap(chunk, ret);
+                this.setNibbles(chunk, nibbles);
+            }
         } finally {
             this.destroyCaches();
         }
