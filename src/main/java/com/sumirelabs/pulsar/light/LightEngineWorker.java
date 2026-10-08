@@ -56,9 +56,11 @@ final class LightEngineWorker {
         this.lockOwner = lockOwner;
         this.parallelJobsMax = parallelJobsMax;
 
-        if (startThread && PulsarConfig.features.experimentalServerLightThreads > 0) {
+        final int parallelThreads = LightThreadCount.resolve(
+                PulsarConfig.features.experimentalServerLightThreads, Runtime.getRuntime().availableProcessors());
+        if (startThread && parallelThreads > 0) {
             this.thread = null;
-            this.parallel = ParallelLightScheduler.shared(PulsarConfig.features.experimentalServerLightThreads);
+            this.parallel = ParallelLightScheduler.shared(parallelThreads);
             this.parallel.register(this);
         } else if (startThread) {
             this.parallel = null;

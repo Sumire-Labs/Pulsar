@@ -32,11 +32,12 @@ public class PulsarConfig {
 
         @Config.Comment({
                 "Experimental shared server lighting pool. 0 keeps the dedicated sky/block workers.",
-                "Positive values bound total lighting threads across worlds. Tasks reserve a 5x5",
+                "-1 selects CPU/3 automatically (1..16). Positive values set the shared thread count.",
+                "Tasks reserve a 5x5",
                 "chunk footprint shared by both lanes; only non-overlapping tasks run together.",
                 "Off by default. More threads do not necessarily improve FPS or lighting latency."
         })
-        @Config.RangeInt(min = 0, max = 16)
+        @Config.RangeInt(min = -1, max = 16)
         @Config.RequiresMcRestart
         public int experimentalServerLightThreads = 0;
 
