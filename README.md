@@ -97,6 +97,21 @@ not add handheld dynamic lights or RGB lighting. Thaumcraft is optional.
 
 ## Performance
 
+### Development-build travel diagnostics
+
+Enable `debug.enableDebugStats` to write `logs/pulsar-stats.log`. Each dimension
+reports once per 20 actual world/client ticks; server `skyMs` and `blockMs` can
+overlap because their workers run concurrently. `maxLatencyMs` is queue waiting
+time, not propagation time. Additional fields separate:
+
+- `skyTaskMaxMs` / `blockTaskMaxMs`: longest lighting task in the interval.
+- `clientDrainMaxMs` / `clientOvershootMaxMs`: longest client queue-processing
+  call and largest excess over the configured budget.
+- `sampleLoadMs` / `sampleLoadMaxMs`: total and longest main-thread contextual
+  light capture on chunk registration or explicit relight.
+- `sampleFlushMs` / `sampleFlushMaxMs`: contextual sample refresh at tick end.
+
+
 ### Light updates — Pulsar 0.3.0
 
 The September 7, 2026 benchmark measures the time from a block edit until its

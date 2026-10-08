@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Advance lighting statistics once per world tick instead of on task submission
+  or worker callbacks. Add dimension IDs, individual task maxima, client drain
+  and overshoot timings, and main-thread contextual sampling timings. Server
+  statistics no longer reset client render marks.
+
 - Reduce chunk-load contextual-light sampling using vanilla palette flags and
   Fluidlogged API's known vanilla position index. Unknown implementations keep
   the conservative scanning path.

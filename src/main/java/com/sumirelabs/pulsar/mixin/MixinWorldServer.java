@@ -15,7 +15,6 @@ public abstract class MixinWorldServer {
     private void pulsar$tickLightManager(final CallbackInfo ci) {
         final WorldLightManager mgr = ((PulsarWorld) (Object) this).pulsar$getLightManager();
         if (mgr != null) {
-            mgr.scheduleUpdate();
             mgr.processDeferredChunkUpdates();
         }
     }

@@ -30,6 +30,7 @@ public class CommonProxy implements IProxy {
             manager.beginTickUnloadWaitBudget();
         } else if (event.phase == TickEvent.Phase.END) {
             manager.publishContextualLight();
+            manager.tickServerStats();
         }
     }
 

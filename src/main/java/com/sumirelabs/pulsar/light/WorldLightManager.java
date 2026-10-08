@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.config.PulsarConfig;
 import com.sumirelabs.pulsar.light.engine.PulsarEngine;
 import com.sumirelabs.pulsar.light.engine.ScalarBlockEngine;
 import com.sumirelabs.pulsar.light.engine.ScalarSkyEngine;
@@ -30,6 +31,7 @@ import java.util.concurrent.CancellationException;
 public final class WorldLightManager {
 
     private static final long CLIENT_LIGHT_BUDGET_NS = 5_000_000L;
+
     private boolean blockFirstClientTick;
 
     /**
@@ -70,11 +72,11 @@ public final class WorldLightManager {
         // Block propagation consumes every position. Bulk sky work only peeks
         // at the set before rebuilding, so retain its cheaper hash-only enqueue path.
         this.blockQueue = hasBlockLight ? new LightQueue(this.heightContext, true) : null;
-        this.stats = new LightStats(world.isRemote);
+        this.stats = new LightStats(world.isRemote, world.provider.getDimension());
         if (this.skyQueue != null) this.skyQueue.setStats(this.stats);
         if (this.blockQueue != null) this.blockQueue.setStats(this.stats);
         this.initialLighting = new InitialLightCoordinator(
-                this.loadedChunkMap, this.skyQueue, this.blockQueue, this::scheduleUpdate);
+                this.loadedChunkMap, this.skyQueue, this.blockQueue);
         if (!world.isRemote) this.unloadWaitBudget.beginTick();
         this.skyWorker = hasSkyLight ? new LightEngineWorker(
                 this.skyQueue,
@@ -95,7 +97,7 @@ public final class WorldLightManager {
     }
 
     public void registerChunk(final Chunk chunk) {
-        if (!this.world.isRemote) this.contextualLight.load(chunk);
+        if (!this.world.isRemote) this.captureChunkLight(chunk);
         this.loadedChunkMap.put(CoordinateUtils.getChunkKey(chunk.x, chunk.z), chunk);
     }
 
@@ -111,7 +113,19 @@ public final class WorldLightManager {
 
     /** Forge WorldTick END includes tile ticks, unlike WorldServer.tick TAIL. */
     public void publishContextualLight() {
-        if (!this.world.isRemote) this.contextualLight.flush(this);
+        if (!this.world.isRemote) {
+            final boolean measure = PulsarConfig.debug.enableDebugStats;
+            final long start = measure ? System.nanoTime() : 0L;
+            this.contextualLight.flush(this);
+            if (measure) this.stats.recordSampleFlush(System.nanoTime() - start);
+        }
+    }
+
+    private void captureChunkLight(final Chunk chunk) {
+        final boolean measure = PulsarConfig.debug.enableDebugStats;
+        final long start = measure ? System.nanoTime() : 0L;
+        this.contextualLight.load(chunk);
+        if (measure) this.stats.recordSampleLoad(System.nanoTime() - start);
     }
 
     public Chunk getLoadedChunk(final int chunkX, final int chunkZ) {
@@ -203,7 +217,8 @@ public final class WorldLightManager {
      * publish/drain step.
      */
     public void processClientRenderUpdates() {
-        final long deadline = System.nanoTime() + CLIENT_LIGHT_BUDGET_NS;
+        final long started = System.nanoTime();
+        final long deadline = started + CLIENT_LIGHT_BUDGET_NS;
         // Alternate the first lane so an expensive atomic task cannot always
         // consume the other lane's entire shared budget.
         final LightEngineWorker first = this.blockFirstClientTick ? this.blockWorker : this.skyWorker;
@@ -211,6 +226,9 @@ public final class WorldLightManager {
         this.blockFirstClientTick = !this.blockFirstClientTick;
         if (first != null) first.processPendingUntil(deadline);
         if (second != null) second.processPendingUntil(deadline);
+        if (PulsarConfig.debug.enableDebugStats) {
+            this.stats.recordClientDrain(System.nanoTime() - started, CLIENT_LIGHT_BUDGET_NS);
+        }
         if (this.skyQueue != null) this.skyQueue.clearWorkSignal();
         if (this.blockQueue != null) this.blockQueue.clearWorkSignal();
         final int skySize = this.skyQueue != null ? this.skyQueue.size() : 0;
@@ -218,10 +236,21 @@ public final class WorldLightManager {
         this.stats.tick(skySize, blockSize);
     }
 
-    public void scheduleUpdate() {
+    /** Called exactly once at WorldTick END, never by a lighting worker. */
+    public void tickServerStats() {
         final int skySize = this.skyQueue != null ? this.skyQueue.size() : 0;
         final int blockSize = this.blockQueue != null ? this.blockQueue.size() : 0;
         this.stats.tick(skySize, blockSize);
+    }
+
+
+
+
+
+    /** Queues wake their worker on insertion; statistics advance only at tick end. */
+    @Deprecated
+    public void scheduleUpdate() {
+        // Retained for callers compiled against earlier Pulsar versions.
     }
 
     /** Starts the shared unload-wait allowance for this world's next tick. */
@@ -316,7 +345,6 @@ public final class WorldLightManager {
                                 cx, cz, attempts);
                     } else {
                         this.skyQueue.queueEdgeCheckAllSections(cx, cz, true);
-                        this.scheduleUpdate();
                     }
                 } catch (final Throwable t) {
                     if (this.loadedChunkMap.get(task.chunkCoordinate) != null) {
@@ -326,7 +354,9 @@ public final class WorldLightManager {
             }
             skyEngine.setStats(null);
             if (statsOn) {
-                this.stats.skyWorkerTimeNs.addAndGet(System.nanoTime() - t0);
+                final long elapsed = System.nanoTime() - t0;
+                this.stats.skyWorkerTimeNs.addAndGet(elapsed);
+                this.stats.skyTaskMaxNs.accumulateAndGet(elapsed, Math::max);
                 this.stats.skyTasksProcessed.incrementAndGet();
             }
             return;
@@ -391,7 +421,9 @@ public final class WorldLightManager {
 
         skyEngine.setStats(null);
         if (statsOn) {
-            this.stats.skyWorkerTimeNs.addAndGet(System.nanoTime() - t0);
+            final long elapsed = System.nanoTime() - t0;
+            this.stats.skyWorkerTimeNs.addAndGet(elapsed);
+            this.stats.skyTaskMaxNs.accumulateAndGet(elapsed, Math::max);
             this.stats.skyTasksProcessed.incrementAndGet();
         }
     }
@@ -497,6 +529,7 @@ public final class WorldLightManager {
         final long totalNs = System.nanoTime() - t0;
         if (statsOn) {
             this.stats.blockWorkerTimeNs.addAndGet(totalNs);
+            this.stats.blockTaskMaxNs.accumulateAndGet(totalNs, Math::max);
             this.stats.blockTasksProcessed.incrementAndGet();
         }
 
@@ -529,7 +562,6 @@ public final class WorldLightManager {
                 final int edgeRecoveryAttempts = task.initialLightEdgeGeneration > 0L
                         ? Math.min(InitialLightCoordinator.MAX_RELIGHT_ATTEMPTS, task.edgeCheckAttempts + 1) : 0;
                 this.initialLighting.queueRecovery(cx, cz, chunk, emptySections, edgeRecoveryAttempts);
-                this.scheduleUpdate();
                 return true;
             }
 
@@ -550,10 +582,9 @@ public final class WorldLightManager {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final Chunk chunk = this.loadedChunkMap.get(key);
         if (chunk == null) return false;
-        if (!this.world.isRemote) this.contextualLight.load(chunk);
+        if (!this.world.isRemote) this.captureChunkLight(chunk);
         final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(chunk);
         final ChunkLightCompletion completion = this.initialLighting.queue(cx, cz, chunk, emptySections);
-        this.scheduleUpdate();
 
         // 1.12.2 has no light-update packet, so a relight is invisible to
         // clients that already hold the chunk — resend it once propagation

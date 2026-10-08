@@ -4,12 +4,13 @@
 run/
 out/
 bin/
-docs/research/
+# Documentation stays local. Existing tracked benchmark publications remain
+# public; new benchmark data remains opt-in, as before.
+/docs/
 test-fixtures/
 
 # Keep local benchmark tools, reports and raw measurement data out of new commits.
 /benchmarks/
-/docs/benchmarks/
 
 # Ignore Gradle GUI config
 gradle-app.setting

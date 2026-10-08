@@ -25,7 +25,6 @@ final class InitialLightCoordinator {
     private final SnapshotChunkMap loadedChunks;
     private final LightQueue skyQueue;
     private final LightQueue blockQueue;
-    private final Runnable updateScheduler;
 
     private final Object lock = new Object();
     private final Long2ObjectOpenHashMap<ChunkLightCompletion> completions =
@@ -34,12 +33,10 @@ final class InitialLightCoordinator {
 
     InitialLightCoordinator(final SnapshotChunkMap loadedChunks,
                             final LightQueue skyQueue,
-                            final LightQueue blockQueue,
-                            final Runnable updateScheduler) {
+                            final LightQueue blockQueue) {
         this.loadedChunks = loadedChunks;
         this.skyQueue = skyQueue;
         this.blockQueue = blockQueue;
-        this.updateScheduler = updateScheduler;
     }
 
     ChunkLightCompletion queue(final int chunkX, final int chunkZ, final Chunk chunk,
@@ -149,7 +146,6 @@ final class InitialLightCoordinator {
             final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(completion.chunk);
             this.queueRecovery(
                     chunkX, chunkZ, completion.chunk, emptySections, task.edgeCheckAttempts + 1);
-            this.updateScheduler.run();
             return true;
         }
     }

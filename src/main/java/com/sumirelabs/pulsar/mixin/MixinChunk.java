@@ -157,7 +157,6 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         } else {
             manager.queueChunkLight(this.x, this.z, self, emptySections);
         }
-        manager.scheduleUpdate();
     }
 
     @Inject(method = "onUnload", at = @At("HEAD"), require = 0)
