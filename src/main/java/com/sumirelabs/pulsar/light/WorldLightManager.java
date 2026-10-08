@@ -30,7 +30,6 @@ import java.util.concurrent.CancellationException;
  */
 public final class WorldLightManager {
 
-    private static final long CLIENT_LIGHT_BUDGET_NS = 5_000_000L;
 
     private boolean blockFirstClientTick;
 
@@ -218,16 +217,21 @@ public final class WorldLightManager {
      */
     public void processClientRenderUpdates() {
         final long started = System.nanoTime();
-        final long deadline = started + CLIENT_LIGHT_BUDGET_NS;
+        final long budget = Math.max(1, Math.min(10, PulsarConfig.features.clientLightBudgetMs)) * 1_000_000L;
+        final long deadline = started + budget;
         // Alternate the first lane so an expensive atomic task cannot always
         // consume the other lane's entire shared budget.
         final LightEngineWorker first = this.blockFirstClientTick ? this.blockWorker : this.skyWorker;
         final LightEngineWorker second = this.blockFirstClientTick ? this.skyWorker : this.blockWorker;
         this.blockFirstClientTick = !this.blockFirstClientTick;
-        if (first != null) first.processPendingUntil(deadline);
-        if (second != null) second.processPendingUntil(deadline);
+        boolean processed;
+        do {
+            processed = first != null && first.processOnePendingUntil(deadline);
+            // Both lanes get a turn; do not short-circuit after the first succeeds.
+            processed |= second != null && second.processOnePendingUntil(deadline);
+        } while (processed && System.nanoTime() - deadline < 0L);
         if (PulsarConfig.debug.enableDebugStats) {
-            this.stats.recordClientDrain(System.nanoTime() - started, CLIENT_LIGHT_BUDGET_NS);
+            this.stats.recordClientDrain(System.nanoTime() - started, budget);
         }
         if (this.skyQueue != null) this.skyQueue.clearWorkSignal();
         if (this.blockQueue != null) this.blockQueue.clearWorkSignal();

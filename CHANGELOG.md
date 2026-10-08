@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Alternate client sky/block lighting after each task with a configurable shared
+  budget (`features.clientLightBudgetMs`, default 2 ms). The budget is a soft
+  limit: an individual task still finishes before another can start.
+
 - Advance lighting statistics once per world tick instead of on task submission
   or worker callbacks. Add dimension IDs, individual task maxima, client drain
   and overshoot timings, and main-thread contextual sampling timings. Server

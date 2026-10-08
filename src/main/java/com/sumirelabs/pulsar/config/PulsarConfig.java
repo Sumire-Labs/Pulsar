@@ -28,6 +28,14 @@ public class PulsarConfig {
     public static class Features {
 
         @Config.Comment({
+                "Shared client lighting budget per tick in milliseconds. Default 2 favors frame pacing.",
+                "Sky and block tasks alternate. A task already running may exceed this soft limit.",
+                "Higher values finish queued lighting sooner but can delay rendering. Client only."
+        })
+        @Config.RangeInt(min = 1, max = 10)
+        public int clientLightBudgetMs = 2;
+
+        @Config.Comment({
                 "Minimum block-light level for Thaumcraft 6's placed vis crystal clusters.",
                 "0 keeps Thaumcraft's original emission. Default 10 is dimmer than a torch (14).",
                 "Uses normal uncolored block-light propagation; held items are not affected.",

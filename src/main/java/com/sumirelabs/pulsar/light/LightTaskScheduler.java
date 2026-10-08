@@ -28,18 +28,24 @@ final class LightTaskScheduler {
     }
 
     /** A task is atomic; the deadline is checked before starting each subsequent task. */
+    boolean drainOneUntil(final long deadline, final BooleanSupplier running,
+                          final Consumer<ChunkTasks> processor) {
+        if (!running.getAsBoolean() || this.clock.getAsLong() - deadline >= 0L) return false;
+        final ChunkTasks task = this.nextTask();
+        if (task == null) return false;
+        try {
+            processor.accept(task);
+        } finally {
+            this.queue.completeTask(task);
+        }
+        return true;
+    }
+
     boolean drainUntil(final long deadline, final BooleanSupplier running,
                        final Consumer<ChunkTasks> processor) {
-        while (running.getAsBoolean()) {
-            if (this.clock.getAsLong() - deadline >= 0L) return this.queue.hasWork();
-            final ChunkTasks task = this.nextTask();
-            if (task == null) return false;
-            try {
-                processor.accept(task);
-            } finally {
-                this.queue.completeTask(task);
-            }
+        while (this.drainOneUntil(deadline, running, processor)) {
+            // The single-task path checks the deadline before each turn.
         }
-        return false;
+        return running.getAsBoolean() && this.queue.hasWork();
     }
 }

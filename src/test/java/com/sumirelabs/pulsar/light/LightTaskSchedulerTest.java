@@ -11,6 +11,52 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LightTaskSchedulerTest {
+
+
+    @Test
+    void singleTaskTurnsAllowBothLanesToProgressWithinASharedBudget() {
+        final LightQueue sky = new LightQueue(WorldHeightContext.VANILLA);
+        final LightQueue block = new LightQueue(WorldHeightContext.VANILLA);
+        final AtomicLong clock = new AtomicLong();
+        final LightTaskScheduler skyScheduler = new LightTaskScheduler(sky, clock::get);
+        final LightTaskScheduler blockScheduler = new LightTaskScheduler(block, clock::get);
+        for (int x = 0; x < 4; x++) {
+            sky.queueBlockChange(x << 4, 64, 0);
+            block.queueBlockChange(x << 4, 64, 0);
+        }
+        final java.util.List<String> order = new java.util.ArrayList<>();
+        while (clock.get() < 4) {
+            skyScheduler.drainOneUntil(4, () -> true, task -> {
+                order.add("sky");
+                clock.incrementAndGet();
+            });
+            blockScheduler.drainOneUntil(4, () -> true, task -> {
+                order.add("block");
+                clock.incrementAndGet();
+            });
+        }
+        assertEquals(java.util.List.of("sky", "block", "sky", "block"), order);
+        assertEquals(2, sky.size());
+        assertEquals(2, block.size());
+        assertFalse(blockScheduler.drainOneUntil(4, () -> true, task -> fail("Budget exhausted")));
+    }
+
+    @Test
+    void singleTaskOvershootLeavesOtherLaneQueuedAndCompletesTheCurrentFuture() {
+        final LightQueue sky = new LightQueue(WorldHeightContext.VANILLA);
+        final LightQueue block = new LightQueue(WorldHeightContext.VANILLA);
+        final AtomicLong clock = new AtomicLong();
+        sky.queueBlockChange(0, 64, 0);
+        block.queueBlockChange(0, 64, 0);
+        final var skyFuture = sky.getPendingWorkFuture(CoordinateUtils.getChunkKey(0, 0));
+        assertTrue(new LightTaskScheduler(sky, clock::get).drainOneUntil(2, () -> true,
+                task -> clock.set(12)));
+        assertTrue(skyFuture.isDone());
+        assertFalse(new LightTaskScheduler(block, clock::get).drainOneUntil(2, () -> true,
+                task -> fail("Must not start after deadline")));
+        assertTrue(block.hasPendingWork(0, 0));
+    }
+
     @Test
     void generationCannotStarveItsOwnFinalEdgePass() {
         final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);

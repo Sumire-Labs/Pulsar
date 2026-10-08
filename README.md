@@ -99,6 +99,12 @@ not add handheld dynamic lights or RGB lighting. Thaumcraft is optional.
 
 ### Development-build travel diagnostics
 
+The development build alternates client sky/block tasks within a shared
+`features.clientLightBudgetMs` budget (default **2 ms**, configurable from 1
+to 10). Increasing it can shorten lighting backlog at the cost of longer
+render-thread stalls. This is a soft limit checked between tasks; one expensive
+task can exceed it. No FPS improvement has been measured for this change yet.
+
 Enable `debug.enableDebugStats` to write `logs/pulsar-stats.log`. Each dimension
 reports once per 20 actual world/client ticks; server `skyMs` and `blockMs` can
 overlap because their workers run concurrently. `maxLatencyMs` is queue waiting
@@ -110,6 +116,14 @@ time, not propagation time. Additional fields separate:
 - `sampleLoadMs` / `sampleLoadMaxMs`: total and longest main-thread contextual
   light capture on chunk registration or explicit relight.
 - `sampleFlushMs` / `sampleFlushMaxMs`: contextual sample refresh at tick end.
+
+For a travel comparison, use a copy of the same world, the same route and render
+distance, and the same shader state. Compare 2 ms and 5 ms alongside frame-time
+p95/p99, long stalls, and lighting backlog. Exclude shader reloads from the travel
+measurement. These statistics do not measure packet deserialization, mesh
+rebuilding, GPU time, or GC; use a runtime profile if stalls remain while the
+measured lighting work is small. Debug logging itself adds overhead, so repeat
+the frame-time comparison with it disabled.
 
 
 ### Light updates — Pulsar 0.3.0

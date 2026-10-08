@@ -73,6 +73,21 @@ final class LightEngineWorker {
         this.processPendingUntil(System.nanoTime() + SERVER_BATCH_BUDGET_NS);
     }
 
+    /** Client lanes take turns after each complete task, sharing one deadline. */
+    boolean processOnePendingUntil(final long deadline) {
+        if (!this.running || this.queue.isEmpty() || System.nanoTime() - deadline >= 0L) return false;
+        final PulsarEngine engine = this.acquireEngine();
+        try {
+            return this.scheduler.drainOneUntil(deadline, () -> this.running,
+                    task -> this.taskProcessor.accept(task, engine));
+        } catch (final Throwable t) {
+            Pulsar.LOGGER.error("Exception in " + this.operationName, t);
+            return false;
+        } finally {
+            this.releaseEngine(engine);
+        }
+    }
+
     void processPendingUntil(final long deadline) {
         if (!this.running || this.queue.isEmpty()) {
             return;
