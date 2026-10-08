@@ -14,6 +14,8 @@ import net.minecraft.world.World;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
+import com.sumirelabs.pulsar.util.CoordinateUtils;
 
 /**
  * {@code /pulsar} command. Provides relight + stats utilities for the
@@ -106,12 +108,13 @@ public class CommandPulsar extends CommandBase {
             final int radius = Math.min(Math.max(0, parseInt(args[1])), 16);
             final int playerCx = (int) player.posX >> 4;
             final int playerCz = (int) player.posZ >> 4;
-            int count = 0;
-            for (int dx = -radius; dx <= radius; dx++) {
-                for (int dz = -radius; dz <= radius; dz++) {
-                    if (mgr.forceRelightChunk(playerCx + dx, playerCz + dz)) count++;
-                }
-            }
+            final List<Long> coordinates = new ArrayList<>();
+            // Chebyshev rings preserve locality and start with the requested center.
+            for (int ring = 0; ring <= radius; ring++)
+                for (int dz = -ring; dz <= ring; dz++) for (int dx = -ring; dx <= ring; dx++)
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) == ring)
+                        coordinates.add(CoordinateUtils.getChunkKey(playerCx + dx, playerCz + dz));
+            final int count = mgr.forceRelightChunks(coordinates);
             sender.sendMessage(new TextComponentString("Queued relight for " + count + " chunks (radius " + radius + ")."));
         } else {
             // /pulsar relight (no args -- current chunk)

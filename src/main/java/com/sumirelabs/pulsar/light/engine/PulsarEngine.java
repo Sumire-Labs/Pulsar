@@ -18,6 +18,10 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.function.LongPredicate;
+import com.sumirelabs.pulsar.util.CoordinateUtils;
 
 /**
  * Abstract base for Pulsar's BFS-based scalar lighting engines. Ported from
@@ -318,6 +322,75 @@ public abstract class PulsarEngine extends LightEngineCache {
             }
         } finally {
             this.destroyCaches();
+        }
+    }
+
+    /**
+     * Starlight-style set relight: each loaded halo chunk is built at most once,
+     * with private nibble/emptiness maps shared across the whole request. Only
+     * requested, still-current chunks are published. Caller excludes other
+     * lighting jobs in this world for the duration of this operation.
+     */
+    public final void relightChunks(final Map<Long, Chunk> targets, final Map<Long, Chunk> available,
+                                   final LongPredicate current) {
+        final Map<Long, SWMRNibbleArray[]> nibbles = new LinkedHashMap<>();
+        final Map<Long, boolean[]> emptiness = new LinkedHashMap<>();
+        final int[] order = {0, 0, -1, 0, 0, -1, 1, 0, 0, 1, -1, 1, 1, 1, -1, -1, 1, -1};
+        for (final var target : targets.entrySet()) {
+            if (!current.test(target.getKey())) continue;
+            final Chunk center = target.getValue();
+            for (int i = 0; i < order.length; i += 2) {
+                final int cx = center.x + order[i], cz = center.z + order[i + 1];
+                final long key = CoordinateUtils.getChunkKey(cx, cz);
+                final Chunk chunk = available.get(key);
+                if (chunk == null || nibbles.containsKey(key)
+                        || ((ExtendedWorld) this.world).pulsar$getAnyChunkImmediately(cx, cz) != chunk) continue;
+                this.resetTaskState();
+                this.setupEncodeOffset(cx * 16 + 7, 128, cz * 16 + 7);
+                try {
+                    for (int dz = -1; dz <= 1; dz++) for (int dx = -1; dx <= 1; dx++) {
+                        final long nearKey = CoordinateUtils.getChunkKey(cx + dx, cz + dz);
+                        final Chunk near = available.get(nearKey);
+                        if (near == null || !nibbles.containsKey(nearKey)) continue;
+                        this.setChunkInCache(near.x, near.z, near);
+                        this.setBlocksForChunkInCache(near.x, near.z, near.getBlockStorageArray());
+                        this.setNibblesForChunkInCache(near.x, near.z, nibbles.get(nearKey));
+                        this.setEmptinessMapCache(near.x, near.z, emptiness.get(nearKey));
+                    }
+                    nibbles.put(key, this.getFilledEmptyLight());
+                    this.setChunkInCache(cx, cz, chunk);
+                    this.setBlocksForChunkInCache(cx, cz, chunk.getBlockStorageArray());
+                    this.setNibblesForChunkInCache(cx, cz, nibbles.get(key));
+                    emptiness.put(key, this.handleEmptySectionChanges(chunk, getEmptySectionsForChunk(chunk), true));
+                    this.lightChunk(chunk, false);
+                    if (this.wasQueueOverflowed()) throw new IllegalStateException("Batch relight BFS overflow");
+                    // Sky topology can replace cached nibble references for neighbours too.
+                    for (final Chunk cached : this.chunkCache) {
+                        if (cached == null) continue;
+                        final long cachedKey = CoordinateUtils.getChunkKey(cached.x, cached.z);
+                        NibbleArrayPublication.mergeFullLight(nibbles.get(cachedKey),
+                                this.getNibblesForChunkFromCache(cached.x, cached.z));
+                    }
+                } finally { this.destroyCaches(); }
+            }
+        }
+        for (final var target : targets.entrySet()) {
+            final long key = target.getKey();
+            final Chunk chunk = target.getValue();
+            if (!current.test(key) || !nibbles.containsKey(key)) continue;
+            this.setupEncodeOffset(chunk.x * 16 + 7, 128, chunk.z * 16 + 7);
+            try {
+                this.setChunkInCache(chunk.x, chunk.z, chunk);
+                this.setNibblesForChunkInCache(chunk.x, chunk.z, nibbles.get(key));
+                // Acquire only this chunk's monitor; never a group of chunk monitors.
+                synchronized (chunk) {
+                    if (!current.test(key) || ((ExtendedWorld) this.world)
+                            .pulsar$getAnyChunkImmediately(chunk.x, chunk.z) != chunk) continue;
+                    this.updateVisible();
+                    this.setEmptinessMap(chunk, emptiness.get(key));
+                    this.setNibbles(chunk, nibbles.get(key));
+                }
+            } finally { this.destroyCaches(); }
         }
     }
 

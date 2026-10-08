@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Add an automatic CPU/3 shared-worker setting (`experimentalServerLightThreads=-1`).
+- Claim pending sky and block tasks for the same chunk together in shared-pool
+  mode, retaining the region reservation until both lane tasks complete.
+- Track contextual TileEntity light sources on the world thread each tick,
+  including replacement/removal, without moving Mod callbacks onto workers.
+- Add an opt-in shared-work-map backend for manual range relights
+  (`experimentalRangeRelight`), with world-wide job exclusion and generation-safe
+  publication; default off while performance is evaluated.
 - Add `features.coalesceClientRenderUpdates` for direct same-build ON/OFF
   comparisons.
 - Add an opt-in bounded shared server lighting pool with world/5x5 task exclusion

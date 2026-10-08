@@ -21,6 +21,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Collection;
 
 /**
  * Per-{@link World} light manager. Owns the worker threads, engine pools and
@@ -29,6 +35,14 @@ import java.util.concurrent.CancellationException;
  * and the API surface simplified for scalar mode only.
  */
 public final class WorldLightManager {
+    // Manual range relights are uncommon and may reserve a large region. Keep
+    // them off the tick thread and serialize them against normal jobs per world.
+    private static final ExecutorService RANGE_RELIGHTS = Executors.newSingleThreadExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "Pulsar-RangeRelight");
+        thread.setDaemon(true);
+        return thread;
+    });
+    private final ReentrantReadWriteLock lightingGate = new ReentrantReadWriteLock(true);
 
     private boolean blockFirstClientTick;
     private final ClientRenderUpdates<Chunk> clientRenderUpdates = new ClientRenderUpdates<>();
@@ -80,7 +94,7 @@ public final class WorldLightManager {
         this.skyWorker = hasSkyLight ? new LightEngineWorker(
                 this.skyQueue,
                 () -> new ScalarSkyEngine(world, this.heightContext),
-                this::processSkyTask,
+                (task, engine) -> this.processWithGate(task, engine, true),
                 this.stats.skyBudgetYields,
                 "propagateSkyChanges",
                 "Pulsar-Sky",
@@ -88,7 +102,7 @@ public final class WorldLightManager {
         this.blockWorker = hasBlockLight ? new LightEngineWorker(
                 this.blockQueue,
                 () -> new ScalarBlockEngine(world, this.heightContext),
-                this::processBlockTask,
+                (task, engine) -> this.processWithGate(task, engine, false),
                 this.stats.blockBudgetYields,
                 "propagateBlockChanges",
                 "Pulsar-Block",
@@ -315,6 +329,17 @@ public final class WorldLightManager {
     public void sendChunkLightRefresh(final PlayerChunkMapEntry entry,final Chunk chunk,final int mask) {
         for(int part:ChunkUpdateMasks.split(mask,this.heightContext.getFullChunkSectionMask()))
             entry.sendPacket(new SPacketChunkData(chunk,part));
+    }
+
+    private void processWithGate(final ChunkTasks task, final PulsarEngine engine, final boolean sky) {
+        this.lightingGate.readLock().lock();
+        try {
+            long generation = task.initialLightChunk != null ? task.initialLightGeneration
+                    : task.initialLightEdgeGeneration;
+            if (generation > 0L && !this.initialLighting.isCurrent(task.chunkCoordinate, generation)) return;
+            if (sky) this.processSkyTask(task, engine);
+            else this.processBlockTask(task, engine);
+        } finally { this.lightingGate.readLock().unlock(); }
     }
 
     private void processSkyTask(final ChunkTasks task, final PulsarEngine skyEngine) {
@@ -609,6 +634,77 @@ public final class WorldLightManager {
         if (!this.world.isRemote) this.captureChunkLight(chunk);
         final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(chunk);
         final ChunkLightCompletion completion = this.initialLighting.queue(cx, cz, chunk, emptySections);
+        this.refreshAfterRelight(key, completion);
+        return true;
+    }
+
+    /** Loaded chunks only; insertion order should grow outward from the requested center. */
+    public int forceRelightChunks(final Collection<Long> coordinates) {
+        if (this.world.isRemote) throw new IllegalStateException("Range relight requires a server world");
+        if (!this.contextualLight.isOwnerThread()) throw new IllegalStateException("Range relight requires the world thread");
+        if (!PulsarConfig.features.experimentalRangeRelight) {
+            int count = 0;
+            for (final long key : new java.util.LinkedHashSet<>(coordinates))
+                if (this.forceRelightChunk(CoordinateUtils.getChunkX(key), CoordinateUtils.getChunkZ(key))) count++;
+            return count;
+        }
+        final Map<Long, Chunk> targets = new LinkedHashMap<>();
+        final Map<Long, Chunk> available = new LinkedHashMap<>();
+        final Map<Long, ChunkTasks> tasks = new LinkedHashMap<>();
+        for (final long key : coordinates) {
+            final Chunk chunk = this.loadedChunkMap.get(key);
+            if (chunk == null || targets.containsKey(key)) continue;
+            this.captureChunkLight(chunk);
+            targets.put(key, chunk);
+            final ChunkLightCompletion completion = this.initialLighting.queueDeferred(chunk,
+                    PulsarEngine.getEmptySectionsForChunk(chunk));
+            final ChunkTasks task = new ChunkTasks(key);
+            task.initialLightChunk = chunk;
+            task.initialLightGeneration = completion.generation;
+            tasks.put(key, task);
+            this.refreshAfterRelight(key, completion);
+            for (int dz = -2; dz <= 2; dz++) for (int dx = -2; dx <= 2; dx++) {
+                final long nearKey = CoordinateUtils.getChunkKey(chunk.x + dx, chunk.z + dz);
+                final Chunk near = this.loadedChunkMap.get(nearKey);
+                if (near != null) available.put(nearKey, near);
+            }
+        }
+        if (!targets.isEmpty()) RANGE_RELIGHTS.execute(() -> this.processRangeRelight(targets, available, tasks));
+        return targets.size();
+    }
+
+    private void processRangeRelight(final Map<Long, Chunk> targets, final Map<Long, Chunk> available,
+                                    final Map<Long, ChunkTasks> tasks) {
+        this.lightingGate.writeLock().lock();
+        try {
+            java.util.function.LongPredicate current = key -> this.loadedChunkMap.get(key) == targets.get(key)
+                    && this.initialLighting.isCurrent(key, tasks.get(key).initialLightGeneration);
+            if (this.skyQueue != null) new ScalarSkyEngine(this.world, this.heightContext)
+                    .relightChunks(targets, available, current);
+            if (this.blockQueue != null) new ScalarBlockEngine(this.world, this.heightContext)
+                    .relightChunks(targets, available, current);
+            for (final var entry : tasks.entrySet()) {
+                if (!current.test(entry.getKey())) continue;
+                if (this.skyQueue != null) this.initialLighting.completeInitial(entry.getValue(), InitialLightCompletionState.SKY);
+                if (this.blockQueue != null) this.initialLighting.completeInitial(entry.getValue(), InitialLightCompletionState.BLOCK);
+            }
+        } catch (final Throwable error) {
+            Pulsar.LOGGER.error("Range relight failed; retrying current chunks through ordinary lighting", error);
+            for (final var entry : tasks.entrySet()) {
+                final ChunkTasks task = entry.getValue();
+                if (this.loadedChunkMap.get(entry.getKey()) != task.initialLightChunk
+                        || !this.initialLighting.isCurrent(entry.getKey(), task.initialLightGeneration)) continue;
+                final Boolean[] empty = PulsarEngine.getEmptySectionsForChunk(task.initialLightChunk);
+                if (this.skyQueue != null) this.skyQueue.queueChunkLight(task.initialLightChunk.x,
+                        task.initialLightChunk.z, task.initialLightChunk, empty, task.initialLightGeneration);
+                if (this.blockQueue != null) this.blockQueue.queueChunkLight(task.initialLightChunk.x,
+                        task.initialLightChunk.z, task.initialLightChunk, empty, task.initialLightGeneration);
+            }
+        } finally { this.lightingGate.writeLock().unlock(); }
+    }
+
+    private void refreshAfterRelight(final long key, final ChunkLightCompletion completion) {
+        final int cx = CoordinateUtils.getChunkX(key), cz = CoordinateUtils.getChunkZ(key);
 
         // 1.12.2 has no light-update packet, so a relight is invisible to
         // clients that already hold the chunk — resend it once propagation
@@ -631,7 +727,6 @@ public final class WorldLightManager {
                 });
             }, Runnable::run);
         }
-        return true;
     }
 
     /**

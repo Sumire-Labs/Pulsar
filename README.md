@@ -111,6 +111,29 @@ The experimental server lighting pool requires a restart and defaults to off:
 - `features.experimentalServerLightThreads=4` enables a process-wide pool with
   four threads. Both light lanes share per-world 5x5 chunk reservations; only
   non-overlapping jobs run concurrently. `0` retains the dedicated lanes.
+- `features.experimentalServerLightThreads=-1` selects one third of the logical
+  CPU count automatically, bounded to 1–16 shared workers.
+
+In shared-pool mode, pending sky and block tasks for the same chunk are claimed
+together and run sequentially under one reservation. This adapts ScalableLux's
+combined chunk jobs while retaining Pulsar's separate lane queues and completion
+generations. Dedicated-worker and client-budget modes retain their existing behavior.
+
+`features.trackTileEntityLight=true` (default) resamples registered TileEntities
+whose blocks have position-dependent light values each world tick. Changes to
+emission or opacity are published before corrective work is queued. Tracking
+uses the existing chunk tile map and never requests or creates a TileEntity from
+a lighting worker. Disable this option to compare its main-thread cost; ordinary
+block-change/checkLight sampling remains active.
+
+`features.experimentalRangeRelight=true` enables a shared-work-map backend for
+`/pulsar relight <radius>`. Each loaded halo chunk is computed at most once per
+request, and only requested chunks are published. It runs asynchronously with
+normal lighting excluded in that world during the batch, then uses Pulsar's
+existing edge reconciliation and client refresh. This differs from ScalableLux's
+chunk ticket/scheduler integration: manual batches use a single process-wide
+executor and a world-wide exclusion gate. The feature defaults to off pending
+performance testing; the ordinary per-chunk backend remains available.
 
 The pool does not have an established FPS advantage. With debug statistics enabled,
 `parallelJobsMax` records the

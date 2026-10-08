@@ -114,7 +114,7 @@ abstract class LightEngineCache {
         }
     }
 
-    private void setupEncodeOffset(final int centerX, final int centerY, final int centerZ) {
+    protected final void setupEncodeOffset(final int centerX, final int centerY, final int centerZ) {
         this.encodeOffsetX = 31 - centerX;
         this.encodeOffsetY = (-(this.minLightSection - 1) << 4);
         this.encodeOffsetZ = 31 - centerZ;

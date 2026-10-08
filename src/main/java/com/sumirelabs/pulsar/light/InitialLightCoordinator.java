@@ -44,6 +44,17 @@ final class InitialLightCoordinator {
         return this.queue(chunkX, chunkZ, chunk, emptySections, 0, false);
     }
 
+    ChunkLightCompletion queueDeferred(final Chunk chunk, final Boolean[] emptySections) {
+        return this.queue(chunk.x, chunk.z, chunk, emptySections, 0, false, false);
+    }
+
+    boolean isCurrent(final long key, final long generation) {
+        synchronized (this.lock) {
+            final ChunkLightCompletion completion = this.completions.get(key);
+            return completion != null && completion.generation == generation;
+        }
+    }
+
     /**
      * Starts a replacement generation after overflow and chains the old
      * completion to the replacement so existing waiters observe its result.
@@ -58,6 +69,13 @@ final class InitialLightCoordinator {
                                        final Boolean[] emptySections,
                                        final int edgeRecoveryAttempts,
                                        final boolean handoffSupersededCompletion) {
+        return this.queue(chunkX, chunkZ, chunk, emptySections, edgeRecoveryAttempts,
+                handoffSupersededCompletion, true);
+    }
+
+    private ChunkLightCompletion queue(final int chunkX, final int chunkZ, final Chunk chunk,
+                                       final Boolean[] emptySections, final int edgeRecoveryAttempts,
+                                       final boolean handoffSupersededCompletion, final boolean enqueue) {
         if (edgeRecoveryAttempts < 0 || edgeRecoveryAttempts > MAX_RELIGHT_ATTEMPTS) {
             throw new IllegalArgumentException("Invalid edge-recovery attempt: " + edgeRecoveryAttempts);
         }
@@ -81,10 +99,16 @@ final class InitialLightCoordinator {
             final PulsarChunk pulsarChunk = (PulsarChunk) chunk;
             pulsarChunk.pulsar$setLightReady(false);
             pulsarChunk.pulsar$setLightUsable(false);
-            if (this.skyQueue != null) {
+            if (!enqueue) {
+                // The full batch covers queued edits; later edits need a fresh task,
+                // rather than being absorbed into a superseded initial generation.
+                if (this.skyQueue != null) this.skyQueue.removeChunk(chunkX, chunkZ);
+                if (this.blockQueue != null) this.blockQueue.removeChunk(chunkX, chunkZ);
+            }
+            if (enqueue && this.skyQueue != null) {
                 this.skyQueue.queueChunkLight(chunkX, chunkZ, chunk, emptySections, generation);
             }
-            if (this.blockQueue != null) {
+            if (enqueue && this.blockQueue != null) {
                 this.blockQueue.queueChunkLight(chunkX, chunkZ, chunk, emptySections, generation);
             }
         }
