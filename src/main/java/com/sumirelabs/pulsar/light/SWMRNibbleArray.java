@@ -45,6 +45,8 @@ public final class SWMRNibbleArray {
     private volatile int stateVisible;
     private byte[] storageUpdating;
     private boolean updatingDirty;
+    // Owned, non-uniform working bytes: scalar writes need just this one guard.
+    private boolean updatingWritable;
     private volatile byte[] storageVisible;
     // A section which has already needed private storage can cycle through
     // full light without allocating another visible array on every edit.
@@ -190,9 +192,11 @@ public final class SWMRNibbleArray {
         }
         this.fullFlag = other.fullFlag;
         this.zeroFlag = other.zeroFlag;
+        this.updatingWritable = !this.fullFlag && !this.zeroFlag;
     }
 
     public void setFull() {
+        this.updatingWritable = false;
         if (this.stateUpdating != INIT_STATE_HIDDEN) {
             this.stateUpdating = INIT_STATE_INIT;
         }
@@ -210,6 +214,7 @@ public final class SWMRNibbleArray {
     }
 
     public void setZero() {
+        this.updatingWritable = false;
         if (this.stateUpdating != INIT_STATE_HIDDEN) {
             this.stateUpdating = INIT_STATE_INIT;
         }
@@ -233,6 +238,7 @@ public final class SWMRNibbleArray {
     }
 
     public void setNull() {
+        this.updatingWritable = false;
         this.stateUpdating = INIT_STATE_NULL;
         if (this.updatingDirty && this.storageUpdating != null) {
             freeBytes(this.storageUpdating);
@@ -244,6 +250,7 @@ public final class SWMRNibbleArray {
     }
 
     public void setUninitialised() {
+        this.updatingWritable = false;
         this.stateUpdating = INIT_STATE_UNINIT;
         if (this.storageUpdating != null && this.updatingDirty) {
             freeBytes(this.storageUpdating);
@@ -372,6 +379,7 @@ public final class SWMRNibbleArray {
                 this.storageUpdating = this.storageVisible;
             }
             this.updatingDirty = false;
+            this.updatingWritable = false;
             this.stateVisible = this.stateUpdating;
             this.fullFlagVisible = this.fullFlag;
             this.zeroFlagVisible = this.zeroFlag;
@@ -446,16 +454,17 @@ public final class SWMRNibbleArray {
     }
 
     public void set(final int index, final int value) {
-        if (this.fullFlag | this.zeroFlag) {
-            this.fullFlag = false;
-            this.zeroFlag = false;
-        }
-        if (!this.updatingDirty || this.storageUpdating == FULL_BYTES) {
-            this.swapUpdatingAndMarkDirty();
-        }
+        if (!this.updatingWritable) this.prepareScalarWrite();
         final int shift = (index & 1) << 2;
         final int i = index >>> 1;
         this.storageUpdating[i] = (byte) ((this.storageUpdating[i] & (0xF0 >>> shift)) | (value << shift));
+    }
+
+    private void prepareScalarWrite() {
+        if (!this.updatingDirty || this.storageUpdating == FULL_BYTES) this.swapUpdatingAndMarkDirty();
+        this.fullFlag = false;
+        this.zeroFlag = false;
+        this.updatingWritable = true;
     }
 
     /**
@@ -470,6 +479,7 @@ public final class SWMRNibbleArray {
         System.arraycopy(src, 0, this.storageUpdating, 0, ARRAY_SIZE);
         this.fullFlag = false;
         this.zeroFlag = false;
+        this.updatingWritable = true;
     }
 
     /**
@@ -487,6 +497,7 @@ public final class SWMRNibbleArray {
         }
         this.fullFlag = false;
         this.zeroFlag = false;
+        this.updatingWritable = true;
         return this.storageUpdating;
     }
 

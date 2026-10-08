@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Coalesce heightmap skylight notifications into one column update while retaining
+  contextual source invalidation and renderer coverage. Avoid repeated neighbor
+  discovery for static edits in worlds without contextual sources.
+- Use a guarded plain-air path during propagation, retaining fluid, contextual
+  and sided-occlusion handling for states that require it.
+- Reduce repeated attenuation, nibble ownership and destination-cache checks in
+  scalar light propagation without changing visible-array copy-on-write rules.
 - Add an automatic CPU/3 shared-worker setting (`experimentalServerLightThreads=-1`).
 - Claim pending sky and block tasks for the same chunk together in shared-pool
   mode, retaining the region reservation until both lane tasks complete.

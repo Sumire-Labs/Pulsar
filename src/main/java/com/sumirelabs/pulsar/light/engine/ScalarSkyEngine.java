@@ -287,20 +287,20 @@ public class ScalarSkyEngine extends PulsarEngine {
             final int propagatedLevel = (int) ((queueValue >>> LIGHT_LEVEL_SHIFT) & 0xF);
             final AxisDirection[] checkDirections = OLD_CHECK_DIRECTIONS[(int) ((queueValue >>> DIRECTION_SHIFT) & 63L)];
 
-            final boolean hasSidedTransparent = (queueValue & FLAG_HAS_SIDED_TRANSPARENT_BLOCKS) != 0L;
-            int srcBlockedFaces = 0;
-            if (hasSidedTransparent) {
-                final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
-                final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
-                srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
-            }
-
             if ((queueValue & FLAG_RECHECK_LEVEL) != 0L) {
                 if (this.getLightLevel(posX, posY, posZ) != propagatedLevel) {
                     continue;
                 }
             } else if ((queueValue & FLAG_WRITE_LEVEL) != 0L) {
                 this.setLightLevel(posX, posY, posZ, propagatedLevel);
+            }
+
+            final boolean hasSidedTransparent = (queueValue & FLAG_HAS_SIDED_TRANSPARENT_BLOCKS) != 0L;
+            int srcBlockedFaces = 0;
+            if (hasSidedTransparent) {
+                final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
+                final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
+                srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
             }
 
             for (final AxisDirection propagate : checkDirections) {
@@ -313,11 +313,12 @@ public class ScalarSkyEngine extends PulsarEngine {
                 final int sectionIndex = (offX >> 4) + 5 * (offZ >> 4) + (5 * 5) * (offY >> 4) + sectionOffset;
                 final int localIndex = (offX & 15) | ((offZ & 15) << 4) | ((offY & 15) << 8);
 
-                if (this.nibbleCache[sectionIndex] == null) {
+                final SWMRNibbleArray destinationNibble = this.nibbleCache[sectionIndex];
+                if (destinationNibble == null) {
                     continue;
                 }
 
-                final int currentLevel = this.getLightLevel(sectionIndex, localIndex);
+                final int currentLevel = destinationNibble.getUpdating(localIndex);
                 // Minimum absorption is 1, so propagatedLevel - 1 is the best
                 // this neighbour could reach — skip the palette + LightInfo
                 // reads entirely when it is already there (Starlight upstream
@@ -327,8 +328,9 @@ public class ScalarSkyEngine extends PulsarEngine {
                 }
 
                 final IBlockState destState = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
-                final int destInfo = this.lightInfoAt(destState, offX, offY, offZ);
-                final int absorption = LightInfo.absorption(destInfo, destState, propagate.oppositeOrdinal);
+                final boolean air = this.isPlainAir(destState, sectionIndex);
+                final int destInfo = air ? this.plainAirInfo() : this.lightInfoAt(destState, offX, offY, offZ);
+                final int absorption = air ? 1 : LightInfo.absorption(destInfo, destState, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
                 if (targetLevel <= currentLevel) {
@@ -338,7 +340,7 @@ public class ScalarSkyEngine extends PulsarEngine {
                 // Write through the already-resolved nibble: the guards above
                 // proved this is a real change, so setLightLevel's no-op check
                 // and index recompute would be pure overhead here.
-                this.nibbleCache[sectionIndex].set(localIndex, targetLevel);
+                destinationNibble.set(localIndex, targetLevel);
                 this.postLightUpdate(sectionIndex, offX & 15, offY & 15, offZ & 15);
 
                 if (targetLevel > 1) {
@@ -399,13 +401,31 @@ public class ScalarSkyEngine extends PulsarEngine {
 
                 final int sectionIndex = (offX >> 4) + 5 * (offZ >> 4) + (5 * 5) * (offY >> 4) + sectionOffset;
 
-                if (this.nibbleCache[sectionIndex] == null) {
+                final SWMRNibbleArray destinationNibble = this.nibbleCache[sectionIndex];
+                if (destinationNibble == null) {
                     continue;
                 }
 
                 final int localIndex = (offX & 15) | ((offZ & 15) << 4) | ((offY & 15) << 8);
-                final int currentLevel = this.getLightLevel(sectionIndex, localIndex);
+                final int currentLevel = destinationNibble.getUpdating(localIndex);
                 if (currentLevel == 0) {
+                    continue;
+                }
+                // Every scalar edge absorbs at least one. This neighbour is a
+                // restoration source irrespective of its opacity; resolve faces
+                // only if its level still matches when the increase queue runs.
+                if (currentLevel > propagatedLevel - 1) {
+                    if (increaseQueueLength >= increaseQueue.length) {
+                        if (increaseQueue.length >= MAX_QUEUE_SIZE) {
+                            this.queueOverflowed = true;
+                            continue;
+                        }
+                        increaseQueue = this.resizeIncreaseQueue();
+                    }
+                    increaseQueue[increaseQueueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
+                            | this.encodeQueueLevel(currentLevel)
+                            | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                            | FLAG_RECHECK_LEVEL | FLAG_HAS_SIDED_TRANSPARENT_BLOCKS;
                     continue;
                 }
                 // NOTE: no `currentLevel == 15` skip here. A sky-source
@@ -416,8 +436,9 @@ public class ScalarSkyEngine extends PulsarEngine {
                 // decreases it, so sources stay intact.
 
                 final IBlockState state = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
-                final int info = this.lightInfoAt(state, offX, offY, offZ);
-                final int absorption = LightInfo.absorption(info, state, propagate.oppositeOrdinal);
+                final boolean air = this.isPlainAir(state, sectionIndex);
+                final int info = air ? this.plainAirInfo() : this.lightInfoAt(state, offX, offY, offZ);
+                final int absorption = air ? 1 : LightInfo.absorption(info, state, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
                 final long sFlag = sidedFlag(info);
@@ -439,7 +460,7 @@ public class ScalarSkyEngine extends PulsarEngine {
                 }
 
                 // currentLevel != 0 was checked above — direct write, no no-op guard needed.
-                this.nibbleCache[sectionIndex].set(localIndex, 0);
+                destinationNibble.set(localIndex, 0);
                 this.postLightUpdate(sectionIndex, offX & 15, offY & 15, offZ & 15);
 
                 // Gate on targetLevel > 0 with targetLevel (upstream): the

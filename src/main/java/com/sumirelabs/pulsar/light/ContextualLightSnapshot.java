@@ -88,6 +88,26 @@ public final class ContextualLightSnapshot<S> {
         return this.cells.containsKey(position);
     }
 
+    /** Invalidate only already-published sources in a heightmap-affected column. */
+    public void requestColumn(final int localX, final int localZ, final int minY, final int maxY) {
+        if (minY > maxY || this.cells.isEmpty()) return;
+        final int column = (localX & 15) | ((localZ & 15) << 4);
+        // A densely contextual chunk must not pay a whole-chunk scan for each
+        // column. Bound work by the smaller of its source count and height span.
+        if ((long) maxY - minY + 1L < this.cells.size()) {
+            for (int y = minY;; y++) {
+                final int position = (y << 8) | column;
+                if (this.cells.containsKey(position)) this.pending.add(position);
+                if (y == maxY) break;
+            }
+            return;
+        }
+        for (final int position : this.cells.keySet()) {
+            final int y = position >> 8;
+            if ((position & 255) == column && y >= minY && y <= maxY) this.pending.add(position);
+        }
+    }
+
     public void request(final int position) {
         this.pending.add(position);
     }

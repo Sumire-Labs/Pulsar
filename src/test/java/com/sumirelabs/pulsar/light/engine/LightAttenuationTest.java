@@ -6,6 +6,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LightAttenuationTest {
 
+    @Test void packedStaticAbsorptionAgreesForEveryOpacityAndFace() {
+        for (int opacity = 0; opacity <= 15; opacity++) {
+            for (int face = 0; face < 6; face++) {
+                assertEquals(Math.max(1, opacity), LightInfo.absorption(opacity, null, face));
+                assertEquals(1, LightInfo.absorption(opacity | LightInfo.SIDED, null, face));
+                int closed = opacity | LightInfo.SIDED | (1 << (LightInfo.FACE_SHIFT + face));
+                assertEquals(Math.max(1, opacity), LightInfo.absorption(closed, null, face));
+            }
+        }
+    }
+
     @Test
     void openWaterFacesKeepTheMediumAbsorption() {
         final boolean waterGeometry = LightAttenuation.usesAutomaticFaces(false, true, 3);

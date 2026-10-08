@@ -9,6 +9,38 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ContextualLightSnapshotTest {
+    @Test void denseColumnInvalidationVisitsOnlyTheRequestedSignedHeightRange() {
+        final var snapshot = new ContextualLightSnapshot<Object>();
+        final Object block = new Object();
+        for (int y = -2; y <= 2; y++) {
+            for (int column = 0; column < 256; column++) {
+                snapshot.initialize((y << 8) | column, block, 3, null, 0);
+            }
+        }
+        snapshot.requestColumn(3, 4, -1, 1);
+        final int column = (4 << 4) | 3;
+        assertEquals(Set.of((-1 << 8) | column, column, (1 << 8) | column), snapshot.takePending());
+        snapshot.requestColumn(3, 4, 3, 3);
+        assertFalse(snapshot.hasPending());
+    }
+
+    @Test void columnInvalidationMatchesStoredCellsAcrossSignedHeightAndIgnoresOtherColumns() {
+        final var snapshot = new ContextualLightSnapshot<Object>();
+        final Object block = new Object();
+        final java.util.Set<Integer> expected = new java.util.HashSet<>();
+        for (int y : new int[]{-65, -64, -1, 0, 15, 16, 255, 256}) {
+            int here = (y << 8) | (15 << 4) | 15;
+            snapshot.publish(here, block, 3, null, 0);
+            snapshot.publish((y << 8) | (15 << 4) | 14, block, 3, null, 0);
+            if (y >= -64 && y <= 255) expected.add(here);
+        }
+        snapshot.requestColumn(-1, -1, -64, 255);
+        assertEquals(expected, snapshot.takePending());
+        snapshot.requestColumn(15, 15, 1000, 1200);
+        assertFalse(snapshot.hasPending());
+        snapshot.requestColumn(15, 15, 10, -10);
+        assertFalse(snapshot.hasPending());
+    }
     @Test
     void initialCaptureMatchesRefreshCaptureForSparseAndDenseSignedHeightSections() {
         final Object block = new Object(), fluid = new Object();

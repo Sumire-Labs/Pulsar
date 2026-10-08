@@ -42,6 +42,9 @@ abstract class LightEngineCache {
     protected final int minSection;
     protected final int maxSection;
     private final BlockPos.MutableBlockPos contextualLightPos = new BlockPos.MutableBlockPos();
+    private final IBlockState airState;
+    private final int airLightInfo;
+    private final boolean plainAir;
     protected int encodeOffsetX;
     protected int encodeOffsetY;
     protected int encodeOffsetZ;
@@ -56,6 +59,10 @@ abstract class LightEngineCache {
     LightEngineCache(final World world, final WorldHeightContext heightContext) {
         this.isClientSide = world.isRemote;
         this.world = world;
+        this.airState = Blocks.AIR.getDefaultState();
+        this.airLightInfo = LightInfo.of(this.airState);
+        this.plainAir = (this.airLightInfo & (LightInfo.CONTEXT_MASK | LightInfo.DYNAMIC | LightInfo.REGISTRY
+                | LightInfo.OPACITY_MASK | (LightInfo.OPACITY_MASK << LightInfo.EMISSION_SHIFT))) == 0;
         this.heightContext = heightContext;
         this.minLightSection = heightContext.getMinLightSection();
         this.maxLightSection = heightContext.getMaxLightSection();
@@ -145,7 +152,7 @@ abstract class LightEngineCache {
      */
     protected final int lightInfoAt(final IBlockState state,
                                     final int worldX, final int worldY, final int worldZ) {
-        int info = LightInfo.of(state);
+        int info = state == this.airState ? this.airLightInfo : LightInfo.of(state);
         if (LightInfo.hasContextualValues(info)) {
             info = LightInfo.resolveContextual(
                     info, state, this.world, this.contextualLightPos, worldX, worldY, worldZ);
@@ -158,6 +165,13 @@ abstract class LightEngineCache {
         return capability == null ? info : FluidLightBridge.merge(
                 info, capability, worldX, worldY, worldZ, this.world, this.contextualLightPos);
     }
+
+    protected final boolean isPlainAir(final IBlockState state, final int sectionIndex) {
+        return state == this.airState && this.plainAir
+                && (!FluidLightBridge.LOADED || this.fluidCapCache[sectionIndex % 25] == null);
+    }
+
+    protected final int plainAirInfo() { return this.airLightInfo; }
 
     protected final ExtendedBlockStorage getChunkSection(final int chunkX, final int chunkY,
                                                          final int chunkZ) {

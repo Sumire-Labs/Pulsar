@@ -74,7 +74,8 @@ public abstract class MixinChunkSectionChanges {
         // checkLight may be skipped when static opacity/emission is unchanged.
         // Still invalidate position-dependent values, after the state was set.
         if (!this.world.isRemote && manager != null) {
-            manager.contextualLight().request(pos.getX(), pos.getY(), pos.getZ());
+            manager.contextualLight().requestBlockChange(previousState, state,
+                    pos.getX(), pos.getY(), pos.getZ());
         }
 
         if (this.pulsar$sectionWasEmpty) {

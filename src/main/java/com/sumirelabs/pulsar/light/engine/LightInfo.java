@@ -221,7 +221,8 @@ public final class LightInfo {
         if ((info & DYNAMIC) != 0) {
             return FaceOcclusion.resolveScalarAbsorption(state, dirOrdinal);
         }
-        return LightAttenuation.absorption(info & OPACITY_MASK,
-                (info & SIDED) != 0, isFaceSolid(info, dirOrdinal));
+        if ((info & SIDED) != 0 && !isFaceSolid(info, dirOrdinal)) return 1;
+        // Packed opacity is already 0..15; ordinary blocks need no face-bit read.
+        return Math.max(1, info & OPACITY_MASK);
     }
 }

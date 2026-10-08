@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * and tracked contextual tile sources, never all loaded chunks' blocks every tick.
  */
 public final class ContextualLightManager {
+    // Owner-thread monotonic flag: worlds which never had samples need no neighbour scan.
+    private boolean hasContextualSources;
     private record Entry(Chunk chunk, ContextualLightSnapshot<IBlockState> snapshot,
                          TrackedLightSources<BlockPos, TileEntity> tracked) {}
 
@@ -130,6 +132,7 @@ public final class ContextualLightManager {
     /** Called for checkLight and successful block changes, after TE setup settles at tick end. */
     public void request(final int x, final int y, final int z) {
         this.requestCell(x, y, z, true);
+        if (this.isOwnerThread() && !FluidLightBridge.LOADED && !this.hasContextualSources) return;
         this.requestCell(x - 1, y, z, false);
         this.requestCell(x + 1, y, z, false);
         this.requestCell(x, y - 1, z, false);
@@ -190,6 +193,44 @@ public final class ContextualLightManager {
         }
     }
 
+    public void requestBlockChange(final IBlockState previous, final IBlockState next,
+                                    final int x, final int y, final int z) {
+        if (this.isOwnerThread() && !FluidLightBridge.LOADED && !this.hasContextualSources
+                && !LightInfo.hasContextualValues(LightInfo.of(previous))
+                && !LightInfo.hasContextualValues(LightInfo.of(next))) return;
+        this.request(x, y, z);
+    }
+
+    /** Same neighbourhood invalidation as repeated request(), without discovering static air. */
+    public void requestVerticalRange(final int x, final int z, final int firstY, final int lastY) {
+        final int minY = Math.max(this.height.getMinBlockY(), Math.min(firstY, lastY));
+        final int maxY = Math.min(this.height.getMaxBlockY(), Math.max(firstY, lastY));
+        if (minY > maxY) return;
+        if (!this.isOwnerThread() || FluidLightBridge.LOADED) {
+            // Unknown off-thread mutations and newly stored contextual fluids retain discovery.
+            for (int y = minY;; y++) {
+                this.request(x, y, z);
+                if (y == maxY) break;
+            }
+            return;
+        }
+        this.requestStoredColumn(x, z,
+                minY > this.height.getMinBlockY() ? minY - 1 : minY,
+                maxY < this.height.getMaxBlockY() ? maxY + 1 : maxY);
+        this.requestStoredColumn(x - 1, z, minY, maxY);
+        this.requestStoredColumn(x + 1, z, minY, maxY);
+        this.requestStoredColumn(x, z - 1, minY, maxY);
+        this.requestStoredColumn(x, z + 1, minY, maxY);
+    }
+
+    private void requestStoredColumn(final int x, final int z, final int minY, final int maxY) {
+        final Entry entry = this.chunks.get(CoordinateUtils.mixChunkKey(
+                CoordinateUtils.getChunkKey(x >> 4, z >> 4)));
+        if (entry == null) return;
+        entry.snapshot.requestColumn(x, z, minY, maxY);
+        if (entry.snapshot.hasPending()) this.pendingChunks.add(entry);
+    }
+
     /** Called after tile installation/removal; never calls World.getTileEntity. */
     public void tileEntityChanged(final BlockPos pos) {
         final Entry entry = this.chunks.get(CoordinateUtils.mixChunkKey(
@@ -225,6 +266,7 @@ public final class ContextualLightManager {
         if (!LightInfo.hasContextualValues(blockInfo)) block = null;
         if (!LightInfo.hasContextualValues(fluidInfo)) fluid = null;
         if (block != null || fluid != null) {
+            this.hasContextualSources = true;
             if (block != null) blockInfo = LightInfo.resolveContextual(blockInfo, block, this.world, samplePos, worldX, y, worldZ);
             if (fluid != null) fluidInfo = LightInfo.resolveContextual(fluidInfo, fluid, this.world, samplePos, worldX, y, worldZ);
         }

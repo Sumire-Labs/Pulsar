@@ -9,6 +9,33 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SWMRNibbleArrayTest {
+
+    @org.junit.jupiter.api.Test
+    void scalarWriterRechecksOwnershipAfterUniformAndVisibleTransitions() {
+        SWMRNibbleArray nibble = new SWMRNibbleArray(null, true);
+        SWMRNibbleArray untouched = new SWMRNibbleArray(null, true);
+        untouched.setFull();
+        untouched.updateVisible();
+        for (int pass = 0; pass < 64; pass++) {
+            nibble.setFull();
+            nibble.set(0, 7);
+            nibble.set(1, 3);
+            nibble.updateVisible();
+            org.junit.jupiter.api.Assertions.assertEquals(7, nibble.getVisible(0));
+            org.junit.jupiter.api.Assertions.assertEquals(3, nibble.getVisible(1));
+            org.junit.jupiter.api.Assertions.assertEquals(15, untouched.getVisible(0));
+            nibble.setZero();
+            nibble.set(0, 9);
+            nibble.updateVisible();
+            org.junit.jupiter.api.Assertions.assertEquals(9, nibble.getVisible(0));
+            org.junit.jupiter.api.Assertions.assertEquals(0, nibble.getVisible(1));
+            nibble.setNull();
+            nibble.set(1, 11);
+            nibble.updateVisible();
+            org.junit.jupiter.api.Assertions.assertEquals(0, nibble.getVisible(0));
+            org.junit.jupiter.api.Assertions.assertEquals(11, nibble.getVisible(1));
+        }
+    }
     @AfterEach void clearPool() { SWMRNibbleArray.WORKING_BYTES_POOL.remove(); }
 
     private static SWMRNibbleArray full() {

@@ -4,8 +4,11 @@ import com.sumirelabs.pulsar.compat.FluidLightBridge;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.engine.LightAttenuation;
 import com.sumirelabs.pulsar.light.engine.LightInfo;
+import com.sumirelabs.pulsar.light.WorldLightManager;
+import net.minecraft.world.EnumSkyBlock;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
+import com.sumirelabs.pulsar.world.PulsarWorld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -139,7 +142,29 @@ public abstract class MixinChunkVanillaLighting {
             return;
         }
 
-        this.world.markBlocksDirtyVertical(x + (this.x << 4), z + (this.z << 4), newHeight, oldHeight);
+        final int worldX = x + (this.x << 4);
+        final int worldZ = z + (this.z << 4);
+        final WorldLightManager manager = ((PulsarWorld) this.world).pulsar$getLightManager();
+        if (manager == null) {
+            this.world.markBlocksDirtyVertical(worldX, worldZ, newHeight, oldHeight);
+        } else {
+            // The column processor already walks from the highest changed Y.
+            // Vanilla's per-Y loop can let an async worker drain partial prefixes
+            // repeatedly while contextual-neighbour lookups delay the producer.
+            if (this.world.provider.hasSkyLight()) {
+                if (!this.world.isRemote) manager.contextualLight().requestVerticalRange(
+                        worldX, worldZ, newHeight, oldHeight);
+                final WorldHeightContext height = this.pulsar$getVanillaHeightContext();
+                // Vanilla passes blockY+1 on a height increase and blockY on removal.
+                // Use the same cell as World's subsequent checkLight, not the AIR
+                // cell above it, so both notifications can coalesce.
+                final int changedY = newHeight > oldHeight ? y - 1 : y;
+                manager.queueLightCheck(EnumSkyBlock.SKY, worldX,
+                        Math.max(height.getMinBlockY(), Math.min(height.getMaxBlockY(), changedY)), worldZ);
+            }
+            this.world.markBlockRangeForRenderUpdate(worldX, Math.min(newHeight, oldHeight),
+                    worldZ, worldX, Math.max(newHeight, oldHeight), worldZ);
+        }
         this.heightMap[z << 4 | x] = newHeight;
         if (newHeight < this.heightMapMinimum) {
             this.heightMapMinimum = newHeight;
