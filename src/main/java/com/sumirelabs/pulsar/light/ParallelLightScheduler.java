@@ -14,7 +14,8 @@ final class ParallelLightScheduler {
         return shared;
     }
 
-    private record Claim(LightEngineWorker lane, ChunkTasks task) {}
+    private record Claim(LightEngineWorker lane, ChunkTasks task,
+                         LightEngineWorker partner, ChunkTasks partnerTask) {}
     private final ArrayList<LightEngineWorker> lanes = new ArrayList<>();
     private final ChunkTaskReservations reservations = new ChunkTaskReservations();
     private final Semaphore work = new Semaphore(0);
@@ -33,6 +34,12 @@ final class ParallelLightScheduler {
         lanes.add(lane);
         lane.setParallelWakeup(this::signal);
         signal();
+    }
+
+    synchronized void pair(LightEngineWorker first, LightEngineWorker second) {
+        if (first.lockOwner() != second.lockOwner()) throw new IllegalArgumentException("Different worlds");
+        first.partner = second;
+        second.partner = first;
     }
 
     synchronized void unregister(LightEngineWorker lane) {
@@ -55,7 +62,10 @@ final class ParallelLightScheduler {
             if (task == null) continue;
             reservations.reserve(owner, task.chunkCoordinate);
             lane.jobClaimed(reservations.activeJobs(owner));
-            return new Claim(lane, task);
+            LightEngineWorker partner = lane.partner;
+            ChunkTasks partnerTask = partner == null ? null : partner.claimChunk(task.chunkCoordinate);
+            if (partnerTask != null) partner.jobClaimed(reservations.activeJobs(owner));
+            return new Claim(lane, task, partner, partnerTask);
         }
         return null;
     }
@@ -70,16 +80,21 @@ final class ParallelLightScheduler {
             }
             signal(); // Wake another worker to claim an independent footprint.
             try {
-                claim.lane.processClaimedTask(claim.task);
-            } catch (Throwable error) {
-                Pulsar.LOGGER.error("Parallel lighting job failed", error);
+                process(claim.lane, claim.task);
+                if (claim.partnerTask != null) process(claim.partner, claim.partnerTask);
             } finally {
                 synchronized (this) {
                     reservations.release(claim.lane.lockOwner(), claim.task.chunkCoordinate);
                 }
                 claim.lane.jobFinished();
+                if (claim.partnerTask != null) claim.partner.jobFinished();
                 signal();
             }
         }
+    }
+
+    private static void process(LightEngineWorker lane, ChunkTasks task) {
+        try { lane.processClaimedTask(task); }
+        catch (Throwable error) { Pulsar.LOGGER.error("Parallel lighting job failed", error); }
     }
 }

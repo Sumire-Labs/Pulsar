@@ -35,6 +35,7 @@ final class LightEngineWorker {
     private final AtomicInteger parallelJobsMax;
     private final Object completionMonitor = new Object();
     private int activeJobs;
+    LightEngineWorker partner;
 
     private volatile boolean running = true;
 
@@ -98,6 +99,16 @@ final class LightEngineWorker {
 
     ChunkTasks claimAvailable(LongPredicate allowed) {
         return this.running ? this.scheduler.claimAvailable(allowed) : null;
+    }
+
+    ChunkTasks claimChunk(long key) {
+        return this.running ? this.queue.claimChunk(key) : null;
+    }
+
+    void pairWith(LightEngineWorker other) {
+        if (this.parallel != null && other != null && this.parallel == other.parallel) {
+            this.parallel.pair(this, other);
+        }
     }
 
     void jobClaimed(int simultaneousWorldJobs) {

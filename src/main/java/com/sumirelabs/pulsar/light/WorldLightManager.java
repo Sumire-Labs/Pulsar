@@ -93,6 +93,7 @@ public final class WorldLightManager {
                 "propagateBlockChanges",
                 "Pulsar-Block",
                 !world.isRemote, world, this.stats.parallelJobsMax) : null;
+        if (this.skyWorker != null) this.skyWorker.pairWith(this.blockWorker);
     }
 
     public void registerChunk(final Chunk chunk) {

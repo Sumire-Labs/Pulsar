@@ -432,6 +432,14 @@ public final class LightQueue {
         this.inFlightTasks.put(task.chunkCoordinate, task);
     }
 
+    /** Partner lane claim, under the shared dispatcher's region reservation. */
+    synchronized ChunkTasks claimChunk(final long key) {
+        if (this.inFlightTasks.containsKey(key)) return null;
+        final ChunkTasks task = this.tasksByChunk.remove(key);
+        if (task != null) this.onTaskDequeued(task);
+        return task;
+    }
+
     public synchronized boolean hasPendingWork(final int cx, final int cz) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         return this.tasksByChunk.containsKey(key) || this.inFlightTasks.containsKey(key);
