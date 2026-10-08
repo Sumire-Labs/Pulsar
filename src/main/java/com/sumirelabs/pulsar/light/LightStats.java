@@ -31,6 +31,7 @@ public final class LightStats {
     public static volatile boolean enabled;
     // Client render-mark stat (main thread only)
     public static long engineRenderMarks;
+    public static long engineRenderRequests;
     // Block change diagnostics (block worker thread)
     public final AtomicLong blockPositionsProcessed = new AtomicLong();
     // Edge check diagnostics (multi-thread write, public for cross-package access from engine)
@@ -230,6 +231,7 @@ public final class LightStats {
 
         if ("CLIENT".equals(this.side)) {
             sb.append(" engineMarks=").append(engineRenderMarks);
+            sb.append(" engineRequests=").append(engineRenderRequests);
             this.clientDrain.append(sb, "clientDrain");
             sb.append(" clientOvershootMaxMs=").append(String.format(Locale.US, "%.3f", this.clientOvershootMaxNs / 1_000_000.0));
         } else {
@@ -255,6 +257,7 @@ public final class LightStats {
         this.queueLatencySamples.set(0);
         if ("CLIENT".equals(this.side)) {
             engineRenderMarks = 0;
+            engineRenderRequests = 0;
         }
         this.sampleLoad.reset();
         this.sampleFlush.reset();

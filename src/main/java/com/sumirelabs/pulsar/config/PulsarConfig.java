@@ -27,6 +27,9 @@ public class PulsarConfig {
 
     public static class Features {
 
+        @Config.Comment("Coalesce client lighting render notifications within each tick. Disable for comparison.")
+        public boolean coalesceClientRenderUpdates = true;
+
         @Config.Comment({
                 "Shared client lighting budget per tick in milliseconds. Default 2 favors frame pacing.",
                 "Sky and block tasks alternate. A task already running may exceed this soft limit.",

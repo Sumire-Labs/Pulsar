@@ -6,6 +6,7 @@ import com.sumirelabs.pulsar.light.LightStats;
 import com.sumirelabs.pulsar.light.RenderBounds;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
+import com.sumirelabs.pulsar.world.PulsarWorld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -318,6 +319,12 @@ abstract class LightEngineCache {
         final int sectionX = (localChunkX - this.chunkOffsetX) << 4;
         final int sectionY = (localSectionY - this.chunkOffsetY) << 4;
         final int sectionZ = (localChunkZ - this.chunkOffsetZ) << 4;
+        final Chunk chunk = this.chunkCache[cacheIndex % 25];
+        final var manager = ((PulsarWorld) this.world).pulsar$getLightManager();
+        if (manager != null && chunk != null) {
+            manager.queueClientRenderUpdate(chunk, sectionY >> 4, bounds);
+            return;
+        }
         this.world.markBlockRangeForRenderUpdate(
                 sectionX + RenderBounds.minX(bounds),
                 sectionY + RenderBounds.minY(bounds),
@@ -326,6 +333,7 @@ abstract class LightEngineCache {
                 sectionY + RenderBounds.maxY(bounds),
                 sectionZ + RenderBounds.maxZ(bounds));
         if (LightStats.enabled) {
+            LightStats.engineRenderRequests++;
             LightStats.engineRenderMarks++;
         }
     }

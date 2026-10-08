@@ -32,6 +32,7 @@ public final class WorldLightManager {
 
 
     private boolean blockFirstClientTick;
+    private final ClientRenderUpdates<Chunk> clientRenderUpdates = new ClientRenderUpdates<>();
 
     /**
      * Dense asynchronous edits can span several chunk tasks. Processing each
@@ -101,6 +102,7 @@ public final class WorldLightManager {
     }
 
     public void unregisterChunk(final int cx, final int cz) {
+        this.clientRenderUpdates.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.deferredChunkUpdates.remove(CoordinateUtils.getChunkKey(cx,cz));
         this.loadedChunkMap.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.contextualLight.unload(cx, cz);
@@ -230,6 +232,8 @@ public final class WorldLightManager {
             // Both lanes get a turn; do not short-circuit after the first succeeds.
             processed |= second != null && second.processOnePendingUntil(deadline);
         } while (processed && System.nanoTime() - deadline < 0L);
+        final int renderMarks = this.clientRenderUpdates.drain(this.loadedChunkMap::get, this::markClientRenderUpdate);
+        if (LightStats.enabled) LightStats.engineRenderMarks += renderMarks;
         if (PulsarConfig.debug.enableDebugStats) {
             this.stats.recordClientDrain(System.nanoTime() - started, budget);
         }
@@ -250,6 +254,26 @@ public final class WorldLightManager {
 
 
 
+
+    public void queueClientRenderUpdate(final Chunk chunk, final int sectionY, final long bounds) {
+        if (!this.world.isRemote) throw new IllegalStateException("Client render notification on a server world");
+        if (LightStats.enabled) LightStats.engineRenderRequests++;
+        if (!PulsarConfig.features.coalesceClientRenderUpdates) {
+            this.markClientRenderUpdate(CoordinateUtils.getChunkKey(chunk.x, chunk.z), sectionY, bounds);
+            if (LightStats.enabled) LightStats.engineRenderMarks++;
+            return;
+        }
+        this.clientRenderUpdates.add(CoordinateUtils.getChunkKey(chunk.x, chunk.z), chunk, sectionY, bounds);
+    }
+
+    private void markClientRenderUpdate(final long key, final int sectionY, final long bounds) {
+        final int x = CoordinateUtils.getChunkX(key) << 4;
+        final int y = sectionY << 4;
+        final int z = CoordinateUtils.getChunkZ(key) << 4;
+        this.world.markBlockRangeForRenderUpdate(x + RenderBounds.minX(bounds), y + RenderBounds.minY(bounds),
+                z + RenderBounds.minZ(bounds), x + RenderBounds.maxX(bounds), y + RenderBounds.maxY(bounds),
+                z + RenderBounds.maxZ(bounds));
+    }
 
     /** Queues wake their worker on insertion; statistics advance only at tick end. */
     @Deprecated
@@ -719,6 +743,7 @@ public final class WorldLightManager {
     }
 
     public void shutdown() {
+        this.clientRenderUpdates.clear();
         this.deferredChunkUpdates.clear();
         if (this.skyWorker != null) this.skyWorker.requestStop();
         if (this.blockWorker != null) this.blockWorker.requestStop();

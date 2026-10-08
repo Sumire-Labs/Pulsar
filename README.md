@@ -99,11 +99,22 @@ not add handheld dynamic lights or RGB lighting. Thaumcraft is optional.
 
 ### Development-build travel diagnostics
 
+Client light notifications are now coalesced within a tick when the combined
+range does not introduce additional neighboring renderer sections. Light data
+is still published before the render notification; unloaded/replaced chunks
+cannot inherit queued notifications.
+Set `features.coalesceClientRenderUpdates=false` to compare the direct
+notification path using the same build.
+
 The development build alternates client sky/block tasks within a shared
 `features.clientLightBudgetMs` budget (default **2 ms**, configurable from 1
 to 10). Increasing it can shorten lighting backlog at the cost of longer
 render-thread stalls. This is a soft limit checked between tasks; one expensive
 task can exceed it. No FPS improvement has been measured for this change yet.
+
+With debug statistics enabled, `engineRequests` counts incoming client light
+render notifications and `engineMarks` counts emitted notifications after
+coalescing. Neither counts completed mesh rebuilds.
 
 Enable `debug.enableDebugStats` to write `logs/pulsar-stats.log`. Each dimension
 reports once per 20 actual world/client ticks; server `skyMs` and `blockMs` can
