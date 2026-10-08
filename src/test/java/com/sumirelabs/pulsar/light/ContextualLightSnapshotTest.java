@@ -10,6 +10,62 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ContextualLightSnapshotTest {
     @Test
+    void initialCaptureMatchesRefreshCaptureForSparseAndDenseSignedHeightSections() {
+        final Object block = new Object(), fluid = new Object();
+        for (int stride : new int[]{1, 16, 4096}) {
+            final var initial = new ContextualLightSnapshot<Object>();
+            final var reference = new ContextualLightSnapshot<Object>();
+            for (int sectionY : new int[]{-4, 0, 20}) {
+                for (int cell = 0; cell < 4096; cell++) {
+                    int position = (sectionY << 12) | cell;
+                    Object sampledBlock = cell % stride == 0 ? block : null;
+                    Object sampledFluid = cell % stride == 1 ? fluid : null;
+                    initial.initialize(position, sampledBlock, 0x31, sampledFluid, 0x42);
+                    reference.publish(position, sampledBlock, 0x31, sampledFluid, 0x42);
+                    assertEquals(reference.contains(position), initial.contains(position));
+                    if (sampledBlock != null) assertEquals(0x31, initial.read(position, block, -1));
+                    if (sampledFluid != null) assertEquals(0x42, initial.read(position, fluid, -1));
+                }
+            }
+            assertFalse(initial.hasPending());
+        }
+    }
+
+    @Test
+    void initializedSamplesStillCorrectEmissionOpacityReplacementAndRemoval() {
+        final var snapshot = new ContextualLightSnapshot<Object>();
+        final Object block = new Object(), replacement = new Object(), fluid = new Object();
+        snapshot.initialize(-1024, block, 0x10, fluid, 0x20);
+        assertEquals(0, snapshot.publishChanges(-1024, block, 0x10, fluid, 0x20, 0xF0));
+        assertEquals(1, snapshot.publishChanges(-1024, block, 0x30, fluid, 0x20, 0xF0));
+        assertEquals(3, snapshot.publishChanges(-1024, block, 0x31, fluid, 0x20, 0xF0));
+        assertEquals(-1, snapshot.read(-1024, replacement, -1));
+        assertEquals(Set.of(-1024), snapshot.takePending());
+        assertEquals(3, snapshot.publishChanges(-1024, block, 0x31, fluid, 0x20, 0xF0));
+        assertEquals(3, snapshot.publishChanges(-1024, replacement, 0x31, null, 0, 0xF0));
+        assertEquals(3, snapshot.publishChanges(-1024, null, 0, null, 0, 0xF0));
+        assertFalse(snapshot.contains(-1024));
+    }
+
+    @Test
+    void initializedSamplesAreVisibleToWorkersAndInitializationRequiresOwner() throws Exception {
+        final var snapshot = new ContextualLightSnapshot<Object>();
+        final Object block = new Object(), fluid = new Object();
+        snapshot.initialize(512, block, 5, fluid, 13);
+        try (var executor = Executors.newSingleThreadExecutor()) {
+            executor.submit(() -> {
+                assertEquals(5, snapshot.read(512, block, -1));
+                assertEquals(13, snapshot.read(512, fluid, -1));
+                assertThrows(IllegalStateException.class,
+                        () -> snapshot.initialize(513, block, 1, null, 0));
+                assertThrows(IllegalStateException.class,
+                        () -> snapshot.initialize(514, null, 0, null, 0));
+            }).get(5, TimeUnit.SECONDS);
+        }
+        assertFalse(snapshot.hasPending());
+    }
+
+    @Test
     void emissionOnlyChangesDoNotRequireSkyButOpacityStateAndMissesDo() {
         final var snapshot = new ContextualLightSnapshot<Object>();
         final Object block = new Object();

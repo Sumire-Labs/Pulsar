@@ -25,6 +25,9 @@ final class LightEngineWorker {
     private final LightQueue queue;
     private final LightTaskScheduler scheduler;
     private final ConcurrentLinkedDeque<PulsarEngine> enginePool = new ConcurrentLinkedDeque<>();
+    // Client and dedicated lanes have one consumer, so need no concurrent pool.
+    private PulsarEngine singleEngine;
+    private boolean singleEngineInUse;
     private final Supplier<PulsarEngine> engineFactory;
     private final BiConsumer<ChunkTasks, PulsarEngine> taskProcessor;
     private final AtomicInteger budgetYields;
@@ -168,11 +171,20 @@ final class LightEngineWorker {
     }
 
     private PulsarEngine acquireEngine() {
+        if (this.parallel == null && !this.singleEngineInUse) {
+            if (this.singleEngine == null) this.singleEngine = this.engineFactory.get();
+            this.singleEngineInUse = true;
+            return this.singleEngine;
+        }
         final PulsarEngine cached = this.enginePool.pollFirst();
         return cached != null ? cached : this.engineFactory.get();
     }
 
     private void releaseEngine(final PulsarEngine engine) {
+        if (engine == this.singleEngine) {
+            this.singleEngineInUse = false;
+            return;
+        }
         if (this.enginePool.size() < MAX_CACHED_ENGINES) {
             this.enginePool.addFirst(engine);
         }

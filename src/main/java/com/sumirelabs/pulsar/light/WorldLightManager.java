@@ -236,6 +236,9 @@ public final class WorldLightManager {
         final long started = System.nanoTime();
         final long budget = Math.max(1, Math.min(10, PulsarConfig.features.clientLightBudgetMs)) * 1_000_000L;
         final long deadline = started + budget;
+        // Give carried notifications a turn before propagation can consume the
+        // whole budget again. Newly published ranges share the same deadline.
+        int renderMarks = this.drainClientRenderUpdates(deadline);
         // Alternate the first lane so an expensive atomic task cannot always
         // consume the other lane's entire shared budget.
         final LightEngineWorker first = this.blockFirstClientTick ? this.blockWorker : this.skyWorker;
@@ -247,7 +250,7 @@ public final class WorldLightManager {
             // Both lanes get a turn; do not short-circuit after the first succeeds.
             processed |= second != null && second.processOnePendingUntil(deadline);
         } while (processed && System.nanoTime() - deadline < 0L);
-        final int renderMarks = this.clientRenderUpdates.drain(this.loadedChunkMap::get, this::markClientRenderUpdate);
+        renderMarks += this.drainClientRenderUpdates(deadline);
         if (LightStats.enabled) LightStats.engineRenderMarks += renderMarks;
         if (PulsarConfig.debug.enableDebugStats) {
             this.stats.recordClientDrain(System.nanoTime() - started, budget);
@@ -257,6 +260,11 @@ public final class WorldLightManager {
         final int skySize = this.skyQueue != null ? this.skyQueue.size() : 0;
         final int blockSize = this.blockQueue != null ? this.blockQueue.size() : 0;
         this.stats.tick(skySize, blockSize);
+    }
+
+    private int drainClientRenderUpdates(final long deadline) {
+        return this.clientRenderUpdates.drainWhile(this.loadedChunkMap::get,
+                this::markClientRenderUpdate, () -> System.nanoTime() - deadline < 0L);
     }
 
     /** Called exactly once at WorldTick END, never by a lighting worker. */
@@ -333,14 +341,17 @@ public final class WorldLightManager {
     }
 
     private void processWithGate(final ChunkTasks task, final PulsarEngine engine, final boolean sky) {
-        this.lightingGate.readLock().lock();
+        // Range relights only run on server worlds; clients have one consumer.
+        if (!this.world.isRemote) this.lightingGate.readLock().lock();
         try {
             long generation = task.initialLightChunk != null ? task.initialLightGeneration
                     : task.initialLightEdgeGeneration;
             if (generation > 0L && !this.initialLighting.isCurrent(task.chunkCoordinate, generation)) return;
             if (sky) this.processSkyTask(task, engine);
             else this.processBlockTask(task, engine);
-        } finally { this.lightingGate.readLock().unlock(); }
+        } finally {
+            if (!this.world.isRemote) this.lightingGate.readLock().unlock();
+        }
     }
 
     private void processSkyTask(final ChunkTasks task, final PulsarEngine skyEngine) {

@@ -49,6 +49,8 @@ public final class ContextualLightManager {
     public void load(final Chunk chunk) {
         this.requireOwner();
         final Entry entry = new Entry(chunk, new ContextualLightSnapshot<>(), new TrackedLightSources<>());
+        // Local to this load: callbacks can reenter lighting with their own position.
+        final BlockPos.MutableBlockPos samplePos = new BlockPos.MutableBlockPos();
         // Publish only after capture, before the chunk becomes worker-visible.
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
         final int[] fluidPositions = FluidLightBridge.LOADED
@@ -78,7 +80,7 @@ public final class ContextualLightManager {
             }
             for (int y = sectionY << 4; y < (sectionY + 1) << 4; y++) {
                 for (int z = 0; z < 16; z++) {
-                    for (int x = 0; x < 16; x++) this.capture(entry, x, y, z);
+                    for (int x = 0; x < 16; x++) this.capture(entry, x, y, z, true, samplePos);
                 }
             }
         }
@@ -89,7 +91,7 @@ public final class ContextualLightManager {
                 final int sectionIndex = this.height.getStorageIndex(y >> 4);
                 if (scannedSections != null && sectionIndex >= 0 && sectionIndex < scannedSections.length
                         && scannedSections[sectionIndex]) continue;
-                this.capture(entry, key & 15, y, (key >>> 4) & 15);
+                this.capture(entry, key & 15, y, (key >>> 4) & 15, true, samplePos);
             }
         }
         final Entry previous = this.chunks.put(
@@ -203,6 +205,11 @@ public final class ContextualLightManager {
     }
 
     private int capture(final Entry entry, final int x, final int y, final int z) {
+        return this.capture(entry, x, y, z, false, null);
+    }
+
+    private int capture(final Entry entry, final int x, final int y, final int z,
+                        final boolean initial, final BlockPos.MutableBlockPos samplePos) {
         final int worldX = (entry.chunk.x << 4) + (x & 15);
         final int worldZ = (entry.chunk.z << 4) + (z & 15);
         IBlockState block = entry.chunk.getBlockState(x, y, z);
@@ -212,11 +219,15 @@ public final class ContextualLightManager {
         if (!LightInfo.hasContextualValues(blockInfo)) block = null;
         if (!LightInfo.hasContextualValues(fluidInfo)) fluid = null;
         if (block != null || fluid != null) {
-            final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+            final BlockPos.MutableBlockPos pos = samplePos != null ? samplePos : new BlockPos.MutableBlockPos();
             if (block != null) blockInfo = LightInfo.resolveContextual(blockInfo, block, this.world, pos, worldX, y, worldZ);
             if (fluid != null) fluidInfo = LightInfo.resolveContextual(fluidInfo, fluid, this.world, pos, worldX, y, worldZ);
         }
         final int key = pack(x, y, z);
+        if (initial) {
+            entry.snapshot.initialize(key, block, blockInfo, fluid, fluidInfo);
+            return 0;
+        }
         return entry.snapshot.publishChanges(key, block, blockInfo, fluid, fluidInfo,
                 LightInfo.OPACITY_MASK << LightInfo.EMISSION_SHIFT);
     }

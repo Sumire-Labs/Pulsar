@@ -3,6 +3,7 @@ package com.sumirelabs.pulsar.light;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
+import java.util.function.BooleanSupplier;
 
 /** Main-thread render notifications, merged across both light lanes within a tick. */
 final class ClientRenderUpdates<T> {
@@ -18,6 +19,7 @@ final class ClientRenderUpdates<T> {
     private Long2ObjectOpenHashMap<Entry<T>> pending = new Long2ObjectOpenHashMap<>();
     private Long2ObjectOpenHashMap<Entry<T>> spare = new Long2ObjectOpenHashMap<>();
     private boolean draining;
+    private long clearGeneration;
 
     void add(long key, T chunk, int sectionY, long bounds) {
         Entry<T> entry = pending.get(key);
@@ -59,18 +61,34 @@ final class ClientRenderUpdates<T> {
         return mask;
     }
 
-    void remove(long key) { pending.remove(key); }
-    void clear() { pending.clear(); spare.clear(); }
+    void remove(long key) {
+        pending.remove(key);
+        if (!draining) spare.remove(key);
+    }
+    void clear() {
+        pending.clear();
+        clearGeneration++;
+        // A renderer callback may clear the queue. Do not invalidate its iterator.
+        if (!draining) spare.clear();
+    }
 
     int drain(Lookup<T> loaded, Mark mark) {
-        if (draining || pending.isEmpty()) return 0;
+        return drainWhile(loaded, mark, () -> true);
+    }
+
+    /** Unsent ranges remain in the old batch; callback additions stay in pending. */
+    int drainWhile(Lookup<T> loaded, Mark mark, BooleanSupplier withinBudget) {
+        if (draining || (pending.isEmpty() && spare.isEmpty()) || !withinBudget.getAsBoolean()) return 0;
         draining = true;
-        Long2ObjectOpenHashMap<Entry<T>> batch = pending;
-        pending = spare;
-        spare = batch;
+        if (spare.isEmpty()) {
+            Long2ObjectOpenHashMap<Entry<T>> batch = pending;
+            pending = spare;
+            spare = batch;
+        }
         int marks = 0;
+        final long generation = clearGeneration;
         try {
-            var chunks = batch.long2ObjectEntrySet().fastIterator();
+            var chunks = spare.long2ObjectEntrySet().fastIterator();
             while (chunks.hasNext()) {
                 var chunkEntry = chunks.next();
                 long key = chunkEntry.getLongKey();
@@ -79,15 +97,23 @@ final class ClientRenderUpdates<T> {
                 while (sections.hasNext()) {
                     var section = sections.next();
                     LongArrayList ranges = section.getValue();
-                    for (int i = 0; i < ranges.size(); i++) {
-                        if (loaded.get(key) != entry.chunk) break;
-                        mark.accept(key, section.getIntKey(), ranges.getLong(i));
+                    while (!ranges.isEmpty()) {
+                        if (loaded.get(key) != entry.chunk) {
+                            ranges.clear();
+                            break;
+                        }
+                        if (!withinBudget.getAsBoolean()) return marks;
+                        mark.accept(key, section.getIntKey(), ranges.getLong(0));
+                        ranges.removeLong(0);
                         marks++;
+                        if (generation != clearGeneration) return marks;
                     }
+                    sections.remove();
                 }
+                chunks.remove();
             }
         } finally {
-            batch.clear();
+            if (generation != clearGeneration) spare.clear();
             draining = false;
         }
         return marks;

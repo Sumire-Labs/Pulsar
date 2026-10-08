@@ -40,6 +40,21 @@ public final class ContextualLightSnapshot<S> {
     }
 
     /**
+     * Seeds a fresh snapshot before it is made worker-visible. Static cells
+     * need no entry, change comparison or fallback correction at this stage.
+     * Refreshes of a published snapshot must use publishChanges instead.
+     */
+    void initialize(final int position, final S block, final int blockInfo,
+                    final S fluid, final int fluidInfo) {
+        if (Thread.currentThread() != this.owner) {
+            throw new IllegalStateException("Only the world thread may initialize contextual light");
+        }
+        if (block != null || fluid != null) {
+            this.cells.put(position, new Cell<>(block, blockInfo, fluid, fluidInfo));
+        }
+    }
+
+    /**
      * Returns the lanes requiring correction; identical samples allocate no new cell.
      * The caller specifies packed fields which affect only block light (emission).
      */
