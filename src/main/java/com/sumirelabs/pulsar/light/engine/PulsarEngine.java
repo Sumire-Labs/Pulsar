@@ -319,8 +319,7 @@ public abstract class PulsarEngine extends LightEngineCache {
             this.updateVisible();
             synchronized (chunk) {
                 if (((ExtendedWorld) this.world).pulsar$getAnyChunkImmediately(chunkX, chunkZ) != chunk) return;
-                NibbleArrayPublication.mergeFullLight(
-                        nibbles, this.getNibblesForChunkFromCache(chunkX, chunkZ));
+                this.mergeNibblesForChunkFromCache(chunkX, chunkZ, nibbles);
                 if (ret != null) this.setEmptinessMap(chunk, ret);
                 this.setNibbles(chunk, nibbles);
             }
@@ -372,8 +371,7 @@ public abstract class PulsarEngine extends LightEngineCache {
                     for (final Chunk cached : this.chunkCache) {
                         if (cached == null) continue;
                         final long cachedKey = CoordinateUtils.getChunkKey(cached.x, cached.z);
-                        NibbleArrayPublication.mergeFullLight(nibbles.get(cachedKey),
-                                this.getNibblesForChunkFromCache(cached.x, cached.z));
+                        this.mergeNibblesForChunkFromCache(cached.x, cached.z, nibbles.get(cachedKey));
                     }
                 } finally { this.destroyCaches(); }
             }

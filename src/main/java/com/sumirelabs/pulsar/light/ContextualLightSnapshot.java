@@ -99,7 +99,7 @@ public final class ContextualLightSnapshot<S> {
     /** Bounded batch: callback-triggered requests are left for the next tick. */
     public Set<Integer> takePending() {
         final Set<Integer> batch = new HashSet<>(this.pending);
-        for (final int position : batch) this.pending.remove(position);
+        for (final Integer position : batch) this.pending.remove(position);
         return batch;
     }
 }

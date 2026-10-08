@@ -6,6 +6,30 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ChunkTaskReservationsTest {
     @Test
+    void centerComparisonMatchesCellFootprintsAtCoordinateLimitsAndAcrossMultipleJobs() {
+        final Object world = new Object();
+        final ChunkTaskReservations reservations = new ChunkTaskReservations();
+        final java.util.Set<Long> cells = new java.util.HashSet<>();
+        final int[][] centers = {{Integer.MAX_VALUE, Integer.MIN_VALUE}, {-400, 120}, {200, -900}};
+        for (int[] center : centers) {
+            reservations.reserve(world, CoordinateUtils.getChunkKey(center[0], center[1]));
+            for (int dz = -2; dz <= 2; dz++) for (int dx = -2; dx <= 2; dx++)
+                cells.add(CoordinateUtils.getChunkKey(center[0] + dx, center[1] + dz));
+        }
+        for (int[] center : centers) {
+            for (int z = -8; z <= 8; z++) for (int x = -8; x <= 8; x++) {
+                int cx = center[0] + x, cz = center[1] + z;
+                boolean available = true;
+                for (int dz = -2; dz <= 2; dz++) for (int dx = -2; dx <= 2; dx++)
+                    if (cells.contains(CoordinateUtils.getChunkKey(cx + dx, cz + dz))) available = false;
+                assertEquals(available, reservations.available(world, CoordinateUtils.getChunkKey(cx, cz)));
+            }
+        }
+        assertThrows(IllegalStateException.class, () -> reservations.release(world, 123L));
+        assertEquals(centers.length, reservations.activeJobs(world));
+    }
+
+    @Test
     void excludesEveryOverlappingFiveByFiveFootprintIncludingDiagonals() {
         final Object world = new Object();
         final ChunkTaskReservations reservations = new ChunkTaskReservations();

@@ -303,13 +303,10 @@ abstract class LightEngineCache {
         }
     }
 
-    protected final SWMRNibbleArray[] getNibblesForChunkFromCache(final int chunkX, final int chunkZ) {
-        final SWMRNibbleArray[] result = new SWMRNibbleArray[this.heightContext.getTotalLightSections()];
-        for (int sectionY = this.minLightSection; sectionY <= this.maxLightSection; sectionY++) {
-            result[NibbleArrayPublication.lightIndex(this.heightContext, sectionY)] =
-                    this.getNibbleFromCache(chunkX, sectionY, chunkZ);
-        }
-        return result;
+    protected final void mergeNibblesForChunkFromCache(final int chunkX, final int chunkZ,
+                                                      final SWMRNibbleArray[] baseline) {
+        final int firstIndex = chunkX + 5 * chunkZ + 25 * this.minLightSection + this.chunkSectionIndexOffset;
+        NibbleArrayPublication.mergeFullLightFromCache(baseline, this.nibbleCache, firstIndex, 25);
     }
 
     private void markRenderUpdate(final int cacheIndex, final long bounds) {

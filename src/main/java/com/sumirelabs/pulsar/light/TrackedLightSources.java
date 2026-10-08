@@ -18,6 +18,11 @@ final class TrackedLightSources<K, T> {
 
     boolean isEmpty() { return sources.isEmpty(); }
 
+    boolean matches(K position, T source) {
+        requireOwner();
+        return source != null && sources.get(position) == source;
+    }
+
     void tick(BiPredicate<K, T> stillPresent, Consumer<K> requestSample) {
         requireOwner();
         var iterator = sources.entrySet().iterator();

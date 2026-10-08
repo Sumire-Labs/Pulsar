@@ -172,12 +172,16 @@ public final class ContextualLightManager {
             this.pendingChunks.remove(entry);
             if (this.chunks.get(CoordinateUtils.mixChunkKey(
                     CoordinateUtils.getChunkKey(entry.chunk.x, entry.chunk.z))) != entry) continue;
+            // Local to this batch: reentrant callbacks cannot overwrite a
+            // different flush's position. Reuse for capture and tile lookups.
+            final BlockPos.MutableBlockPos samplePos = new BlockPos.MutableBlockPos();
             for (final int key : entry.snapshot.takePending()) {
                 final int x = key & 15;
                 final int z = (key >>> 4) & 15;
                 final int y = key >> 8;
-                final int changes = this.capture(entry, x, y, z);
-                this.track(entry, new BlockPos((entry.chunk.x << 4) + x, y, (entry.chunk.z << 4) + z));
+                final int changes = this.capture(entry, x, y, z, false, samplePos);
+                samplePos.setPos((entry.chunk.x << 4) + x, y, (entry.chunk.z << 4) + z);
+                this.track(entry, samplePos);
                 if (changes != 0) {
                     // Publish before enqueueing; bypass request() to avoid a refresh loop.
                     manager.queueSampledBlockChange((entry.chunk.x << 4) + x, y, (entry.chunk.z << 4) + z, changes);
@@ -199,13 +203,15 @@ public final class ContextualLightManager {
         final TileEntity tile = entry.chunk.getTileEntityMap().get(pos);
         final boolean contextual = this.height.containsBlockY(pos.getY()) && tile != null && !tile.isInvalid()
                 && LightInfo.hasContextualValues(LightInfo.of(entry.chunk.getBlockState(pos)));
-        entry.tracked.update(pos.toImmutable(), contextual ? tile : null);
+        // Mutable lookup keys are safe for removal; only retained keys must
+        // be immutable. An unchanged source needs no replacement key.
+        if (contextual) {
+            if (!entry.tracked.matches(pos, tile)) entry.tracked.update(pos.toImmutable(), tile);
+        } else {
+            entry.tracked.update(pos, null);
+        }
         if (entry.tracked.isEmpty()) this.trackedChunks.remove(entry);
         else this.trackedChunks.add(entry);
-    }
-
-    private int capture(final Entry entry, final int x, final int y, final int z) {
-        return this.capture(entry, x, y, z, false, null);
     }
 
     private int capture(final Entry entry, final int x, final int y, final int z,
@@ -219,9 +225,8 @@ public final class ContextualLightManager {
         if (!LightInfo.hasContextualValues(blockInfo)) block = null;
         if (!LightInfo.hasContextualValues(fluidInfo)) fluid = null;
         if (block != null || fluid != null) {
-            final BlockPos.MutableBlockPos pos = samplePos != null ? samplePos : new BlockPos.MutableBlockPos();
-            if (block != null) blockInfo = LightInfo.resolveContextual(blockInfo, block, this.world, pos, worldX, y, worldZ);
-            if (fluid != null) fluidInfo = LightInfo.resolveContextual(fluidInfo, fluid, this.world, pos, worldX, y, worldZ);
+            if (block != null) blockInfo = LightInfo.resolveContextual(blockInfo, block, this.world, samplePos, worldX, y, worldZ);
+            if (fluid != null) fluidInfo = LightInfo.resolveContextual(fluidInfo, fluid, this.world, samplePos, worldX, y, worldZ);
         }
         final int key = pack(x, y, z);
         if (initial) {

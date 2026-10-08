@@ -1,41 +1,43 @@
 package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.util.CoordinateUtils;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.util.IdentityHashMap;
 
 /** Access is serialized by the dispatcher, independently of queue/chunk monitors. */
 final class ChunkTaskReservations {
-    private final IdentityHashMap<Object, LongOpenHashSet> occupied = new IdentityHashMap<>();
+    // At most 16 jobs share the process-wide pool. Compare their centers,
+    // instead of hashing 25 cells per candidate and retaining 25 per job.
+    private final IdentityHashMap<Object, LongArrayList> occupied = new IdentityHashMap<>();
 
     boolean available(Object world, long center) {
-        LongOpenHashSet cells = occupied.get(world);
-        if (cells == null) return true;
+        LongArrayList centers = occupied.get(world);
+        if (centers == null) return true;
         int cx = CoordinateUtils.getChunkX(center), cz = CoordinateUtils.getChunkZ(center);
-        for (int dz = -2; dz <= 2; dz++) for (int dx = -2; dx <= 2; dx++)
-            if (cells.contains(CoordinateUtils.getChunkKey(cx + dx, cz + dz))) return false;
+        for (int i = 0; i < centers.size(); i++) {
+            long other = centers.getLong(i);
+            // Subtract as int before widening: preserve packed coordinate wrap
+            // at integer limits, just like the original 5x5 cell reservation.
+            long dx = cx - CoordinateUtils.getChunkX(other);
+            long dz = cz - CoordinateUtils.getChunkZ(other);
+            if (Math.abs(dx) <= 4 && Math.abs(dz) <= 4) return false;
+        }
         return true;
     }
 
     void reserve(Object world, long center) {
         if (!available(world, center)) throw new IllegalStateException("Overlapping lighting jobs");
-        LongOpenHashSet cells = occupied.computeIfAbsent(world, ignored -> new LongOpenHashSet());
-        int cx = CoordinateUtils.getChunkX(center), cz = CoordinateUtils.getChunkZ(center);
-        for (int dz = -2; dz <= 2; dz++) for (int dx = -2; dx <= 2; dx++)
-            cells.add(CoordinateUtils.getChunkKey(cx + dx, cz + dz));
+        occupied.computeIfAbsent(world, ignored -> new LongArrayList()).add(center);
     }
 
     void release(Object world, long center) {
-        LongOpenHashSet cells = occupied.get(world);
-        if (cells == null) throw new IllegalStateException("Lighting reservation missing");
-        int cx = CoordinateUtils.getChunkX(center), cz = CoordinateUtils.getChunkZ(center);
-        for (int dz = -2; dz <= 2; dz++) for (int dx = -2; dx <= 2; dx++)
-            cells.remove(CoordinateUtils.getChunkKey(cx + dx, cz + dz));
-        if (cells.isEmpty()) occupied.remove(world);
+        LongArrayList centers = occupied.get(world);
+        if (centers == null || !centers.rem(center)) throw new IllegalStateException("Lighting reservation missing");
+        if (centers.isEmpty()) occupied.remove(world);
     }
 
     int activeJobs(Object world) {
-        LongOpenHashSet cells = occupied.get(world);
-        return cells == null ? 0 : cells.size() / 25;
+        LongArrayList centers = occupied.get(world);
+        return centers == null ? 0 : centers.size();
     }
 }
