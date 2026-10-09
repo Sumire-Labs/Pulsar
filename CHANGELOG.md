@@ -7,78 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Preserve block light in physically absent sections when sending full or
-  partial chunk packets. Packet-local light-only sections retain the values
-  without changing live chunk storage or section emptiness.
-
 ### Changed
 
-- Reduce changed-position allocation for ordinary small batches, retaining
-  normal hash-set growth for larger edits.
-- Coalesce heightmap skylight notifications into one column update while retaining
-  contextual source invalidation and renderer coverage. Avoid repeated neighbor
-  discovery for static edits in worlds without contextual sources.
-- Use a guarded plain-air path during propagation, retaining fluid, contextual
-  and sided-occlusion handling for states that require it.
-- Reduce repeated attenuation, nibble ownership and destination-cache checks in
-  scalar light propagation without changing visible-array copy-on-write rules.
-- Add an automatic CPU/3 shared-worker setting (`experimentalServerLightThreads=-1`).
-- Claim pending sky and block tasks for the same chunk together in shared-pool
-  mode, retaining the region reservation until both lane tasks complete.
-- Track contextual TileEntity light sources on the world thread each tick,
-  including replacement/removal, without moving Mod callbacks onto workers.
-- Add an opt-in shared-work-map backend for manual range relights
-  (`experimentalRangeRelight`), with world-wide job exclusion and generation-safe
-  publication; default off while performance is evaluated.
-- Add `features.coalesceClientRenderUpdates` for direct same-build ON/OFF
-  comparisons.
-- Add an opt-in bounded shared server lighting pool with world/5x5 task exclusion
-  (`features.experimentalServerLightThreads`), disabled by default while
-  performance and compatibility are evaluated.
-- Coalesce client light render notifications across sky/block tasks within each
-  tick, preserving the original neighboring renderer-section coverage and
-  discarding notifications for unloaded or replaced chunks.
-- Alternate client sky/block lighting after each task with a configurable shared
-  budget (`features.clientLightBudgetMs`, default 2 ms). The budget is a soft
-  limit: an individual task still finishes before another can start.
-- Advance lighting statistics once per world tick instead of on task submission
-  or worker callbacks. Add dimension IDs, individual task maxima, client drain
-  and overshoot timings, and main-thread contextual sampling timings. Server
-  statistics no longer reset client render marks.
-- Reduce chunk-load contextual-light sampling using vanilla palette flags and
-  Fluidlogged API's known vanilla position index. Unknown implementations keep
-  the conservative scanning path.
-- Skip initial block-light source scans in known sections without possible emitters.
-- Reuse sky-column tracking storage between tasks and avoid publishing unchanged
-  empty sky-light nibbles.
-- Spread internal chunk-map keys to avoid hash collisions along diagonal travel.
-- Share a 10 ms lighting wait allowance across server chunk unloads in each world
-  tick, replacing the previous 50 ms allowance for every chunk. Unfinished light
-  is invalidated for relighting on the next load.
+- Default new server lighting configs to automatic shared-pool sizing (-1).
+  Preserve existing saved values and document restart requirements.
+- Expose dedicated-worker batch time, unload lighting wait time, idle engine
+  cache size and statistics log interval with bounded values and config comments.
+
+- Optimize light propagation, source scanning, skylight updates and chunk-map
+  lookups to reduce allocation and redundant work.
+- Track contextual TileEntity light changes each tick, keeping Mod callbacks on
+  the world thread.
+- Coalesce client render updates (`features.coalesceClientRenderUpdates`) and
+  alternate sky/block tasks within a shared soft budget
+  (`features.clientLightBudgetMs`, default 2 ms).
+- Add an opt-in shared server lighting pool
+  (`features.experimentalServerLightThreads`, default disabled; `-1` selects
+  CPU/3 workers), with nearby-task exclusion and paired sky/block scheduling.
+- Add opt-in shared-pool range relighting (`experimentalRangeRelight`, default
+  off), with world-wide job exclusion and generation-safe publication.
+- Update lighting statistics once per world tick, with dimension IDs and more
+  detailed task, client and contextual-sampling timings.
+- Share a 10 ms lighting wait allowance across chunk unloads per world tick;
+  unfinished lighting is invalidated for the next load.
 
 ### Fixed
 
-- Keep dense skylight edits on the column-aware incremental path. Replacing
-  individual chunk batches with full rebuilds could leave incorrect sky light
-  across chunk boundaries after continuous edits.
-- Preserve empty sky-light nibble objects across full and incremental lighting,
-  preventing stale sky light after changes to opaque and shaped blocks.
-- Recheck lighting after successful changes to light-relevant block states,
-  including contextual and sided-face behavior.
-- Include the center chunk's Fluidlogged capability during initial lighting.
-- Prevent detached server chunks from receiving visible or vanilla light-array
-  publication after unload, while retaining valid caches on clean unloads.
-- Exclude unfinished neighboring lighting work from periodic light-cache saves,
-  and serialize cache snapshots under the chunk's publication monitor.
-- Bump the persisted lighting cache version to 12. Older caches are relit once
-  when their chunks next load.
+- Fix stale or incorrect skylight after dense edits and changes to opaque or
+  shaped blocks, including across chunk boundaries.
+- Preserve block light in absent sections when sending full or partial chunks.
+- Recheck light-relevant block changes and include the center chunk's Fluidlogged
+  capability during initial lighting.
+- Prevent light-array publication after chunk unload and exclude unfinished
+  lighting from cache saves. Lighting cache version is now 12; older caches
+  are relit when their chunks next load.
 
 ### Removed
 
-- Removed the Pulsar Colored Lighting Addon backend API, lifecycle and cache
-  hooks, and BLOCK-worker continuations. Pulsar uses its built-in scalar engines.
+- Remove the Pulsar Colored Lighting Addon backend API and integration hooks.
+  Pulsar now uses its built-in scalar engines.
+
 
 ## [0.4.0]
 
