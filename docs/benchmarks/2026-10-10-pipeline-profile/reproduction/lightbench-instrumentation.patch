@@ -1,0 +1,74 @@
+diff --git a/src/main/java/com/sumirelabs/lightbench/UpdateBenchmark.java b/src/main/java/com/sumirelabs/lightbench/UpdateBenchmark.java
+index aa31731..84780f7 100644
+--- a/src/main/java/com/sumirelabs/lightbench/UpdateBenchmark.java
++++ b/src/main/java/com/sumirelabs/lightbench/UpdateBenchmark.java
+@@ -218,6 +218,7 @@ final class UpdateBenchmark {
+                     workerCpuNanos,
+                     gcCollectionsDelta,
+                     gcTimeMillisDelta);
++            PulsarTimingBridge.write(output.resolveSibling("phase-timing.json"));
+             say(sender, "raw result saved: " + output.toAbsolutePath());
+         } catch (final Exception e) {
+             Lightbench.LOGGER.error("could not write Lightbench update result", e);
+@@ -404,13 +405,15 @@ final class UpdateBenchmark {
+         final IBlockState stone = Blocks.STONE.getDefaultState();
+         requireState(world, position, stone, "sky baseline");
+         for (int index = 0; index < pairs; ++index) {
+-            final TimedEdit remove = performEdit(world, probe, position, air);
++            final TimedEdit remove =
++                    performEdit(world, probe, position, air, removeSamples == null ? null : "sky_remove");
+             verifySkyColumn(world, probe, position, floorY, true);
+             if (removeSamples != null) {
+                 removeSamples.set(index, remove);
+             }
+ 
+-            final TimedEdit place = performEdit(world, probe, position, stone);
++            final TimedEdit place =
++                    performEdit(world, probe, position, stone, placeSamples == null ? null : "sky_place");
+             verifySkyColumn(world, probe, position, floorY, false);
+             if (placeSamples != null) {
+                 placeSamples.set(index, place);
+@@ -431,13 +434,15 @@ final class UpdateBenchmark {
+         requireState(world, position, air, "block-light baseline");
+         verifyBlockLight(world, probe, position, false);
+         for (int index = 0; index < pairs; ++index) {
+-            final TimedEdit place = performEdit(world, probe, position, glowstone);
++            final TimedEdit place =
++                    performEdit(world, probe, position, glowstone, placeSamples == null ? null : "block_place");
+             verifyBlockLight(world, probe, position, true);
+             if (placeSamples != null) {
+                 placeSamples.set(index, place);
+             }
+ 
+-            final TimedEdit remove = performEdit(world, probe, position, air);
++            final TimedEdit remove =
++                    performEdit(world, probe, position, air, removeSamples == null ? null : "block_remove");
+             verifyBlockLight(world, probe, position, false);
+             if (removeSamples != null) {
+                 removeSamples.set(index, remove);
+@@ -448,6 +453,17 @@ final class UpdateBenchmark {
+     private static TimedEdit performEdit(
+             final World world, final LightProbe probe, final BlockPos position, final IBlockState state)
+             throws Exception {
++        return performEdit(world, probe, position, state, null);
++    }
++
++    private static TimedEdit performEdit(
++            final World world,
++            final LightProbe probe,
++            final BlockPos position,
++            final IBlockState state,
++            final String phase)
++            throws Exception {
++        final boolean profiling = PulsarTimingBridge.begin(phase);
+         final long start = System.nanoTime();
+         if (!world.setBlockState(position, state, UPDATE_FLAGS)) {
+             throw new IllegalStateException("timed block edit did not change state at " + format(position));
+@@ -455,6 +471,7 @@ final class UpdateBenchmark {
+         final long submitted = System.nanoTime();
+         final long barrierNanos = probe.drainLight(position);
+         final long completed = System.nanoTime();
++        if (profiling) PulsarTimingBridge.end(submitted - start, barrierNanos, completed - start, start);
+         return new TimedEdit(submitted - start, barrierNanos, completed - start);
+     }
+ 

@@ -1,0 +1,56 @@
+{
+  "probe": "local diagnostic copy; no engine algorithm changes",
+  "artifacts": [
+    {
+      "sha256": "730BB0425C97D394C86712E27F71C93069D5B95877BD54F70FC56235EEEF33EF",
+      "file": "Alfheim-1.6.jar"
+    },
+    {
+      "sha256": "B985BC77F630DA1A1F5F403D7BF0F218455E7F3A6A67F0BC88652838DE9CFFD2",
+      "file": "pulsar-0.5.0.jar"
+    },
+    {
+      "sha256": "8F2BBF50894DE64DD123F922F5A0169D5A656DE870ADC30DAB7B72849C6F5609",
+      "file": "pulsar-instrumented.jar"
+    },
+    {
+      "sha256": "1A0AEED6FAC972EF5D66CC645B893BDBA9094D160DB854C53719805BF08EFBB7",
+      "file": "starlight-0a7d94e-clean.jar"
+    }
+  ],
+  "common_mods": [
+    {
+      "file": "-cleanroom-relauncher-1.1.2.jar",
+      "sha256": "E120ADAFABB0145EFF704633ED5304C356D0E20C1CD4831347A8530D152164B3"
+    },
+    {
+      "file": "-Red-Core-MC-1.8-1.12-0.7.1.jar",
+      "sha256": "9935912816062CA46A2ECD020D813EE2DDE8E6B228DAEC068B465EB72EA51368"
+    },
+    {
+      "file": "+Fugue-0.24.3.jar",
+      "sha256": "00DC2DE461B8A9BF0D9B684AA0377713BDA85CA63DA5EC93028C226ED2119EFD"
+    },
+    {
+      "file": "four-engine-driver.jar",
+      "sha256": "4A63000F1E8B36C343F5A845EBECDE20226666DED4ADC2AB989754CB2884AB1E"
+    },
+    {
+      "file": "lightbench-1.1.0-bench9.jar",
+      "sha256": "E2294E11026B0A929DBDDCD6A49F4012BA5EBB060F648688B780202090E940E6"
+    },
+    {
+      "file": "scalar-3.8.4-1.jar",
+      "sha256": "A4C2CD912C36CD5A5055153EC950455349EED6DAEFEB747013B5F675190EB1FD"
+    },
+    {
+      "file": "1.12.2\\scala-library-3.8.4.jar",
+      "sha256": "1B8330DE5774C15874173F168B674255CAA00C5EF3648AB0B6CB763BB7FD2DE7"
+    },
+    {
+      "file": "1.12.2\\scala-parser-combinators_3-2.4.0.jar",
+      "sha256": "50F1B3DCF8F14975702DC6DA287797E391FC5D4834E4D3E7E9F9125EFDB2DE9A"
+    }
+  ],
+  "source": "fdfc106 (runtime source unchanged from75b051d)"
+}

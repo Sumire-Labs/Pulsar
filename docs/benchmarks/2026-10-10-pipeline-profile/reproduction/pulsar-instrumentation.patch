@@ -1,0 +1,137 @@
+diff --git a/src/main/java/com/sumirelabs/pulsar/light/ChunkTasks.java b/src/main/java/com/sumirelabs/pulsar/light/ChunkTasks.java
+index 584abb9..2eeb659 100644
+--- a/src/main/java/com/sumirelabs/pulsar/light/ChunkTasks.java
++++ b/src/main/java/com/sumirelabs/pulsar/light/ChunkTasks.java
+@@ -53,6 +53,6 @@ public final class ChunkTasks {
+     public ChunkTasks(final long chunkCoordinate) {
+         this.chunkCoordinate = chunkCoordinate;
+         this.onComplete = SettableFuture.create();
+-        this.enqueueTimeNs = LightStats.enabled ? System.nanoTime() : 0L;
++        this.enqueueTimeNs = (LightStats.enabled || PhaseTiming.ENABLED) ? System.nanoTime() : 0L;
+     }
+ }
+diff --git a/src/main/java/com/sumirelabs/pulsar/light/LightEngineWorker.java b/src/main/java/com/sumirelabs/pulsar/light/LightEngineWorker.java
+index b095ac9..29bd2df 100644
+--- a/src/main/java/com/sumirelabs/pulsar/light/LightEngineWorker.java
++++ b/src/main/java/com/sumirelabs/pulsar/light/LightEngineWorker.java
+@@ -129,12 +129,15 @@ final class LightEngineWorker {
+     }
+ 
+     void processClaimedTask(ChunkTasks task) {
++        final PhaseTiming.Sample timing = PhaseTiming.current();
++        final long started = timing == null ? 0 : System.nanoTime();
+         PulsarEngine engine = null;
+         try {
+             engine = this.acquireEngine();
+             this.taskProcessor.accept(task, engine);
+         } finally {
+             if (engine != null) this.releaseEngine(engine);
++            if (timing != null) PhaseTiming.task(timing, this.operationName.equals("propagateSkyChanges"), task.enqueueTimeNs, started, System.nanoTime());
+             this.queue.completeTask(task);
+         }
+     }
+diff --git a/src/main/java/com/sumirelabs/pulsar/light/engine/PulsarEngine.java b/src/main/java/com/sumirelabs/pulsar/light/engine/PulsarEngine.java
+index 2519e99..3f66e47 100644
+--- a/src/main/java/com/sumirelabs/pulsar/light/engine/PulsarEngine.java
++++ b/src/main/java/com/sumirelabs/pulsar/light/engine/PulsarEngine.java
+@@ -2,6 +2,7 @@ package com.sumirelabs.pulsar.light.engine;
+ 
+ import com.sumirelabs.pulsar.Pulsar;
+ import com.sumirelabs.pulsar.light.LightStats;
++import com.sumirelabs.pulsar.light.PhaseTiming;
+ import com.sumirelabs.pulsar.light.SWMRNibbleArray;
+ import com.sumirelabs.pulsar.util.WorldHeightContext;
+ import com.sumirelabs.pulsar.util.WorldUtil;
+@@ -207,10 +208,13 @@ public abstract class PulsarEngine extends LightEngineCache {
+     }
+ 
+     public final void blocksChangedInChunk(final int chunkX, final int chunkZ, final IntSet changedPositions, final Boolean[] changedSections) {
++        final long ta = PhaseTiming.clock(!this.isClientSide);
++        long tb=0, tc=0, td=0, te=0;
+         this.lastBfsIncreaseTotal = 0;
+         this.lastBfsDecreaseTotal = 0;
+         this.lastPositionsProcessed = 0;
+         this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
++        tb=ta==0?0:System.nanoTime();
+         try {
+             final Chunk chunk = this.getChunkInCache(chunkX, chunkZ);
+             if (chunk == null) {
+@@ -225,13 +229,18 @@ public abstract class PulsarEngine extends LightEngineCache {
+                     this.setEmptinessMap(chunk, ret);
+                 }
+             }
++            tc=ta==0?0:System.nanoTime();
+             // 2. Block changes (uses now-updated nibbles)
+             if (changedPositions != null && !changedPositions.isEmpty()) {
+                 this.processBlockPositionChanges(chunk, chunkX, chunkZ, changedPositions);
+             }
++            td=ta==0?0:System.nanoTime();
+             this.updateVisible();
++            te=ta==0?0:System.nanoTime();
+         } finally {
+             this.destroyCaches();
++            if(ta!=0 && te!=0) PhaseTiming.engine(this.skylightPropagator,ta,tb,tc,td,te,System.nanoTime());
++            if(ta!=0 && te!=0) PhaseTiming.work(this.skylightPropagator,this.lastPositionsProcessed,this.lastBfsIncreaseTotal,this.lastBfsDecreaseTotal);
+         }
+     }
+ 
+diff --git a/src/main/java/com/sumirelabs/pulsar/light/engine/ScalarBlockEngine.java b/src/main/java/com/sumirelabs/pulsar/light/engine/ScalarBlockEngine.java
+index 0e7a4a1..525a64d 100644
+--- a/src/main/java/com/sumirelabs/pulsar/light/engine/ScalarBlockEngine.java
++++ b/src/main/java/com/sumirelabs/pulsar/light/engine/ScalarBlockEngine.java
+@@ -1,5 +1,7 @@
+ package com.sumirelabs.pulsar.light.engine;
+ 
++import com.sumirelabs.pulsar.light.PhaseTiming;
++
+ import com.sumirelabs.pulsar.compat.FluidLightBridge;
+ import com.sumirelabs.pulsar.light.ContextualLightPalette;
+ import com.sumirelabs.pulsar.light.PulsarChunk;
+@@ -159,6 +161,7 @@ public class ScalarBlockEngine extends PulsarEngine {
+ 
+     @Override
+     protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ, final IntSet changedPositions) {
++        final long ta=PhaseTiming.clock(!this.isClientSide);
+         final int minBlockY = this.heightContext.getMinBlockY();
+         final int maxBlockY = this.heightContext.getMaxBlockY();
+         final IntIterator it = changedPositions.iterator();
+@@ -173,7 +176,9 @@ public class ScalarBlockEngine extends PulsarEngine {
+             this.lastPositionsProcessed++;
+             this.checkBlock(worldX, worldY, worldZ);
+         }
++        final long tb=ta==0?0:System.nanoTime();
+         this.performLightDecrease();
++        if(ta!=0)PhaseTiming.propagation(false,ta,tb,System.nanoTime());
+     }
+ 
+     @Override
+diff --git a/src/main/java/com/sumirelabs/pulsar/light/engine/SkyLightColumnProcessor.java b/src/main/java/com/sumirelabs/pulsar/light/engine/SkyLightColumnProcessor.java
+index d99b4eb..e8a0ff1 100644
+--- a/src/main/java/com/sumirelabs/pulsar/light/engine/SkyLightColumnProcessor.java
++++ b/src/main/java/com/sumirelabs/pulsar/light/engine/SkyLightColumnProcessor.java
+@@ -1,5 +1,7 @@
+ package com.sumirelabs.pulsar.light.engine;
+ 
++import com.sumirelabs.pulsar.light.PhaseTiming;
++
+ import com.sumirelabs.pulsar.light.SWMRNibbleArray;
+ import it.unimi.dsi.fastutil.ints.IntIterator;
+ import it.unimi.dsi.fastutil.ints.IntSet;
+@@ -261,6 +263,7 @@ final class SkyLightColumnProcessor {
+     void processBlockPositionChanges(final int chunkX, final int chunkZ,
+                                      final IntSet changedPositions) {
+         final ScalarSkyEngine engine = this.engine;
++        final long ta=PhaseTiming.clock(!engine.isClientSide);
+         this.rewriteNibbleCache();
+         Arrays.fill(this.nullPropagationChecks, false);
+ 
+@@ -322,7 +325,9 @@ final class SkyLightColumnProcessor {
+                     worldY,
+                     (chunkZ << 4) | ((packed >> 4) & 15));
+         }
++        final long tb=ta==0?0:System.nanoTime();
+         engine.performLightDecrease();
++        if(ta!=0)PhaseTiming.propagation(true,ta,tb,System.nanoTime());
+     }
+ 
+     void propagateBlockChange(final int blockX, final int blockY, final int blockZ) {

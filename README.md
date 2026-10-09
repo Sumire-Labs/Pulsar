@@ -159,6 +159,9 @@ Sky workload. Whole-game heap and render-loop observations are not
 engine-only memory or equal-scene FPS claims.
 
 [Full results, methods, raw data and publication copy](docs/benchmarks/2026-10-10-pulsar-0.5.0/README.md).
+An additional [pipeline diagnostic study](docs/benchmarks/2026-10-10-pipeline-profile/README.md)
+separates task coordination, propagation and publication. Its instrumented
+timings have measured overhead and do not replace the comparison above.
 Earlier measurements below use different versions and protocols and must
 not be compared directly with this study.
 

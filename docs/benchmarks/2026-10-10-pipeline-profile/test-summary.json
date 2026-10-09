@@ -1,0 +1,14 @@
+{
+  "pulsar-instrumented": {
+    "tests": 175,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lightbench-instrumented": {
+    "tests": 60,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

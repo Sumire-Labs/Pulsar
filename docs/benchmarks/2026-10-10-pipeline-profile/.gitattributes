@@ -1,0 +1,2 @@
+# Preserve exact bytes for the published SHA256 manifest across checkouts.
+* -text
