@@ -13,6 +13,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          fetch-tags: true
           
       - name: Set up JDK
         uses: actions/setup-java@v6
@@ -28,6 +29,14 @@ jobs:
         
       - name: Execute Gradle build
         run: ./gradlew build
+
+      - name: Get artifact version
+        id: version
+        shell: bash
+        run: |
+          # Unimined's logger may print an initialization line even in quiet mode.
+          version=$(./gradlew -q --console=plain printVersion | tail -n 1)
+          echo "value=$version" >> "$GITHUB_OUTPUT"
 
       - name: Get Changes between Tags
         id: changes
@@ -52,5 +61,5 @@ jobs:
           game-versions: 1.12.2
           java: |
             25
-          version: ${{ steps.changes.outputs.tag }}
+          version: ${{ steps.version.outputs.value }}
           changelog: ${{ steps.changes.outputs.changes }}

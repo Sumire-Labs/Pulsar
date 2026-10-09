@@ -4,8 +4,9 @@ plugins {
     id 'maven-publish'
     id 'com.gradleup.shadow' version '9.6.1'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.4.1'
-    id 'xyz.wagyourtail.unimined' version '1.4.37-kappa'
-    id 'net.kyori.blossom' version '2.2.0'
+    id 'com.cleanroommc.versioning' version '3.3.0'
+    id 'xyz.wagyourtail.unimined' version '1.4.43-kappa'
+    id 'com.cleanroommc.tokenenvoy' version '3.0.0'
 }
 
 import org.jetbrains.gradle.ext.Gradle
@@ -15,7 +16,6 @@ ext {
     access_transformer_locations = "${mod_id}_at.cfg"
 }
 
-version = mod_version
 group = root_package
 
 base {
@@ -57,7 +57,7 @@ unimined.minecraft {
         if (use_access_transformer.toBoolean()) {
             accessTransformer "${rootProject.projectDir}/src/main/resources/$access_transformer_locations"
         }
-        loader "0.6.10-alpha"
+        loader "0.6.13-alpha"
         runs.all {
             systemProperty("crl.dev.mixin", "${mod_id}.mixin.json")
             args += ['--username', minecraft_username]
@@ -93,6 +93,11 @@ unimined.minecraft {
     }
 }
 
+// Use the Gradle run configurations below instead of Unimined's IntelliJ entries.
+tasks.matching { it.name == 'genIntellijRuns' }.configureEach {
+    enabled = false
+}
+
 dependencies {
     if (use_asset_mover.toBoolean()) {
         implementation "com.cleanroommc:assetmover:${asset_mover_version}"
@@ -116,27 +121,23 @@ processResources {
     rename '(.+_at.cfg)', 'META-INF/$1'
 }
 
-sourceSets {
+tokenEnvoy {
+    set 'mod_id', mod_id
+    set 'mod_name', mod_name
+    set 'mod_version', project.version.toString()
     main {
-        blossom {
-            javaSources {
-                property('mod_id', mod_id)
-                property('mod_name', mod_name)
-                property('mod_version', mod_version)
-                property('package', "${root_package}.${mod_id}")
-            }
-            resources {
-                property('mod_id', mod_id)
-                property('mod_name', mod_name)
-                property('mod_version', mod_version)
-                property('mod_description', mod_description)
-                property('mod_authors', mod_authors.toString().split(',').findAll { !it.isBlank() }.collect { "\"${it.strip()}\"" }.join(', '))
-                property('mod_credits', mod_credits)
-                property('mod_url', mod_url)
-                property('mod_update_json', mod_update_json)
-                property('mod_logo_path', mod_logo_path)
-                property('mod_issue_tracker', mod_issue_tracker)
-            }
+        set 'mod_description', mod_description
+        set 'mod_authors', mod_authors.toString().split(',').findAll { !it.isBlank() }.collect { "\"${it.strip()}\"" }.join(', ')
+        set 'mod_credits', mod_credits
+        set 'mod_url', mod_url
+        set 'mod_update_json', mod_update_json
+        set 'mod_logo_path', mod_logo_path
+        set 'mod_issue_tracker', mod_issue_tracker
+        classes {
+            include 'com.sumirelabs.pulsar.Reference'
+        }
+        resources {
+            include 'mcmod.info', 'pack.mcmeta'
         }
     }
 }

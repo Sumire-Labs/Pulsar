@@ -265,6 +265,25 @@ made. [Original generation CSV](docs/benchmarks/2026-08-05-lightbench.csv).
 
 [Generation parity results and diagnostic data](docs/benchmarks/2026-09-07-pulsar-0.3.0/README.md#why-there-is-no-new-chunk-generation-ranking)
 
+## Building
+
+Use JDK 25 and run `./gradlew build` (`.\gradlew.bat build` on Windows).
+The build follows the [CleanroomModTemplate Mixin branch](https://github.com/CleanroomMC/CleanroomModTemplate/tree/mixin).
+
+[CleanroomVersioning](https://github.com/CleanroomMC/Versioning) derives the version
+from Git history and tags; there is no manual `mod_version` property. Clone with
+full history and tags. Run `./gradlew -q printVersion` to inspect the version.
+The release branch is `main`: an exact tag such as `0.4.0` produces `0.4.0`,
+and later commits lead to the next patch with a development or branch label.
+Local builds include `.local`, and uncommitted changes also add `.dirty`.
+Create a SemVer tag on `main` to release a version; an optional stage suffix
+such as `0.5.0-alpha` sets the release stage and is omitted from the version.
+
+[TokenEnvoy](https://github.com/CleanroomMC/TokenEnvoy) replaces `@{...}` markers
+in `Reference.java`, `mcmod.info`, and `pack.mcmeta` during compilation and
+resource processing. Source files retain the markers. Mod metadata is configured
+in `gradle.properties`.
+
 ## Credits
 
 - [Starlight](https://github.com/PaperMC/Starlight) by Spottedleaf, for the
