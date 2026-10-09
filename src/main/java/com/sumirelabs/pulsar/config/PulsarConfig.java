@@ -1,11 +1,16 @@
 package com.sumirelabs.pulsar.config;
 
 import com.sumirelabs.pulsar.Reference;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.apache.logging.log4j.LogManager;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Forge {@link Config @Config}-based runtime configuration for Pulsar.
@@ -17,6 +22,36 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 @Config(modid = Reference.MOD_ID, name = "pulsar")
 public class PulsarConfig {
+
+    @Config.Ignore
+    public static final int CURRENT_CONFIG_VERSION = 2;
+
+    // ASM discovery can initialize this class before mod preInit. Do the migration
+    // before either that injection or our explicit ConfigManager registration.
+    static {
+        if (Launch.minecraftHome != null) {
+            final File file = new File(new File(Launch.minecraftHome, "config"), "pulsar.cfg");
+            try {
+                if (PulsarConfigVersion.prepare(file, CURRENT_CONFIG_VERSION)) {
+                    LogManager.getLogger("Pulsar Config").info(
+                            "Config version missing or mismatched; regenerating Pulsar Config Version {} with defaults",
+                            CURRENT_CONFIG_VERSION);
+                }
+            } catch (final IOException exception) {
+                throw new IllegalStateException("Cannot regenerate Pulsar config: " + file, exception);
+            }
+        }
+    }
+
+    @Config.Comment({
+            "Pulsar Config Version " + CURRENT_CONFIG_VERSION,
+            "このバージョンを編集しないでください。Pulsarによって管理されています。",
+            "Do not edit this version. Managed by Pulsar.",
+            "A missing or mismatched version resets this entire config to current defaults at startup."
+    })
+    @Config.RangeInt(min = CURRENT_CONFIG_VERSION, max = CURRENT_CONFIG_VERSION)
+    @Config.RequiresMcRestart
+    public static int configVersion = CURRENT_CONFIG_VERSION;
 
     @Config.Comment("Feature toggles")
     public static final Features features = new Features();
@@ -58,7 +93,7 @@ public class PulsarConfig {
                 "0 uses the dedicated sky/block workers; 1..16 sets the shared pool size explicitly.",
                 "Tasks reserve a shared 5x5 chunk footprint; only non-overlapping tasks run together.",
                 "More threads may increase CPU and memory use without improving FPS or latency.",
-                "Restart Minecraft/the server to apply. Existing saved config values are preserved."
+                "Restart Minecraft/the server to apply. Values are preserved while the config version matches."
         })
         @Config.RangeInt(min = -1, max = 16)
         @Config.RequiresMcRestart
@@ -140,6 +175,11 @@ public class PulsarConfig {
         })
         @Config.RangeInt(min = 1, max = 1200)
         public volatile int statsLogIntervalTicks = 20;
+    }
+
+    /** Calling this method initializes the version guard before registration reads the file. */
+    public static void initialize() {
+        ConfigManager.register(PulsarConfig.class);
     }
 
     @Mod.EventBusSubscriber(modid = Reference.MOD_ID)

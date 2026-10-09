@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Default new server lighting configs to automatic shared-pool sizing (-1).
-  Preserve existing saved values and document restart requirements.
+- Introduce managed Pulsar Config Version 2. Missing or mismatched versions
+  regenerate the whole config with current defaults before settings are loaded;
+  matching versions retain custom settings.
+- Default server lighting configs to automatic shared-pool sizing (-1),
+  including migration from older configs, and document restart requirements.
 - Expose dedicated-worker batch time, unload lighting wait time, idle engine
   cache size and statistics log interval with bounded values and config comments.
 

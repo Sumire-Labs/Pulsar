@@ -5,7 +5,6 @@ import com.sumirelabs.pulsar.compat.ThaumcraftCrystalLighting;
 import com.sumirelabs.pulsar.config.PulsarConfig;
 import com.sumirelabs.pulsar.light.engine.FaceOcclusion;
 import com.sumirelabs.pulsar.proxy.IProxy;
-import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -31,7 +30,7 @@ public class Pulsar {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         LOGGER.info("{} {} preInit - loading config", Reference.MOD_NAME, Reference.VERSION);
-        ConfigManager.register(PulsarConfig.class);
+        PulsarConfig.initialize();
         LOGGER.info(
                 "{} config: enabled={}, sendChunksWithoutLight={}, debugStats={}",
                 Reference.MOD_NAME,

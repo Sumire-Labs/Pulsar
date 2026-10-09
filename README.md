@@ -105,11 +105,17 @@ Application times below refer to changes saved through the in-game Mod Options
 GUI. External edits to the config file are read at startup; the file is not
 watched for live changes.
 
-New configs default to `features.experimentalServerLightThreads=-1`, selecting
-one third of the logical CPU count (minimum 1, maximum 16). Existing configs
-keep their saved value: change an existing `0` to `-1` explicitly to enable
-automatic parallel lighting. Restart Minecraft/the server after changing this
-setting. More workers are not a guarantee of better performance.
+The file contains a managed `Pulsar Config Version 2` marker
+(`general.configVersion=2`) with a notice not to edit it. On startup, a missing,
+invalid or different version causes the entire `pulsar.cfg` file to be replaced
+with current defaults. This intentionally resets older custom settings.
+With a matching version, saved custom settings are preserved.
+
+Config Version 2 defaults to `features.experimentalServerLightThreads=-1`,
+selecting one third of the logical CPU count (minimum 1, maximum 16), including
+when migrating a versionless older config that had `0` saved.
+Restart Minecraft/the server after changing the worker count.
+More workers are not a guarantee of better performance.
 
 | Setting | Default / range | Effect and application |
 |---|---|---|
