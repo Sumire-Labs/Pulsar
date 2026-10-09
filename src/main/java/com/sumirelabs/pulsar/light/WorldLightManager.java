@@ -67,7 +67,8 @@ public final class WorldLightManager {
 
     private final LightStats stats;
     private final UnloadWaitBudget unloadWaitBudget = new UnloadWaitBudget(
-            UnloadWaitBudget.DEFAULT_BUDGET_NS, System::nanoTime);
+            Math.max(0, Math.min(50, PulsarConfig.performance.unloadLightWaitBudgetMs)) * 1_000_000L,
+            System::nanoTime);
 
     public WorldLightManager(final World world, final boolean hasSkyLight, final boolean hasBlockLight) {
         this.world = world;

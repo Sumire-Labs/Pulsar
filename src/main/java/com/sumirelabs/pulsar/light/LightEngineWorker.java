@@ -19,8 +19,7 @@ import java.util.function.LongPredicate;
  */
 final class LightEngineWorker {
 
-    private static final int MAX_CACHED_ENGINES = 4;
-    private static final long SERVER_BATCH_BUDGET_NS = 15_000_000L;
+    private final int maxCachedEngines;
 
     private final LightQueue queue;
     private final LightTaskScheduler scheduler;
@@ -59,6 +58,7 @@ final class LightEngineWorker {
         this.operationName = operationName;
         this.lockOwner = lockOwner;
         this.parallelJobsMax = parallelJobsMax;
+        this.maxCachedEngines = Math.max(0, Math.min(16, PulsarConfig.performance.cachedEnginesPerLane));
 
         final int parallelThreads = LightThreadCount.resolve(
                 PulsarConfig.features.experimentalServerLightThreads, Runtime.getRuntime().availableProcessors());
@@ -94,7 +94,9 @@ final class LightEngineWorker {
     }
 
     void processPending() {
-        this.processPendingUntil(System.nanoTime() + SERVER_BATCH_BUDGET_NS);
+        final long budget = Math.max(1, Math.min(50,
+                PulsarConfig.performance.dedicatedServerBatchBudgetMs)) * 1_000_000L;
+        this.processPendingUntil(System.nanoTime() + budget);
     }
 
     Object lockOwner() { return this.lockOwner; }
@@ -185,7 +187,7 @@ final class LightEngineWorker {
             this.singleEngineInUse = false;
             return;
         }
-        if (this.enginePool.size() < MAX_CACHED_ENGINES) {
+        if (this.enginePool.size() < this.maxCachedEngines) {
             this.enginePool.addFirst(engine);
         }
     }

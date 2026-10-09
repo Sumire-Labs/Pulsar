@@ -95,6 +95,38 @@ not add handheld dynamic lights or RGB lighting. Thaumcraft is optional.
 - CubicChunks is unsupported because it uses a different world-storage model.
 - OptiFine is untested and is not currently recommended with Pulsar.
 
+## Configuration
+
+Settings are stored in `config/pulsar.cfg`. Server settings apply to the
+integrated server in singleplayer as well as dedicated servers; editing a
+multiplayer client's config does not change the remote server.
+Every option includes comments describing its purpose and tradeoffs.
+Application times below refer to changes saved through the in-game Mod Options
+GUI. External edits to the config file are read at startup; the file is not
+watched for live changes.
+
+New configs default to `features.experimentalServerLightThreads=-1`, selecting
+one third of the logical CPU count (minimum 1, maximum 16). Existing configs
+keep their saved value: change an existing `0` to `-1` explicitly to enable
+automatic parallel lighting. Restart Minecraft/the server after changing this
+setting. More workers are not a guarantee of better performance.
+
+| Setting | Default / range | Effect and application |
+|---|---|---|
+| `features.experimentalServerLightThreads` | `-1`; `-1..16` | Server worker count. `-1` is automatic, `0` uses dedicated Sky/Block lanes, positive values select the shared pool size. Requires a Minecraft/server restart. |
+| `features.clientLightBudgetMs` | `2`; `1..10` ms | Client queue-processing time per tick. Higher values drain backlog faster but can delay rendering. Applies next tick. |
+| `performance.dedicatedServerBatchBudgetMs` | `15`; `1..50` ms | Batch time for dedicated server lanes only (`experimentalServerLightThreads=0`). A running task can exceed the soft limit. Applies next batch. |
+| `performance.unloadLightWaitBudgetMs` | `10`; `0..50` ms | Total lighting wait during unload per server world tick. Lower values reduce stalls but may cause saved light to be recalculated on reload. `0` skips waiting for unfinished work. Requires a world reload/server restart. |
+| `performance.cachedEnginesPerLane` | `4`; `0..16` | Idle engine cache target per world and light lane in shared-pool mode. More cached engines trade memory for fewer allocations; `0` disables the idle pool. Does not limit active jobs or the single reusable engine of a dedicated/client lane. Requires a world reload/server restart. |
+| `debug.statsLogIntervalTicks` | `20`; `1..1200` ticks | Statistics log interval when `debug.enableDebugStats=true`. Short intervals increase log volume and overhead. Applies during play. |
+
+The existing `features.trackTileEntityLight`,
+`features.coalesceClientRenderUpdates`, `features.experimentalRangeRelight`,
+`features.sendChunksWithoutLight`, and `debug.enableDebugStats` switches remain
+available. `features.thaumcraftCrystalLightLevel` requires a Minecraft/server
+restart. The top-level `enabled` setting controls the mob-spawn lighting gate;
+it does not switch off Pulsar's lighting engine.
+
 ## Performance
 
 ### Development-build travel diagnostics
@@ -106,7 +138,7 @@ cannot inherit queued notifications.
 Set `features.coalesceClientRenderUpdates=false` to compare the direct
 notification path using the same build.
 
-The experimental server lighting pool requires a restart and defaults to off:
+The experimental server lighting pool requires a restart and defaults to automatic sizing:
 
 - `features.experimentalServerLightThreads=4` enables a process-wide pool with
   four threads. Both light lanes share per-world 5x5 chunk reservations; only
@@ -148,7 +180,8 @@ render-thread stalls. This is a soft limit checked between tasks; one expensive
 task can exceed it. No FPS improvement has been measured for this change yet.
 
 Enable `debug.enableDebugStats` to write `logs/pulsar-stats.log`. Each dimension
-reports once per 20 actual world/client ticks; server `skyMs` and `blockMs` can
+reports once per `debug.statsLogIntervalTicks` actual world/client ticks
+(default 20); server `skyMs` and `blockMs` can
 overlap because their workers run concurrently. `maxLatencyMs` is queue waiting
 time, not propagation time. Additional fields separate:
 

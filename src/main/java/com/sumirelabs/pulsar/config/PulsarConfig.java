@@ -22,35 +22,53 @@ public class PulsarConfig {
     public static final Features features = new Features();
     @Config.Comment("Debug options")
     public static final Debug debug = new Debug();
-    @Config.Comment("Master switch. When false, Pulsar's mob-spawn gate falls through to vanilla behaviour.")
+    @Config.Comment("Lighting scheduling and memory tuning. Defaults retain existing budgets and cache sizes.")
+    public static final Performance performance = new Performance();
+    @Config.Comment({
+            "Enable Pulsar's mob-spawn lighting gate. False uses vanilla spawn checks.",
+            "This does not disable the lighting engine or mixins. Changes apply without a restart."
+    })
     public static boolean enabled = true;
 
     public static class Features {
 
-        @Config.Comment("Track contextual TileEntity light values on the world thread each tick.")
+        @Config.Comment({
+                "Server side: resample tracked TileEntity emission/opacity each world tick.",
+                "Disable to reduce sampling cost or diagnose compatibility; changing TileEntity lights may then stay stale.",
+                "Normal block-change sampling remains enabled. Changes apply without a restart."
+        })
         public boolean trackTileEntityLight = true;
 
-        @Config.Comment("Share private work maps for /pulsar relight <radius>. Experimental; off by default.")
+        @Config.Comment({
+                "Use shared private work maps for /pulsar relight <radius>. Experimental; default false.",
+                "Only affects manual relighting, not ordinary lighting updates. Applies to the next relight command."
+        })
         public boolean experimentalRangeRelight = false;
 
-        @Config.Comment("Coalesce client lighting render notifications within each tick. Disable for comparison.")
+        @Config.Comment({
+                "Client side: coalesce lighting render notifications within each tick. Default true.",
+                "False sends notifications directly for comparison. Light values are unchanged.",
+                "Changes apply without a restart."
+        })
         public boolean coalesceClientRenderUpdates = true;
 
         @Config.Comment({
-                "Experimental shared server lighting pool. 0 keeps the dedicated sky/block workers.",
-                "-1 selects CPU/3 automatically (1..16). Positive values set the shared thread count.",
-                "Tasks reserve a 5x5",
-                "chunk footprint shared by both lanes; only non-overlapping tasks run together.",
-                "Off by default. More threads do not necessarily improve FPS or lighting latency."
+                "Server-side lighting workers, including the integrated server in singleplayer.",
+                "Default -1 selects logical CPU threads/3 automatically, clamped to 1..16.",
+                "0 uses the dedicated sky/block workers; 1..16 sets the shared pool size explicitly.",
+                "Tasks reserve a shared 5x5 chunk footprint; only non-overlapping tasks run together.",
+                "More threads may increase CPU and memory use without improving FPS or latency.",
+                "Restart Minecraft/the server to apply. Existing saved config values are preserved."
         })
         @Config.RangeInt(min = -1, max = 16)
         @Config.RequiresMcRestart
-        public int experimentalServerLightThreads = 0;
+        public int experimentalServerLightThreads = -1;
 
         @Config.Comment({
                 "Shared client lighting budget per tick in milliseconds. Default 2 favors frame pacing.",
                 "Sky and block tasks alternate. A task already running may exceed this soft limit.",
-                "Higher values finish queued lighting sooner but can delay rendering. Client only."
+                "Higher values finish queued lighting sooner but can delay rendering. Client only.",
+                "Changes apply to the next tick without a restart."
         })
         @Config.RangeInt(min = 1, max = 10)
         public int clientLightBudgetMs = 2;
@@ -75,10 +93,53 @@ public class PulsarConfig {
         public boolean sendChunksWithoutLight = false;
     }
 
+    public static class Performance {
+        @Config.Comment({
+                "Time in milliseconds spent draining one batch by a dedicated server lighting worker.",
+                "Applies only when experimentalServerLightThreads=0; shared-pool workers run claimed tasks directly.",
+                "Default 15. Smaller values check the queue between batches more often.",
+                "A running chunk task is never interrupted and may exceed this soft limit.",
+                "Changes apply to the next batch without a restart."
+        })
+        @Config.RangeInt(min = 1, max = 50)
+        public volatile int dedicatedServerBatchBudgetMs = 15;
+
+        @Config.Comment({
+                "Total milliseconds per server world tick allowed for waiting on lighting during chunk unload.",
+                "Default 10. Lower values reduce unload stalls but may invalidate saved light for recalculation.",
+                "0 never waits for unfinished lighting; it does not discard blocks or bypass saved-light validation.",
+                "Higher values allow more work to finish before unloading but may lengthen the server tick.",
+                "Reload the world/restart the server to apply."
+        })
+        @Config.RangeInt(min = 0, max = 50)
+        @Config.RequiresWorldRestart
+        public int unloadLightWaitBudgetMs = 10;
+
+        @Config.Comment({
+                "Target number of idle calculation engines retained per world and light lane in the shared pool.",
+                "Default 4. Higher values retain more memory and reduce engine allocation during bursts.",
+                "0 disables this idle pool. Active jobs are never limited or cancelled by this setting.",
+                "Dedicated server workers and client lanes retain their single reusable engine independently.",
+                "Concurrent completions can briefly exceed this target. Reload the world/restart the server to apply."
+        })
+        @Config.RangeInt(min = 0, max = 16)
+        @Config.RequiresWorldRestart
+        public int cachedEnginesPerLane = 4;
+    }
+
     public static class Debug {
 
         @Config.Comment("Emit per-tick stats to logs/pulsar-stats.log.")
         public boolean enableDebugStats = false;
+
+        @Config.Comment({
+                "Ticks per statistics log entry while enableDebugStats is true. Default 20 (about one second at 20 TPS).",
+                "Smaller values give finer detail but increase log volume and formatting/disk overhead.",
+                "Larger values aggregate a longer measurement window. Changes apply without a restart.",
+                "Has no effect while statistics logging is disabled."
+        })
+        @Config.RangeInt(min = 1, max = 1200)
+        public volatile int statsLogIntervalTicks = 20;
     }
 
     @Mod.EventBusSubscriber(modid = Reference.MOD_ID)

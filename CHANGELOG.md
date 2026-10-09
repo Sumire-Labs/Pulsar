@@ -21,8 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Coalesce client render updates (`features.coalesceClientRenderUpdates`) and
   alternate sky/block tasks within a shared soft budget
   (`features.clientLightBudgetMs`, default 2 ms).
-- Add an opt-in shared server lighting pool
-  (`features.experimentalServerLightThreads`, default disabled; `-1` selects
+- Add a configurable shared server lighting pool
+  (`features.experimentalServerLightThreads`, default `-1` selects
   CPU/3 workers), with nearby-task exclusion and paired sky/block scheduling.
 - Add opt-in shared-pool range relighting (`experimentalRangeRelight`, default
   off), with world-wide job exclusion and generation-safe publication.

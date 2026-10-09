@@ -11,6 +11,37 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LightStatsTest {
     @Test
+    void loggingIntervalCanChangeAtRuntimeAndCannotBecomeZero() {
+        final boolean previous = PulsarConfig.debug.enableDebugStats;
+        final int previousInterval = PulsarConfig.debug.statsLogIntervalTicks;
+        try {
+            PulsarConfig.debug.enableDebugStats = true;
+            PulsarConfig.debug.statsLogIntervalTicks = 5;
+            final StringWriter output = new StringWriter();
+            final LightStats stats = new LightStats(false, 0, new PrintWriter(output));
+            for (int i = 0; i < 4; i++) stats.tick(0, 0);
+            assertEquals("", output.toString());
+            stats.tick(0, 0);
+            assertEquals(1, output.toString().lines().count());
+            PulsarConfig.debug.statsLogIntervalTicks = 2;
+            stats.tick(0, 0);
+            assertEquals(1, output.toString().lines().count());
+            stats.tick(0, 0);
+            assertEquals(2, output.toString().lines().count());
+            PulsarConfig.debug.statsLogIntervalTicks = 0;
+            stats.tick(0, 0);
+            assertEquals(3, output.toString().lines().count());
+            PulsarConfig.debug.enableDebugStats = false;
+            stats.tick(0, 0);
+            assertEquals(3, output.toString().lines().count());
+        } finally {
+            PulsarConfig.debug.enableDebugStats = previous;
+            PulsarConfig.debug.statsLogIntervalTicks = previousInterval;
+            LightStats.enabled = previous;
+        }
+    }
+
+    @Test
     void logsOncePerTwentyTicksAndSeparatesMainThreadWorkFromQueueLatency() {
         final boolean previous = PulsarConfig.debug.enableDebugStats;
         try {

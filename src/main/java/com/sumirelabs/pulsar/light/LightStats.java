@@ -16,11 +16,10 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Per-world stats accumulator for light engine instrumentation. Only active
  * while {@code debug.enableDebugStats} is set; dumps to
- * {@code logs/pulsar-stats.log} every {@value LOG_INTERVAL_TICKS} ticks.
+ * {@code logs/pulsar-stats.log} at the configured tick interval (default 20).
  */
 public final class LightStats {
 
-    private static final int LOG_INTERVAL_TICKS = 20;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
     private final Thread owner = Thread.currentThread();
 
@@ -117,7 +116,8 @@ public final class LightStats {
         }
         this.skyBacklog = skyBacklog;
         this.blockBacklog = blockBacklog;
-        if (this.tickCount - this.windowStartTick >= LOG_INTERVAL_TICKS) {
+        if (this.tickCount - this.windowStartTick >= Math.max(1, Math.min(1200,
+                PulsarConfig.debug.statsLogIntervalTicks))) {
             dump();
             reset();
         }
