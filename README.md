@@ -135,6 +135,33 @@ it does not switch off Pulsar's lighting engine.
 
 ## Performance
 
+### Pulsar 0.5.0 comparison — October 10, 2026
+
+The latest study uses four independent JVM runs per supported condition and
+104 formal launches across Vanilla lighting, Alfheim 1.6, Pulsar and a
+supplemental Starlight-1.12 comparison. The intended release is labeled
+**Pulsar 0.5.0**; the measured source is `75b051d` (pre-tag metadata
+`0.4.1-dev.24`).
+
+In the validated open-sky glowstone fixture, placement/removal completion
+times were **62.2 / 63.8 µs** for Pulsar, **182 / 289 µs** for Alfheim, and
+**1,290 / 1,880 µs** for Vanilla. This measures server edits through light
+completion, rather than player input or general FPS.
+
+![Validated block update completion](docs/benchmarks/2026-10-10-pulsar-0.5.0/block-latency.png)
+
+Pulsar kept main-thread tick time low during continuous roof editing;
+asynchronous worker CPU and the final completion drain are reported
+separately. Simple flat generation was slower than Vanilla/Alfheim.
+Normal-terrain outputs differed, so their timings are descriptive rather
+than an equal-output speed ranking. Vanilla did not validate the tall-roof
+Sky workload. Whole-game heap and render-loop observations are not
+engine-only memory or equal-scene FPS claims.
+
+[Full results, methods, raw data and publication copy](docs/benchmarks/2026-10-10-pulsar-0.5.0/README.md).
+Earlier measurements below use different versions and protocols and must
+not be compared directly with this study.
+
 ### Development-build travel diagnostics
 
 Client light notifications are now coalesced within a tick when the combined

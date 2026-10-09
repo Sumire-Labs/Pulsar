@@ -1,0 +1,81 @@
+{
+  "starlight_commit": "0a7d94e7e3fd7333f0e31e896e8a5ff57fb57e4e",
+  "artifacts": [
+    {
+      "sha256": "730BB0425C97D394C86712E27F71C93069D5B95877BD54F70FC56235EEEF33EF",
+      "file": "Alfheim-1.6.jar"
+    },
+    {
+      "sha256": "B985BC77F630DA1A1F5F403D7BF0F218455E7F3A6A67F0BC88652838DE9CFFD2",
+      "file": "pulsar-0.5.0.jar"
+    },
+    {
+      "sha256": "1A0AEED6FAC972EF5D66CC645B893BDBA9094D160DB854C53719805BF08EFBB7",
+      "file": "starlight-0a7d94e-clean.jar"
+    }
+  ],
+  "boot_utc": "2026-10-09T16:48:41.5Z",
+  "pulsar_commit": "75b051d",
+  "common_mods": [
+    {
+      "file": "-cleanroom-relauncher-1.1.2.jar",
+      "sha256": "E120ADAFABB0145EFF704633ED5304C356D0E20C1CD4831347A8530D152164B3"
+    },
+    {
+      "file": "-Red-Core-MC-1.8-1.12-0.7.1.jar",
+      "sha256": "9935912816062CA46A2ECD020D813EE2DDE8E6B228DAEC068B465EB72EA51368"
+    },
+    {
+      "file": "+Fugue-0.24.3.jar",
+      "sha256": "00DC2DE461B8A9BF0D9B684AA0377713BDA85CA63DA5EC93028C226ED2119EFD"
+    },
+    {
+      "file": "four-engine-driver.jar",
+      "sha256": "4A63000F1E8B36C343F5A845EBECDE20226666DED4ADC2AB989754CB2884AB1E"
+    },
+    {
+      "file": "lightbench-1.1.0-bench9.jar",
+      "sha256": "7FC43F287B46BF9C62CA8A9A8029D989765E836D8A0EC542873320676386B0B9"
+    },
+    {
+      "file": "scalar-3.8.4-1.jar",
+      "sha256": "A4C2CD912C36CD5A5055153EC950455349EED6DAEFEB747013B5F675190EB1FD"
+    },
+    {
+      "file": "1.12.2\\scala-library-3.8.4.jar",
+      "sha256": "1B8330DE5774C15874173F168B674255CAA00C5EF3648AB0B6CB763BB7FD2DE7"
+    },
+    {
+      "file": "1.12.2\\scala-parser-combinators_3-2.4.0.jar",
+      "sha256": "50F1B3DCF8F14975702DC6DA287797E391FC5D4834E4D3E7E9F9125EFDB2DE9A"
+    }
+  ],
+  "alfheim_release": "1.6",
+  "pulsar_label": "Pulsar 0.5.0",
+  "hardware": {
+    "gpu": [
+      {
+        "Name": "AMD Radeon(TM) 8060S Graphics",
+        "DriverVersion": "32.0.31041.1004"
+      }
+    ],
+    "logical_processors": 32,
+    "cpu": "AMD RYZEN AI MAX+ 395 w/ Radeon 8060S          ",
+    "ram_bytes": 102163615744,
+    "os": "Microsoft Windows 11 Pro"
+  },
+  "timings_note": "Pilots are validation only; formal cohorts must use this frozen manifest or a separately documented replacement.",
+  "config_baseline": {
+    "id": "default-version2-equal-file-set",
+    "note": "Pulsar default config supplied unchanged even when Pulsar mod is absent; physics settings unchanged, common fingerprint now equal",
+    "pulsar_cfg_sha256": "F1E84DAF1EA3F81006EF6DFF43574E4B488F6CC77587C45CFEA6AAC742D18D92",
+    "source": "preflight-v9-blocks-pulsar generated defaults"
+  },
+  "lightbench_runtime_source_commit": "05596de",
+  "lightbench_comparator_commit": "f6ccb91",
+  "strict_block_input_comparison": {
+    "note": "Same version2 default Pulsar config file supplied to all variants; native comparator passed all four engine inputs",
+    "valid": true,
+    "log": "config-equal-comparison-final.log"
+  }
+}

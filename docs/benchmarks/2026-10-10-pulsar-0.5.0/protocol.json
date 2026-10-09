@@ -1,0 +1,90 @@
+{
+  "continuous": {
+    "rates": [
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048
+    ],
+    "command": "lightbench tps 128 5 (warmup), then lightbench spikes 2 10 (2 edits/20 ticks for 200 ticks), then lightbench tps sweep 5",
+    "metric": "Main server tick duration excludes async worker CPU; post-run drain separately recorded",
+    "wall_limit_multiple": 20,
+    "requestedTicksPerRate": 100,
+    "validation": "Initial/full final light; independent roof replay; capped cases excluded"
+  },
+  "heap": "Fixed8GiB, G1, compact object headers",
+  "generation": {
+    "metric": "Provision, deferred light completion and explicit finalization; output hashing outside timing",
+    "qualification": "Requirematching scoredterrain/light hashes for equal-output speed ranking",
+    "scoredCoreChunks": 3468,
+    "submittedMeasuredChunks": 5292,
+    "command": "lightbench gen 8 12 16"
+  },
+  "blocks": {
+    "metric": "setBlockState through stored server light completion, update flags16",
+    "geometry": "Uniform floorY3; glowstone atY4; no roof",
+    "validation": "Per-edit probes plus independent full Sky/Block volume before/after measurement",
+    "command": "lightbench blockupdates 5000 10000"
+  },
+  "memory": "Atleast100post-workload ticks then explicit GC; wholegame heap and2second sampled process working set, not engine-only memory",
+  "runtime": "Minecraft1.12.2 / Cleanroom0.6.12-alpha / Adoptium Java25.0.4.1",
+  "pulsar_source": "75b051d",
+  "repetitions": 4,
+  "travel": {
+    "cameraNormalY": 96,
+    "strideBlocks": 16,
+    "minimumDwellTicks": 20,
+    "warmupWaypoints": 8,
+    "topLightChecks": 1600,
+    "cameraFlatY": 32,
+    "measuredWaypoints": 32,
+    "qualification": "Server readiness, not client mesh completion; complete terrain hash after timing",
+    "readinessRadiusChunks": 2
+  },
+  "sky": {
+    "vanilla": "Not qualified:initial/full-volume stored-light check fails",
+    "geometry": "64x64 stone roofY254 over floorY3; 250-block-tall stress columns",
+    "command": "lightbench updates 2000 1000"
+  },
+  "limitations": [
+    "Within-run timing can drift despite extended warmup; inspect time series and report run ranges. Drift alone does not prove its cause is JIT.",
+    "Normal generation pilot differs in terrain by one brown mushroom and differs in light hashes; do not promote those times as same-output speed ratios.",
+    "No external publishing/push/tag is authorized; prepare reviewable local assets and text."
+  ],
+  "label": "Pulsar 0.5.0",
+  "graphics": "1280x720, render distance4, VSync off, maxFPS260 means unlimited",
+  "frames": "Render callback intervals, not presented FPS; client loaded-chunk counts differ, so no equal-scene FPS speedup claim",
+  "order": [
+    [
+      "vanilla",
+      "alfheim",
+      "pulsar",
+      "starlight"
+    ],
+    [
+      "alfheim",
+      "starlight",
+      "vanilla",
+      "pulsar"
+    ],
+    [
+      "pulsar",
+      "vanilla",
+      "starlight",
+      "alfheim"
+    ],
+    [
+      "starlight",
+      "pulsar",
+      "alfheim",
+      "vanilla"
+    ]
+  ],
+  "lightbench_version": "1.1.0-bench9",
+  "lightbench_runtime_commit": "05596de",
+  "actual_pulsar_artifact_version": "0.4.1-dev.24",
+  "statistics": "Median of4 independent JVM run means; min-max range, notconfidence intervals. Do not pool all samples as independent JVM repetitions.",
+  "lightbench_comparator_commit": "f6ccb91"
+}
