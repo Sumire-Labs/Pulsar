@@ -35,6 +35,8 @@ public final class LightDataSerializer {
     /**
      * Bump when the on-disk layout or BFS semantics change incompatibly.
      */
+    // v12: discard skylight persisted after dense per-chunk rebuilds, which
+    // could leave incorrect light across chunk boundaries.
     // v11: rebuilds caches that may contain direct-sky columns left stale
     // after Java-null nibble slots prevented later section initialization.
     // v10: tracks the configured Thaumcraft crystal emission. Older Pulsar
@@ -48,7 +50,7 @@ public final class LightDataSerializer {
     // v6: invalidated light computed before the 2026-07-26 correctness batch
     // (UNINIT-as-15 sync, missing extrude, decrease re-seed/continuation
     // fixes) — old data relights once on load.
-    public static final int LIGHT_VERSION = 11;
+    public static final int LIGHT_VERSION = 12;
 
     private static final String TAG_ROOT = "PulsarLight";
     private static final String TAG_VERSION = "version";

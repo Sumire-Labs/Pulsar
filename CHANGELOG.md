@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Reduce changed-position allocation for ordinary small batches, retaining
+  normal hash-set growth for larger edits.
 - Coalesce heightmap skylight notifications into one column update while retaining
   contextual source invalidation and renderer coverage. Avoid repeated neighbor
   discovery for static edits in worlds without contextual sources.
@@ -52,6 +54,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Keep dense skylight edits on the column-aware incremental path. Replacing
+  individual chunk batches with full rebuilds could leave incorrect sky light
+  across chunk boundaries after continuous edits.
 - Preserve empty sky-light nibble objects across full and incremental lighting,
   preventing stale sky light after changes to opaque and shaped blocks.
 - Recheck lighting after successful changes to light-relevant block states,
@@ -61,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   publication after unload, while retaining valid caches on clean unloads.
 - Exclude unfinished neighboring lighting work from periodic light-cache saves,
   and serialize cache snapshots under the chunk's publication monitor.
-- Bump the persisted lighting cache version to 11. Older caches are relit once
+- Bump the persisted lighting cache version to 12. Older caches are relit once
   when their chunks next load.
 
 ### Removed

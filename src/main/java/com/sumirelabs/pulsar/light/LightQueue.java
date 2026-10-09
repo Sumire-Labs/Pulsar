@@ -104,7 +104,7 @@ public final class LightQueue {
         final long key = CoordinateUtils.getChunkKey(x >> 4, z >> 4);
         final ChunkTasks tasks = this.getOrCreate(key);
         if (tasks.changedPositions == null) {
-            tasks.changedPositions = new IntOpenHashSet();
+            tasks.changedPositions = new IntOpenHashSet(2);
             this.blockChangeKeys.enqueue(key);
         }
         final int packedPosition = (x & 15) | ((z & 15) << 4) | (y << 8);

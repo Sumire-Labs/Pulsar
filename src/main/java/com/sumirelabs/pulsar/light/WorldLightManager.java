@@ -47,14 +47,6 @@ public final class WorldLightManager {
     private boolean blockFirstClientTick;
     private final ClientRenderUpdates<Chunk> clientRenderUpdates = new ClientRenderUpdates<>();
 
-    /**
-     * Dense asynchronous edits can span several chunk tasks. Processing each
-     * chunk's skylight decrease independently lets a still-stale neighbour
-     * re-seed the columns just cleared by the previous task. Rebuild dense
-     * batches within the sky lane, then reconcile every section edge so all
-     * affected chunks converge (MC-117067 / MC-117094). Ordinary player edits
-     * stay on the incremental fast path.
-     */
     private final World world;
     private final WorldHeightContext heightContext;
     private final ContextualLightManager contextualLight;
@@ -379,50 +371,9 @@ public final class WorldLightManager {
             skyEngine.setStats(this.stats);
         }
 
-        final boolean promoteBulkChange = BulkSkyRelightPolicy.shouldPromoteColumns(
-                task.initialLightChunk != null || task.initialLightEdgeGeneration > 0L,
-                task.changedPositions);
-        if (promoteBulkChange) {
-            final Chunk chunk = this.loadedChunkMap.get(task.chunkCoordinate);
-            if (chunk != null) {
-                try {
-                    // This recovery is deliberately sky-lane-only. Routing a
-                    // dense skylight edit through the two-lane initial-light
-                    // coordinator also rebuilt block light, which could erase
-                    // the old source level before its queued removal had a
-                    // chance to propagate into a neighbouring empty section.
-                    int attempts = 0;
-                    boolean overflowed;
-                    do {
-                        skyEngine.light(chunk, PulsarEngine.getEmptySectionsForChunk(chunk), false);
-                        overflowed = skyEngine.wasQueueOverflowed();
-                        attempts++;
-                    } while (overflowed
-                            && attempts <= InitialLightCoordinator.MAX_RELIGHT_ATTEMPTS);
-
-                    if (overflowed) {
-                        Pulsar.LOGGER.error(
-                                "Sky engine: bulk relight for chunk ({}, {}) overflowed BFS queue {} times - giving up.",
-                                cx, cz, attempts);
-                    } else {
-                        this.skyQueue.queueEdgeCheckAllSections(cx, cz, true);
-                    }
-                } catch (final Throwable t) {
-                    if (this.loadedChunkMap.get(task.chunkCoordinate) != null) {
-                        Pulsar.LOGGER.error("Bulk sky relight for chunk ({}, {}) failed", cx, cz, t);
-                    }
-                }
-            }
-            skyEngine.setStats(null);
-            if (statsOn) {
-                final long elapsed = System.nanoTime() - t0;
-                this.stats.skyWorkerTimeNs.addAndGet(elapsed);
-                this.stats.skyTaskMaxNs.accumulateAndGet(elapsed, Math::max);
-                this.stats.skyTasksProcessed.incrementAndGet();
-            }
-            return;
-        }
-
+        // Full rebuilds can leave cross-chunk skylight inconsistent after dense
+        // edits. Keep decrease and restoration together on the column-aware
+        // incremental path regardless of batch size.
         boolean valueOverflowed = false;
         boolean edgeOverflowed = false;
         try {
