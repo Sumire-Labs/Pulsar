@@ -45,7 +45,6 @@ public class PulsarConfig {
 
     @Config.Comment({
             "Pulsar Config Version " + CURRENT_CONFIG_VERSION,
-            "このバージョンを編集しないでください。Pulsarによって管理されています。",
             "Do not edit this version. Managed by Pulsar.",
             "A missing or mismatched version resets this entire config to current defaults at startup."
     })
