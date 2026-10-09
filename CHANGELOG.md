@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Preserve block light in physically absent sections when sending full or
+  partial chunk packets. Packet-local light-only sections retain the values
+  without changing live chunk storage or section emptiness.
+
 ### Changed
 
 - Reduce changed-position allocation for ordinary small batches, retaining
