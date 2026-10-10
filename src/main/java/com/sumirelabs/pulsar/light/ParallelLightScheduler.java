@@ -14,8 +14,7 @@ final class ParallelLightScheduler {
         return shared;
     }
 
-    private record Claim(LightEngineWorker lane, ChunkTasks task,
-                         LightEngineWorker partner, ChunkTasks partnerTask) {}
+    private record Claim(LightEngineWorker lane, ChunkTasks task, LightEngineWorker partner) {}
     private final ArrayList<LightEngineWorker> lanes = new ArrayList<>();
     private final ChunkTaskReservations reservations = new ChunkTaskReservations();
     private final Semaphore work = new Semaphore(0);
@@ -63,11 +62,16 @@ final class ParallelLightScheduler {
             reservations.reserve(owner, task.chunkCoordinate);
             lane.jobClaimed(reservations.activeJobs(owner));
             LightEngineWorker partner = lane.partner;
-            ChunkTasks partnerTask = partner == null ? null : partner.claimChunk(task.chunkCoordinate);
-            if (partnerTask != null) partner.jobClaimed(reservations.activeJobs(owner));
-            return new Claim(lane, task, partner, partnerTask);
+            return new Claim(lane, task, partner);
         }
         return null;
+    }
+
+    /** Keep the shared footprint reserved, but let producer updates merge until this lane starts. */
+    private synchronized ChunkTasks claimPartner(final Claim claim) {
+        final ChunkTasks task = claim.partner == null ? null : claim.partner.claimChunk(claim.task.chunkCoordinate);
+        if (task != null) claim.partner.jobClaimed(reservations.activeJobs(claim.lane.lockOwner()));
+        return task;
     }
 
     private void run() {
@@ -79,15 +83,17 @@ final class ParallelLightScheduler {
                 continue;
             }
             signal(); // Wake another worker to claim an independent footprint.
+            ChunkTasks partnerTask = null;
             try {
                 process(claim.lane, claim.task);
-                if (claim.partnerTask != null) process(claim.partner, claim.partnerTask);
+                if (claim.partner != null) partnerTask = this.claimPartner(claim);
+                if (partnerTask != null) process(claim.partner, partnerTask);
             } finally {
                 synchronized (this) {
                     reservations.release(claim.lane.lockOwner(), claim.task.chunkCoordinate);
                 }
                 claim.lane.jobFinished();
-                if (claim.partnerTask != null) claim.partner.jobFinished();
+                if (partnerTask != null) claim.partner.jobFinished();
                 signal();
             }
         }

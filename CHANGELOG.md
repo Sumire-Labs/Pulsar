@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Claim paired same-chunk light work after the first lane finishes, so later
+  notifications can join the queued partner batch while the existing 5x5
+  reservation remains held.
 - Introduce managed Pulsar Config Version 2. Missing or mismatched versions
   regenerate the whole config with current defaults before settings are loaded;
   matching versions retain custom settings.
