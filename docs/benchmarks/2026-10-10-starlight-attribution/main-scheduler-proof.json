@@ -1,0 +1,15 @@
+{
+  "main_artifact_sha256": "0fd075634c4f308a452961793ea90d8f9d09d60f7cae265c4cf692b515cbb249",
+  "measured_scheduler_classes_match": true,
+  "class_sha256": {
+    "com/sumirelabs/pulsar/light/ParallelLightScheduler.class": "cb0d991e4587b09a0cde9d9b34517a91456d12c3c56d8fb1d5a4136fce6f8a00",
+    "com/sumirelabs/pulsar/light/ParallelLightScheduler$Claim.class": "77938f03435d414ad536a8bf79e820ec8911245fdd187c3742cc4d8d782de095"
+  },
+  "tests": {
+    "tests": 178,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "natural_generation_smoke_valid": true
+}

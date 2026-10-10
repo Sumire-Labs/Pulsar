@@ -1,0 +1,72 @@
+{
+  "baseline": {
+    "suite_cases": [
+      [
+        "spikes",
+        2
+      ],
+      [
+        "tps",
+        64
+      ],
+      [
+        "tps",
+        128
+      ],
+      [
+        "tps",
+        256
+      ],
+      [
+        "tps",
+        512
+      ],
+      [
+        "tps",
+        1024
+      ],
+      [
+        "tps",
+        2048
+      ]
+    ],
+    "flat_generation_core_hash": "a6ccfffdca601f779aa9de82084dd435c5036ddb3080429305545cf98229d59e",
+    "travel_terrain_hash": "96d905b55b8514979abfcc9ac39db7aa23afce9e714e5140d3132fe1a8b38716",
+    "travel_light_checks": 1600
+  },
+  "late": {
+    "suite_cases": [
+      [
+        "spikes",
+        2
+      ],
+      [
+        "tps",
+        64
+      ],
+      [
+        "tps",
+        128
+      ],
+      [
+        "tps",
+        256
+      ],
+      [
+        "tps",
+        512
+      ],
+      [
+        "tps",
+        1024
+      ],
+      [
+        "tps",
+        2048
+      ]
+    ],
+    "flat_generation_core_hash": "a6ccfffdca601f779aa9de82084dd435c5036ddb3080429305545cf98229d59e",
+    "travel_terrain_hash": "96d905b55b8514979abfcc9ac39db7aa23afce9e714e5140d3132fe1a8b38716",
+    "travel_light_checks": 1600
+  }
+}

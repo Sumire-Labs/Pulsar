@@ -1,0 +1,3 @@
+# Preserve the exact published SHA256 bytes across platforms.
+* -text
+*.patch -whitespace

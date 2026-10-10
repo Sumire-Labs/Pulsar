@@ -1,0 +1,5432 @@
+{
+  "rows": [
+    {
+      "run": "formal-blocks-r1-pulsar-baseline",
+      "family": "blocks",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 64028.23,
+          "p50": 54400.0,
+          "p95": 90300,
+          "p99": 182700
+        },
+        "submission_nanos": {
+          "mean": 1014.29,
+          "p50": 600.0,
+          "p95": 2700,
+          "p99": 5200
+        },
+        "barrier_nanos": {
+          "mean": 62965.57,
+          "p50": 53700.0,
+          "p95": 87100,
+          "p99": 179800
+        },
+        "late_completion_nanos": {
+          "mean": 64933.28,
+          "p50": 54800.0,
+          "p95": 93100,
+          "p99": 188400
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r1-pulsar-baseline",
+      "family": "blocks",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 64234.33,
+          "p50": 57900.0,
+          "p95": 85100,
+          "p99": 111200
+        },
+        "submission_nanos": {
+          "mean": 939.75,
+          "p50": 600.0,
+          "p95": 2700,
+          "p99": 4900
+        },
+        "barrier_nanos": {
+          "mean": 63244.46,
+          "p50": 57200.0,
+          "p95": 83000,
+          "p99": 107800
+        },
+        "late_completion_nanos": {
+          "mean": 64839.77333333333,
+          "p50": 58000.0,
+          "p95": 85700,
+          "p99": 118100
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r1-pulsar-both",
+      "family": "blocks",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 67322.57,
+          "p50": 61100.0,
+          "p95": 92000,
+          "p99": 158700
+        },
+        "submission_nanos": {
+          "mean": 969.58,
+          "p50": 500.0,
+          "p95": 3100,
+          "p99": 5300
+        },
+        "barrier_nanos": {
+          "mean": 66305.12,
+          "p50": 59900.0,
+          "p95": 89800,
+          "p99": 157600
+        },
+        "late_completion_nanos": {
+          "mean": 67185.14666666667,
+          "p50": 61100.0,
+          "p95": 90900,
+          "p99": 158300
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r1-pulsar-both",
+      "family": "blocks",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 69399.55,
+          "p50": 64400.0,
+          "p95": 91600,
+          "p99": 124900
+        },
+        "submission_nanos": {
+          "mean": 994.79,
+          "p50": 500.0,
+          "p95": 3400,
+          "p99": 5800
+        },
+        "barrier_nanos": {
+          "mean": 68356.65,
+          "p50": 63100.0,
+          "p95": 89600,
+          "p99": 123300
+        },
+        "late_completion_nanos": {
+          "mean": 68984.26666666666,
+          "p50": 64200.0,
+          "p95": 90700,
+          "p99": 121100
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r1-pulsar-late",
+      "family": "blocks",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 63992.21,
+          "p50": 56800.0,
+          "p95": 88200,
+          "p99": 155300
+        },
+        "submission_nanos": {
+          "mean": 988.79,
+          "p50": 600.0,
+          "p95": 3100,
+          "p99": 5200
+        },
+        "barrier_nanos": {
+          "mean": 62956.35,
+          "p50": 55900.0,
+          "p95": 86000,
+          "p99": 154100
+        },
+        "late_completion_nanos": {
+          "mean": 64149.8,
+          "p50": 57300.0,
+          "p95": 88200,
+          "p99": 155300
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r1-pulsar-late",
+      "family": "blocks",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 65680.75,
+          "p50": 60400.0,
+          "p95": 88100,
+          "p99": 119200
+        },
+        "submission_nanos": {
+          "mean": 953.31,
+          "p50": 600.0,
+          "p95": 3000,
+          "p99": 5000
+        },
+        "barrier_nanos": {
+          "mean": 64679.58,
+          "p50": 59500.0,
+          "p95": 86600,
+          "p99": 117800
+        },
+        "late_completion_nanos": {
+          "mean": 65873.42666666667,
+          "p50": 60300.0,
+          "p95": 88100,
+          "p99": 122900
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r1-pulsar-mask",
+      "family": "blocks",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 72355.68,
+          "p50": 62200.0,
+          "p95": 121400,
+          "p99": 225400
+        },
+        "submission_nanos": {
+          "mean": 1191.9,
+          "p50": 600.0,
+          "p95": 3400,
+          "p99": 6000
+        },
+        "barrier_nanos": {
+          "mean": 71091.76,
+          "p50": 60900.0,
+          "p95": 117500,
+          "p99": 221900
+        },
+        "late_completion_nanos": {
+          "mean": 72012.66666666667,
+          "p50": 61400.0,
+          "p95": 118300,
+          "p99": 228100
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r1-pulsar-mask",
+      "family": "blocks",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 70796.45,
+          "p50": 64200.0,
+          "p95": 96500,
+          "p99": 138600
+        },
+        "submission_nanos": {
+          "mean": 1237.38,
+          "p50": 600.0,
+          "p95": 3600,
+          "p99": 6100
+        },
+        "barrier_nanos": {
+          "mean": 69508.4,
+          "p50": 62800.0,
+          "p95": 93200,
+          "p99": 134500
+        },
+        "late_completion_nanos": {
+          "mean": 70337.73333333334,
+          "p50": 63500.0,
+          "p95": 95600,
+          "p99": 138500
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r1-starlight-baseline",
+      "family": "blocks",
+      "repetition": 1,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 57694.41,
+          "p50": 54000.0,
+          "p95": 71200,
+          "p99": 81100
+        },
+        "submission_nanos": {
+          "mean": 260.35,
+          "p50": 200.0,
+          "p95": 500,
+          "p99": 1100
+        },
+        "barrier_nanos": {
+          "mean": 57389.76,
+          "p50": 53700.0,
+          "p95": 70800,
+          "p99": 80700
+        },
+        "late_completion_nanos": {
+          "mean": 57938.04,
+          "p50": 54100.0,
+          "p95": 70700,
+          "p99": 80700
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r1-starlight-baseline",
+      "family": "blocks",
+      "repetition": 1,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 69006.44,
+          "p50": 64600.0,
+          "p95": 83700,
+          "p99": 95100
+        },
+        "submission_nanos": {
+          "mean": 251.71,
+          "p50": 200.0,
+          "p95": 400,
+          "p99": 1100
+        },
+        "barrier_nanos": {
+          "mean": 68709.77,
+          "p50": 64400.0,
+          "p95": 83300,
+          "p99": 94500
+        },
+        "late_completion_nanos": {
+          "mean": 69317.48,
+          "p50": 64800.0,
+          "p95": 82800,
+          "p99": 95000
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r2-pulsar-baseline",
+      "family": "blocks",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 68844.96,
+          "p50": 58700.0,
+          "p95": 104900,
+          "p99": 210900
+        },
+        "submission_nanos": {
+          "mean": 934.35,
+          "p50": 600.0,
+          "p95": 2900,
+          "p99": 5100
+        },
+        "barrier_nanos": {
+          "mean": 67861.27,
+          "p50": 58000.0,
+          "p95": 102700,
+          "p99": 208100
+        },
+        "late_completion_nanos": {
+          "mean": 67564.94666666667,
+          "p50": 58100.0,
+          "p95": 103900,
+          "p99": 202300
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r2-pulsar-baseline",
+      "family": "blocks",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 67684.96,
+          "p50": 61400.0,
+          "p95": 90700,
+          "p99": 129100
+        },
+        "submission_nanos": {
+          "mean": 919.02,
+          "p50": 600.0,
+          "p95": 3000,
+          "p99": 5300
+        },
+        "barrier_nanos": {
+          "mean": 66716.85,
+          "p50": 60700.0,
+          "p95": 88800,
+          "p99": 127300
+        },
+        "late_completion_nanos": {
+          "mean": 66108,
+          "p50": 60300.0,
+          "p95": 88000,
+          "p99": 126100
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r2-pulsar-both",
+      "family": "blocks",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 69579.45,
+          "p50": 60900.0,
+          "p95": 109500,
+          "p99": 182300
+        },
+        "submission_nanos": {
+          "mean": 1252.43,
+          "p50": 700.0,
+          "p95": 3500,
+          "p99": 7400
+        },
+        "barrier_nanos": {
+          "mean": 68280,
+          "p50": 59700.0,
+          "p95": 106400,
+          "p99": 175000
+        },
+        "late_completion_nanos": {
+          "mean": 70758.21333333333,
+          "p50": 62000.0,
+          "p95": 113700,
+          "p99": 188100
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r2-pulsar-both",
+      "family": "blocks",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 70949.56,
+          "p50": 63100.0,
+          "p95": 107600,
+          "p99": 155600
+        },
+        "submission_nanos": {
+          "mean": 1216.66,
+          "p50": 600.0,
+          "p95": 3600,
+          "p99": 6800
+        },
+        "barrier_nanos": {
+          "mean": 69679.03,
+          "p50": 62000.0,
+          "p95": 105200,
+          "p99": 153000
+        },
+        "late_completion_nanos": {
+          "mean": 72134.72,
+          "p50": 63700.0,
+          "p95": 111600,
+          "p99": 169100
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r2-pulsar-late",
+      "family": "blocks",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 65728.82,
+          "p50": 57900.0,
+          "p95": 102700,
+          "p99": 166300
+        },
+        "submission_nanos": {
+          "mean": 1278.76,
+          "p50": 600.0,
+          "p95": 3500,
+          "p99": 6800
+        },
+        "barrier_nanos": {
+          "mean": 64397.36,
+          "p50": 56900.0,
+          "p95": 99900,
+          "p99": 163500
+        },
+        "late_completion_nanos": {
+          "mean": 65785.2,
+          "p50": 57800.0,
+          "p95": 104600,
+          "p99": 169700
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r2-pulsar-late",
+      "family": "blocks",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 68190.92,
+          "p50": 61600.0,
+          "p95": 101100,
+          "p99": 149600
+        },
+        "submission_nanos": {
+          "mean": 1241.06,
+          "p50": 600.0,
+          "p95": 3400,
+          "p99": 6700
+        },
+        "barrier_nanos": {
+          "mean": 66892.53,
+          "p50": 60800.0,
+          "p95": 99200,
+          "p99": 144300
+        },
+        "late_completion_nanos": {
+          "mean": 67983.34666666666,
+          "p50": 61500.0,
+          "p95": 101900,
+          "p99": 150300
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r2-pulsar-mask",
+      "family": "blocks",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 71963.54,
+          "p50": 59800.0,
+          "p95": 131800,
+          "p99": 228100
+        },
+        "submission_nanos": {
+          "mean": 1159.46,
+          "p50": 600.0,
+          "p95": 3300,
+          "p99": 6300
+        },
+        "barrier_nanos": {
+          "mean": 70752.39,
+          "p50": 58700.0,
+          "p95": 127800,
+          "p99": 225200
+        },
+        "late_completion_nanos": {
+          "mean": 72716.14666666667,
+          "p50": 59800.0,
+          "p95": 150000,
+          "p99": 231800
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r2-pulsar-mask",
+      "family": "blocks",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 69989.31,
+          "p50": 62200.0,
+          "p95": 95900,
+          "p99": 141100
+        },
+        "submission_nanos": {
+          "mean": 1179.73,
+          "p50": 600.0,
+          "p95": 3400,
+          "p99": 6100
+        },
+        "barrier_nanos": {
+          "mean": 68761.9,
+          "p50": 61200.0,
+          "p95": 92900,
+          "p99": 136000
+        },
+        "late_completion_nanos": {
+          "mean": 70173.90666666666,
+          "p50": 62100.0,
+          "p95": 96500,
+          "p99": 146100
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r2-starlight-baseline",
+      "family": "blocks",
+      "repetition": 2,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 61957.21,
+          "p50": 60800.0,
+          "p95": 75700,
+          "p99": 84400
+        },
+        "submission_nanos": {
+          "mean": 308.95,
+          "p50": 300.0,
+          "p95": 600,
+          "p99": 1300
+        },
+        "barrier_nanos": {
+          "mean": 61594.93,
+          "p50": 60450.0,
+          "p95": 75000,
+          "p99": 84000
+        },
+        "late_completion_nanos": {
+          "mean": 62060.86666666667,
+          "p50": 61000.0,
+          "p95": 75200,
+          "p99": 84200
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r2-starlight-baseline",
+      "family": "blocks",
+      "repetition": 2,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 73452.63,
+          "p50": 72600.0,
+          "p95": 87800,
+          "p99": 98000
+        },
+        "submission_nanos": {
+          "mean": 299.98,
+          "p50": 200.0,
+          "p95": 500,
+          "p99": 1200
+        },
+        "barrier_nanos": {
+          "mean": 73100.43,
+          "p50": 72200.0,
+          "p95": 87200,
+          "p99": 97400
+        },
+        "late_completion_nanos": {
+          "mean": 73627.09333333334,
+          "p50": 72850.0,
+          "p95": 87500,
+          "p99": 97700
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r3-pulsar-baseline",
+      "family": "blocks",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 70276.93,
+          "p50": 60600.0,
+          "p95": 130000,
+          "p99": 214900
+        },
+        "submission_nanos": {
+          "mean": 1412.28,
+          "p50": 600.0,
+          "p95": 3400,
+          "p99": 11400
+        },
+        "barrier_nanos": {
+          "mean": 68810.97,
+          "p50": 58800.0,
+          "p95": 125700,
+          "p99": 207600
+        },
+        "late_completion_nanos": {
+          "mean": 70712.29333333333,
+          "p50": 60300.0,
+          "p95": 152200,
+          "p99": 219200
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r3-pulsar-baseline",
+      "family": "blocks",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 68609.88,
+          "p50": 62900.0,
+          "p95": 94400,
+          "p99": 135800
+        },
+        "submission_nanos": {
+          "mean": 1437.93,
+          "p50": 600.0,
+          "p95": 3500,
+          "p99": 7800
+        },
+        "barrier_nanos": {
+          "mean": 67120.47,
+          "p50": 61000.0,
+          "p95": 90600,
+          "p99": 131000
+        },
+        "late_completion_nanos": {
+          "mean": 68508.90666666666,
+          "p50": 62800.0,
+          "p95": 96100,
+          "p99": 135800
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r3-pulsar-both",
+      "family": "blocks",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 66220.32,
+          "p50": 59700.0,
+          "p95": 90800,
+          "p99": 163400
+        },
+        "submission_nanos": {
+          "mean": 1075.97,
+          "p50": 600.0,
+          "p95": 3300,
+          "p99": 5800
+        },
+        "barrier_nanos": {
+          "mean": 65096.46,
+          "p50": 58600.0,
+          "p95": 88200,
+          "p99": 160800
+        },
+        "late_completion_nanos": {
+          "mean": 65375.37333333334,
+          "p50": 57700.0,
+          "p95": 88100,
+          "p99": 163300
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r3-pulsar-both",
+      "family": "blocks",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 68034.86,
+          "p50": 62300.0,
+          "p95": 91200,
+          "p99": 128100
+        },
+        "submission_nanos": {
+          "mean": 1101.06,
+          "p50": 600.0,
+          "p95": 3400,
+          "p99": 5700
+        },
+        "barrier_nanos": {
+          "mean": 66883.58,
+          "p50": 61200.0,
+          "p95": 89000,
+          "p99": 126600
+        },
+        "late_completion_nanos": {
+          "mean": 67294.38666666667,
+          "p50": 60300.0,
+          "p95": 90000,
+          "p99": 127300
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r3-pulsar-late",
+      "family": "blocks",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 65802.67,
+          "p50": 59000.0,
+          "p95": 91300,
+          "p99": 161800
+        },
+        "submission_nanos": {
+          "mean": 1108.86,
+          "p50": 600.0,
+          "p95": 3400,
+          "p99": 5500
+        },
+        "barrier_nanos": {
+          "mean": 64646.21,
+          "p50": 57900.0,
+          "p95": 88700,
+          "p99": 158400
+        },
+        "late_completion_nanos": {
+          "mean": 66283.32,
+          "p50": 59300.0,
+          "p95": 92000,
+          "p99": 167400
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r3-pulsar-late",
+      "family": "blocks",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 67516.62,
+          "p50": 61900.0,
+          "p95": 91600,
+          "p99": 127100
+        },
+        "submission_nanos": {
+          "mean": 1110.58,
+          "p50": 600.0,
+          "p95": 3500,
+          "p99": 5600
+        },
+        "barrier_nanos": {
+          "mean": 66358.1,
+          "p50": 60800.0,
+          "p95": 89500,
+          "p99": 125300
+        },
+        "late_completion_nanos": {
+          "mean": 67775.88,
+          "p50": 62200.0,
+          "p95": 91600,
+          "p99": 126500
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r3-pulsar-mask",
+      "family": "blocks",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 69826.63,
+          "p50": 56600.0,
+          "p95": 116100,
+          "p99": 207000
+        },
+        "submission_nanos": {
+          "mean": 856.44,
+          "p50": 600.0,
+          "p95": 2700,
+          "p99": 4400
+        },
+        "barrier_nanos": {
+          "mean": 68921.09,
+          "p50": 56000.0,
+          "p95": 114600,
+          "p99": 202600
+        },
+        "late_completion_nanos": {
+          "mean": 70508.24,
+          "p50": 56700.0,
+          "p95": 121500,
+          "p99": 210000
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r3-pulsar-mask",
+      "family": "blocks",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 70244.15,
+          "p50": 60000.0,
+          "p95": 103900,
+          "p99": 145900
+        },
+        "submission_nanos": {
+          "mean": 874.28,
+          "p50": 600.0,
+          "p95": 2700,
+          "p99": 4900
+        },
+        "barrier_nanos": {
+          "mean": 69322.01,
+          "p50": 59400.0,
+          "p95": 102700,
+          "p99": 143500
+        },
+        "late_completion_nanos": {
+          "mean": 70805.74666666667,
+          "p50": 60700.0,
+          "p95": 105400,
+          "p99": 151000
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r3-starlight-baseline",
+      "family": "blocks",
+      "repetition": 3,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 58492.3,
+          "p50": 54700.0,
+          "p95": 73300,
+          "p99": 82700
+        },
+        "submission_nanos": {
+          "mean": 271.04,
+          "p50": 200.0,
+          "p95": 500,
+          "p99": 1100
+        },
+        "barrier_nanos": {
+          "mean": 58175.89,
+          "p50": 54500.0,
+          "p95": 72800,
+          "p99": 82200
+        },
+        "late_completion_nanos": {
+          "mean": 59606.2,
+          "p50": 55000.0,
+          "p95": 75300,
+          "p99": 83000
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r3-starlight-baseline",
+      "family": "blocks",
+      "repetition": 3,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 68742.45,
+          "p50": 64400.0,
+          "p95": 85200,
+          "p99": 96800
+        },
+        "submission_nanos": {
+          "mean": 257.01,
+          "p50": 200.0,
+          "p95": 500,
+          "p99": 1100
+        },
+        "barrier_nanos": {
+          "mean": 68440.59,
+          "p50": 64100.0,
+          "p95": 84700,
+          "p99": 96400
+        },
+        "late_completion_nanos": {
+          "mean": 70031.29333333333,
+          "p50": 65000.0,
+          "p95": 87700,
+          "p99": 97100
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r4-pulsar-baseline",
+      "family": "blocks",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 70568.12,
+          "p50": 61900.0,
+          "p95": 112700,
+          "p99": 212400
+        },
+        "submission_nanos": {
+          "mean": 1146.03,
+          "p50": 600.0,
+          "p95": 3200,
+          "p99": 5700
+        },
+        "barrier_nanos": {
+          "mean": 69370.71,
+          "p50": 60400.0,
+          "p95": 108500,
+          "p99": 207700
+        },
+        "late_completion_nanos": {
+          "mean": 69827.57333333333,
+          "p50": 59800.0,
+          "p95": 114300,
+          "p99": 212900
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r4-pulsar-baseline",
+      "family": "blocks",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 70128.6,
+          "p50": 64100.0,
+          "p95": 95200,
+          "p99": 140900
+        },
+        "submission_nanos": {
+          "mean": 1176.93,
+          "p50": 600.0,
+          "p95": 3400,
+          "p99": 5800
+        },
+        "barrier_nanos": {
+          "mean": 68888.8,
+          "p50": 62400.0,
+          "p95": 92400,
+          "p99": 137000
+        },
+        "late_completion_nanos": {
+          "mean": 69266.02666666667,
+          "p50": 62200.0,
+          "p95": 94400,
+          "p99": 141100
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r4-pulsar-both",
+      "family": "blocks",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 71545.73,
+          "p50": 62900.0,
+          "p95": 121400,
+          "p99": 183400
+        },
+        "submission_nanos": {
+          "mean": 1340.38,
+          "p50": 700.0,
+          "p95": 3700,
+          "p99": 6900
+        },
+        "barrier_nanos": {
+          "mean": 70152.29,
+          "p50": 60800.0,
+          "p95": 118200,
+          "p99": 180900
+        },
+        "late_completion_nanos": {
+          "mean": 72330.46666666666,
+          "p50": 63100.0,
+          "p95": 125900,
+          "p99": 196300
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r4-pulsar-both",
+      "family": "blocks",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 73329.09,
+          "p50": 65750.0,
+          "p95": 113800,
+          "p99": 159000
+        },
+        "submission_nanos": {
+          "mean": 1314.32,
+          "p50": 600.0,
+          "p95": 3600,
+          "p99": 6500
+        },
+        "barrier_nanos": {
+          "mean": 71963.74,
+          "p50": 63900.0,
+          "p95": 111700,
+          "p99": 156000
+        },
+        "late_completion_nanos": {
+          "mean": 74039.17333333334,
+          "p50": 66000.0,
+          "p95": 117300,
+          "p99": 162100
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r4-pulsar-late",
+      "family": "blocks",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 62756.46,
+          "p50": 54900.0,
+          "p95": 87300,
+          "p99": 154000
+        },
+        "submission_nanos": {
+          "mean": 1052.64,
+          "p50": 600.0,
+          "p95": 3100,
+          "p99": 5200
+        },
+        "barrier_nanos": {
+          "mean": 61655.64,
+          "p50": 54200.0,
+          "p95": 84900,
+          "p99": 152400
+        },
+        "late_completion_nanos": {
+          "mean": 63111.82666666667,
+          "p50": 55500.0,
+          "p95": 89100,
+          "p99": 153500
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r4-pulsar-late",
+      "family": "blocks",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 64553.72,
+          "p50": 57700.0,
+          "p95": 86300,
+          "p99": 124300
+        },
+        "submission_nanos": {
+          "mean": 990.41,
+          "p50": 600.0,
+          "p95": 3100,
+          "p99": 4900
+        },
+        "barrier_nanos": {
+          "mean": 63514.04,
+          "p50": 57100.0,
+          "p95": 84200,
+          "p99": 123200
+        },
+        "late_completion_nanos": {
+          "mean": 64979.85333333333,
+          "p50": 57900.0,
+          "p95": 88000,
+          "p99": 125100
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r4-pulsar-mask",
+      "family": "blocks",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 65080.95,
+          "p50": 55700.0,
+          "p95": 88500,
+          "p99": 178800
+        },
+        "submission_nanos": {
+          "mean": 855.82,
+          "p50": 600.0,
+          "p95": 2400,
+          "p99": 4300
+        },
+        "barrier_nanos": {
+          "mean": 64176.94,
+          "p50": 55100.0,
+          "p95": 87000,
+          "p99": 176300
+        },
+        "late_completion_nanos": {
+          "mean": 64163.96,
+          "p50": 55400.0,
+          "p95": 95200,
+          "p99": 181900
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r4-pulsar-mask",
+      "family": "blocks",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 66281.85,
+          "p50": 59000.0,
+          "p95": 88500,
+          "p99": 126000
+        },
+        "submission_nanos": {
+          "mean": 905.17,
+          "p50": 600.0,
+          "p95": 2600,
+          "p99": 4500
+        },
+        "barrier_nanos": {
+          "mean": 65324.72,
+          "p50": 58400.0,
+          "p95": 87200,
+          "p99": 124700
+        },
+        "late_completion_nanos": {
+          "mean": 65101.653333333335,
+          "p50": 58500.0,
+          "p95": 89800,
+          "p99": 128800
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r4-starlight-baseline",
+      "family": "blocks",
+      "repetition": 4,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 60201.92,
+          "p50": 55200.0,
+          "p95": 74600,
+          "p99": 86600
+        },
+        "submission_nanos": {
+          "mean": 261.07,
+          "p50": 200.0,
+          "p95": 400,
+          "p99": 1100
+        },
+        "barrier_nanos": {
+          "mean": 59894.86,
+          "p50": 55000.0,
+          "p95": 74300,
+          "p99": 86100
+        },
+        "late_completion_nanos": {
+          "mean": 59018.36,
+          "p50": 55000.0,
+          "p95": 75100,
+          "p99": 85600
+        }
+      }
+    },
+    {
+      "run": "formal-blocks-r4-starlight-baseline",
+      "family": "blocks",
+      "repetition": 4,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 70364.24,
+          "p50": 64900.0,
+          "p95": 86200,
+          "p99": 99300
+        },
+        "submission_nanos": {
+          "mean": 253.39,
+          "p50": 200.0,
+          "p95": 400,
+          "p99": 1000
+        },
+        "barrier_nanos": {
+          "mean": 70064.36,
+          "p50": 64600.0,
+          "p95": 85500,
+          "p99": 99000
+        },
+        "late_completion_nanos": {
+          "mean": 68919.29333333333,
+          "p50": 64300.0,
+          "p95": 86400,
+          "p99": 97900
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-baseline",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 636870.3,
+          "p50": 563300.0,
+          "p95": 950900,
+          "p99": 1232600
+        },
+        "submission_nanos": {
+          "mean": 3076.9,
+          "p50": 2150.0,
+          "p95": 6200,
+          "p99": 25400
+        },
+        "barrier_nanos": {
+          "mean": 633729.9,
+          "p50": 560100.0,
+          "p95": 949900,
+          "p99": 1227700
+        },
+        "late_completion_nanos": {
+          "mean": 643856.2666666667,
+          "p50": 565000.0,
+          "p95": 976000,
+          "p99": 1239500
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-baseline",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 626680.8,
+          "p50": 557300.0,
+          "p95": 927900,
+          "p99": 1172800
+        },
+        "submission_nanos": {
+          "mean": 2850.1,
+          "p50": 2600.0,
+          "p95": 5800,
+          "p99": 12900
+        },
+        "barrier_nanos": {
+          "mean": 623770.2,
+          "p50": 554150.0,
+          "p95": 927200,
+          "p99": 1168900
+        },
+        "late_completion_nanos": {
+          "mean": 632075.6,
+          "p50": 558700.0,
+          "p95": 940200,
+          "p99": 1245900
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-baseline",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 71863.4,
+          "p50": 59900.0,
+          "p95": 156700,
+          "p99": 216200
+        },
+        "submission_nanos": {
+          "mean": 643.3,
+          "p50": 400.0,
+          "p95": 2000,
+          "p99": 4800
+        },
+        "barrier_nanos": {
+          "mean": 71174.6,
+          "p50": 59350.0,
+          "p95": 155300,
+          "p99": 215500
+        },
+        "late_completion_nanos": {
+          "mean": 73294.66666666667,
+          "p50": 67950.0,
+          "p95": 155800,
+          "p99": 216200
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-baseline",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 69913,
+          "p50": 62350.0,
+          "p95": 101100,
+          "p99": 143600
+        },
+        "submission_nanos": {
+          "mean": 716.3,
+          "p50": 400.0,
+          "p95": 2600,
+          "p99": 4700
+        },
+        "barrier_nanos": {
+          "mean": 69147.4,
+          "p50": 61600.0,
+          "p95": 100600,
+          "p99": 140600
+        },
+        "late_completion_nanos": {
+          "mean": 72016.93333333333,
+          "p50": 66600.0,
+          "p95": 102000,
+          "p99": 145200
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-both",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 656080.6,
+          "p50": 573650.0,
+          "p95": 983500,
+          "p99": 1172600
+        },
+        "submission_nanos": {
+          "mean": 3861.9,
+          "p50": 2900.0,
+          "p95": 8000,
+          "p99": 28500
+        },
+        "barrier_nanos": {
+          "mean": 652133.3,
+          "p50": 568700.0,
+          "p95": 973000,
+          "p99": 1171000
+        },
+        "late_completion_nanos": {
+          "mean": 631823.7333333333,
+          "p50": 569950.0,
+          "p95": 889000,
+          "p99": 1151700
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-both",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 650971.3,
+          "p50": 571050.0,
+          "p95": 946800,
+          "p99": 1135900
+        },
+        "submission_nanos": {
+          "mean": 3378.5,
+          "p50": 2600.0,
+          "p95": 6300,
+          "p99": 29400
+        },
+        "barrier_nanos": {
+          "mean": 647526.3,
+          "p50": 566750.0,
+          "p95": 938600,
+          "p99": 1130600
+        },
+        "late_completion_nanos": {
+          "mean": 626819.8666666667,
+          "p50": 566600.0,
+          "p95": 864200,
+          "p99": 1116200
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-both",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 71723,
+          "p50": 64450.0,
+          "p95": 106300,
+          "p99": 187400
+        },
+        "submission_nanos": {
+          "mean": 1223.9,
+          "p50": 400.0,
+          "p95": 3100,
+          "p99": 5300
+        },
+        "barrier_nanos": {
+          "mean": 70450.3,
+          "p50": 62500.0,
+          "p95": 104000,
+          "p99": 184800
+        },
+        "late_completion_nanos": {
+          "mean": 70620.53333333334,
+          "p50": 60950.0,
+          "p95": 118400,
+          "p99": 203900
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-both",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 71461.3,
+          "p50": 66400.0,
+          "p95": 96000,
+          "p99": 144400
+        },
+        "submission_nanos": {
+          "mean": 1077.7,
+          "p50": 400.0,
+          "p95": 3000,
+          "p99": 5200
+        },
+        "barrier_nanos": {
+          "mean": 70299.3,
+          "p50": 64400.0,
+          "p95": 92700,
+          "p99": 140300
+        },
+        "late_completion_nanos": {
+          "mean": 69464.53333333334,
+          "p50": 62850.0,
+          "p95": 104800,
+          "p99": 144400
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-late",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 604704,
+          "p50": 570800.0,
+          "p95": 756100,
+          "p99": 918800
+        },
+        "submission_nanos": {
+          "mean": 3303.8,
+          "p50": 2500.0,
+          "p95": 7300,
+          "p99": 26000
+        },
+        "barrier_nanos": {
+          "mean": 601343.8,
+          "p50": 567600.0,
+          "p95": 753500,
+          "p99": 915900
+        },
+        "late_completion_nanos": {
+          "mean": 608705.3333333334,
+          "p50": 571950.0,
+          "p95": 760600,
+          "p99": 1064400
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-late",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 591358.9,
+          "p50": 557500.0,
+          "p95": 743100,
+          "p99": 913300
+        },
+        "submission_nanos": {
+          "mean": 3342.9,
+          "p50": 2600.0,
+          "p95": 6000,
+          "p99": 28600
+        },
+        "barrier_nanos": {
+          "mean": 587936.5,
+          "p50": 554000.0,
+          "p95": 739800,
+          "p99": 912100
+        },
+        "late_completion_nanos": {
+          "mean": 595405.0666666667,
+          "p50": 559050.0,
+          "p95": 743800,
+          "p99": 970700
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-late",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 65171.3,
+          "p50": 56900.0,
+          "p95": 90600,
+          "p99": 170400
+        },
+        "submission_nanos": {
+          "mean": 841.9,
+          "p50": 400.0,
+          "p95": 2400,
+          "p99": 4600
+        },
+        "barrier_nanos": {
+          "mean": 64284.4,
+          "p50": 56400.0,
+          "p95": 89100,
+          "p99": 168600
+        },
+        "late_completion_nanos": {
+          "mean": 63746.26666666667,
+          "p50": 56300.0,
+          "p95": 83300,
+          "p99": 169600
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-late",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 65263.9,
+          "p50": 58050.0,
+          "p95": 86200,
+          "p99": 121000
+        },
+        "submission_nanos": {
+          "mean": 983.7,
+          "p50": 400.0,
+          "p95": 2700,
+          "p99": 6700
+        },
+        "barrier_nanos": {
+          "mean": 64238.1,
+          "p50": 57500.0,
+          "p95": 83100,
+          "p99": 120500
+        },
+        "late_completion_nanos": {
+          "mean": 63449.2,
+          "p50": 57500.0,
+          "p95": 79300,
+          "p99": 96500
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-mask",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 584545.3,
+          "p50": 550400.0,
+          "p95": 736600,
+          "p99": 1040300
+        },
+        "submission_nanos": {
+          "mean": 2499.5,
+          "p50": 2000.0,
+          "p95": 5200,
+          "p99": 8800
+        },
+        "barrier_nanos": {
+          "mean": 581986,
+          "p50": 547500.0,
+          "p95": 732700,
+          "p99": 1035200
+        },
+        "late_completion_nanos": {
+          "mean": 585654.4,
+          "p50": 549950.0,
+          "p95": 736600,
+          "p99": 1059500
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-mask",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 606750.9,
+          "p50": 572600.0,
+          "p95": 753700,
+          "p99": 1073700
+        },
+        "submission_nanos": {
+          "mean": 2478.5,
+          "p50": 2300.0,
+          "p95": 4800,
+          "p99": 7000
+        },
+        "barrier_nanos": {
+          "mean": 604212.6,
+          "p50": 569900.0,
+          "p95": 750100,
+          "p99": 1069300
+        },
+        "late_completion_nanos": {
+          "mean": 608380.5333333333,
+          "p50": 572700.0,
+          "p95": 755900,
+          "p99": 1131700
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-mask",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 74840,
+          "p50": 73900.0,
+          "p95": 160600,
+          "p99": 222800
+        },
+        "submission_nanos": {
+          "mean": 643.5,
+          "p50": 400.0,
+          "p95": 2200,
+          "p99": 5900
+        },
+        "barrier_nanos": {
+          "mean": 74146,
+          "p50": 73400.0,
+          "p95": 159100,
+          "p99": 219400
+        },
+        "late_completion_nanos": {
+          "mean": 72919.73333333334,
+          "p50": 69150.0,
+          "p95": 160900,
+          "p99": 219200
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-pulsar-mask",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 72045,
+          "p50": 73050.0,
+          "p95": 88100,
+          "p99": 144600
+        },
+        "submission_nanos": {
+          "mean": 660.6,
+          "p50": 400.0,
+          "p95": 2300,
+          "p99": 4400
+        },
+        "barrier_nanos": {
+          "mean": 71332.6,
+          "p50": 72100.0,
+          "p95": 86900,
+          "p99": 144000
+        },
+        "late_completion_nanos": {
+          "mean": 69891.33333333333,
+          "p50": 70550.0,
+          "p95": 82500,
+          "p99": 94800
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-starlight-baseline",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 549580.5,
+          "p50": 530200.0,
+          "p95": 646400,
+          "p99": 762100
+        },
+        "submission_nanos": {
+          "mean": 5777.8,
+          "p50": 4800.0,
+          "p95": 9000,
+          "p99": 15400
+        },
+        "barrier_nanos": {
+          "mean": 543747.7,
+          "p50": 524650.0,
+          "p95": 638900,
+          "p99": 755100
+        },
+        "late_completion_nanos": {
+          "mean": 553467.7333333333,
+          "p50": 530950.0,
+          "p95": 672600,
+          "p99": 769500
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-starlight-baseline",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 601197.7,
+          "p50": 578400.0,
+          "p95": 726900,
+          "p99": 856200
+        },
+        "submission_nanos": {
+          "mean": 5305.5,
+          "p50": 4500.0,
+          "p95": 8500,
+          "p99": 13200
+        },
+        "barrier_nanos": {
+          "mean": 595840.9,
+          "p50": 573050.0,
+          "p95": 722400,
+          "p99": 849000
+        },
+        "late_completion_nanos": {
+          "mean": 605986.8,
+          "p50": 579700.0,
+          "p95": 742300,
+          "p99": 861400
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-starlight-baseline",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 60111.2,
+          "p50": 54600.0,
+          "p95": 80000,
+          "p99": 83100
+        },
+        "submission_nanos": {
+          "mean": 258.4,
+          "p50": 200.0,
+          "p95": 600,
+          "p99": 1200
+        },
+        "barrier_nanos": {
+          "mean": 59810,
+          "p50": 54400.0,
+          "p95": 79700,
+          "p99": 82300
+        },
+        "late_completion_nanos": {
+          "mean": 58768.4,
+          "p50": 54400.0,
+          "p95": 80300,
+          "p99": 82700
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r1-starlight-baseline",
+      "family": "sky",
+      "repetition": 1,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 79483.1,
+          "p50": 73300.0,
+          "p95": 104900,
+          "p99": 111500
+        },
+        "submission_nanos": {
+          "mean": 233.3,
+          "p50": 200.0,
+          "p95": 400,
+          "p99": 1100
+        },
+        "barrier_nanos": {
+          "mean": 79205.9,
+          "p50": 72800.0,
+          "p95": 104400,
+          "p99": 111300
+        },
+        "late_completion_nanos": {
+          "mean": 78207.06666666667,
+          "p50": 71900.0,
+          "p95": 105800,
+          "p99": 111500
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-baseline",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 698350.3,
+          "p50": 628600.0,
+          "p95": 1015500,
+          "p99": 1384700
+        },
+        "submission_nanos": {
+          "mean": 4351.6,
+          "p50": 3050.0,
+          "p95": 8400,
+          "p99": 26400
+        },
+        "barrier_nanos": {
+          "mean": 693921.5,
+          "p50": 626050.0,
+          "p95": 1010600,
+          "p99": 1383200
+        },
+        "late_completion_nanos": {
+          "mean": 715513.6,
+          "p50": 666300.0,
+          "p95": 1020600,
+          "p99": 1384700
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-baseline",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 677573.8,
+          "p50": 612800.0,
+          "p95": 983000,
+          "p99": 1221200
+        },
+        "submission_nanos": {
+          "mean": 3540.4,
+          "p50": 3000.0,
+          "p95": 7900,
+          "p99": 20500
+        },
+        "barrier_nanos": {
+          "mean": 673937.7,
+          "p50": 609550.0,
+          "p95": 981000,
+          "p99": 1220100
+        },
+        "late_completion_nanos": {
+          "mean": 693921.6,
+          "p50": 634200.0,
+          "p95": 1004600,
+          "p99": 1289300
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-baseline",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 77555,
+          "p50": 56000.0,
+          "p95": 179400,
+          "p99": 245600
+        },
+        "submission_nanos": {
+          "mean": 1461.5,
+          "p50": 400.0,
+          "p95": 3600,
+          "p99": 6400
+        },
+        "barrier_nanos": {
+          "mean": 76046.1,
+          "p50": 55100.0,
+          "p95": 173500,
+          "p99": 244600
+        },
+        "late_completion_nanos": {
+          "mean": 69712.93333333333,
+          "p50": 55000.0,
+          "p95": 160900,
+          "p99": 241700
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-baseline",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 69930.7,
+          "p50": 61900.0,
+          "p95": 107700,
+          "p99": 159000
+        },
+        "submission_nanos": {
+          "mean": 1508.6,
+          "p50": 400.0,
+          "p95": 3900,
+          "p99": 18500
+        },
+        "barrier_nanos": {
+          "mean": 68351.2,
+          "p50": 61200.0,
+          "p95": 102800,
+          "p99": 152500
+        },
+        "late_completion_nanos": {
+          "mean": 65719.2,
+          "p50": 58600.0,
+          "p95": 92600,
+          "p99": 135300
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-both",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 592795,
+          "p50": 555850.0,
+          "p95": 761100,
+          "p99": 858400
+        },
+        "submission_nanos": {
+          "mean": 3275.7,
+          "p50": 2400.0,
+          "p95": 6800,
+          "p99": 26900
+        },
+        "barrier_nanos": {
+          "mean": 589459.8,
+          "p50": 552300.0,
+          "p95": 757400,
+          "p99": 854300
+        },
+        "late_completion_nanos": {
+          "mean": 593805.4666666667,
+          "p50": 557050.0,
+          "p95": 763200,
+          "p99": 860900
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-both",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 607357.2,
+          "p50": 572700.0,
+          "p95": 760900,
+          "p99": 905500
+        },
+        "submission_nanos": {
+          "mean": 2816.8,
+          "p50": 2300.0,
+          "p95": 5400,
+          "p99": 29600
+        },
+        "barrier_nanos": {
+          "mean": 604462,
+          "p50": 568750.0,
+          "p95": 758900,
+          "p99": 904800
+        },
+        "late_completion_nanos": {
+          "mean": 606846.1333333333,
+          "p50": 573400.0,
+          "p95": 759100,
+          "p99": 882800
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-both",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 70582,
+          "p50": 63600.0,
+          "p95": 96800,
+          "p99": 175200
+        },
+        "submission_nanos": {
+          "mean": 973.9,
+          "p50": 500.0,
+          "p95": 3600,
+          "p99": 5400
+        },
+        "barrier_nanos": {
+          "mean": 69556.3,
+          "p50": 62050.0,
+          "p95": 94100,
+          "p99": 169700
+        },
+        "late_completion_nanos": {
+          "mean": 70348.66666666667,
+          "p50": 62400.0,
+          "p95": 97200,
+          "p99": 191600
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-both",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 70822,
+          "p50": 65850.0,
+          "p95": 94200,
+          "p99": 155400
+        },
+        "submission_nanos": {
+          "mean": 964.8,
+          "p50": 500.0,
+          "p95": 3500,
+          "p99": 5500
+        },
+        "barrier_nanos": {
+          "mean": 69805,
+          "p50": 63900.0,
+          "p95": 92100,
+          "p99": 152000
+        },
+        "late_completion_nanos": {
+          "mean": 70008.26666666666,
+          "p50": 64550.0,
+          "p95": 94500,
+          "p99": 161100
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-late",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 623339,
+          "p50": 570500.0,
+          "p95": 842300,
+          "p99": 1111500
+        },
+        "submission_nanos": {
+          "mean": 4605.1,
+          "p50": 3200.0,
+          "p95": 8700,
+          "p99": 34000
+        },
+        "barrier_nanos": {
+          "mean": 618655.6,
+          "p50": 565500.0,
+          "p95": 840300,
+          "p99": 1107100
+        },
+        "late_completion_nanos": {
+          "mean": 631667.3333333334,
+          "p50": 575900.0,
+          "p95": 864900,
+          "p99": 1167900
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-late",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 617561.4,
+          "p50": 567000.0,
+          "p95": 809800,
+          "p99": 1102500
+        },
+        "submission_nanos": {
+          "mean": 3680.6,
+          "p50": 2900.0,
+          "p95": 6600,
+          "p99": 29200
+        },
+        "barrier_nanos": {
+          "mean": 613781.5,
+          "p50": 562000.0,
+          "p95": 796900,
+          "p99": 1091500
+        },
+        "late_completion_nanos": {
+          "mean": 624727.3333333334,
+          "p50": 569450.0,
+          "p95": 853300,
+          "p99": 1211500
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-late",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 70783.9,
+          "p50": 63250.0,
+          "p95": 110600,
+          "p99": 190500
+        },
+        "submission_nanos": {
+          "mean": 1192.8,
+          "p50": 400.0,
+          "p95": 3600,
+          "p99": 7100
+        },
+        "barrier_nanos": {
+          "mean": 69541,
+          "p50": 61300.0,
+          "p95": 108700,
+          "p99": 177600
+        },
+        "late_completion_nanos": {
+          "mean": 71782.26666666666,
+          "p50": 66150.0,
+          "p95": 106100,
+          "p99": 190500
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-late",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 71890.3,
+          "p50": 66200.0,
+          "p95": 100700,
+          "p99": 154600
+        },
+        "submission_nanos": {
+          "mean": 1156.7,
+          "p50": 400.0,
+          "p95": 3400,
+          "p99": 5700
+        },
+        "barrier_nanos": {
+          "mean": 70685.4,
+          "p50": 64300.0,
+          "p95": 97500,
+          "p99": 152400
+        },
+        "late_completion_nanos": {
+          "mean": 72292.26666666666,
+          "p50": 69300.0,
+          "p95": 97900,
+          "p99": 150600
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-mask",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 615012,
+          "p50": 566950.0,
+          "p95": 793800,
+          "p99": 1117100
+        },
+        "submission_nanos": {
+          "mean": 2918.2,
+          "p50": 2100.0,
+          "p95": 5600,
+          "p99": 17200
+        },
+        "barrier_nanos": {
+          "mean": 612028.7,
+          "p50": 563800.0,
+          "p95": 790500,
+          "p99": 1114700
+        },
+        "late_completion_nanos": {
+          "mean": 610663.6,
+          "p50": 566900.0,
+          "p95": 783700,
+          "p99": 999000
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-mask",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 608326,
+          "p50": 562350.0,
+          "p95": 788200,
+          "p99": 1095500
+        },
+        "submission_nanos": {
+          "mean": 2970.6,
+          "p50": 2300.0,
+          "p95": 5500,
+          "p99": 20600
+        },
+        "barrier_nanos": {
+          "mean": 605289.8,
+          "p50": 559200.0,
+          "p95": 784300,
+          "p99": 1094000
+        },
+        "late_completion_nanos": {
+          "mean": 605286.9333333333,
+          "p50": 563800.0,
+          "p95": 773400,
+          "p99": 1012900
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-mask",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 81613.5,
+          "p50": 67450.0,
+          "p95": 177500,
+          "p99": 251200
+        },
+        "submission_nanos": {
+          "mean": 1050.9,
+          "p50": 400.0,
+          "p95": 3300,
+          "p99": 8300
+        },
+        "barrier_nanos": {
+          "mean": 80512.1,
+          "p50": 65900.0,
+          "p95": 174200,
+          "p99": 249900
+        },
+        "late_completion_nanos": {
+          "mean": 77775.46666666666,
+          "p50": 67350.0,
+          "p95": 167200,
+          "p99": 251200
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-pulsar-mask",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 72373.6,
+          "p50": 68200.0,
+          "p95": 99700,
+          "p99": 151000
+        },
+        "submission_nanos": {
+          "mean": 1515.2,
+          "p50": 400.0,
+          "p95": 3900,
+          "p99": 9100
+        },
+        "barrier_nanos": {
+          "mean": 70806.4,
+          "p50": 65800.0,
+          "p95": 96300,
+          "p99": 142400
+        },
+        "late_completion_nanos": {
+          "mean": 70556.13333333333,
+          "p50": 67300.0,
+          "p95": 91700,
+          "p99": 118400
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-starlight-baseline",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 590544.9,
+          "p50": 534200.0,
+          "p95": 806400,
+          "p99": 960200
+        },
+        "submission_nanos": {
+          "mean": 6227.9,
+          "p50": 4900.0,
+          "p95": 10200,
+          "p99": 22100
+        },
+        "barrier_nanos": {
+          "mean": 584264.1,
+          "p50": 528150.0,
+          "p95": 794600,
+          "p99": 940400
+        },
+        "late_completion_nanos": {
+          "mean": 582612.1333333333,
+          "p50": 531700.0,
+          "p95": 766800,
+          "p99": 900100
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-starlight-baseline",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 638612.4,
+          "p50": 581150.0,
+          "p95": 889400,
+          "p99": 1122300
+        },
+        "submission_nanos": {
+          "mean": 5692.9,
+          "p50": 4600.0,
+          "p95": 9400,
+          "p99": 17500
+        },
+        "barrier_nanos": {
+          "mean": 632863.1,
+          "p50": 575700.0,
+          "p95": 880900,
+          "p99": 1115500
+        },
+        "late_completion_nanos": {
+          "mean": 625870.2666666667,
+          "p50": 578400.0,
+          "p95": 847900,
+          "p99": 993600
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-starlight-baseline",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 57658.1,
+          "p50": 54000.0,
+          "p95": 76900,
+          "p99": 84400
+        },
+        "submission_nanos": {
+          "mean": 291.8,
+          "p50": 200.0,
+          "p95": 700,
+          "p99": 1800
+        },
+        "barrier_nanos": {
+          "mean": 57323.2,
+          "p50": 53800.0,
+          "p95": 76500,
+          "p99": 83800
+        },
+        "late_completion_nanos": {
+          "mean": 57691.73333333333,
+          "p50": 54000.0,
+          "p95": 78800,
+          "p99": 84700
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r2-starlight-baseline",
+      "family": "sky",
+      "repetition": 2,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 75798,
+          "p50": 71200.0,
+          "p95": 99900,
+          "p99": 108200
+        },
+        "submission_nanos": {
+          "mean": 206.1,
+          "p50": 200.0,
+          "p95": 400,
+          "p99": 1100
+        },
+        "barrier_nanos": {
+          "mean": 75546.1,
+          "p50": 71000.0,
+          "p95": 99600,
+          "p99": 107800
+        },
+        "late_completion_nanos": {
+          "mean": 75934.93333333333,
+          "p50": 71200.0,
+          "p95": 101300,
+          "p99": 108200
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-baseline",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 657065.4,
+          "p50": 594550.0,
+          "p95": 871500,
+          "p99": 1235600
+        },
+        "submission_nanos": {
+          "mean": 4148.4,
+          "p50": 2900.0,
+          "p95": 7400,
+          "p99": 34700
+        },
+        "barrier_nanos": {
+          "mean": 652849.1,
+          "p50": 589300.0,
+          "p95": 869200,
+          "p99": 1232100
+        },
+        "late_completion_nanos": {
+          "mean": 659647.6,
+          "p50": 597400.0,
+          "p95": 874800,
+          "p99": 1261500
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-baseline",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 654025.1,
+          "p50": 596200.0,
+          "p95": 877100,
+          "p99": 1241900
+        },
+        "submission_nanos": {
+          "mean": 3304.2,
+          "p50": 3000.0,
+          "p95": 6400,
+          "p99": 18300
+        },
+        "barrier_nanos": {
+          "mean": 650653.9,
+          "p50": 591750.0,
+          "p95": 874200,
+          "p99": 1238000
+        },
+        "late_completion_nanos": {
+          "mean": 658752.4,
+          "p50": 604650.0,
+          "p95": 895600,
+          "p99": 1253900
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-baseline",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 86330.6,
+          "p50": 70750.0,
+          "p95": 191600,
+          "p99": 268500
+        },
+        "submission_nanos": {
+          "mean": 1514.2,
+          "p50": 500.0,
+          "p95": 4600,
+          "p99": 7500
+        },
+        "barrier_nanos": {
+          "mean": 84748,
+          "p50": 68350.0,
+          "p95": 188700,
+          "p99": 266100
+        },
+        "late_completion_nanos": {
+          "mean": 88820.93333333333,
+          "p50": 71550.0,
+          "p95": 194000,
+          "p99": 313600
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-baseline",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 75287,
+          "p50": 69950.0,
+          "p95": 112200,
+          "p99": 166400
+        },
+        "submission_nanos": {
+          "mean": 1623.2,
+          "p50": 500.0,
+          "p95": 4600,
+          "p99": 7200
+        },
+        "barrier_nanos": {
+          "mean": 73613.8,
+          "p50": 67500.0,
+          "p95": 106700,
+          "p99": 159700
+        },
+        "late_completion_nanos": {
+          "mean": 75232.53333333334,
+          "p50": 70200.0,
+          "p95": 112200,
+          "p99": 154000
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-both",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 703037.6,
+          "p50": 644250.0,
+          "p95": 1005400,
+          "p99": 1345000
+        },
+        "submission_nanos": {
+          "mean": 8241.7,
+          "p50": 3800.0,
+          "p95": 9000,
+          "p99": 29600
+        },
+        "barrier_nanos": {
+          "mean": 694712.4,
+          "p50": 639950.0,
+          "p95": 997300,
+          "p99": 1267200
+        },
+        "late_completion_nanos": {
+          "mean": 680700,
+          "p50": 624450.0,
+          "p95": 946500,
+          "p99": 1257300
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-both",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 709960.8,
+          "p50": 649200.0,
+          "p95": 967600,
+          "p99": 1426200
+        },
+        "submission_nanos": {
+          "mean": 3880.5,
+          "p50": 3300.0,
+          "p95": 7500,
+          "p99": 16500
+        },
+        "barrier_nanos": {
+          "mean": 705998.4,
+          "p50": 646150.0,
+          "p95": 961900,
+          "p99": 1420900
+        },
+        "late_completion_nanos": {
+          "mean": 682778.4,
+          "p50": 624350.0,
+          "p95": 926300,
+          "p99": 1226400
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-both",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 67005.5,
+          "p50": 58600.0,
+          "p95": 106200,
+          "p99": 171800
+        },
+        "submission_nanos": {
+          "mean": 1244.4,
+          "p50": 500.0,
+          "p95": 3500,
+          "p99": 7300
+        },
+        "barrier_nanos": {
+          "mean": 65718.1,
+          "p50": 58100.0,
+          "p95": 104100,
+          "p99": 169000
+        },
+        "late_completion_nanos": {
+          "mean": 67084.66666666667,
+          "p50": 58900.0,
+          "p95": 104900,
+          "p99": 174300
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-both",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 67129.7,
+          "p50": 60800.0,
+          "p95": 95300,
+          "p99": 146200
+        },
+        "submission_nanos": {
+          "mean": 1187.1,
+          "p50": 400.0,
+          "p95": 3200,
+          "p99": 7100
+        },
+        "barrier_nanos": {
+          "mean": 65894.3,
+          "p50": 60300.0,
+          "p95": 90800,
+          "p99": 143700
+        },
+        "late_completion_nanos": {
+          "mean": 67518.26666666666,
+          "p50": 61100.0,
+          "p95": 95300,
+          "p99": 144200
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-late",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 612307.2,
+          "p50": 567800.0,
+          "p95": 768100,
+          "p99": 1066100
+        },
+        "submission_nanos": {
+          "mean": 3465.8,
+          "p50": 2300.0,
+          "p95": 7700,
+          "p99": 26600
+        },
+        "barrier_nanos": {
+          "mean": 608777.8,
+          "p50": 563850.0,
+          "p95": 765600,
+          "p99": 1064100
+        },
+        "late_completion_nanos": {
+          "mean": 604212.2666666667,
+          "p50": 566300.0,
+          "p95": 762100,
+          "p99": 1001000
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-late",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 609254.9,
+          "p50": 567000.0,
+          "p95": 766400,
+          "p99": 1026700
+        },
+        "submission_nanos": {
+          "mean": 3003.8,
+          "p50": 2500.0,
+          "p95": 5700,
+          "p99": 27400
+        },
+        "barrier_nanos": {
+          "mean": 606188,
+          "p50": 562750.0,
+          "p95": 759100,
+          "p99": 1024300
+        },
+        "late_completion_nanos": {
+          "mean": 604033.6,
+          "p50": 564900.0,
+          "p95": 758200,
+          "p99": 1100900
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-late",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 66637.5,
+          "p50": 58800.0,
+          "p95": 94300,
+          "p99": 168100
+        },
+        "submission_nanos": {
+          "mean": 978.8,
+          "p50": 400.0,
+          "p95": 2500,
+          "p99": 7000
+        },
+        "barrier_nanos": {
+          "mean": 65609,
+          "p50": 58000.0,
+          "p95": 90500,
+          "p99": 162700
+        },
+        "late_completion_nanos": {
+          "mean": 67175.33333333333,
+          "p50": 60250.0,
+          "p95": 95200,
+          "p99": 163400
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-late",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 67117.2,
+          "p50": 60900.0,
+          "p95": 87900,
+          "p99": 153300
+        },
+        "submission_nanos": {
+          "mean": 893.6,
+          "p50": 400.0,
+          "p95": 2600,
+          "p99": 4400
+        },
+        "barrier_nanos": {
+          "mean": 66179.1,
+          "p50": 60000.0,
+          "p95": 85800,
+          "p99": 152700
+        },
+        "late_completion_nanos": {
+          "mean": 68272.8,
+          "p50": 63000.0,
+          "p95": 90300,
+          "p99": 160500
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-mask",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 635790.7,
+          "p50": 584300.0,
+          "p95": 839800,
+          "p99": 1115000
+        },
+        "submission_nanos": {
+          "mean": 3934.3,
+          "p50": 2700.0,
+          "p95": 8100,
+          "p99": 30800
+        },
+        "barrier_nanos": {
+          "mean": 631750.8,
+          "p50": 577700.0,
+          "p95": 835200,
+          "p99": 1109900
+        },
+        "late_completion_nanos": {
+          "mean": 622270.6666666666,
+          "p50": 580000.0,
+          "p95": 783700,
+          "p99": 1017100
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-mask",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 636193.9,
+          "p50": 581300.0,
+          "p95": 842000,
+          "p99": 1028900
+        },
+        "submission_nanos": {
+          "mean": 3562.8,
+          "p50": 2900.0,
+          "p95": 6600,
+          "p99": 28400
+        },
+        "barrier_nanos": {
+          "mean": 632522.5,
+          "p50": 576300.0,
+          "p95": 837200,
+          "p99": 1024300
+        },
+        "late_completion_nanos": {
+          "mean": 623252.8,
+          "p50": 578750.0,
+          "p95": 784500,
+          "p99": 932400
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-mask",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 84680.1,
+          "p50": 77100.0,
+          "p95": 184500,
+          "p99": 258000
+        },
+        "submission_nanos": {
+          "mean": 920,
+          "p50": 500.0,
+          "p95": 3300,
+          "p99": 6500
+        },
+        "barrier_nanos": {
+          "mean": 83713.1,
+          "p50": 76600.0,
+          "p95": 183300,
+          "p99": 255300
+        },
+        "late_completion_nanos": {
+          "mean": 82714.26666666666,
+          "p50": 77100.0,
+          "p95": 184500,
+          "p99": 243800
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-pulsar-mask",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 74939.3,
+          "p50": 74800.0,
+          "p95": 99700,
+          "p99": 149800
+        },
+        "submission_nanos": {
+          "mean": 955.5,
+          "p50": 400.0,
+          "p95": 3600,
+          "p99": 6400
+        },
+        "barrier_nanos": {
+          "mean": 73933.4,
+          "p50": 72900.0,
+          "p95": 97900,
+          "p99": 147800
+        },
+        "late_completion_nanos": {
+          "mean": 73614.66666666667,
+          "p50": 73300.0,
+          "p95": 95700,
+          "p99": 141100
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-starlight-baseline",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 670952,
+          "p50": 630100.0,
+          "p95": 919900,
+          "p99": 1161000
+        },
+        "submission_nanos": {
+          "mean": 7825.2,
+          "p50": 6600.0,
+          "p95": 13900,
+          "p99": 27100
+        },
+        "barrier_nanos": {
+          "mean": 663071.9,
+          "p50": 623300.0,
+          "p95": 903900,
+          "p99": 1152400
+        },
+        "late_completion_nanos": {
+          "mean": 672552.9333333333,
+          "p50": 629600.0,
+          "p95": 933800,
+          "p99": 1197200
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-starlight-baseline",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 727169.8,
+          "p50": 676150.0,
+          "p95": 1016900,
+          "p99": 1222200
+        },
+        "submission_nanos": {
+          "mean": 8143.2,
+          "p50": 6100.0,
+          "p95": 14300,
+          "p99": 51100
+        },
+        "barrier_nanos": {
+          "mean": 718978.3,
+          "p50": 668500.0,
+          "p95": 1006900,
+          "p99": 1214000
+        },
+        "late_completion_nanos": {
+          "mean": 728204.1333333333,
+          "p50": 673000.0,
+          "p95": 1018500,
+          "p99": 1263900
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-starlight-baseline",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 60264.7,
+          "p50": 54100.0,
+          "p95": 85300,
+          "p99": 112900
+        },
+        "submission_nanos": {
+          "mean": 263.8,
+          "p50": 200.0,
+          "p95": 800,
+          "p99": 1200
+        },
+        "barrier_nanos": {
+          "mean": 59958.1,
+          "p50": 53900.0,
+          "p95": 84600,
+          "p99": 112400
+        },
+        "late_completion_nanos": {
+          "mean": 61606,
+          "p50": 54100.0,
+          "p95": 95600,
+          "p99": 127700
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r3-starlight-baseline",
+      "family": "sky",
+      "repetition": 3,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 75813.2,
+          "p50": 68500.0,
+          "p95": 106900,
+          "p99": 150500
+        },
+        "submission_nanos": {
+          "mean": 195.8,
+          "p50": 200.0,
+          "p95": 500,
+          "p99": 900
+        },
+        "barrier_nanos": {
+          "mean": 75574.4,
+          "p50": 68300.0,
+          "p95": 106600,
+          "p99": 150300
+        },
+        "late_completion_nanos": {
+          "mean": 77566.93333333333,
+          "p50": 68500.0,
+          "p95": 111200,
+          "p99": 162200
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-baseline",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 647882.2,
+          "p50": 588400.0,
+          "p95": 844000,
+          "p99": 1138000
+        },
+        "submission_nanos": {
+          "mean": 3085.6,
+          "p50": 2700.0,
+          "p95": 6600,
+          "p99": 10200
+        },
+        "barrier_nanos": {
+          "mean": 644721.5,
+          "p50": 583500.0,
+          "p95": 839800,
+          "p99": 1133100
+        },
+        "late_completion_nanos": {
+          "mean": 649146.2666666667,
+          "p50": 591550.0,
+          "p95": 841100,
+          "p99": 1138000
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-baseline",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 643045.3,
+          "p50": 583950.0,
+          "p95": 857400,
+          "p99": 1149800
+        },
+        "submission_nanos": {
+          "mean": 3441.3,
+          "p50": 2700.0,
+          "p95": 6300,
+          "p99": 9900
+        },
+        "barrier_nanos": {
+          "mean": 639511.2,
+          "p50": 580300.0,
+          "p95": 852300,
+          "p99": 1146800
+        },
+        "late_completion_nanos": {
+          "mean": 644718.5333333333,
+          "p50": 588600.0,
+          "p95": 857400,
+          "p99": 1152900
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-baseline",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 86788.1,
+          "p50": 69200.0,
+          "p95": 193800,
+          "p99": 302900
+        },
+        "submission_nanos": {
+          "mean": 1302,
+          "p50": 500.0,
+          "p95": 3300,
+          "p99": 6600
+        },
+        "barrier_nanos": {
+          "mean": 85435.8,
+          "p50": 67750.0,
+          "p95": 189700,
+          "p99": 299800
+        },
+        "late_completion_nanos": {
+          "mean": 85809.06666666667,
+          "p50": 69600.0,
+          "p95": 190200,
+          "p99": 259700
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-baseline",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 74855.9,
+          "p50": 69350.0,
+          "p95": 112800,
+          "p99": 171400
+        },
+        "submission_nanos": {
+          "mean": 1253.2,
+          "p50": 400.0,
+          "p95": 3600,
+          "p99": 5600
+        },
+        "barrier_nanos": {
+          "mean": 73551.2,
+          "p50": 67100.0,
+          "p95": 109300,
+          "p99": 168500
+        },
+        "late_completion_nanos": {
+          "mean": 74067.73333333334,
+          "p50": 69500.0,
+          "p95": 103500,
+          "p99": 180500
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-both",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 585906.1,
+          "p50": 553300.0,
+          "p95": 734100,
+          "p99": 856200
+        },
+        "submission_nanos": {
+          "mean": 3181.9,
+          "p50": 2000.0,
+          "p95": 6900,
+          "p99": 28200
+        },
+        "barrier_nanos": {
+          "mean": 582647.7,
+          "p50": 549600.0,
+          "p95": 731900,
+          "p99": 849400
+        },
+        "late_completion_nanos": {
+          "mean": 582087.2,
+          "p50": 553100.0,
+          "p95": 730400,
+          "p99": 841600
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-both",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 605900.8,
+          "p50": 571800.0,
+          "p95": 753400,
+          "p99": 866400
+        },
+        "submission_nanos": {
+          "mean": 2962,
+          "p50": 2400.0,
+          "p95": 5400,
+          "p99": 24700
+        },
+        "barrier_nanos": {
+          "mean": 602873.7,
+          "p50": 568700.0,
+          "p95": 752000,
+          "p99": 837000
+        },
+        "late_completion_nanos": {
+          "mean": 600342.4,
+          "p50": 571750.0,
+          "p95": 750500,
+          "p99": 834000
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-both",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 75246.7,
+          "p50": 67200.0,
+          "p95": 118100,
+          "p99": 188100
+        },
+        "submission_nanos": {
+          "mean": 1656.2,
+          "p50": 500.0,
+          "p95": 4400,
+          "p99": 15400
+        },
+        "barrier_nanos": {
+          "mean": 73539.7,
+          "p50": 65100.0,
+          "p95": 115100,
+          "p99": 186000
+        },
+        "late_completion_nanos": {
+          "mean": 73907.86666666667,
+          "p50": 68700.0,
+          "p95": 112900,
+          "p99": 179800
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-both",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "both",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 76443.1,
+          "p50": 69650.0,
+          "p95": 110100,
+          "p99": 174000
+        },
+        "submission_nanos": {
+          "mean": 1567.9,
+          "p50": 500.0,
+          "p95": 4000,
+          "p99": 18900
+        },
+        "barrier_nanos": {
+          "mean": 74824.4,
+          "p50": 67900.0,
+          "p95": 106400,
+          "p99": 171900
+        },
+        "late_completion_nanos": {
+          "mean": 75094.53333333334,
+          "p50": 70250.0,
+          "p95": 102100,
+          "p99": 137300
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-late",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 662057.5,
+          "p50": 605000.0,
+          "p95": 909700,
+          "p99": 1104800
+        },
+        "submission_nanos": {
+          "mean": 3353.2,
+          "p50": 2400.0,
+          "p95": 7000,
+          "p99": 20800
+        },
+        "barrier_nanos": {
+          "mean": 658629.9,
+          "p50": 599200.0,
+          "p95": 902900,
+          "p99": 1103100
+        },
+        "late_completion_nanos": {
+          "mean": 656084.2666666667,
+          "p50": 600050.0,
+          "p95": 865500,
+          "p99": 1076300
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-late",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 644893.1,
+          "p50": 596650.0,
+          "p95": 837000,
+          "p99": 1074200
+        },
+        "submission_nanos": {
+          "mean": 2879,
+          "p50": 2700.0,
+          "p95": 5500,
+          "p99": 10100
+        },
+        "barrier_nanos": {
+          "mean": 641942.8,
+          "p50": 592700.0,
+          "p95": 831100,
+          "p99": 1070400
+        },
+        "late_completion_nanos": {
+          "mean": 640432.8,
+          "p50": 589950.0,
+          "p95": 820400,
+          "p99": 1074200
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-late",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 69717,
+          "p50": 63900.0,
+          "p95": 95600,
+          "p99": 187100
+        },
+        "submission_nanos": {
+          "mean": 1226.6,
+          "p50": 500.0,
+          "p95": 3800,
+          "p99": 7100
+        },
+        "barrier_nanos": {
+          "mean": 68439.7,
+          "p50": 62000.0,
+          "p95": 93300,
+          "p99": 182800
+        },
+        "late_completion_nanos": {
+          "mean": 68586.53333333334,
+          "p50": 62250.0,
+          "p95": 95400,
+          "p99": 193200
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-late",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "late",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 70823.5,
+          "p50": 66650.0,
+          "p95": 94300,
+          "p99": 131200
+        },
+        "submission_nanos": {
+          "mean": 1760,
+          "p50": 400.0,
+          "p95": 4000,
+          "p99": 7500
+        },
+        "barrier_nanos": {
+          "mean": 69011.6,
+          "p50": 65000.0,
+          "p95": 91200,
+          "p99": 123000
+        },
+        "late_completion_nanos": {
+          "mean": 69879.6,
+          "p50": 64700.0,
+          "p95": 94300,
+          "p99": 142000
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-mask",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 631492.2,
+          "p50": 585600.0,
+          "p95": 809400,
+          "p99": 981800
+        },
+        "submission_nanos": {
+          "mean": 3147,
+          "p50": 2800.0,
+          "p95": 7100,
+          "p99": 11400
+        },
+        "barrier_nanos": {
+          "mean": 628275.5,
+          "p50": 580850.0,
+          "p95": 806000,
+          "p99": 977600
+        },
+        "late_completion_nanos": {
+          "mean": 625063.7333333333,
+          "p50": 579200.0,
+          "p95": 798800,
+          "p99": 984400
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-mask",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 642682.5,
+          "p50": 589750.0,
+          "p95": 819000,
+          "p99": 1114200
+        },
+        "submission_nanos": {
+          "mean": 2748.8,
+          "p50": 2700.0,
+          "p95": 6200,
+          "p99": 10700
+        },
+        "barrier_nanos": {
+          "mean": 639868.2,
+          "p50": 585750.0,
+          "p95": 816300,
+          "p99": 1111100
+        },
+        "late_completion_nanos": {
+          "mean": 636667.4666666667,
+          "p50": 582650.0,
+          "p95": 816300,
+          "p99": 1159000
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-mask",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 81385.3,
+          "p50": 61600.0,
+          "p95": 173500,
+          "p99": 230300
+        },
+        "submission_nanos": {
+          "mean": 1733.8,
+          "p50": 500.0,
+          "p95": 3800,
+          "p99": 18800
+        },
+        "barrier_nanos": {
+          "mean": 79581.5,
+          "p50": 60700.0,
+          "p95": 170100,
+          "p99": 227600
+        },
+        "late_completion_nanos": {
+          "mean": 84811.6,
+          "p50": 64600.0,
+          "p95": 181600,
+          "p99": 233600
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-pulsar-mask",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "pulsar",
+      "variant": "mask",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 69862,
+          "p50": 63100.0,
+          "p95": 103500,
+          "p99": 138100
+        },
+        "submission_nanos": {
+          "mean": 1615.4,
+          "p50": 500.0,
+          "p95": 4300,
+          "p99": 18200
+        },
+        "barrier_nanos": {
+          "mean": 68197.1,
+          "p50": 62100.0,
+          "p95": 99500,
+          "p99": 136500
+        },
+        "late_completion_nanos": {
+          "mean": 71707.2,
+          "p50": 66150.0,
+          "p95": 110000,
+          "p99": 143300
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-starlight-baseline",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "sky_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 592350.4,
+          "p50": 547100.0,
+          "p95": 786400,
+          "p99": 965100
+        },
+        "submission_nanos": {
+          "mean": 7110.7,
+          "p50": 6200.0,
+          "p95": 12200,
+          "p99": 22300
+        },
+        "barrier_nanos": {
+          "mean": 585177.1,
+          "p50": 540150.0,
+          "p95": 777000,
+          "p99": 957300
+        },
+        "late_completion_nanos": {
+          "mean": 589203.3333333334,
+          "p50": 542400.0,
+          "p95": 785100,
+          "p99": 972500
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-starlight-baseline",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "sky_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 660031.4,
+          "p50": 613450.0,
+          "p95": 885600,
+          "p99": 1054000
+        },
+        "submission_nanos": {
+          "mean": 6398.7,
+          "p50": 5600.0,
+          "p95": 11300,
+          "p99": 17700
+        },
+        "barrier_nanos": {
+          "mean": 653571.8,
+          "p50": 604300.0,
+          "p95": 876100,
+          "p99": 1026800
+        },
+        "late_completion_nanos": {
+          "mean": 659061.8666666667,
+          "p50": 608000.0,
+          "p95": 885600,
+          "p99": 1099300
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-starlight-baseline",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_place",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 57111,
+          "p50": 54700.0,
+          "p95": 73300,
+          "p99": 84700
+        },
+        "submission_nanos": {
+          "mean": 256.6,
+          "p50": 200.0,
+          "p95": 900,
+          "p99": 1100
+        },
+        "barrier_nanos": {
+          "mean": 56809.8,
+          "p50": 54400.0,
+          "p95": 72800,
+          "p99": 84000
+        },
+        "late_completion_nanos": {
+          "mean": 56909.333333333336,
+          "p50": 54700.0,
+          "p95": 71700,
+          "p99": 84100
+        }
+      }
+    },
+    {
+      "run": "formal-sky-r4-starlight-baseline",
+      "family": "sky",
+      "repetition": 4,
+      "engine": "starlight",
+      "variant": "baseline",
+      "phase": "block_remove",
+      "metrics": {
+        "completion_nanos": {
+          "mean": 74324.6,
+          "p50": 71300.0,
+          "p95": 93900,
+          "p99": 108000
+        },
+        "submission_nanos": {
+          "mean": 175.9,
+          "p50": 100.0,
+          "p95": 400,
+          "p99": 800
+        },
+        "barrier_nanos": {
+          "mean": 74103.9,
+          "p50": 71100.0,
+          "p95": 93500,
+          "p99": 107500
+        },
+        "late_completion_nanos": {
+          "mean": 74235.6,
+          "p50": 71300.0,
+          "p95": 93900,
+          "p99": 108200
+        }
+      }
+    }
+  ],
+  "groups": [
+    {
+      "family": "blocks",
+      "phase": "block_place",
+      "engine": "pulsar",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 69560.945,
+          "min": 64028.23,
+          "max": 70568.12,
+          "mean": 68429.56,
+          "median_run_p50": 59650.0,
+          "median_run_p99": 211650.0
+        },
+        "submission_nanos": {
+          "median": 1080.1599999999999,
+          "min": 934.35,
+          "max": 1412.28,
+          "mean": 1126.7375,
+          "median_run_p50": 600.0,
+          "median_run_p99": 5450.0
+        },
+        "barrier_nanos": {
+          "median": 68336.12,
+          "min": 62965.57,
+          "max": 69370.71,
+          "mean": 67252.13,
+          "median_run_p50": 58400.0,
+          "median_run_p99": 207650.0
+        },
+        "late_completion_nanos": {
+          "median": 68696.26000000001,
+          "min": 64933.28,
+          "max": 70712.29333333333,
+          "mean": 68259.52333333333,
+          "median_run_p50": 58950.0,
+          "median_run_p99": 207600.0
+        }
+      }
+    },
+    {
+      "family": "blocks",
+      "phase": "block_place",
+      "engine": "pulsar",
+      "variant": "mask",
+      "metrics": {
+        "completion_nanos": {
+          "median": 70895.08499999999,
+          "min": 65080.95,
+          "max": 72355.68,
+          "mean": 69806.7,
+          "median_run_p50": 58200.0,
+          "median_run_p99": 216200.0
+        },
+        "submission_nanos": {
+          "median": 1007.95,
+          "min": 855.82,
+          "max": 1191.9,
+          "mean": 1015.9050000000001,
+          "median_run_p50": 600.0,
+          "median_run_p99": 5200.0
+        },
+        "barrier_nanos": {
+          "median": 69836.73999999999,
+          "min": 64176.94,
+          "max": 71091.76,
+          "mean": 68735.545,
+          "median_run_p50": 57350.0,
+          "median_run_p99": 212250.0
+        },
+        "late_completion_nanos": {
+          "median": 71260.45333333334,
+          "min": 64163.96,
+          "max": 72716.14666666667,
+          "mean": 69850.25333333334,
+          "median_run_p50": 58250.0,
+          "median_run_p99": 219050.0
+        }
+      }
+    },
+    {
+      "family": "blocks",
+      "phase": "block_place",
+      "engine": "pulsar",
+      "variant": "late",
+      "metrics": {
+        "completion_nanos": {
+          "median": 64860.515,
+          "min": 62756.46,
+          "max": 65802.67,
+          "mean": 64570.04,
+          "median_run_p50": 57350.0,
+          "median_run_p99": 158550.0
+        },
+        "submission_nanos": {
+          "median": 1080.75,
+          "min": 988.79,
+          "max": 1278.76,
+          "mean": 1107.2625,
+          "median_run_p50": 600.0,
+          "median_run_p99": 5350.0
+        },
+        "barrier_nanos": {
+          "median": 63676.854999999996,
+          "min": 61655.64,
+          "max": 64646.21,
+          "mean": 63413.89,
+          "median_run_p50": 56400.0,
+          "median_run_p99": 156250.0
+        },
+        "late_completion_nanos": {
+          "median": 64967.5,
+          "min": 63111.82666666667,
+          "max": 66283.32,
+          "mean": 64832.53666666667,
+          "median_run_p50": 57550.0,
+          "median_run_p99": 161350.0
+        }
+      }
+    },
+    {
+      "family": "blocks",
+      "phase": "block_place",
+      "engine": "pulsar",
+      "variant": "both",
+      "metrics": {
+        "completion_nanos": {
+          "median": 68451.01000000001,
+          "min": 66220.32,
+          "max": 71545.73,
+          "mean": 68667.0175,
+          "median_run_p50": 61000.0,
+          "median_run_p99": 172850.0
+        },
+        "submission_nanos": {
+          "median": 1164.2,
+          "min": 969.58,
+          "max": 1340.38,
+          "mean": 1159.5900000000001,
+          "median_run_p50": 650.0,
+          "median_run_p99": 6350.0
+        },
+        "barrier_nanos": {
+          "median": 67292.56,
+          "min": 65096.46,
+          "max": 70152.29,
+          "mean": 67458.4675,
+          "median_run_p50": 59800.0,
+          "median_run_p99": 167900.0
+        },
+        "late_completion_nanos": {
+          "median": 68971.68,
+          "min": 65375.37333333334,
+          "max": 72330.46666666666,
+          "mean": 68912.3,
+          "median_run_p50": 61550.0,
+          "median_run_p99": 175700.0
+        }
+      }
+    },
+    {
+      "family": "blocks",
+      "phase": "block_place",
+      "engine": "starlight",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 59347.11,
+          "min": 57694.41,
+          "max": 61957.21,
+          "mean": 59586.46,
+          "median_run_p50": 54950.0,
+          "median_run_p99": 83550.0
+        },
+        "submission_nanos": {
+          "median": 266.055,
+          "min": 260.35,
+          "max": 308.95,
+          "mean": 275.3525,
+          "median_run_p50": 200.0,
+          "median_run_p99": 1100.0
+        },
+        "barrier_nanos": {
+          "median": 59035.375,
+          "min": 57389.76,
+          "max": 61594.93,
+          "mean": 59263.86,
+          "median_run_p50": 54750.0,
+          "median_run_p99": 83100.0
+        },
+        "late_completion_nanos": {
+          "median": 59312.28,
+          "min": 57938.04,
+          "max": 62060.86666666667,
+          "mean": 59655.86666666667,
+          "median_run_p50": 55000.0,
+          "median_run_p99": 83600.0
+        }
+      }
+    },
+    {
+      "family": "blocks",
+      "phase": "block_remove",
+      "engine": "pulsar",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 68147.42000000001,
+          "min": 64234.33,
+          "max": 70128.6,
+          "mean": 67664.4425,
+          "median_run_p50": 62150.0,
+          "median_run_p99": 132450.0
+        },
+        "submission_nanos": {
+          "median": 1058.3400000000001,
+          "min": 919.02,
+          "max": 1437.93,
+          "mean": 1118.4075,
+          "median_run_p50": 600.0,
+          "median_run_p99": 5550.0
+        },
+        "barrier_nanos": {
+          "median": 66918.66,
+          "min": 63244.46,
+          "max": 68888.8,
+          "mean": 66492.645,
+          "median_run_p50": 60850.0,
+          "median_run_p99": 129150.0
+        },
+        "late_completion_nanos": {
+          "median": 67308.45333333334,
+          "min": 64839.77333333333,
+          "max": 69266.02666666667,
+          "mean": 67180.67666666667,
+          "median_run_p50": 61250.0,
+          "median_run_p99": 130950.0
+        }
+      }
+    },
+    {
+      "family": "blocks",
+      "phase": "block_remove",
+      "engine": "pulsar",
+      "variant": "mask",
+      "metrics": {
+        "completion_nanos": {
+          "median": 70116.73,
+          "min": 66281.85,
+          "max": 70796.45,
+          "mean": 69327.94,
+          "median_run_p50": 61100.0,
+          "median_run_p99": 139850.0
+        },
+        "submission_nanos": {
+          "median": 1042.45,
+          "min": 874.28,
+          "max": 1237.38,
+          "mean": 1049.14,
+          "median_run_p50": 600.0,
+          "median_run_p99": 5500.0
+        },
+        "barrier_nanos": {
+          "median": 69041.95499999999,
+          "min": 65324.72,
+          "max": 69508.4,
+          "mean": 68229.25749999999,
+          "median_run_p50": 60300.0,
+          "median_run_p99": 135250.0
+        },
+        "late_completion_nanos": {
+          "median": 70255.82,
+          "min": 65101.653333333335,
+          "max": 70805.74666666667,
+          "mean": 69104.76000000001,
+          "median_run_p50": 61400.0,
+          "median_run_p99": 142300.0
+        }
+      }
+    },
+    {
+      "family": "blocks",
+      "phase": "block_remove",
+      "engine": "pulsar",
+      "variant": "late",
+      "metrics": {
+        "completion_nanos": {
+          "median": 66598.685,
+          "min": 64553.72,
+          "max": 68190.92,
+          "mean": 66485.5025,
+          "median_run_p50": 61000.0,
+          "median_run_p99": 125700.0
+        },
+        "submission_nanos": {
+          "median": 1050.495,
+          "min": 953.31,
+          "max": 1241.06,
+          "mean": 1073.84,
+          "median_run_p50": 600.0,
+          "median_run_p99": 5300.0
+        },
+        "barrier_nanos": {
+          "median": 65518.840000000004,
+          "min": 63514.04,
+          "max": 66892.53,
+          "mean": 65361.0625,
+          "median_run_p50": 60150.0,
+          "median_run_p99": 124250.0
+        },
+        "late_completion_nanos": {
+          "median": 66824.65333333334,
+          "min": 64979.85333333333,
+          "max": 67983.34666666666,
+          "mean": 66653.12666666666,
+          "median_run_p50": 60900.0,
+          "median_run_p99": 125800.0
+        }
+      }
+    },
+    {
+      "family": "blocks",
+      "phase": "block_remove",
+      "engine": "pulsar",
+      "variant": "both",
+      "metrics": {
+        "completion_nanos": {
+          "median": 70174.555,
+          "min": 68034.86,
+          "max": 73329.09,
+          "mean": 70428.265,
+          "median_run_p50": 63750.0,
+          "median_run_p99": 141850.0
+        },
+        "submission_nanos": {
+          "median": 1158.8600000000001,
+          "min": 994.79,
+          "max": 1314.32,
+          "mean": 1156.7075,
+          "median_run_p50": 600.0,
+          "median_run_p99": 6150.0
+        },
+        "barrier_nanos": {
+          "median": 69017.84,
+          "min": 66883.58,
+          "max": 71963.74,
+          "mean": 69220.75,
+          "median_run_p50": 62550.0,
+          "median_run_p99": 139800.0
+        },
+        "late_completion_nanos": {
+          "median": 70559.49333333333,
+          "min": 67294.38666666667,
+          "max": 74039.17333333334,
+          "mean": 70613.13666666667,
+          "median_run_p50": 63950.0,
+          "median_run_p99": 144700.0
+        }
+      }
+    },
+    {
+      "family": "blocks",
+      "phase": "block_remove",
+      "engine": "starlight",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 69685.34,
+          "min": 68742.45,
+          "max": 73452.63,
+          "mean": 70391.44,
+          "median_run_p50": 64750.0,
+          "median_run_p99": 97400.0
+        },
+        "submission_nanos": {
+          "median": 255.2,
+          "min": 251.71,
+          "max": 299.98,
+          "mean": 265.5225,
+          "median_run_p50": 200.0,
+          "median_run_p99": 1100.0
+        },
+        "barrier_nanos": {
+          "median": 69387.065,
+          "min": 68440.59,
+          "max": 73100.43,
+          "mean": 70078.7875,
+          "median_run_p50": 64500.0,
+          "median_run_p99": 96900.0
+        },
+        "late_completion_nanos": {
+          "median": 69674.38666666666,
+          "min": 68919.29333333333,
+          "max": 73627.09333333334,
+          "mean": 70473.79000000001,
+          "median_run_p50": 64900.0,
+          "median_run_p99": 97400.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "block_place",
+      "engine": "pulsar",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 81942.8,
+          "min": 71863.4,
+          "max": 86788.1,
+          "mean": 80634.275,
+          "median_run_p50": 64550.0,
+          "median_run_p99": 257050.0
+        },
+        "submission_nanos": {
+          "median": 1381.75,
+          "min": 643.3,
+          "max": 1514.2,
+          "mean": 1230.25,
+          "median_run_p50": 450.0,
+          "median_run_p99": 6500.0
+        },
+        "barrier_nanos": {
+          "median": 80397.05,
+          "min": 71174.6,
+          "max": 85435.8,
+          "mean": 79351.125,
+          "median_run_p50": 63550.0,
+          "median_run_p99": 255350.0
+        },
+        "late_completion_nanos": {
+          "median": 79551.86666666667,
+          "min": 69712.93333333333,
+          "max": 88820.93333333333,
+          "mean": 79409.4,
+          "median_run_p50": 68775.0,
+          "median_run_p99": 250700.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "block_place",
+      "engine": "pulsar",
+      "variant": "mask",
+      "metrics": {
+        "completion_nanos": {
+          "median": 81499.4,
+          "min": 74840,
+          "max": 84680.1,
+          "mean": 80629.725,
+          "median_run_p50": 70675.0,
+          "median_run_p99": 240750.0
+        },
+        "submission_nanos": {
+          "median": 985.45,
+          "min": 643.5,
+          "max": 1733.8,
+          "mean": 1087.05,
+          "median_run_p50": 450.0,
+          "median_run_p99": 7400.0
+        },
+        "barrier_nanos": {
+          "median": 80046.8,
+          "min": 74146,
+          "max": 83713.1,
+          "mean": 79488.175,
+          "median_run_p50": 69650.0,
+          "median_run_p99": 238750.0
+        },
+        "late_completion_nanos": {
+          "median": 80244.86666666667,
+          "min": 72919.73333333334,
+          "max": 84811.6,
+          "mean": 79555.26666666666,
+          "median_run_p50": 68250.0,
+          "median_run_p99": 238700.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "block_place",
+      "engine": "pulsar",
+      "variant": "late",
+      "metrics": {
+        "completion_nanos": {
+          "median": 68177.25,
+          "min": 65171.3,
+          "max": 70783.9,
+          "mean": 68077.425,
+          "median_run_p50": 61025.0,
+          "median_run_p99": 178750.0
+        },
+        "submission_nanos": {
+          "median": 1085.8,
+          "min": 841.9,
+          "max": 1226.6,
+          "mean": 1060.0249999999999,
+          "median_run_p50": 400.0,
+          "median_run_p99": 7050.0
+        },
+        "barrier_nanos": {
+          "median": 67024.35,
+          "min": 64284.4,
+          "max": 69541,
+          "mean": 66968.525,
+          "median_run_p50": 59650.0,
+          "median_run_p99": 173100.0
+        },
+        "late_completion_nanos": {
+          "median": 67880.93333333333,
+          "min": 63746.26666666667,
+          "max": 71782.26666666666,
+          "mean": 67822.6,
+          "median_run_p50": 61250.0,
+          "median_run_p99": 180050.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "block_place",
+      "engine": "pulsar",
+      "variant": "both",
+      "metrics": {
+        "completion_nanos": {
+          "median": 71152.5,
+          "min": 67005.5,
+          "max": 75246.7,
+          "mean": 71139.3,
+          "median_run_p50": 64025.0,
+          "median_run_p99": 181300.0
+        },
+        "submission_nanos": {
+          "median": 1234.15,
+          "min": 973.9,
+          "max": 1656.2,
+          "mean": 1274.6000000000001,
+          "median_run_p50": 500.0,
+          "median_run_p99": 6350.0
+        },
+        "barrier_nanos": {
+          "median": 70003.3,
+          "min": 65718.1,
+          "max": 73539.7,
+          "mean": 69816.1,
+          "median_run_p50": 62275.0,
+          "median_run_p99": 177250.0
+        },
+        "late_completion_nanos": {
+          "median": 70484.6,
+          "min": 67084.66666666667,
+          "max": 73907.86666666667,
+          "mean": 70490.43333333333,
+          "median_run_p50": 61675.0,
+          "median_run_p99": 185700.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "block_place",
+      "engine": "starlight",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 58884.649999999994,
+          "min": 57111,
+          "max": 60264.7,
+          "mean": 58786.25,
+          "median_run_p50": 54350.0,
+          "median_run_p99": 84550.0
+        },
+        "submission_nanos": {
+          "median": 261.1,
+          "min": 256.6,
+          "max": 291.8,
+          "mean": 267.65,
+          "median_run_p50": 200.0,
+          "median_run_p99": 1200.0
+        },
+        "barrier_nanos": {
+          "median": 58566.6,
+          "min": 56809.8,
+          "max": 59958.1,
+          "mean": 58475.275,
+          "median_run_p50": 54150.0,
+          "median_run_p99": 83900.0
+        },
+        "late_completion_nanos": {
+          "median": 58230.066666666666,
+          "min": 56909.333333333336,
+          "max": 61606,
+          "mean": 58743.86666666667,
+          "median_run_p50": 54250.0,
+          "median_run_p99": 84400.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "block_remove",
+      "engine": "pulsar",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 72393.29999999999,
+          "min": 69913,
+          "max": 75287,
+          "mean": 72496.65,
+          "median_run_p50": 65850.0,
+          "median_run_p99": 162700.0
+        },
+        "submission_nanos": {
+          "median": 1380.9,
+          "min": 716.3,
+          "max": 1623.2,
+          "mean": 1275.325,
+          "median_run_p50": 400.0,
+          "median_run_p99": 6400.0
+        },
+        "barrier_nanos": {
+          "median": 71349.29999999999,
+          "min": 68351.2,
+          "max": 73613.8,
+          "mean": 71165.9,
+          "median_run_p50": 64350.0,
+          "median_run_p99": 156100.0
+        },
+        "late_completion_nanos": {
+          "median": 73042.33333333334,
+          "min": 65719.2,
+          "max": 75232.53333333334,
+          "mean": 71759.1,
+          "median_run_p50": 68050.0,
+          "median_run_p99": 149600.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "block_remove",
+      "engine": "pulsar",
+      "variant": "mask",
+      "metrics": {
+        "completion_nanos": {
+          "median": 72209.3,
+          "min": 69862,
+          "max": 74939.3,
+          "mean": 72304.975,
+          "median_run_p50": 70625.0,
+          "median_run_p99": 147200.0
+        },
+        "submission_nanos": {
+          "median": 1235.35,
+          "min": 660.6,
+          "max": 1615.4,
+          "mean": 1186.675,
+          "median_run_p50": 400.0,
+          "median_run_p99": 7750.0
+        },
+        "barrier_nanos": {
+          "median": 71069.5,
+          "min": 68197.1,
+          "max": 73933.4,
+          "mean": 71067.375,
+          "median_run_p50": 68950.0,
+          "median_run_p99": 143200.0
+        },
+        "late_completion_nanos": {
+          "median": 71131.66666666666,
+          "min": 69891.33333333333,
+          "max": 73614.66666666667,
+          "mean": 71442.33333333333,
+          "median_run_p50": 68925.0,
+          "median_run_p99": 129750.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "block_remove",
+      "engine": "pulsar",
+      "variant": "late",
+      "metrics": {
+        "completion_nanos": {
+          "median": 68970.35,
+          "min": 65263.9,
+          "max": 71890.3,
+          "mean": 68773.725,
+          "median_run_p50": 63550.0,
+          "median_run_p99": 142250.0
+        },
+        "submission_nanos": {
+          "median": 1070.2,
+          "min": 893.6,
+          "max": 1760,
+          "mean": 1198.5,
+          "median_run_p50": 400.0,
+          "median_run_p99": 6200.0
+        },
+        "barrier_nanos": {
+          "median": 67595.35,
+          "min": 64238.1,
+          "max": 70685.4,
+          "mean": 67528.55,
+          "median_run_p50": 62150.0,
+          "median_run_p99": 137700.0
+        },
+        "late_completion_nanos": {
+          "median": 69076.20000000001,
+          "min": 63449.2,
+          "max": 72292.26666666666,
+          "mean": 68473.46666666667,
+          "median_run_p50": 63850.0,
+          "median_run_p99": 146300.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "block_remove",
+      "engine": "pulsar",
+      "variant": "both",
+      "metrics": {
+        "completion_nanos": {
+          "median": 71141.65,
+          "min": 67129.7,
+          "max": 76443.1,
+          "mean": 71464.025,
+          "median_run_p50": 66125.0,
+          "median_run_p99": 150800.0
+        },
+        "submission_nanos": {
+          "median": 1132.4,
+          "min": 964.8,
+          "max": 1567.9,
+          "mean": 1199.375,
+          "median_run_p50": 450.0,
+          "median_run_p99": 6300.0
+        },
+        "barrier_nanos": {
+          "median": 70052.15,
+          "min": 65894.3,
+          "max": 74824.4,
+          "mean": 70205.75,
+          "median_run_p50": 64150.0,
+          "median_run_p99": 147850.0
+        },
+        "late_completion_nanos": {
+          "median": 69736.4,
+          "min": 67518.26666666666,
+          "max": 75094.53333333334,
+          "mean": 70521.4,
+          "median_run_p50": 63700.0,
+          "median_run_p99": 144300.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "block_remove",
+      "engine": "starlight",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 75805.6,
+          "min": 74324.6,
+          "max": 79483.1,
+          "mean": 76354.725,
+          "median_run_p50": 71250.0,
+          "median_run_p99": 109850.0
+        },
+        "submission_nanos": {
+          "median": 200.95,
+          "min": 175.9,
+          "max": 233.3,
+          "mean": 202.775,
+          "median_run_p50": 200.0,
+          "median_run_p99": 1000.0
+        },
+        "barrier_nanos": {
+          "median": 75560.25,
+          "min": 74103.9,
+          "max": 79205.9,
+          "mean": 76107.575,
+          "median_run_p50": 71050.0,
+          "median_run_p99": 109550.0
+        },
+        "late_completion_nanos": {
+          "median": 76750.93333333333,
+          "min": 74235.6,
+          "max": 78207.06666666667,
+          "mean": 76486.13333333333,
+          "median_run_p50": 71250.0,
+          "median_run_p99": 109850.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "sky_place",
+      "engine": "pulsar",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 648535.2,
+          "min": 626680.8,
+          "max": 677573.8,
+          "mean": 650331.25,
+          "median_run_p50": 590075.0,
+          "median_run_p99": 1197000.0
+        },
+        "submission_nanos": {
+          "median": 3372.75,
+          "min": 2850.1,
+          "max": 3540.4,
+          "mean": 3284.0,
+          "median_run_p50": 2850.0,
+          "median_run_p99": 15600.0
+        },
+        "barrier_nanos": {
+          "median": 645082.55,
+          "min": 623770.2,
+          "max": 673937.7,
+          "mean": 646968.25,
+          "median_run_p50": 586025.0,
+          "median_run_p99": 1194500.0
+        },
+        "late_completion_nanos": {
+          "median": 651735.4666666667,
+          "min": 632075.6,
+          "max": 693921.6,
+          "mean": 657367.0333333333,
+          "median_run_p50": 596625.0,
+          "median_run_p99": 1249900.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "sky_place",
+      "engine": "pulsar",
+      "variant": "mask",
+      "metrics": {
+        "completion_nanos": {
+          "median": 622259.95,
+          "min": 606750.9,
+          "max": 642682.5,
+          "mean": 623488.325,
+          "median_run_p50": 576950.0,
+          "median_run_p99": 1084600.0
+        },
+        "submission_nanos": {
+          "median": 2859.7,
+          "min": 2478.5,
+          "max": 3562.8,
+          "mean": 2940.175,
+          "median_run_p50": 2500.0,
+          "median_run_p99": 15650.0
+        },
+        "barrier_nanos": {
+          "median": 618906.15,
+          "min": 604212.6,
+          "max": 639868.2,
+          "mean": 620473.275,
+          "median_run_p50": 573100.0,
+          "median_run_p99": 1081650.0
+        },
+        "late_completion_nanos": {
+          "median": 615816.6666666667,
+          "min": 605286.9333333333,
+          "max": 636667.4666666667,
+          "mean": 618396.9333333333,
+          "median_run_p50": 575725.0,
+          "median_run_p99": 1072300.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "sky_place",
+      "engine": "pulsar",
+      "variant": "late",
+      "metrics": {
+        "completion_nanos": {
+          "median": 613408.15,
+          "min": 591358.9,
+          "max": 644893.1,
+          "mean": 615767.075,
+          "median_run_p50": 567000.0,
+          "median_run_p99": 1050450.0
+        },
+        "submission_nanos": {
+          "median": 3173.3500000000004,
+          "min": 2879,
+          "max": 3680.6,
+          "mean": 3226.575,
+          "median_run_p50": 2650.0,
+          "median_run_p99": 28000.0
+        },
+        "barrier_nanos": {
+          "median": 609984.75,
+          "min": 587936.5,
+          "max": 641942.8,
+          "mean": 612462.2,
+          "median_run_p50": 562375.0,
+          "median_run_p99": 1047350.0
+        },
+        "late_completion_nanos": {
+          "median": 614380.4666666667,
+          "min": 595405.0666666667,
+          "max": 640432.8,
+          "mean": 616149.7,
+          "median_run_p50": 567175.0,
+          "median_run_p99": 1087550.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "sky_place",
+      "engine": "pulsar",
+      "variant": "both",
+      "metrics": {
+        "completion_nanos": {
+          "median": 629164.25,
+          "min": 605900.8,
+          "max": 709960.8,
+          "mean": 643547.525,
+          "median_run_p50": 572250.0,
+          "median_run_p99": 1020700.0
+        },
+        "submission_nanos": {
+          "median": 3170.25,
+          "min": 2816.8,
+          "max": 3880.5,
+          "mean": 3259.45,
+          "median_run_p50": 2500.0,
+          "median_run_p99": 27050.0
+        },
+        "barrier_nanos": {
+          "median": 625994.15,
+          "min": 602873.7,
+          "max": 705998.4,
+          "mean": 640215.1,
+          "median_run_p50": 568725.0,
+          "median_run_p99": 1017700.0
+        },
+        "late_completion_nanos": {
+          "median": 616833.0,
+          "min": 600342.4,
+          "max": 682778.4,
+          "mean": 629196.7,
+          "median_run_p50": 572575.0,
+          "median_run_p99": 999500.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "sky_place",
+      "engine": "starlight",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 649321.9,
+          "min": 601197.7,
+          "max": 727169.8,
+          "mean": 656752.825,
+          "median_run_p50": 597300.0,
+          "median_run_p99": 1088150.0
+        },
+        "submission_nanos": {
+          "median": 6045.799999999999,
+          "min": 5305.5,
+          "max": 8143.2,
+          "mean": 6385.075,
+          "median_run_p50": 5100.0,
+          "median_run_p99": 17600.0
+        },
+        "barrier_nanos": {
+          "median": 643217.45,
+          "min": 595840.9,
+          "max": 718978.3,
+          "mean": 650313.525,
+          "median_run_p50": 590000.0,
+          "median_run_p99": 1071150.0
+        },
+        "late_completion_nanos": {
+          "median": 642466.0666666667,
+          "min": 605986.8,
+          "max": 728204.1333333333,
+          "mean": 654780.7666666667,
+          "median_run_p50": 593850.0,
+          "median_run_p99": 1046450.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "sky_remove",
+      "engine": "pulsar",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 652473.8,
+          "min": 636870.3,
+          "max": 698350.3,
+          "mean": 660042.05,
+          "median_run_p50": 591475.0,
+          "median_run_p99": 1234100.0
+        },
+        "submission_nanos": {
+          "median": 3617.0,
+          "min": 3076.9,
+          "max": 4351.6,
+          "mean": 3665.625,
+          "median_run_p50": 2800.0,
+          "median_run_p99": 25900.0
+        },
+        "barrier_nanos": {
+          "median": 648785.3,
+          "min": 633729.9,
+          "max": 693921.5,
+          "mean": 656305.5,
+          "median_run_p50": 586400.0,
+          "median_run_p99": 1229900.0
+        },
+        "late_completion_nanos": {
+          "median": 654396.9333333333,
+          "min": 643856.2666666667,
+          "max": 715513.6,
+          "mean": 667040.9333333333,
+          "median_run_p50": 594475.0,
+          "median_run_p99": 1250500.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "sky_remove",
+      "engine": "pulsar",
+      "variant": "mask",
+      "metrics": {
+        "completion_nanos": {
+          "median": 623252.1,
+          "min": 584545.3,
+          "max": 635790.7,
+          "mean": 616710.05,
+          "median_run_p50": 575625.0,
+          "median_run_p99": 1077650.0
+        },
+        "submission_nanos": {
+          "median": 3032.6,
+          "min": 2499.5,
+          "max": 3934.3,
+          "mean": 3124.75,
+          "median_run_p50": 2400.0,
+          "median_run_p99": 14300.0
+        },
+        "barrier_nanos": {
+          "median": 620152.1,
+          "min": 581986,
+          "max": 631750.8,
+          "mean": 613510.25,
+          "median_run_p50": 570750.0,
+          "median_run_p99": 1072550.0
+        },
+        "late_completion_nanos": {
+          "median": 616467.1333333333,
+          "min": 585654.4,
+          "max": 625063.7333333333,
+          "mean": 610913.1,
+          "median_run_p50": 573050.0,
+          "median_run_p99": 1008050.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "sky_remove",
+      "engine": "pulsar",
+      "variant": "late",
+      "metrics": {
+        "completion_nanos": {
+          "median": 617823.1,
+          "min": 604704,
+          "max": 662057.5,
+          "mean": 625601.925,
+          "median_run_p50": 570650.0,
+          "median_run_p99": 1085450.0
+        },
+        "submission_nanos": {
+          "median": 3409.5,
+          "min": 3303.8,
+          "max": 4605.1,
+          "mean": 3681.9750000000004,
+          "median_run_p50": 2450.0,
+          "median_run_p99": 26300.0
+        },
+        "barrier_nanos": {
+          "median": 613716.7,
+          "min": 601343.8,
+          "max": 658629.9,
+          "mean": 621851.775,
+          "median_run_p50": 566550.0,
+          "median_run_p99": 1083600.0
+        },
+        "late_completion_nanos": {
+          "median": 620186.3333333334,
+          "min": 604212.2666666667,
+          "max": 656084.2666666667,
+          "mean": 625167.3,
+          "median_run_p50": 573925.0,
+          "median_run_p99": 1070350.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "sky_remove",
+      "engine": "pulsar",
+      "variant": "both",
+      "metrics": {
+        "completion_nanos": {
+          "median": 624437.8,
+          "min": 585906.1,
+          "max": 703037.6,
+          "mean": 634454.825,
+          "median_run_p50": 564750.0,
+          "median_run_p99": 1015500.0
+        },
+        "submission_nanos": {
+          "median": 3568.8,
+          "min": 3181.9,
+          "max": 8241.7,
+          "mean": 4640.3,
+          "median_run_p50": 2650.0,
+          "median_run_p99": 28350.0
+        },
+        "barrier_nanos": {
+          "median": 620796.55,
+          "min": 582647.7,
+          "max": 694712.4,
+          "mean": 629738.3,
+          "median_run_p50": 560500.0,
+          "median_run_p99": 1012650.0
+        },
+        "late_completion_nanos": {
+          "median": 612814.6,
+          "min": 582087.2,
+          "max": 680700,
+          "mean": 622104.1,
+          "median_run_p50": 563500.0,
+          "median_run_p99": 1006300.0
+        }
+      }
+    },
+    {
+      "family": "sky",
+      "phase": "sky_remove",
+      "engine": "starlight",
+      "variant": "baseline",
+      "metrics": {
+        "completion_nanos": {
+          "median": 591447.65,
+          "min": 549580.5,
+          "max": 670952,
+          "mean": 600856.95,
+          "median_run_p50": 540650.0,
+          "median_run_p99": 962650.0
+        },
+        "submission_nanos": {
+          "median": 6669.299999999999,
+          "min": 5777.8,
+          "max": 7825.2,
+          "mean": 6735.4,
+          "median_run_p50": 5550.0,
+          "median_run_p99": 22200.0
+        },
+        "barrier_nanos": {
+          "median": 584720.6,
+          "min": 543747.7,
+          "max": 663071.9,
+          "mean": 594065.2,
+          "median_run_p50": 534150.0,
+          "median_run_p99": 948850.0
+        },
+        "late_completion_nanos": {
+          "median": 585907.7333333334,
+          "min": 553467.7333333333,
+          "max": 672552.9333333333,
+          "mean": 599459.0333333333,
+          "median_run_p50": 537050.0,
+          "median_run_p99": 936300.0
+        }
+      }
+    }
+  ],
+  "effects": [
+    {
+      "family": "blocks",
+      "phase": "block_place",
+      "repetition": 1,
+      "mask_effect_nanos": 5828.904999999999,
+      "late_effect_nanos": -2534.564999999995,
+      "interaction_nanos": -4997.089999999975,
+      "combined_change_nanos": 3294.340000000004
+    },
+    {
+      "family": "blocks",
+      "phase": "block_place",
+      "repetition": 2,
+      "mask_effect_nanos": 3484.6049999999886,
+      "late_effect_nanos": -2750.114999999998,
+      "interaction_nanos": 732.0500000000029,
+      "combined_change_nanos": 734.4899999999907
+    },
+    {
+      "family": "blocks",
+      "phase": "block_place",
+      "repetition": 3,
+      "mask_effect_nanos": -16.324999999989814,
+      "late_effect_nanos": -4040.284999999996,
+      "interaction_nanos": 867.9499999999971,
+      "combined_change_nanos": -4056.609999999986
+    },
+    {
+      "family": "blocks",
+      "phase": "block_place",
+      "repetition": 4,
+      "mask_effect_nanos": 1651.0499999999993,
+      "late_effect_nanos": -673.4399999999987,
+      "interaction_nanos": 14276.439999999995,
+      "combined_change_nanos": 977.6100000000006
+    },
+    {
+      "family": "blocks",
+      "phase": "block_remove",
+      "repetition": 1,
+      "mask_effect_nanos": 5140.459999999999,
+      "late_effect_nanos": 24.760000000002037,
+      "interaction_nanos": -2843.3199999999924,
+      "combined_change_nanos": 5165.220000000001
+    },
+    {
+      "family": "blocks",
+      "phase": "block_remove",
+      "repetition": 2,
+      "mask_effect_nanos": 2531.4949999999953,
+      "late_effect_nanos": 733.1049999999959,
+      "interaction_nanos": 454.29000000000815,
+      "combined_change_nanos": 3264.5999999999913
+    },
+    {
+      "family": "blocks",
+      "phase": "block_remove",
+      "repetition": 3,
+      "mask_effect_nanos": 1076.2549999999974,
+      "late_effect_nanos": -1651.2750000000015,
+      "interaction_nanos": -1116.0299999999843,
+      "combined_change_nanos": -575.0200000000041
+    },
+    {
+      "family": "blocks",
+      "phase": "block_remove",
+      "repetition": 4,
+      "mask_effect_nanos": 2464.3099999999977,
+      "late_effect_nanos": 736.179999999993,
+      "interaction_nanos": 12622.119999999995,
+      "combined_change_nanos": 3200.4899999999907
+    },
+    {
+      "family": "sky",
+      "phase": "sky_remove",
+      "repetition": 1,
+      "mask_effect_nanos": -474.20000000001164,
+      "late_effect_nanos": 19684.49999999994,
+      "interaction_nanos": 103701.59999999998,
+      "combined_change_nanos": 19210.29999999993
+    },
+    {
+      "family": "sky",
+      "phase": "sky_remove",
+      "repetition": 2,
+      "mask_effect_nanos": -56941.15000000002,
+      "late_effect_nanos": -48614.15000000002,
+      "interaction_nanos": 52794.30000000005,
+      "combined_change_nanos": -105555.30000000005
+    },
+    {
+      "family": "sky",
+      "phase": "sky_remove",
+      "repetition": 3,
+      "mask_effect_nanos": 34727.84999999998,
+      "late_effect_nanos": 11244.349999999977,
+      "interaction_nanos": 112005.1000000001,
+      "combined_change_nanos": 45972.19999999995
+    },
+    {
+      "family": "sky",
+      "phase": "sky_remove",
+      "repetition": 4,
+      "mask_effect_nanos": -46270.70000000001,
+      "late_effect_nanos": -15705.399999999965,
+      "interaction_nanos": -59761.40000000002,
+      "combined_change_nanos": -61976.09999999998
+    },
+    {
+      "family": "sky",
+      "phase": "sky_place",
+      "repetition": 1,
+      "mask_effect_nanos": 19841.25,
+      "late_effect_nanos": 4449.25,
+      "interaction_nanos": 79542.30000000005,
+      "combined_change_nanos": 24290.5
+    },
+    {
+      "family": "sky",
+      "phase": "sky_place",
+      "repetition": 2,
+      "mask_effect_nanos": -39726.00000000006,
+      "late_effect_nanos": -30490.600000000035,
+      "interaction_nanos": 59043.59999999998,
+      "combined_change_nanos": -70216.6000000001
+    },
+    {
+      "family": "sky",
+      "phase": "sky_place",
+      "repetition": 3,
+      "mask_effect_nanos": 41437.350000000035,
+      "late_effect_nanos": 14498.350000000035,
+      "interaction_nanos": 118537.09999999998,
+      "combined_change_nanos": 55935.70000000007
+    },
+    {
+      "family": "sky",
+      "phase": "sky_place",
+      "repetition": 4,
+      "mask_effect_nanos": -19677.54999999999,
+      "late_effect_nanos": -17466.95000000001,
+      "interaction_nanos": -38629.49999999988,
+      "combined_change_nanos": -37144.5
+    }
+  ]
+}

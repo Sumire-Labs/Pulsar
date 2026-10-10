@@ -1,0 +1,57 @@
+{
+  "purpose": "Attribute Pulsar versus measured Starlight-1.12 single-edit latency using matched sampled stages, then investigate supported causes",
+  "source_original_study": "E:\\Github\\pulsar-050-bench-20261010",
+  "repetitions": 4,
+  "config": "DefaultVersion2/-1 automatic10 workers; fixed8GiB G1 compact headers;1280x720 renderDistance4",
+  "orders": [
+    [
+      0,
+      2,
+      1,
+      3,
+      4
+    ],
+    [
+      1,
+      0,
+      2,
+      4,
+      3
+    ],
+    [
+      2,
+      1,
+      0
+    ],
+    [
+      2,
+      0,
+      1
+    ]
+  ],
+  "blocks": "lightbench blockupdates 5000 10000",
+  "engine_tests": "Pulsar175,Lightbench60,Starlight7 passed",
+  "publication": "No external push/post/tag. Preserve LGPL runtime; Starlight GPL source stays only in external reference directory",
+  "metrics": "Engine setup, sections, propagation, publish, cleanup; nested prepare/flood; queue/task for Pulsar; both-engine native envelope; positions and BFS queue entries",
+  "runtime": "Minecraft1.12.2/Cleanroom0.6.12-alpha/AdoptiumJava25.0.4.1",
+  "conditions": [
+    "pulsar-auto-original",
+    "pulsar-1-original",
+    "starlight-auto-original",
+    "pulsar-auto-on (supplement n2)",
+    "pulsar-1-on (supplement n2)"
+  ],
+  "formal_runs": 32,
+  "sky": "lightbench updates 2000 1000",
+  "probe_tests": "Recorder selection, disabled/client exclusion, stages/tasks/counters and overlap rejection passed",
+  "source_previous_profile": "E:\\Github\\pulsar-phase-profile-20261010",
+  "qualification": "Independent full initial/final stored-light volumes and per-edit checks; exact sampled/native latency matches; no overlapping record writers; same indices across engines",
+  "next_analysis": "Evaluate both whole-run probe overhead and selected-vs-other difference-in-differences; compare matched stages; use ablation if needed before causal attribution",
+  "sampler": "Same deterministic phase/index mixed hash mask15 (~1/16); fixed preallocated4096 rows; no per-edit allocation, per-cell instrumentation or timed I/O",
+  "epoch": "warmed-sampler-v3",
+  "warmup_policy": "Use same sampled recording path during warmup, fully drain, clear rows and discard warmup before measured pairs. Exact positive warmup capture count is required in raw schema3.",
+  "excluded_epoch": "E:\\Github\\pulsar-starlight-attribution-20261010 (cold recording branch; kept separately, not pooled)",
+  "sensitivity": "Fixed last75% of measured edit indices, all conditions and sampled stages; specified before looking at numeric results. Primary results retain all measured pairs; do not infer JIT cause from timing drift.",
+  "scope": "Native worker-count controlled experiment n4 per primary condition; profile stage supplements n2. Same frozen engine/harness binaries, sole engine-setting change auto10 to1; verify actual live shared-worker count from observer.",
+  "primary_study": "E:\\Github\\pulsar-starlight-warmed-20261010"
+}

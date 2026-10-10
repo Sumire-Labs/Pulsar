@@ -1,0 +1,40 @@
+{
+  "late": {
+    "changed_entries": [
+      "com/sumirelabs/pulsar/light/ParallelLightScheduler$Claim.class",
+      "com/sumirelabs/pulsar/light/ParallelLightScheduler.class"
+    ],
+    "all_other_entries_identical": true,
+    "sha256": "4e7b9f337818a2a2adf221b1659bd76bc296f2a8f6f55faeb8d03e40775fbc61"
+  },
+  "mask": {
+    "changed_entries": [
+      "com/sumirelabs/pulsar/light/engine/PropagationDirections.class",
+      "com/sumirelabs/pulsar/light/engine/ScalarBlockEngine.class",
+      "com/sumirelabs/pulsar/light/engine/ScalarSkyEngine.class"
+    ],
+    "all_other_entries_identical": true,
+    "sha256": "4c777f83afdce33958798a2cee7ed5b0777588b86967d787657def8f3a2d570e"
+  },
+  "both": {
+    "changed_entries": [
+      "com/sumirelabs/pulsar/light/ParallelLightScheduler$Claim.class",
+      "com/sumirelabs/pulsar/light/ParallelLightScheduler.class",
+      "com/sumirelabs/pulsar/light/engine/PropagationDirections.class",
+      "com/sumirelabs/pulsar/light/engine/ScalarBlockEngine.class",
+      "com/sumirelabs/pulsar/light/engine/ScalarSkyEngine.class"
+    ],
+    "all_other_entries_identical": true,
+    "sha256": "7cb94420b0224d83263da03a18ac845234b5247c3db51a790b77e91d35b59b9b"
+  },
+  "unmodified_light_classes_match_rebuild": {
+    "com/sumirelabs/pulsar/light/LightQueue.class": true,
+    "com/sumirelabs/pulsar/light/engine/PulsarEngine.class": true
+  },
+  "tests": {
+    "tests": 179,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

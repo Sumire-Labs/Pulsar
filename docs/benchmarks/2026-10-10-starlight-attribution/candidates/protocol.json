@@ -1,0 +1,46 @@
+{
+  "formal_runs": 40,
+  "cases": [
+    "pulsar-baseline",
+    "pulsar-mask",
+    "pulsar-late",
+    "pulsar-both",
+    "starlight-baseline"
+  ],
+  "repetitions": 4,
+  "blocks": "lightbench blockupdates 5000 10000",
+  "sky": "lightbench updates 2000 1000",
+  "profiling": false,
+  "workers": "default-1, observed10shared",
+  "orders": [
+    [
+      0,
+      4,
+      1,
+      2,
+      3
+    ],
+    [
+      1,
+      3,
+      0,
+      4,
+      2
+    ],
+    [
+      2,
+      0,
+      3,
+      1,
+      4
+    ],
+    [
+      3,
+      2,
+      4,
+      0,
+      1
+    ]
+  ],
+  "scope": "Factorial controlled own-implementation changes, same originalengine entriesexcept enumeratedclasspatches, physicalstored-light checks andfreshJVM/world copies"
+}

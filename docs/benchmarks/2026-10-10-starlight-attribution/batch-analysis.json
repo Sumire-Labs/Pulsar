@@ -1,0 +1,18 @@
+{
+  "one_block_pass": {
+    "samples": 2558,
+    "fraction": 0.9530551415797317,
+    "mean_completion_us": 71.59366692728695,
+    "mean_block_increase_entries": 1834,
+    "mean_block_decrease_entries": 1,
+    "sky_first_fraction": 0.5340109460516028
+  },
+  "multiple_block_passes": {
+    "samples": 126,
+    "fraction": 0.04694485842026826,
+    "mean_completion_us": 202.08253968253968,
+    "mean_block_increase_entries": 3668,
+    "mean_block_decrease_entries": 2256,
+    "sky_first_fraction": 0.8571428571428571
+  }
+}

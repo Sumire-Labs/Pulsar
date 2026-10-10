@@ -1,0 +1,17 @@
+{
+  "matched": {
+    "files": 260,
+    "bytes": 6438481,
+    "sha256": "1a5a3007f4692bed03a817c144e4d9863e3a8631b4253907fe10795008d23f7b"
+  },
+  "workers": {
+    "files": 172,
+    "bytes": 4436859,
+    "sha256": "605f88b82bc09d7d531bd31f6fa201fc22cbade0d1d7704eb3228663a0ac8171"
+  },
+  "candidates": {
+    "files": 257,
+    "bytes": 6512157,
+    "sha256": "23b438958bfa49a537469b72f79365d0da20935b3c64065bc8a9e22c43cefbdd"
+  }
+}

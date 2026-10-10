@@ -137,7 +137,7 @@ it does not switch off Pulsar's lighting engine.
 
 ### Pulsar 0.5.0 comparison — October 10, 2026
 
-The latest study uses four independent JVM runs per supported condition and
+The baseline study uses four independent JVM runs per supported condition and
 104 formal launches across Vanilla lighting, Alfheim 1.6, Pulsar and a
 supplemental Starlight-1.12 comparison. The intended release is labeled
 **Pulsar 0.5.0**; the measured source is `75b051d` (pre-tag metadata
@@ -159,6 +159,11 @@ Sky workload. Whole-game heap and render-loop observations are not
 engine-only memory or equal-scene FPS claims.
 
 [Full results, methods, raw data and publication copy](docs/benchmarks/2026-10-10-pulsar-0.5.0/README.md).
+These figures precede the later paired-task scheduling change; they describe
+the frozen `75b051d` snapshot. A subsequent
+[Starlight attribution and controlled implementation study](docs/benchmarks/2026-10-10-starlight-attribution/README.md)
+compares the updated scheduling path with that baseline. Its separate timing
+epoch must not be subtracted from the values above.
 An additional [pipeline diagnostic study](docs/benchmarks/2026-10-10-pipeline-profile/README.md)
 separates task coordination, propagation and publication. Its instrumented
 timings have measured overhead and do not replace the comparison above.

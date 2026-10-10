@@ -1,0 +1,64 @@
+{
+  "candidate_source": "Own patches in isolated repo, noGPLcopied",
+  "artifacts": [
+    {
+      "file": "pulsar-baseline.jar",
+      "sha256": "B985BC77F630DA1A1F5F403D7BF0F218455E7F3A6A67F0BC88652838DE9CFFD2"
+    },
+    {
+      "file": "pulsar-both.jar",
+      "sha256": "7CB94420B0224D83263DA03A18AC845234B5247C3DB51A790B77E91D35B59B9B"
+    },
+    {
+      "file": "pulsar-late.jar",
+      "sha256": "4E7B9F337818A2A2ADF221B1659BD76BC296F2A8F6F55FAEB8D03E40775FBC61"
+    },
+    {
+      "file": "pulsar-main.jar",
+      "sha256": "0FD075634C4F308A452961793EA90D8F9D09D60F7CAE265C4CF692B515CBB249"
+    },
+    {
+      "file": "pulsar-mask.jar",
+      "sha256": "4C777F83AFDCE33958798A2CEE7ED5B0777588B86967D787657DEF8F3A2D570E"
+    },
+    {
+      "file": "starlight-0a7d94e-clean.jar",
+      "sha256": "1A0AEED6FAC972EF5D66CC645B893BDBA9094D160DB854C53719805BF08EFBB7"
+    }
+  ],
+  "baseline_source": "75b051d runtime-equivalent33d81bb",
+  "common_mods": [
+    {
+      "sha256": "E120ADAFABB0145EFF704633ED5304C356D0E20C1CD4831347A8530D152164B3",
+      "file": "-cleanroom-relauncher-1.1.2.jar"
+    },
+    {
+      "sha256": "9935912816062CA46A2ECD020D813EE2DDE8E6B228DAEC068B465EB72EA51368",
+      "file": "-Red-Core-MC-1.8-1.12-0.7.1.jar"
+    },
+    {
+      "sha256": "00DC2DE461B8A9BF0D9B684AA0377713BDA85CA63DA5EC93028C226ED2119EFD",
+      "file": "+Fugue-0.24.3.jar"
+    },
+    {
+      "sha256": "A363239642316BCDE439A9FFD1865E060C7466B58C98DCAEA87A7776DABED965",
+      "file": "four-engine-driver.jar"
+    },
+    {
+      "sha256": "6CD69BE300BEE1F927093B21914A7E94966672044D54CA8F8EB7BE52C03AC496",
+      "file": "lightbench-1.1.0-bench9.jar"
+    },
+    {
+      "sha256": "A4C2CD912C36CD5A5055153EC950455349EED6DAEFEB747013B5F675190EB1FD",
+      "file": "scalar-3.8.4-1.jar"
+    },
+    {
+      "sha256": "1B8330DE5774C15874173F168B674255CAA00C5EF3648AB0B6CB763BB7FD2DE7",
+      "file": "1.12.2\\scala-library-3.8.4.jar"
+    },
+    {
+      "sha256": "50F1B3DCF8F14975702DC6DA287797E391FC5D4834E4D3E7E9F9125EFDB2DE9A",
+      "file": "1.12.2\\scala-parser-combinators_3-2.4.0.jar"
+    }
+  ]
+}
