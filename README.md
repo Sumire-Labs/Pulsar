@@ -1,12 +1,10 @@
-# Pulsar
+# Pulsar Lighting Engine
 
-Pulsar is an async lighting engine for [CleanroomLoader](https://github.com/CleanroomMC/Cleanroom). It reimplements
-Starlight-style lighting algorithms for 1.12.2 and moves most server-side
-block-light and sky-light propagation off the main server thread.
 
-Unlike vanilla and Alfheim, Pulsar performs most propagation work on dedicated
-worker threads. Its goal is to provide an actively developed Cleanroom-native
-alternative to lighting engines such as Alfheim and Phosphor.
+This is a mod exclusively for Cleanroom. It requires Java 25 and Cleanroom 0.6.10 or later.
+
+Pulsar is an asynchronous lighting engine built for [Cleanroom](https://github.com/CleanroomMC/Cleanroom).
+It reimplements Starlight-style algorithms for Cleanroom and runs lighting calculations on separate threads.
 
 ## Requirements
 
@@ -14,31 +12,18 @@ alternative to lighting engines such as Alfheim and Phosphor.
 
 ## Features
 
-Pulsar is designed to reduce server-thread stalls when lighting has a large
-amount of work to resolve, such as during chunk generation, explosions,
-large building-tool operations, or machine-driven block changes.
+- Runs server-side light propagation on separate threads.
+- Batches large groups of block changes instead of processing lighting separately for every edit.
+- Caches light data in each chunk's NBT to avoid unnecessary full relights.
+- Keeps Vanilla's block-light and sky-light data synchronized, so removing Pulsar does not corrupt your world.
+- Includes various lighting bug fixes and quality-of-life improvements.
+- Adds natural lighting to Thaumcraft crystals.
+- Fully compatible with rendering mods such as Celeritas, Actinium, and Nothirium.
 
-- Runs server-side block-light and sky-light propagation on dedicated worker
-  threads.
-- Batches large groups of block changes instead of lighting every edit
-  separately.
-- Stores completed Pulsar light data in each chunk's NBT, avoiding unnecessary
-  full relights when valid cached chunks are loaded again.
-- Keeps Minecraft's standard block-light and sky-light data synchronized, so
-  the additional Pulsar cache can be discarded safely if Pulsar is removed.
-- Fixes vanilla propagation and rendering problems involving stairs, slabs,
-  liquids, emissive blocks, paintings, empty sections, and chunk borders.
-
-The largest gains appear under heavy lighting load. At lighter loads, Pulsar's
-main benefit is lower light-update latency rather than higher TPS.
-
-## Fixed Vanilla Issues
-
-Pulsar includes fixes for the following vanilla lighting and rendering issues:
+## Fixed Bugs
 
 - [MC-92](https://bugs.mojang.com/browse/MC-92)
-- [MC-1531](https://bugs.mojang.com/browse/MC-1531) — smooth lighting across
-  painting tile boundaries. Only paintings are covered; item frames are not.
+- [MC-1531](https://bugs.mojang.com/browse/MC-1531) — smooth lighting across painting tile boundaries.
 - [MC-3329](https://bugs.mojang.com/browse/MC-3329)
 - [MC-80966](https://bugs.mojang.com/browse/MC-80966)
 - [MC-104532](https://bugs.mojang.com/browse/MC-104532)
@@ -47,324 +32,70 @@ Pulsar includes fixes for the following vanilla lighting and rendering issues:
 - [MC-117094](https://bugs.mojang.com/browse/MC-117094)
 - [MC-249343](https://bugs.mojang.com/browse/MC-249343)
 
-## Compatibility
+### Supported Mods
 
-Pulsar should work with most biome, cave, world-generation, and dimension mods
-that use Minecraft's standard chunk and world APIs. Please report combinations
-that do not work as expected.
-
-### Supported integrations
-
-- [Celeritas](https://git.taumc.org/embeddedt/celeritas), including face-aware
-  lighting for stairs and slabs.
-- [Fluidlogged API](https://modrinth.com/mod/fluidlogged-api), including the
-  opacity and emission of fluids stored inside fluidlogged blocks.
-- [Depths Update](https://modrinth.com/mod/depths-update), including dimensions
-  that extend below Y=0 or above Y=255.
-- [JSON Paintings](https://www.curseforge.com/minecraft/mc-mods/json-paintings),
-
-### Thaumcraft crystal lighting (experimental)
-
-Placed Thaumcraft 6 vis crystal clusters can illuminate nearby blocks using
-normal, uncolored block light. All seven crystal types use a minimum light
-level of **10** by default (a torch emits 14). This changes actual world
-lighting, including light checks used for mob spawning; it is not only a
-rendering effect.
-
-In `config/pulsar.cfg`, set `features.thaumcraftCrystalLightLevel` to a value
-from 1 to 15, or **0** to preserve Thaumcraft's original emission. Higher
-emission supplied by another mod is preserved. Restart the game/server after
-changing this setting. Existing chunks are relit as they load when the
-setting changes. Use matching settings on the server and clients.
-
-This integration targets placed crystal clusters in Thaumcraft 6; it does
-not add handheld dynamic lights or RGB lighting. Thaumcraft is optional.
+- [Celeritas](https://git.taumc.org/embeddedt/celeritas): fixes lighting bugs involving stairs and slabs.
+- [Fluidlogged API](https://modrinth.com/mod/fluidlogged-api)
+- [Depths Update](https://modrinth.com/mod/depths-update): supports dimensions extending below Y=0 or above Y=255.
+- [JSON Paintings](https://www.curseforge.com/minecraft/mc-mods/json-paintings): fixes smooth-lighting bugs affecting paintings.
 
 ### Incompatible
 
 - [Alfheim](https://www.curseforge.com/minecraft/mc-mods/alfheim-lighting-engine)
 - Phosphor for Forge
 - Hesperus
-- Any other mod that replaces or rewrites the lighting engine
-- The standard edition of The Aether II, which bundles Phosphor. Use
-  [The Aether II: Phosphor Not Included](https://www.curseforge.com/minecraft/mc-mods/the-aether-ii-phosphor-not-included)
-  instead.
+- Other Starlight backports or mods that replace or rewrite the lighting engine
+- The standard edition of The Aether II, which bundles Phosphor. Use [The Aether II: Phosphor Not Included](https://www.curseforge.com/minecraft/mc-mods/the-aether-ii-phosphor-not-included) instead.
 
-### Unsupported or untested
+### Unsupported or Untested
 
-- CubicChunks is unsupported because it uses a different world-storage model.
-- OptiFine is untested and is not currently recommended with Pulsar.
-
-## Configuration
-
-Settings are stored in `config/pulsar.cfg`. Server settings apply to the
-integrated server in singleplayer as well as dedicated servers; editing a
-multiplayer client's config does not change the remote server.
-Every option includes comments describing its purpose and tradeoffs.
-Application times below refer to changes saved through the in-game Mod Options
-GUI. External edits to the config file are read at startup; the file is not
-watched for live changes.
-
-The file contains a managed `Pulsar Config Version 2` marker
-(`general.configVersion=2`) with a notice not to edit it. On startup, a missing,
-invalid or different version causes the entire `pulsar.cfg` file to be replaced
-with current defaults. This intentionally resets older custom settings.
-With a matching version, saved custom settings are preserved.
-
-Config Version 2 defaults to `features.experimentalServerLightThreads=-1`,
-selecting one third of the logical CPU count (minimum 1, maximum 16), including
-when migrating a versionless older config that had `0` saved.
-Restart Minecraft/the server after changing the worker count.
-More workers are not a guarantee of better performance.
-
-| Setting | Default / range | Effect and application |
-|---|---|---|
-| `features.experimentalServerLightThreads` | `-1`; `-1..16` | Server worker count. `-1` is automatic, `0` uses dedicated Sky/Block lanes, positive values select the shared pool size. Requires a Minecraft/server restart. |
-| `features.clientLightBudgetMs` | `2`; `1..10` ms | Client queue-processing time per tick. Higher values drain backlog faster but can delay rendering. Applies next tick. |
-| `performance.dedicatedServerBatchBudgetMs` | `15`; `1..50` ms | Batch time for dedicated server lanes only (`experimentalServerLightThreads=0`). A running task can exceed the soft limit. Applies next batch. |
-| `performance.unloadLightWaitBudgetMs` | `10`; `0..50` ms | Total lighting wait during unload per server world tick. Lower values reduce stalls but may cause saved light to be recalculated on reload. `0` skips waiting for unfinished work. Requires a world reload/server restart. |
-| `performance.cachedEnginesPerLane` | `4`; `0..16` | Idle engine cache target per world and light lane in shared-pool mode. More cached engines trade memory for fewer allocations; `0` disables the idle pool. Does not limit active jobs or the single reusable engine of a dedicated/client lane. Requires a world reload/server restart. |
-| `debug.statsLogIntervalTicks` | `20`; `1..1200` ticks | Statistics log interval when `debug.enableDebugStats=true`. Short intervals increase log volume and overhead. Applies during play. |
-
-The existing `features.trackTileEntityLight`,
-`features.coalesceClientRenderUpdates`, `features.experimentalRangeRelight`,
-`features.sendChunksWithoutLight`, and `debug.enableDebugStats` switches remain
-available. `features.thaumcraftCrystalLightLevel` requires a Minecraft/server
-restart. The top-level `enabled` setting controls the mob-spawn lighting gate;
-it does not switch off Pulsar's lighting engine.
+- CubicChunks
+- OptiFine
 
 ## Performance
 
-### Pulsar 0.5.0 comparison — October 12, 2026
-
-The current comparison measures source `94ed8cb`, labeled **Pulsar 0.5.0** (pre-tag artifact metadata `0.4.1-dev.30.local`). It includes 76 public formal runs across seven workload families, with four fresh JVMs per supported condition. Settings, completed work and stored light are checked. Values below are medians of independent run means.
-
-| Workload | Vanilla | Alfheim 1.6 | Pulsar 0.5.0 |
-|---|---:|---:|---:|
-| Block placement (µs) | 1,294 | 184 | 66.6 |
-| Block removal (µs) | 1,869 | 271 | 68.3 |
-| Sky opening (ms) | Not validated | 9.62 | 0.606 |
-| Sky closing (ms) | Not validated | 16.3 | 0.618 |
-| Equal-output flat generation (s) | 1.31 | 1.18 | 1.34 |
-| Main-thread MSPT at 2,048 edits/tick | Not validated | 178 | 2.48 |
-| Flat travel: server readiness (ms) | 57.5 | 56.6 | 55.4 |
-
-![Validated block update completion](docs/benchmarks/2026-10-12-pulsar-0.5.0/block-latency.png)
-
-Block-update values cover server edits through the installed engine’s completion barrier, rather than player input or FPS. Continuous-edit main-thread tick time excludes worker CPU; post-run completion drain is recorded separately. Vanilla failed tall-roof light validation. Normal-world outputs differ and cannot support an equal-output speed ranking. Whole-game heap and render callbacks are not engine-only memory or equal-scene FPS measurements.
-
-[Full results, methods, raw data and GH/CF/MR publication copy](docs/benchmarks/2026-10-12-pulsar-0.5.0/README.md).
-
-The [October 10 baseline](docs/benchmarks/2026-10-10-pulsar-0.5.0/README.md) used source `75b051d` before the later scheduling and lighting hot-path changes. Different measurement epochs must not be subtracted to attribute a source change. Earlier benchmarks below use different versions and protocols.
-
-### Development-build travel diagnostics
-
-Client light notifications are now coalesced within a tick when the combined
-range does not introduce additional neighboring renderer sections. Light data
-is still published before the render notification; unloaded/replaced chunks
-cannot inherit queued notifications.
-Set `features.coalesceClientRenderUpdates=false` to compare the direct
-notification path using the same build.
-
-The experimental server lighting pool requires a restart and defaults to automatic sizing:
-
-- `features.experimentalServerLightThreads=4` enables a process-wide pool with
-  four threads. Both light lanes share per-world 5x5 chunk reservations; only
-  non-overlapping jobs run concurrently. `0` retains the dedicated lanes.
-- `features.experimentalServerLightThreads=-1` selects one third of the logical
-  CPU count automatically, bounded to 1–16 shared workers.
-
-In shared-pool mode, pending sky and block tasks for the same chunk are claimed
-together and run sequentially under one reservation. This adapts ScalableLux's
-combined chunk jobs while retaining Pulsar's separate lane queues and completion
-generations. Dedicated-worker and client-budget modes retain their existing behavior.
-
-`features.trackTileEntityLight=true` (default) resamples registered TileEntities
-whose blocks have position-dependent light values each world tick. Changes to
-emission or opacity are published before corrective work is queued. Tracking
-uses the existing chunk tile map and never requests or creates a TileEntity from
-a lighting worker. Disable this option to compare its main-thread cost; ordinary
-block-change/checkLight sampling remains active.
-
-`features.experimentalRangeRelight=true` enables a shared-work-map backend for
-`/pulsar relight <radius>`. Each loaded halo chunk is computed at most once per
-request, and only requested chunks are published. It runs asynchronously with
-normal lighting excluded in that world during the batch, then uses Pulsar's
-existing edge reconciliation and client refresh. This differs from ScalableLux's
-chunk ticket/scheduler integration: manual batches use a single process-wide
-executor and a world-wide exclusion gate. The feature defaults to off pending
-performance testing; the ordinary per-chunk backend remains available.
-
-The pool does not have an established FPS advantage. With debug statistics enabled,
-`parallelJobsMax` records the
-maximum simultaneous reserved jobs in that world. `engineRequests` counts
-incoming client light render notifications; `engineMarks` counts actual emitted
-notifications after coalescing. Neither is a count of completed mesh rebuilds.
-
-The development build alternates client sky/block tasks within a shared
-`features.clientLightBudgetMs` budget (default **2 ms**, configurable from 1
-to 10). Increasing it can shorten lighting backlog at the cost of longer
-render-thread stalls. This is a soft limit checked between tasks; one expensive
-task can exceed it. No FPS improvement has been measured for this change yet.
-
-Enable `debug.enableDebugStats` to write `logs/pulsar-stats.log`. Each dimension
-reports once per `debug.statsLogIntervalTicks` actual world/client ticks
-(default 20); server `skyMs` and `blockMs` can
-overlap because their workers run concurrently. `maxLatencyMs` is queue waiting
-time, not propagation time. Additional fields separate:
-
-- `skyTaskMaxMs` / `blockTaskMaxMs`: longest lighting task in the interval.
-- `clientDrainMaxMs` / `clientOvershootMaxMs`: longest client queue-processing
-  call and largest excess over the configured budget.
-- `sampleLoadMs` / `sampleLoadMaxMs`: total and longest main-thread contextual
-  light capture on chunk registration or explicit relight.
-- `sampleFlushMs` / `sampleFlushMaxMs`: contextual sample refresh at tick end.
-
-For a travel comparison, use a copy of the same world, the same route and render
-distance, and the same shader state. Compare 2 ms and 5 ms alongside frame-time
-p95/p99, long stalls, and lighting backlog. Exclude shader reloads from the travel
-measurement. These statistics do not measure packet deserialization, mesh
-rebuilding, GPU time, or GC; use a runtime profile if stalls remain while the
-measured lighting work is small. Debug logging itself adds overhead, so repeat
-the frame-time comparison with it disabled.
-
-### Light updates — Pulsar 0.3.0
-
-The September 7, 2026 benchmark measures the time from a block edit until its
-server-side lighting has completed. Each measured edit passed full-volume
-light checks outside the timed interval. Each engine was measured across
-three separate Minecraft/JVM launches; all six runs passed strict comparison.
-
-![Pulsar 0.3.0 light-update benchmark](docs/benchmarks/2026-09-07-pulsar-0.3.0/light-updates.svg)
-
-Each value below is the median of three run p50s. Times are milliseconds;
-lower is better. Ratios use the unrounded values.
-
-| Edit | Alfheim 1.6 | Pulsar 0.3.0 | Alfheim / Pulsar |
-|---|---:|---:|---:|
-| Open roof column (SKY increases) | 9.674 | 0.621 | 15.58x |
-| Close roof column (SKY decreases) | 15.822 | 0.617 | 25.66x |
-| Place glowstone (BLOCK increases) | 0.167 | 0.072 | 2.31x |
-| Remove glowstone (BLOCK decreases) | 0.272 | 0.077 | 3.54x |
-
-Pulsar had lower median latency in all four workloads, but glowstone placement
-had a higher p95: **0.220 ms for Pulsar versus 0.177 ms for Alfheim**. The graph
-shows p50 and the full range of run p50s; p95/p99 remain in the detailed data. These are hot,
-repeated edits at one position, not FPS, TPS, overall gameplay speed, or a
-measurement of a single algorithm's contribution.
-
-#### Historical Vanilla reference — previous measurement
-
-The previous Vanilla results are retained below as historical reference.
-The graph marks them as `Vanilla*`, with a note explaining the different conditions.
-They used **Lightbench 1.0.0, sparse light probes, Cleanroom 0.6.8-alpha,
-Azul Java 25.0.3, and seed `20260805`**. They were not remeasured for 0.3.0
-and did not undergo the current full-volume validation. Because the protocol
-and environment differ, these values must not be used to calculate speedup
-against the current Pulsar or Alfheim results.
-
-| Edit | Historical Vanilla p50, ms | Range of three run p50s, ms |
-|---|---:|---:|
-| Open roof column (SKY increases) | 45.541 | 38.084–46.356 |
-| Close roof column (SKY decreases) | 847.284 | 762.866–848.995 |
-| Place glowstone (BLOCK increases) | 2.028 | 1.768–2.092 |
-| Remove glowstone (BLOCK decreases) | 2.820 | 2.510–2.880 |
-
-Recorded August 6, 2026 (JST); each value is the median of three run p50s.
-[Original update CSV](docs/benchmarks/2026-08-06-light-updates.csv).
+### Pulsar 0.5.0 Benchmarks
 
 <details>
-<summary>Measurement setup and validation limits</summary>
+<summary>0.5.0</summary>
 
-- Minecraft 1.12.2 / Cleanroom 0.6.12-alpha, integrated server, Windows 11.
-- AMD Ryzen AI MAX+ 395, 32 logical processors, Eclipse Adoptium Java
-  25.0.4.1, 8 GiB heap, G1, compact object headers enabled.
-- Lightbench 1.0.6-completion, a local validation build with raw JAR hashes.
-- Same common mods and frozen configuration in both engines, including
-  Red Core 0.7.1. Render distance 2, 60 FPS limit, VSync off.
-- Fresh copy of the same seed-1 Superflat template per launch, floor Y=3,
-  64×64 stone roof at Y=254. Sky edits open/close one roof column; glowstone
-  edits occur at Y=4.
-- 20 warmup pairs per workload, then 200 samples per phase. Prespecified
-  launch order: Alfheim, Pulsar, Pulsar, Alfheim, Alfheim, Pulsar.
-- Full-volume checks after every measured edit: 31×31×252 cells for SKY,
-  31×31×17 cells for BLOCK and unchanged SKY. These checks warm the data.
-- End-to-end completion includes deferred lighting work. Validation scans,
-  raw JSON writing, and separate CPU replays are outside latency samples.
+#### Block Placement and Removal
 
-Vanilla was also attempted but failed the stronger volume checks, including
-after correcting the harness to drain Vanilla's deferred sky-gap maintenance.
-There is no validated new Vanilla update score or Vanilla/Pulsar ratio.
-The remaining discrepancy needs investigation; failure alone does not identify
-its cause. The historical August sparse-probe values above are separate
-reference data, not a validated current baseline.
+![Block update completion time](docs/benchmarks/2026-10-12-pulsar-0.5.0/block-latency.png)
 
-Three independent launches per engine provide a descriptive comparison, not a
-confidence interval or a guarantee for other machines, worlds, or modpacks.
-This setup differs from the old benchmark, so it does not measure the speedup
-from an older Pulsar release to 0.3.0.
+#### Sky Opening and Closing
 
-[Full method, raw JSON, run ranges, p95/p99, source snapshot, and failure records](docs/benchmarks/2026-09-07-pulsar-0.3.0/README.md)
-· [Run-level CSV](docs/benchmarks/2026-09-07-pulsar-0.3.0/runs.csv)
-· [PNG version](docs/benchmarks/2026-09-07-pulsar-0.3.0/light-updates.png)
+![Sky opening and closing completion time](docs/benchmarks/2026-10-12-pulsar-0.5.0/sky-latency.png)
+
+#### Server Load During Continuous Editing
+
+These values measure main-thread MSPT. Async worker CPU time is not included.
+
+![Main-thread MSPT during continuous editing](docs/benchmarks/2026-10-12-pulsar-0.5.0/continuous-server-ticks.png)
+
+#### Flat Terrain Generation
+
+![Equal-output flat terrain generation](docs/benchmarks/2026-10-12-pulsar-0.5.0/flat-generation.png)
+
+#### Travel in a Flat World
+
+![Server chunk readiness at travel destinations](docs/benchmarks/2026-10-12-pulsar-0.5.0/flat-travel-readiness.png)
 
 </details>
 
-### Chunk generation
-
-No new generation-speed ranking is published for 0.3.0. Fresh-world pilots
-completed with Vanilla, Alfheim, and Pulsar, but strict comparison found
-different terrain and light hashes across the 10,404 core chunks. Matching
-generation output must be established before comparing these times. The old
-generation chart has therefore been retired from this section.
-
-For historical reference only, the previous Vanilla generation measurement
-was **56.461 s** for 10,404 chunks (three-run range **55.639–58.628 s**).
-This used the older Lightbench 1.0.0 protocol and does not meet the current
-terrain/light parity gate; no comparison with the new generation pilots is
-made. [Original generation CSV](docs/benchmarks/2026-08-05-lightbench.csv).
-
-[Generation parity results and diagnostic data](docs/benchmarks/2026-09-07-pulsar-0.3.0/README.md#why-there-is-no-new-chunk-generation-ranking)
-
-## Building
-
-Use JDK 25 and run `./gradlew build` (`.\gradlew.bat build` on Windows).
-The build follows the [CleanroomModTemplate Mixin branch](https://github.com/CleanroomMC/CleanroomModTemplate/tree/mixin).
-
-[CleanroomVersioning](https://github.com/CleanroomMC/Versioning) derives the version
-from Git history and tags; there is no manual `mod_version` property. Clone with
-full history and tags. Run `./gradlew -q printVersion` to inspect the version.
-The release branch is `main`: an exact tag such as `0.4.0` produces `0.4.0`,
-and later commits lead to the next patch with a development or branch label.
-Local builds include `.local`, and uncommitted changes also add `.dirty`.
-Create a SemVer tag on `main` to release a version; an optional stage suffix
-such as `0.5.0-alpha` sets the release stage and is omitted from the version.
-
-[TokenEnvoy](https://github.com/CleanroomMC/TokenEnvoy) replaces `@{...}` markers
-in `Reference.java`, `mcmod.info`, and `pack.mcmeta` during compilation and
-resource processing. Source files retain the markers. Mod metadata is configured
-in `gradle.properties`.
-
 ## Credits
 
-- [Starlight](https://github.com/PaperMC/Starlight) by Spottedleaf, for the
-  architecture and core algorithms on which Pulsar is based
+- [Starlight](https://github.com/PaperMC/Starlight) by Spottedleaf: the algorithms on which Pulsar is based.
+- [SuperNova](https://github.com/GTNewHorizons/SuperNova) by GTNewHorizons: an RGB lighting engine inspired by Starlight.
+- [Alfheim](https://github.com/Red-Studio-Ragnarok/Alfheim) by Red Studio: a reference for directional neighbor brightness, liquid and emissive-block rendering, and light-only chunk packet handling.
+- [CleanroomModTemplate](https://github.com/CleanroomMC/CleanroomModTemplate), TokenEnvoy, and CleanroomVersioning by CleanroomMC.
 
-- [SuperNova](https://github.com/GTNewHorizons/SuperNova) by GTNewHorizons, a
-  Minecraft 1.7.10 port of Starlight that served as the basis for early
-  versions of Pulsar
+## AI Disclosure
 
-- [Alfheim](https://github.com/Red-Studio-Ragnarok/Alfheim) by Red Studio, as a
-  reference for directional neighbour brightness, liquid and emitter rendering,
-  and light-only chunk packet handling
+Pulsar uses LLM assistance in the following areas:
 
-- [CleanroomModTemplate](https://github.com/CleanroomMC/CleanroomModTemplate) by
-  CleanroomMC
-
-## AI disclosure
-
-Some code in Pulsar was developed with assistance from generative AI and
-reviewed before inclusion. Please report any problems you find.
+- Some code: primarily understanding and implementing algorithms.
+- Translation and writing: translating into other languages and generating documentation.
 
 ## License
 
