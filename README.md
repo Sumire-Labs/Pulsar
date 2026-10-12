@@ -135,40 +135,27 @@ it does not switch off Pulsar's lighting engine.
 
 ## Performance
 
-### Pulsar 0.5.0 comparison — October 10, 2026
+### Pulsar 0.5.0 comparison — October 12, 2026
 
-The baseline study uses four independent JVM runs per supported condition and
-104 formal launches across Vanilla lighting, Alfheim 1.6, Pulsar and a
-supplemental Starlight-1.12 comparison. The intended release is labeled
-**Pulsar 0.5.0**; the measured source is `75b051d` (pre-tag metadata
-`0.4.1-dev.24`).
+The current comparison measures source `94ed8cb`, labeled **Pulsar 0.5.0** (pre-tag artifact metadata `0.4.1-dev.30.local`). It includes 76 public formal runs across seven workload families, with four fresh JVMs per supported condition. Settings, completed work and stored light are checked. Values below are medians of independent run means.
 
-In the validated open-sky glowstone fixture, placement/removal completion
-times were **62.2 / 63.8 µs** for Pulsar, **182 / 289 µs** for Alfheim, and
-**1,290 / 1,880 µs** for Vanilla. This measures server edits through light
-completion, rather than player input or general FPS.
+| Workload | Vanilla | Alfheim 1.6 | Pulsar 0.5.0 |
+|---|---:|---:|---:|
+| Block placement (µs) | 1,294 | 184 | 66.6 |
+| Block removal (µs) | 1,869 | 271 | 68.3 |
+| Sky opening (ms) | Not validated | 9.62 | 0.606 |
+| Sky closing (ms) | Not validated | 16.3 | 0.618 |
+| Equal-output flat generation (s) | 1.31 | 1.18 | 1.34 |
+| Main-thread MSPT at 2,048 edits/tick | Not validated | 178 | 2.48 |
+| Flat travel: server readiness (ms) | 57.5 | 56.6 | 55.4 |
 
-![Validated block update completion](docs/benchmarks/2026-10-10-pulsar-0.5.0/block-latency.png)
+![Validated block update completion](docs/benchmarks/2026-10-12-pulsar-0.5.0/block-latency.png)
 
-Pulsar kept main-thread tick time low during continuous roof editing;
-asynchronous worker CPU and the final completion drain are reported
-separately. Simple flat generation was slower than Vanilla/Alfheim.
-Normal-terrain outputs differed, so their timings are descriptive rather
-than an equal-output speed ranking. Vanilla did not validate the tall-roof
-Sky workload. Whole-game heap and render-loop observations are not
-engine-only memory or equal-scene FPS claims.
+Block-update values cover server edits through the installed engine’s completion barrier, rather than player input or FPS. Continuous-edit main-thread tick time excludes worker CPU; post-run completion drain is recorded separately. Vanilla failed tall-roof light validation. Normal-world outputs differ and cannot support an equal-output speed ranking. Whole-game heap and render callbacks are not engine-only memory or equal-scene FPS measurements.
 
-[Full results, methods, raw data and publication copy](docs/benchmarks/2026-10-10-pulsar-0.5.0/README.md).
-These figures precede the later paired-task scheduling change; they describe
-the frozen `75b051d` snapshot. A subsequent
-[Starlight attribution and controlled implementation study](docs/benchmarks/2026-10-10-starlight-attribution/README.md)
-compares the updated scheduling path with that baseline. Its separate timing
-epoch must not be subtracted from the values above.
-An additional [pipeline diagnostic study](docs/benchmarks/2026-10-10-pipeline-profile/README.md)
-separates task coordination, propagation and publication. Its instrumented
-timings have measured overhead and do not replace the comparison above.
-Earlier measurements below use different versions and protocols and must
-not be compared directly with this study.
+[Full results, methods, raw data and GH/CF/MR publication copy](docs/benchmarks/2026-10-12-pulsar-0.5.0/README.md).
+
+The [October 10 baseline](docs/benchmarks/2026-10-10-pulsar-0.5.0/README.md) used source `75b051d` before the later scheduling and lighting hot-path changes. Different measurement epochs must not be subtracted to attribute a source change. Earlier benchmarks below use different versions and protocols.
 
 ### Development-build travel diagnostics
 

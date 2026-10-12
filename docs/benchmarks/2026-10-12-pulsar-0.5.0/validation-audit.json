@@ -1,0 +1,285 @@
+{
+  "formal_trials": 76,
+  "all_trials_valid": true,
+  "all_metric_groups_four_runs": true,
+  "native_comparator_crosschecks": [
+    {
+      "family": "blocks",
+      "engine": "vanilla",
+      "metric": "block_place",
+      "runs": 4
+    },
+    {
+      "family": "blocks",
+      "engine": "vanilla",
+      "metric": "block_remove",
+      "runs": 4
+    },
+    {
+      "family": "blocks",
+      "engine": "alfheim",
+      "metric": "block_place",
+      "runs": 4
+    },
+    {
+      "family": "blocks",
+      "engine": "alfheim",
+      "metric": "block_remove",
+      "runs": 4
+    },
+    {
+      "family": "blocks",
+      "engine": "pulsar",
+      "metric": "block_place",
+      "runs": 4
+    },
+    {
+      "family": "blocks",
+      "engine": "pulsar",
+      "metric": "block_remove",
+      "runs": 4
+    },
+    {
+      "family": "sky",
+      "engine": "vanilla",
+      "metric": "block_place",
+      "runs": 0
+    },
+    {
+      "family": "sky",
+      "engine": "vanilla",
+      "metric": "block_remove",
+      "runs": 0
+    },
+    {
+      "family": "sky",
+      "engine": "vanilla",
+      "metric": "sky_place",
+      "runs": 0
+    },
+    {
+      "family": "sky",
+      "engine": "vanilla",
+      "metric": "sky_remove",
+      "runs": 0
+    },
+    {
+      "family": "sky",
+      "engine": "alfheim",
+      "metric": "block_place",
+      "runs": 4
+    },
+    {
+      "family": "sky",
+      "engine": "alfheim",
+      "metric": "block_remove",
+      "runs": 4
+    },
+    {
+      "family": "sky",
+      "engine": "alfheim",
+      "metric": "sky_place",
+      "runs": 4
+    },
+    {
+      "family": "sky",
+      "engine": "alfheim",
+      "metric": "sky_remove",
+      "runs": 4
+    },
+    {
+      "family": "sky",
+      "engine": "pulsar",
+      "metric": "block_place",
+      "runs": 4
+    },
+    {
+      "family": "sky",
+      "engine": "pulsar",
+      "metric": "block_remove",
+      "runs": 4
+    },
+    {
+      "family": "sky",
+      "engine": "pulsar",
+      "metric": "sky_place",
+      "runs": 4
+    },
+    {
+      "family": "sky",
+      "engine": "pulsar",
+      "metric": "sky_remove",
+      "runs": 4
+    },
+    {
+      "family": "flatgen",
+      "engine": "vanilla",
+      "metric": "generation_until_lit",
+      "runs": 4
+    },
+    {
+      "family": "flatgen",
+      "engine": "alfheim",
+      "metric": "generation_until_lit",
+      "runs": 4
+    },
+    {
+      "family": "flatgen",
+      "engine": "pulsar",
+      "metric": "generation_until_lit",
+      "runs": 4
+    }
+  ],
+  "parity": {
+    "flatgen": {
+      "trials": 12,
+      "distinct_terrain_hashes": 1,
+      "distinct_light_hashes": 1,
+      "distinct_chunk_counts": 1,
+      "matched": true
+    },
+    "naturalgen": {
+      "trials": 12,
+      "distinct_terrain_hashes": 6,
+      "distinct_light_hashes": 6,
+      "distinct_chunk_counts": 1,
+      "matched": false
+    },
+    "flattravel": {
+      "trials": 12,
+      "distinct_terrain_hashes": 1,
+      "distinct_light_hashes": 1,
+      "distinct_chunk_counts": 1,
+      "matched": true
+    },
+    "naturaltravel": {
+      "trials": 12,
+      "distinct_terrain_hashes": 12,
+      "distinct_light_hashes": 1,
+      "distinct_chunk_counts": 1,
+      "matched": false
+    }
+  },
+  "timing_drift": [
+    {
+      "run": "formal-v9-blocks-r1-alfheim",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": -16.31427825632994
+    },
+    {
+      "run": "formal-v9-blocks-r1-alfheim",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": -20.711648204095333
+    },
+    {
+      "run": "formal-v9-blocks-r1-pulsar",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": -3.703703703703709
+    },
+    {
+      "run": "formal-v9-blocks-r1-pulsar",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": -3.2206119162640934
+    },
+    {
+      "run": "formal-v9-blocks-r1-vanilla",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": -1.2970062810995997
+    },
+    {
+      "run": "formal-v9-blocks-r1-vanilla",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": -1.0873258579680578
+    },
+    {
+      "run": "formal-v9-blocks-r2-alfheim",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": -7.4768972276673225
+    },
+    {
+      "run": "formal-v9-blocks-r2-alfheim",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": -9.837857533248318
+    },
+    {
+      "run": "formal-v9-blocks-r2-pulsar",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": -1.5228426395939132
+    },
+    {
+      "run": "formal-v9-blocks-r2-pulsar",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": -3.0110935023771823
+    },
+    {
+      "run": "formal-v9-blocks-r2-vanilla",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": -2.7885360185902375
+    },
+    {
+      "run": "formal-v9-blocks-r2-vanilla",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": -3.236434673586608
+    },
+    {
+      "run": "formal-v9-blocks-r3-alfheim",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": -16.515190859517006
+    },
+    {
+      "run": "formal-v9-blocks-r3-alfheim",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": -19.891928402566705
+    },
+    {
+      "run": "formal-v9-blocks-r3-pulsar",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": -15.040352164343362
+    },
+    {
+      "run": "formal-v9-blocks-r3-pulsar",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": -10.921985815602842
+    },
+    {
+      "run": "formal-v9-blocks-r3-vanilla",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": 1.3734646627163283
+    },
+    {
+      "run": "formal-v9-blocks-r3-vanilla",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": 0.9172804687713976
+    },
+    {
+      "run": "formal-v9-blocks-r4-alfheim",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": 3.03724928366762
+    },
+    {
+      "run": "formal-v9-blocks-r4-alfheim",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": -1.2878787878787934
+    },
+    {
+      "run": "formal-v9-blocks-r4-pulsar",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": 4.399323181049075
+    },
+    {
+      "run": "formal-v9-blocks-r4-pulsar",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": 4.862236628849281
+    },
+    {
+      "run": "formal-v9-blocks-r4-vanilla",
+      "phase": "block_place",
+      "last_vs_first_quarter_median_percent": 7.185344827586215
+    },
+    {
+      "run": "formal-v9-blocks-r4-vanilla",
+      "phase": "block_remove",
+      "last_vs_first_quarter_median_percent": 7.469444526649105
+    }
+  ]
+}

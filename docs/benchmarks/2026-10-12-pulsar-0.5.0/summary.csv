@@ -1,0 +1,119 @@
+family,metric,engine,label,independent_jvm_runs,unit,median_of_run_means,minimum_run_mean,maximum_run_mean,median_run_p95,median_run_p99,equal_output_ranking_eligible,complete_four_run_cohort
+blocks,block_place,alfheim,Alfheim 1.6,4,ns,183779.89,180686.26,184446.73,245550.0,295050.0,True,True
+blocks,block_place,pulsar,Pulsar 0.5.0,4,ns,66588.42499999999,65538.78,72096.86,94250.0,169750.0,True,True
+blocks,block_place,vanilla,Vanilla,4,ns,1293843.0,1198778.04,1399659.32,1783750.0,2128650.0,True,True
+blocks,block_remove,alfheim,Alfheim 1.6,4,ns,271173.78,268039.09,273308.97,363300.0,444300.0,True,True
+blocks,block_remove,pulsar,Pulsar 0.5.0,4,ns,68300.745,66344.06,75001.72,92800.0,133950.0,True,True
+blocks,block_remove,vanilla,Vanilla,4,ns,1868895.33,1754474.4,1989505.62,2563450.0,3038150.0,True,True
+blocks,peak_process_working_set,alfheim,Alfheim 1.6,4,bytes,8592334848.0,8586391552,8610897920,8592334848.0,8592334848.0,False,True
+blocks,peak_process_working_set,pulsar,Pulsar 0.5.0,4,bytes,5103745024.0,5054566400,5149171712,5103745024.0,5103745024.0,False,True
+blocks,peak_process_working_set,vanilla,Vanilla,4,bytes,8513363968.0,8509906944,8529772544,8513363968.0,8513363968.0,False,True
+blocks,post_gc_heap,alfheim,Alfheim 1.6,4,bytes,227652760.0,226008848,229188136,227652760.0,227652760.0,False,True
+blocks,post_gc_heap,pulsar,Pulsar 0.5.0,4,bytes,216358732.0,216132288,218355192,216358732.0,216358732.0,False,True
+blocks,post_gc_heap,vanilla,Vanilla,4,bytes,210790716.0,207743016,211481504,210790716.0,210790716.0,False,True
+continuous,peak_process_working_set,alfheim,Alfheim 1.6,4,bytes,11439271936.0,11399757824,11459506176,11439271936.0,11439271936.0,False,True
+continuous,peak_process_working_set,pulsar,Pulsar 0.5.0,4,bytes,8568326144.0,8227569664,8629194752,8568326144.0,8568326144.0,False,True
+continuous,post_gc_heap,alfheim,Alfheim 1.6,4,bytes,268639096.0,267083672,270522304,268639096.0,268639096.0,False,True
+continuous,post_gc_heap,pulsar,Pulsar 0.5.0,4,bytes,232943252.0,231158680,235004048,232943252.0,232943252.0,False,True
+continuous,spikes_2_frame_interval,alfheim,Alfheim 1.6,4,ns,175478.91782778013,158597.83700208808,184452.30044859674,411900.0,668500.0,False,True
+continuous,spikes_2_frame_interval,pulsar,Pulsar 0.5.0,4,ns,164090.1108295247,160929.79346261462,175028.64606237577,334450.0,621800.0,False,True
+continuous,spikes_2_post_drain,alfheim,Alfheim 1.6,4,ns,3914950.0,3706600,4113200,3914950.0,3914950.0,True,True
+continuous,spikes_2_post_drain,pulsar,Pulsar 0.5.0,4,ns,409050.0,270800,527200,409050.0,409050.0,True,True
+continuous,spikes_2_server_tick,alfheim,Alfheim 1.6,4,ns,764448.0,746453.5,767733.5,3832200.0,7697000.0,True,True
+continuous,spikes_2_server_tick,pulsar,Pulsar 0.5.0,4,ns,315114.0,293029,330384,407550.0,507100.0,True,True
+continuous,tps_1024_frame_interval,alfheim,Alfheim 1.6,4,ns,174961.7678619451,174024.49823903048,183365.02891577975,401100.0,701400.0,False,True
+continuous,tps_1024_frame_interval,pulsar,Pulsar 0.5.0,4,ns,178816.86501313478,160622.24924603562,191644.3055609303,378600.0,714450.0,False,True
+continuous,tps_1024_post_drain,alfheim,Alfheim 1.6,4,ns,105117500.0,88760100,167531700,105117500.0,105117500.0,True,True
+continuous,tps_1024_post_drain,pulsar,Pulsar 0.5.0,4,ns,9315150.0,7595500,10279000,9315150.0,9315150.0,True,True
+continuous,tps_1024_server_tick,alfheim,Alfheim 1.6,4,ns,112331456.5,105495656,116984809,140063200.0,155001100.0,True,True
+continuous,tps_1024_server_tick,pulsar,Pulsar 0.5.0,4,ns,1528461.0,1328657,1623796,1960500.0,2291350.0,True,True
+continuous,tps_128_frame_interval,alfheim,Alfheim 1.6,4,ns,174057.61900703405,167659.87477698858,187863.01560968254,384700.0,699750.0,False,True
+continuous,tps_128_frame_interval,pulsar,Pulsar 0.5.0,4,ns,171561.86243334494,161598.76603662717,184764.19024863734,352650.0,665100.0,False,True
+continuous,tps_128_post_drain,alfheim,Alfheim 1.6,4,ns,16749300.0,15407500,17676500,16749300.0,16749300.0,True,True
+continuous,tps_128_post_drain,pulsar,Pulsar 0.5.0,4,ns,2455900.0,1662600,3278800,2455900.0,2455900.0,True,True
+continuous,tps_128_server_tick,alfheim,Alfheim 1.6,4,ns,20629216.5,20055311,21088052,26237750.0,50076250.0,True,True
+continuous,tps_128_server_tick,pulsar,Pulsar 0.5.0,4,ns,853575.0,585251,905189,803950.0,2916350.0,True,True
+continuous,tps_2048_frame_interval,alfheim,Alfheim 1.6,4,ns,172425.15873399345,167206.91225434275,175529.9323860072,397650.0,678650.0,False,True
+continuous,tps_2048_frame_interval,pulsar,Pulsar 0.5.0,4,ns,167945.53403375397,158263.87531538436,177575.49740096793,362500.0,674300.0,False,True
+continuous,tps_2048_post_drain,alfheim,Alfheim 1.6,4,ns,155700850.0,129623100,206812700,155700850.0,155700850.0,True,True
+continuous,tps_2048_post_drain,pulsar,Pulsar 0.5.0,4,ns,13393400.0,12967000,13906700,13393400.0,13393400.0,True,True
+continuous,tps_2048_server_tick,alfheim,Alfheim 1.6,4,ns,177826784.5,162094002,188133812,226307100.0,245465400.0,True,True
+continuous,tps_2048_server_tick,pulsar,Pulsar 0.5.0,4,ns,2484139.5,2360313,2533411,3101800.0,3327300.0,True,True
+continuous,tps_256_frame_interval,alfheim,Alfheim 1.6,4,ns,188421.74257593567,176946.83394319567,189689.97536761963,447750.0,738850.0,False,True
+continuous,tps_256_frame_interval,pulsar,Pulsar 0.5.0,4,ns,169415.2454257006,157365.13446500094,171261.09592832185,339450.0,654450.0,False,True
+continuous,tps_256_post_drain,alfheim,Alfheim 1.6,4,ns,29519900.0,28221800,31036300,29519900.0,29519900.0,True,True
+continuous,tps_256_post_drain,pulsar,Pulsar 0.5.0,4,ns,3324050.0,2736500,3435900,3324050.0,3324050.0,True,True
+continuous,tps_256_server_tick,alfheim,Alfheim 1.6,4,ns,37097471.0,35314101,38857606,51403650.0,57815800.0,True,True
+continuous,tps_256_server_tick,pulsar,Pulsar 0.5.0,4,ns,741274.5,714962,760275,917100.0,1146850.0,True,True
+continuous,tps_512_frame_interval,alfheim,Alfheim 1.6,4,ns,178336.54283242795,170911.42337402125,195892.22140685606,376350.0,733800.0,False,True
+continuous,tps_512_frame_interval,pulsar,Pulsar 0.5.0,4,ns,170907.0889653117,162824.311700273,188496.15091753597,339700.0,673050.0,False,True
+continuous,tps_512_post_drain,alfheim,Alfheim 1.6,4,ns,54958550.0,50995800,65856700,54958550.0,54958550.0,True,True
+continuous,tps_512_post_drain,pulsar,Pulsar 0.5.0,4,ns,5087500.0,4963100,5667000,5087500.0,5087500.0,True,True
+continuous,tps_512_server_tick,alfheim,Alfheim 1.6,4,ns,66083425.5,61151796,72188932,86090200.0,106536000.0,True,True
+continuous,tps_512_server_tick,pulsar,Pulsar 0.5.0,4,ns,1032907.5,952968,1081890,1368450.0,1956850.0,True,True
+continuous,tps_64_frame_interval,alfheim,Alfheim 1.6,4,ns,163689.1277071885,157703.19456352608,169962.56545398541,296300.0,703400.0,False,True
+continuous,tps_64_frame_interval,pulsar,Pulsar 0.5.0,4,ns,163486.6804220086,160447.95488429378,185984.814453125,297550.0,668600.0,False,True
+continuous,tps_64_post_drain,alfheim,Alfheim 1.6,4,ns,9633250.0,9000900,9747500,9633250.0,9633250.0,True,True
+continuous,tps_64_post_drain,pulsar,Pulsar 0.5.0,4,ns,1419450.0,1266200,1964400,1419450.0,1419450.0,True,True
+continuous,tps_64_server_tick,alfheim,Alfheim 1.6,4,ns,12607840.5,12243108,12792567,20996150.0,56462800.0,True,True
+continuous,tps_64_server_tick,pulsar,Pulsar 0.5.0,4,ns,522967.0,501189,817689,701350.0,1030600.0,True,True
+flatgen,generation_until_lit,alfheim,Alfheim 1.6,4,ns,1175468150.0,1150790400,1185140600,1175468150.0,1175468150.0,True,True
+flatgen,generation_until_lit,pulsar,Pulsar 0.5.0,4,ns,1341771100.0,1254882900,1366557200,1341771100.0,1341771100.0,True,True
+flatgen,generation_until_lit,vanilla,Vanilla,4,ns,1311154450.0,1306533200,1317493800,1311154450.0,1311154450.0,True,True
+flatgen,peak_process_working_set,alfheim,Alfheim 1.6,4,bytes,8726288384.0,8719560704,8734806016,8726288384.0,8726288384.0,False,True
+flatgen,peak_process_working_set,pulsar,Pulsar 0.5.0,4,bytes,6823847936.0,6791028736,6911447040,6823847936.0,6823847936.0,False,True
+flatgen,peak_process_working_set,vanilla,Vanilla,4,bytes,6608246784.0,6604075008,6642618368,6608246784.0,6608246784.0,False,True
+flatgen,post_gc_heap,alfheim,Alfheim 1.6,4,bytes,317622952.0,315611608,317866688,317622952.0,317622952.0,False,True
+flatgen,post_gc_heap,pulsar,Pulsar 0.5.0,4,bytes,336491292.0,334889200,338791168,336491292.0,336491292.0,False,True
+flatgen,post_gc_heap,vanilla,Vanilla,4,bytes,295403612.0,295200048,295884944,295403612.0,295403612.0,False,True
+flattravel,peak_process_working_set,alfheim,Alfheim 1.6,4,bytes,7661762560.0,7616561152,7683915776,7661762560.0,7661762560.0,False,True
+flattravel,peak_process_working_set,pulsar,Pulsar 0.5.0,4,bytes,7551387648.0,7546384384,7589806080,7551387648.0,7551387648.0,False,True
+flattravel,peak_process_working_set,vanilla,Vanilla,4,bytes,7504633856.0,7414796288,7556091904,7504633856.0,7504633856.0,False,True
+flattravel,post_gc_heap,alfheim,Alfheim 1.6,4,bytes,239752576.0,237084184,244552280,239752576.0,239752576.0,False,True
+flattravel,post_gc_heap,pulsar,Pulsar 0.5.0,4,bytes,223114448.0,221412880,225875776,223114448.0,223114448.0,False,True
+flattravel,post_gc_heap,vanilla,Vanilla,4,bytes,215559800.0,214088168,216484128,215559800.0,215559800.0,False,True
+flattravel,readiness_latency,alfheim,Alfheim 1.6,4,ns,56640032.8125,56365075,56965062.5,58692250.0,130154550.0,True,True
+flattravel,readiness_latency,pulsar,Pulsar 0.5.0,4,ns,55443525.0,54800865.625,56335850,57251600.0,101524050.0,True,True
+flattravel,readiness_latency,vanilla,Vanilla,4,ns,57461225.0,56929709.375,57640243.75,59734500.0,156907250.0,True,True
+flattravel,travel_frame_interval,alfheim,Alfheim 1.6,4,ns,150430.63601011515,147215.0466743652,152782.09214609693,275100.0,546600.0,False,True
+flattravel,travel_frame_interval,pulsar,Pulsar 0.5.0,4,ns,156715.10420686824,154349.59363318462,158646.044549326,284600.0,549750.0,False,True
+flattravel,travel_frame_interval,vanilla,Vanilla,4,ns,156572.9301693457,153012.79275488443,162195.0838866643,280450.0,525450.0,False,True
+flattravel,travel_server_tick,alfheim,Alfheim 1.6,4,ns,604917.265625,581899.0625,627707.1875,3548400.0,5759650.0,True,True
+flattravel,travel_server_tick,pulsar,Pulsar 0.5.0,4,ns,566918.125,551058.59375,573095.9375,3513400.0,4676300.0,True,True
+flattravel,travel_server_tick,vanilla,Vanilla,4,ns,557052.109375,555201.5625,593216.875,3680500.0,4595400.0,True,True
+naturalgen,generation_until_lit,alfheim,Alfheim 1.6,4,ns,23440589550.0,21957700000,24264295100,23440589550.0,23440589550.0,False,True
+naturalgen,generation_until_lit,pulsar,Pulsar 0.5.0,4,ns,21992867550.0,21724986600,22185479400,21992867550.0,21992867550.0,False,True
+naturalgen,generation_until_lit,vanilla,Vanilla,4,ns,32934216250.0,32036290900,34303533700,32934216250.0,32934216250.0,False,True
+naturalgen,peak_process_working_set,alfheim,Alfheim 1.6,4,bytes,9269901312.0,9250492416,9278242816,9269901312.0,9269901312.0,False,True
+naturalgen,peak_process_working_set,pulsar,Pulsar 0.5.0,4,bytes,9228101632.0,9221201920,9247932416,9228101632.0,9228101632.0,False,True
+naturalgen,peak_process_working_set,vanilla,Vanilla,4,bytes,9010569216.0,8997498880,9063440384,9010569216.0,9010569216.0,False,True
+naturalgen,post_gc_heap,alfheim,Alfheim 1.6,4,bytes,494522628.0,493842040,497058960,494522628.0,494522628.0,False,True
+naturalgen,post_gc_heap,pulsar,Pulsar 0.5.0,4,bytes,531287768.0,531162888,533307416,531287768.0,531287768.0,False,True
+naturalgen,post_gc_heap,vanilla,Vanilla,4,bytes,477469196.0,474394288,479304504,477469196.0,477469196.0,False,True
+naturaltravel,peak_process_working_set,alfheim,Alfheim 1.6,4,bytes,8745013248.0,8698339328,8815226880,8745013248.0,8745013248.0,False,True
+naturaltravel,peak_process_working_set,pulsar,Pulsar 0.5.0,4,bytes,8813815808.0,8797126656,8827183104,8813815808.0,8813815808.0,False,True
+naturaltravel,peak_process_working_set,vanilla,Vanilla,4,bytes,8749461504.0,8713670656,8791146496,8749461504.0,8749461504.0,False,True
+naturaltravel,post_gc_heap,alfheim,Alfheim 1.6,4,bytes,239107520.0,238048352,239303392,239107520.0,239107520.0,False,True
+naturaltravel,post_gc_heap,pulsar,Pulsar 0.5.0,4,bytes,249257944.0,247223344,252642152,249257944.0,249257944.0,False,True
+naturaltravel,post_gc_heap,vanilla,Vanilla,4,bytes,241346040.0,236175704,245821944,241346040.0,241346040.0,False,True
+naturaltravel,readiness_latency,alfheim,Alfheim 1.6,4,ns,114160851.5625,111212046.875,115504425,112857250.0,698643800.0,False,True
+naturaltravel,readiness_latency,pulsar,Pulsar 0.5.0,4,ns,105731420.3125,99555578.125,107797856.25,108945450.0,472966050.0,False,True
+naturaltravel,readiness_latency,vanilla,Vanilla,4,ns,119812293.75,119483540.625,121273815.625,111930100.0,861496850.0,False,True
+naturaltravel,travel_frame_interval,alfheim,Alfheim 1.6,4,ns,173553.19276370673,170530.58430415366,183354.12242652746,315600.0,653200.0,False,True
+naturaltravel,travel_frame_interval,pulsar,Pulsar 0.5.0,4,ns,195468.97733362365,193205.78308306314,199037.25018194033,359600.0,688750.0,False,True
+naturaltravel,travel_frame_interval,vanilla,Vanilla,4,ns,196423.53516660916,188973.55096641608,198146.84469926814,364950.0,675850.0,False,True
+naturaltravel,travel_server_tick,alfheim,Alfheim 1.6,4,ns,4474021.40625,4260116.875,4521822.34375,38996550.0,60533300.0,False,True
+naturaltravel,travel_server_tick,pulsar,Pulsar 0.5.0,4,ns,4232132.890625,4189871.71875,4327392.65625,39147900.0,58055550.0,False,True
+naturaltravel,travel_server_tick,vanilla,Vanilla,4,ns,5129416.484375,4981718.4375,5241805.9375,47805500.0,66835250.0,False,True
+sky,block_place,alfheim,Alfheim 1.6,4,ns,168081.35,158333.8,184712.5,210650.0,243450.0,True,True
+sky,block_place,pulsar,Pulsar 0.5.0,4,ns,67252.15,65240.9,75085.4,118750.0,177050.0,True,True
+sky,block_remove,alfheim,Alfheim 1.6,4,ns,277283.44999999995,253851.3,307257.3,332250.0,372900.0,True,True
+sky,block_remove,pulsar,Pulsar 0.5.0,4,ns,67436.70000000001,64509.7,73890.4,99450.0,140500.0,True,True
+sky,peak_process_working_set,alfheim,Alfheim 1.6,4,bytes,9520654336.0,9502638080,9531342848,9520654336.0,9520654336.0,False,True
+sky,peak_process_working_set,pulsar,Pulsar 0.5.0,4,bytes,5166641152.0,5093040128,5296513024,5166641152.0,5166641152.0,False,True
+sky,post_gc_heap,alfheim,Alfheim 1.6,4,bytes,231638664.0,229752752,232894352,231638664.0,231638664.0,False,True
+sky,post_gc_heap,pulsar,Pulsar 0.5.0,4,bytes,221079912.0,217475424,223971072,221079912.0,221079912.0,False,True
+sky,sky_place,alfheim,Alfheim 1.6,4,ns,16251513.65,15820995.4,16720398.8,20579000.0,25448200.0,True,True
+sky,sky_place,pulsar,Pulsar 0.5.0,4,ns,617998.0,603465,648352.2,810950.0,1098550.0,True,True
+sky,sky_remove,alfheim,Alfheim 1.6,4,ns,9621218.45,9453577.6,10048316.9,11396550.0,14775400.0,True,True
+sky,sky_remove,pulsar,Pulsar 0.5.0,4,ns,605892.25,587825.8,639557.1,795100.0,1137250.0,True,True

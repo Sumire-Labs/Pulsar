@@ -1,0 +1,151 @@
+[
+  {
+    "run": "preflight-v9-blocks-alfheim",
+    "engine": "alfheim",
+    "command": "lightbench blockupdates 1 2",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-blocks-pulsar",
+    "engine": "pulsar",
+    "command": "lightbench blockupdates 1 2",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-blocks-vanilla",
+    "engine": "vanilla",
+    "command": "lightbench blockupdates 1 2",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-continuous-alfheim",
+    "engine": "alfheim",
+    "command": "lightbench tps 128 5",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-continuous-pulsar",
+    "engine": "pulsar",
+    "command": "lightbench tps 128 5",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-continuous-vanilla",
+    "engine": "vanilla",
+    "command": "lightbench tps 128 5",
+    "valid": false,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-flatgen-alfheim",
+    "engine": "alfheim",
+    "command": "lightbench gen 8 1 8",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-flatgen-pulsar",
+    "engine": "pulsar",
+    "command": "lightbench gen 8 1 8",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-flatgen-vanilla",
+    "engine": "vanilla",
+    "command": "lightbench gen 8 1 8",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-flattravel-alfheim",
+    "engine": "alfheim",
+    "command": "benchtravel",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-flattravel-pulsar",
+    "engine": "pulsar",
+    "command": "benchtravel",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-flattravel-vanilla",
+    "engine": "vanilla",
+    "command": "benchtravel",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-naturalgen-alfheim",
+    "engine": "alfheim",
+    "command": "lightbench gen 4 1 4",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-naturalgen-pulsar",
+    "engine": "pulsar",
+    "command": "lightbench gen 4 1 4",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-naturalgen-vanilla",
+    "engine": "vanilla",
+    "command": "lightbench gen 4 1 4",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-naturaltravel-alfheim",
+    "engine": "alfheim",
+    "command": "benchtravel",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-naturaltravel-pulsar",
+    "engine": "pulsar",
+    "command": "benchtravel",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-naturaltravel-vanilla",
+    "engine": "vanilla",
+    "command": "benchtravel",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-sky-alfheim",
+    "engine": "alfheim",
+    "command": "lightbench updates 1 2",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-sky-pulsar",
+    "engine": "pulsar",
+    "command": "lightbench updates 1 2",
+    "valid": true,
+    "failure_evidence": []
+  },
+  {
+    "run": "preflight-v9-sky-vanilla",
+    "engine": "vanilla",
+    "command": "lightbench updates 1 2",
+    "valid": false,
+    "failure_evidence": [
+      "java.lang.IllegalStateException: sky light verification failed at 19982,128,19981: expected 9, got 10"
+    ]
+  }
+]
