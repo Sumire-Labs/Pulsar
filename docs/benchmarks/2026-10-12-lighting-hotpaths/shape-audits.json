@@ -1,0 +1,26 @@
+{
+  "audit-block": {
+    "valid": true,
+    "all_hashes_equal_baseline": true,
+    "snapshots": 45,
+    "lit_sided_cases": 10,
+    "cells_per_snapshot": 61440,
+    "channels": 2
+  },
+  "audit-both": {
+    "valid": true,
+    "all_hashes_equal_baseline": true,
+    "snapshots": 45,
+    "lit_sided_cases": 10,
+    "cells_per_snapshot": 61440,
+    "channels": 2
+  },
+  "audit-sky": {
+    "valid": true,
+    "all_hashes_equal_baseline": true,
+    "snapshots": 45,
+    "lit_sided_cases": 10,
+    "cells_per_snapshot": 61440,
+    "channels": 2
+  }
+}

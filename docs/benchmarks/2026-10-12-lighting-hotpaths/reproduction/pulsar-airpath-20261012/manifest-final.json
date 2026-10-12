@@ -1,0 +1,77 @@
+{
+  "source": "d9b357b",
+  "tests": {
+    "tests": 181,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "common_mods": [
+    {
+      "file": "+Fugue-0.24.3.jar",
+      "sha256": "00dc2de461b8a9bf0d9b684aa0377713bda85ca63da5ec93028c226ed2119efd"
+    },
+    {
+      "file": "-cleanroom-relauncher-1.1.2.jar",
+      "sha256": "e120adafabb0145eff704633ed5304c356d0e20c1cd4831347a8530d152164b3"
+    },
+    {
+      "file": "-Red-Core-MC-1.8-1.12-0.7.1.jar",
+      "sha256": "9935912816062ca46a2ecd020d813ee2dde8e6b228daec068b465eb72ea51368"
+    },
+    {
+      "file": "1.12.2/scala-library-3.8.4.jar",
+      "sha256": "1b8330de5774c15874173f168b674255caa00c5ef3648ab0b6cb763bb7fd2de7"
+    },
+    {
+      "file": "1.12.2/scala-parser-combinators_3-2.4.0.jar",
+      "sha256": "50f1b3dcf8f14975702dc6da287797e391fc5d4834e4d3e7e9f9125efdb2de9a"
+    },
+    {
+      "file": "four-engine-driver.jar",
+      "sha256": "a363239642316bcde439a9ffd1865e060c7466b58c98dcaea87a7776dabed965"
+    },
+    {
+      "file": "lightbench-1.1.0-bench9.jar",
+      "sha256": "1f27924160f8a6b32c3720ee0b52829f172e64427d6020345822fa155a5833f8"
+    },
+    {
+      "file": "scalar-3.8.4-1.jar",
+      "sha256": "a4c2cd912c36cd5a5055153ec950455349eed6daefeb747013b5f675190eb1fd"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "hotpath-audit.jar",
+      "sha256": "222ea080eada40a42f697af2e565f5dfa3e17b8b35b4daece302fa98cba6e95e"
+    },
+    {
+      "file": "pulsar-base.jar",
+      "sha256": "c768236c76cf9a88243b1ad2797f5c3e508da9d16f163136241894861b2ff400"
+    },
+    {
+      "file": "pulsar-block.jar",
+      "sha256": "c8183f862227fe23ece53c2aca438a3664717132324e6624a5e32ac5bb23b2a3"
+    },
+    {
+      "file": "pulsar-both.jar",
+      "sha256": "a2c3c70c37e19f502abcf26451ef42420a1a1f2a48603a4fa67fb804b259208b"
+    },
+    {
+      "file": "pulsar-sky.jar",
+      "sha256": "90f7f78986fcb0ef4dc4bfe057c0c0e234dec4e1baadd835d9967ea5424b61d7"
+    },
+    {
+      "file": "starlight-0a7d94e-clean.jar",
+      "sha256": "1a0aeed6fac972ef5d66cc645b893bdba9094d160db854c53719805bf08efbb7"
+    },
+    {
+      "file": "pulsar-actual.jar",
+      "sha256": "491c7796807245081d8f34e28c2aa1918d10b645091e85edba6b04237c0db488"
+    },
+    {
+      "file": "pulsar-origin.jar",
+      "sha256": "0fd075634c4f308a452961793ea90d8f9d09d60f7cae265c4cf692b515cbb249"
+    }
+  ]
+}

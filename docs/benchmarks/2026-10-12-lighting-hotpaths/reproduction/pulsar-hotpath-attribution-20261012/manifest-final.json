@@ -1,0 +1,81 @@
+{
+  "source": "d9b357b",
+  "tests": {
+    "tests": 182,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "common_mods": [
+    {
+      "file": "+Fugue-0.24.3.jar",
+      "sha256": "00dc2de461b8a9bf0d9b684aa0377713bda85ca63da5ec93028c226ed2119efd"
+    },
+    {
+      "file": "-cleanroom-relauncher-1.1.2.jar",
+      "sha256": "e120adafabb0145eff704633ed5304c356d0e20c1cd4831347a8530d152164b3"
+    },
+    {
+      "file": "-Red-Core-MC-1.8-1.12-0.7.1.jar",
+      "sha256": "9935912816062ca46a2ecd020d813ee2dde8e6b228daec068b465eb72ea51368"
+    },
+    {
+      "file": "1.12.2/scala-library-3.8.4.jar",
+      "sha256": "1b8330de5774c15874173f168b674255caa00c5ef3648ab0b6cb763bb7fd2de7"
+    },
+    {
+      "file": "1.12.2/scala-parser-combinators_3-2.4.0.jar",
+      "sha256": "50f1b3dcf8f14975702dc6da287797e391fc5d4834e4d3e7e9f9125efdb2de9a"
+    },
+    {
+      "file": "four-engine-driver.jar",
+      "sha256": "a363239642316bcde439a9ffd1865e060c7466b58c98dcaea87a7776dabed965"
+    },
+    {
+      "file": "lightbench-1.1.0-bench9.jar",
+      "sha256": "6cd69be300bee1f927093b21914a7e94966672044d54ca8f8eb7be52c03ac496"
+    },
+    {
+      "file": "scalar-3.8.4-1.jar",
+      "sha256": "a4c2cd912c36cd5a5055153ec950455349eed6daefeb747013b5f675190eb1fd"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "hotpath-audit.jar",
+      "sha256": "222ea080eada40a42f697af2e565f5dfa3e17b8b35b4daece302fa98cba6e95e"
+    },
+    {
+      "file": "pulsar-air.jar",
+      "sha256": "f9de3841b23529931c8ee5d41f8f3cdf08fe37eeee93cd7d1d437b4c8ed0da0f"
+    },
+    {
+      "file": "pulsar-coords.jar",
+      "sha256": "dc5c6b520a0fb1f0383c097fa69261e7574f388c3c8a8d9a1da22262340fb4e6"
+    },
+    {
+      "file": "pulsar-main.jar",
+      "sha256": "0fd075634c4f308a452961793ea90d8f9d09d60f7cae265c4cf692b515cbb249"
+    },
+    {
+      "file": "pulsar-skyblock.jar",
+      "sha256": "fef03559a05ea6efde9a0e1be000eaad2758c204f090405176fc1037c45616e6"
+    },
+    {
+      "file": "pulsar-skyblockint.jar",
+      "sha256": "93f2f9317ccd0ab32d2001d2b6682a4a82bca9cd263a51baf086af52c04dcf64"
+    },
+    {
+      "file": "pulsar-skyint.jar",
+      "sha256": "4bcc582102d2b2aa81d1a4b12394dcbdc2d497c1256885e87655e4dad6142278"
+    },
+    {
+      "file": "pulsar-skyunswitch.jar",
+      "sha256": "c6192899b0e863254f69c8957b27a3e9c6093ed39901529d282a8d7103655c63"
+    },
+    {
+      "file": "starlight-0a7d94e-clean.jar",
+      "sha256": "1a0aeed6fac972ef5d66cc645b893bdba9094d160db854c53719805bf08efbb7"
+    }
+  ]
+}

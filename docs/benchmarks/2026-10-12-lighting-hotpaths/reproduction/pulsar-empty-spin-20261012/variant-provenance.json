@@ -1,0 +1,17 @@
+{
+  "base": {
+    "changed_entries": [
+      "com/sumirelabs/pulsar/light/ParallelLightScheduler.class"
+    ],
+    "all_other_entries_identical": true,
+    "sha256": "c768236c76cf9a88243b1ad2797f5c3e508da9d16f163136241894861b2ff400"
+  },
+  "empty": {
+    "changed_entries": [
+      "com/sumirelabs/pulsar/light/ParallelLightScheduler.class",
+      "com/sumirelabs/pulsar/light/engine/LightEngineCache.class"
+    ],
+    "all_other_entries_identical": true,
+    "sha256": "60e78b29d3c7af6b35760835433025e5e35fd0281a8e19d62492f8d05120d763"
+  }
+}

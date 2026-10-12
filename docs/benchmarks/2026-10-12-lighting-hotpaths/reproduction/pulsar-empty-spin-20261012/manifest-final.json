@@ -1,0 +1,66 @@
+{
+  "source": "d9b357b",
+  "tests": {
+    "tests": 185,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "diagnostic_hold": "busy-spin until prior reservation released; removes former1ms polling wait outside timing",
+  "common_mods": [
+    {
+      "file": "+Fugue-0.24.3.jar",
+      "sha256": "00dc2de461b8a9bf0d9b684aa0377713bda85ca63da5ec93028c226ed2119efd"
+    },
+    {
+      "file": "-cleanroom-relauncher-1.1.2.jar",
+      "sha256": "e120adafabb0145eff704633ed5304c356d0e20c1cd4831347a8530d152164b3"
+    },
+    {
+      "file": "-Red-Core-MC-1.8-1.12-0.7.1.jar",
+      "sha256": "9935912816062ca46a2ecd020d813ee2dde8e6b228daec068b465eb72ea51368"
+    },
+    {
+      "file": "1.12.2/scala-library-3.8.4.jar",
+      "sha256": "1b8330de5774c15874173f168b674255caa00c5ef3648ab0b6cb763bb7fd2de7"
+    },
+    {
+      "file": "1.12.2/scala-parser-combinators_3-2.4.0.jar",
+      "sha256": "50f1b3dcf8f14975702dc6da287797e391fc5d4834e4d3e7e9f9125efdb2de9a"
+    },
+    {
+      "file": "four-engine-driver.jar",
+      "sha256": "a363239642316bcde439a9ffd1865e060c7466b58c98dcaea87a7776dabed965"
+    },
+    {
+      "file": "lightbench-1.1.0-bench9.jar",
+      "sha256": "1f27924160f8a6b32c3720ee0b52829f172e64427d6020345822fa155a5833f8"
+    },
+    {
+      "file": "scalar-3.8.4-1.jar",
+      "sha256": "a4c2cd912c36cd5a5055153ec950455349eed6daefeb747013b5f675190eb1fd"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "hotpath-audit.jar",
+      "sha256": "222ea080eada40a42f697af2e565f5dfa3e17b8b35b4daece302fa98cba6e95e"
+    },
+    {
+      "file": "pulsar-base.jar",
+      "sha256": "c768236c76cf9a88243b1ad2797f5c3e508da9d16f163136241894861b2ff400"
+    },
+    {
+      "file": "pulsar-empty.jar",
+      "sha256": "60e78b29d3c7af6b35760835433025e5e35fd0281a8e19d62492f8d05120d763"
+    },
+    {
+      "file": "starlight-0a7d94e-clean.jar",
+      "sha256": "1a0aeed6fac972ef5d66cc645b893bdba9094d160db854c53719805bf08efbb7"
+    },
+    {
+      "file": "hotpath-inspection.jar",
+      "sha256": "7b6e30f729a7acdf5a12d494485fa92a5df582742f55b1286177caee2581c8a3"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "actual_jar": "pulsar-0.4.1-dev.29.local.dirty.jar",
+  "sha256": "491c7796807245081d8f34e28c2aa1918d10b645091e85edba6b04237c0db488",
+  "engine_classes_identical_to_measured_candidate": {
+    "ScalarSkyEngine.class": true,
+    "ScalarBlockEngine.class": true
+  },
+  "tests": {
+    "tests": 180,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "scheduler": "production equivalent recent-worker spin without diagnostic ownership helpers"
+}

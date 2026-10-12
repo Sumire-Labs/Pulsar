@@ -6,7 +6,9 @@ Completed: isolate asynchronous dispatch and completion waiting using the curren
 
 Study workspace: `E:\Github\pulsar-handoff-20261010`. Completed measurements on2026-10-10; analyzed and recorded on2026-10-12.
 
-Deferred until the user resumes them:
+Resumed2026-10-12 at the user's request. [The controlled hot-path investigation](../2026-10-12-lighting-hotpaths/README.md) identifies source-face checks within every Sky neighbor visit and generic handling after verified plain-air checks as actionable implementation costs. The original held-control's1ms inter-edit wait was corrected. Empty-section cache normalization was tested and rejected for this fixture: runtime inspection found no non-null empty sections. Production changes retain sided/contextual/fluid behavior and parallel count.
+
+Further work should use these results rather than assuming the older held controls isolate transfer cost. Previously deferred items were:
 
 - Propagation-loop implementation differences, including data access and queue processing, after controlling batching and execution placement.
 - Direction-dependent opacity and face checks: preserve their supported semantics; quantify their cost independently.

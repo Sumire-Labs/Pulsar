@@ -285,7 +285,7 @@ public class ScalarSkyEngine extends PulsarEngine {
             final int posZ = (((int) queueValue >>> 6) & 63) + decodeOffsetZ;
             final int posY = (((int) queueValue >>> 12) & COORD_Y_MASK) + decodeOffsetY;
             final int propagatedLevel = (int) ((queueValue >>> LIGHT_LEVEL_SHIFT) & 0xF);
-            final AxisDirection[] checkDirections = OLD_CHECK_DIRECTIONS[(int) ((queueValue >>> DIRECTION_SHIFT) & 63L)];
+            AxisDirection[] checkDirections = OLD_CHECK_DIRECTIONS[(int) ((queueValue >>> DIRECTION_SHIFT) & 63L)];
 
             if ((queueValue & FLAG_RECHECK_LEVEL) != 0L) {
                 if (this.getLightLevel(posX, posY, posZ) != propagatedLevel) {
@@ -296,15 +296,14 @@ public class ScalarSkyEngine extends PulsarEngine {
             }
 
             final boolean hasSidedTransparent = (queueValue & FLAG_HAS_SIDED_TRANSPARENT_BLOCKS) != 0L;
-            int srcBlockedFaces = 0;
             if (hasSidedTransparent) {
                 final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
                 final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
-                srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
+                final int srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
+                checkDirections = filterDirections((int) (queueValue >>> DIRECTION_SHIFT) & 63, srcBlockedFaces);
             }
 
             for (final AxisDirection propagate : checkDirections) {
-                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0) continue;
 
                 final int offX = posX + propagate.x;
                 final int offY = posY + propagate.y;
@@ -329,7 +328,7 @@ public class ScalarSkyEngine extends PulsarEngine {
 
                 final IBlockState destState = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
                 final boolean air = this.isPlainAir(destState, sectionIndex);
-                final int destInfo = air ? this.plainAirInfo() : this.lightInfoAt(destState, offX, offY, offZ);
+                final int destInfo = air ? 0 : this.lightInfoAt(destState, offX, offY, offZ);
                 final int absorption = air ? 1 : LightInfo.absorption(destInfo, destState, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
@@ -382,18 +381,17 @@ public class ScalarSkyEngine extends PulsarEngine {
             final int posZ = (((int) queueValue >>> 6) & 63) + decodeOffsetZ;
             final int posY = (((int) queueValue >>> 12) & COORD_Y_MASK) + decodeOffsetY;
             final int propagatedLevel = (int) ((queueValue >>> LIGHT_LEVEL_SHIFT) & 0xF);
-            final AxisDirection[] checkDirections = OLD_CHECK_DIRECTIONS[(int) ((queueValue >>> DIRECTION_SHIFT) & 63)];
+            AxisDirection[] checkDirections = OLD_CHECK_DIRECTIONS[(int) ((queueValue >>> DIRECTION_SHIFT) & 63)];
 
             final boolean hasSidedTransparent = (queueValue & FLAG_HAS_SIDED_TRANSPARENT_BLOCKS) != 0L;
-            int srcBlockedFaces = 0;
             if (hasSidedTransparent) {
                 final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
                 final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
-                srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
+                final int srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
+                checkDirections = filterDirections((int) (queueValue >>> DIRECTION_SHIFT) & 63, srcBlockedFaces);
             }
 
             for (final AxisDirection propagate : checkDirections) {
-                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0) continue;
 
                 final int offX = posX + propagate.x;
                 final int offY = posY + propagate.y;
@@ -437,7 +435,7 @@ public class ScalarSkyEngine extends PulsarEngine {
 
                 final IBlockState state = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
                 final boolean air = this.isPlainAir(state, sectionIndex);
-                final int info = air ? this.plainAirInfo() : this.lightInfoAt(state, offX, offY, offZ);
+                final int info = air ? 0 : this.lightInfoAt(state, offX, offY, offZ);
                 final int absorption = air ? 1 : LightInfo.absorption(info, state, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
@@ -490,5 +488,8 @@ public class ScalarSkyEngine extends PulsarEngine {
     @Override
     protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {
         this.copyVisibleNibbleToVanilla(cacheIndex, nibble, true);
+    }
+    static AxisDirection[] filterDirections(final int directions, final int blockedFaces) {
+        return OLD_CHECK_DIRECTIONS[directions & ~blockedFaces];
     }
 }

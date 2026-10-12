@@ -307,8 +307,29 @@ public class ScalarBlockEngine extends PulsarEngine {
 
                 final IBlockState destState = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
                 final boolean air = this.isPlainAir(destState, sectionIndex);
-                final int destInfo = air ? this.plainAirInfo() : this.lightInfoAt(destState, offX, offY, offZ);
-                final int absorption = air ? 1 : LightInfo.absorption(destInfo, destState, propagate.oppositeOrdinal);
+                // The earlier level guard proves this write for plain air. Its
+                // opacity, emission and sided-source flags are all known zero.
+                if (air) {
+                    final int targetLevel = propagatedLevel - 1;
+                    destinationNibble.set(localIndex, targetLevel);
+                    this.postLightUpdate(sectionIndex, offX & 15, offY & 15, offZ & 15);
+
+                    if (targetLevel > 1) {
+                        if (queueLength >= queue.length) {
+                            if (queue.length >= MAX_QUEUE_SIZE) {
+                                this.queueOverflowed = true;
+                                continue;
+                            }
+                            queue = this.resizeIncreaseQueue();
+                        }
+                        queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
+                                | this.encodeQueueLevel(targetLevel)
+                                | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT);
+                    }
+                    continue;
+                }
+                final int destInfo = this.lightInfoAt(destState, offX, offY, offZ);
+                final int absorption = LightInfo.absorption(destInfo, destState, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
                 if (targetLevel <= currentLevel) {
@@ -406,8 +427,31 @@ public class ScalarBlockEngine extends PulsarEngine {
 
                 final IBlockState state = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
                 final boolean air = this.isPlainAir(state, sectionIndex);
-                final int info = air ? this.plainAirInfo() : this.lightInfoAt(state, offX, offY, offZ);
-                final int absorption = air ? 1 : LightInfo.absorption(info, state, propagate.oppositeOrdinal);
+                // The earlier level guard proves this write for plain air. Its
+                // opacity, emission and sided-source flags are all known zero.
+                if (air) {
+                    final int targetLevel = propagatedLevel - 1;
+                    destinationNibble.set(localIndex, 0);
+                    this.postLightUpdate(sectionIndex, offX & 15, offY & 15, offZ & 15);
+
+
+
+                    if (targetLevel > 0) {
+                        if (queueLength >= queue.length) {
+                            if (queue.length >= MAX_QUEUE_SIZE) {
+                                this.queueOverflowed = true;
+                                continue;
+                            }
+                            queue = this.resizeDecreaseQueue();
+                        }
+                        queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
+                                | this.encodeQueueLevel(targetLevel)
+                                | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT);
+                    }
+                    continue;
+                }
+                final int info = this.lightInfoAt(state, offX, offY, offZ);
+                final int absorption = LightInfo.absorption(info, state, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
                 final long sFlag = sidedFlag(info);

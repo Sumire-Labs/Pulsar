@@ -1,0 +1,1753 @@
+{
+  "runs": 24,
+  "groups": [
+    {
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "block_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 67.55881500000001,
+        "min": 63.06843,
+        "max": 69.36955999999999
+      },
+      "p50_us": {
+        "median": 57.75,
+        "min": 54.6,
+        "max": 60.8
+      },
+      "late_completion_us": {
+        "median": 67.05548,
+        "min": 63.269,
+        "max": 69.30532000000001
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "block_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 68.954915,
+        "min": 65.98274,
+        "max": 70.81475
+      },
+      "p50_us": {
+        "median": 60.8,
+        "min": 58.7,
+        "max": 64.5
+      },
+      "late_completion_us": {
+        "median": 68.66298666666668,
+        "min": 66.08996,
+        "max": 70.61944
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "sky_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 639.0583750000001,
+        "min": 633.67782,
+        "max": 658.50407
+      },
+      "p50_us": {
+        "median": 577.9749999999999,
+        "min": 573.5,
+        "max": 620.6
+      },
+      "late_completion_us": {
+        "median": 642.07408,
+        "min": 637.4119733333334,
+        "max": 658.1854266666667
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "sky_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 647.60717,
+        "min": 628.68009,
+        "max": 670.61224
+      },
+      "p50_us": {
+        "median": 587.2,
+        "min": 567.45,
+        "max": 631.5
+      },
+      "late_completion_us": {
+        "median": 650.7669466666667,
+        "min": 633.6808133333334,
+        "max": 670.5570133333333
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "block_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 66.02333999999999,
+        "min": 63.59883,
+        "max": 78.96419
+      },
+      "p50_us": {
+        "median": 57.85,
+        "min": 55.4,
+        "max": 71.9
+      },
+      "late_completion_us": {
+        "median": 66.12896666666667,
+        "min": 63.716519999999996,
+        "max": 76.22492
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "block_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 67.81007,
+        "min": 65.47977,
+        "max": 79.87567999999999
+      },
+      "p50_us": {
+        "median": 61.4,
+        "min": 60.0,
+        "max": 73.8
+      },
+      "late_completion_us": {
+        "median": 67.98280666666668,
+        "min": 65.73236,
+        "max": 77.48898666666666
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "sky_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 613.354725,
+        "min": 602.57114,
+        "max": 674.3232399999999
+      },
+      "p50_us": {
+        "median": 565.0999999999999,
+        "min": 558.8,
+        "max": 634.6
+      },
+      "late_completion_us": {
+        "median": 613.8344466666667,
+        "min": 604.2905999999999,
+        "max": 678.73152
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "sky_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 593.367765,
+        "min": 587.68393,
+        "max": 668.0922099999999
+      },
+      "p50_us": {
+        "median": 546.5999999999999,
+        "min": 545.9,
+        "max": 624.9
+      },
+      "late_completion_us": {
+        "median": 593.2104533333334,
+        "min": 589.5957066666666,
+        "max": 673.5585066666667
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "block_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 70.091965,
+        "min": 66.53072,
+        "max": 81.29941000000001
+      },
+      "p50_us": {
+        "median": 59.75,
+        "min": 56.3,
+        "max": 78.4
+      },
+      "late_completion_us": {
+        "median": 70.70887333333333,
+        "min": 65.77321333333333,
+        "max": 80.23428
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "block_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 71.4316,
+        "min": 67.98217,
+        "max": 81.97885000000001
+      },
+      "p50_us": {
+        "median": 62.8,
+        "min": 60.0,
+        "max": 80.6
+      },
+      "late_completion_us": {
+        "median": 71.99927333333333,
+        "min": 67.23822666666666,
+        "max": 81.29072000000001
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "sky_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 653.1458250000001,
+        "min": 624.33376,
+        "max": 735.58529
+      },
+      "p50_us": {
+        "median": 598.325,
+        "min": 568.6,
+        "max": 724.5
+      },
+      "late_completion_us": {
+        "median": 650.2955266666665,
+        "min": 621.2185999999999,
+        "max": 757.1828533333334
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "sky_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 629.5265200000001,
+        "min": 602.19649,
+        "max": 717.9515
+      },
+      "p50_us": {
+        "median": 577.975,
+        "min": 541.0,
+        "max": 706.25
+      },
+      "late_completion_us": {
+        "median": 627.5892733333333,
+        "min": 595.5327066666666,
+        "max": 739.3664666666667
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "block_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 71.091505,
+        "min": 64.41803,
+        "max": 81.09266000000001
+      },
+      "p50_us": {
+        "median": 63.25,
+        "min": 56.3,
+        "max": 74.0
+      },
+      "late_completion_us": {
+        "median": 71.14304666666666,
+        "min": 64.02957333333333,
+        "max": 81.30092
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "block_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 71.73160999999999,
+        "min": 66.31649,
+        "max": 80.24808
+      },
+      "p50_us": {
+        "median": 65.125,
+        "min": 59.7,
+        "max": 75.7
+      },
+      "late_completion_us": {
+        "median": 71.535,
+        "min": 65.83532000000001,
+        "max": 80.41209333333333
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "sky_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 651.6441749999999,
+        "min": 594.39788,
+        "max": 704.59588
+      },
+      "p50_us": {
+        "median": 607.325,
+        "min": 558.8,
+        "max": 680.6
+      },
+      "late_completion_us": {
+        "median": 650.3453733333333,
+        "min": 594.8266266666667,
+        "max": 708.6439333333334
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "sky_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 628.208635,
+        "min": 574.49915,
+        "max": 680.71101
+      },
+      "p50_us": {
+        "median": 583.0,
+        "min": 540.5,
+        "max": 656.55
+      },
+      "late_completion_us": {
+        "median": 626.6551133333334,
+        "min": 575.36012,
+        "max": 684.41416
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "block_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 67.614025,
+        "min": 64.08891,
+        "max": 77.40955
+      },
+      "p50_us": {
+        "median": 59.05,
+        "min": 55.1,
+        "max": 72.4
+      },
+      "late_completion_us": {
+        "median": 68.21598666666667,
+        "min": 64.59350666666667,
+        "max": 79.99429333333333
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "block_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 69.315765,
+        "min": 65.79431,
+        "max": 79.0843
+      },
+      "p50_us": {
+        "median": 61.849999999999994,
+        "min": 58.7,
+        "max": 75.2
+      },
+      "late_completion_us": {
+        "median": 69.94342666666665,
+        "min": 66.16238666666668,
+        "max": 81.34621333333334
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "sky_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 620.4385500000001,
+        "min": 593.9854200000001,
+        "max": 646.48935
+      },
+      "p50_us": {
+        "median": 568.0999999999999,
+        "min": 561.2,
+        "max": 617.5
+      },
+      "late_completion_us": {
+        "median": 622.0575666666666,
+        "min": 594.36676,
+        "max": 639.6720799999999
+      }
+    },
+    {
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "sky_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 601.0421549999999,
+        "min": 569.8178399999999,
+        "max": 634.00111
+      },
+      "p50_us": {
+        "median": 550.1,
+        "min": 539.2,
+        "max": 606.2
+      },
+      "late_completion_us": {
+        "median": 602.3609466666667,
+        "min": 569.9479066666667,
+        "max": 627.38608
+      }
+    },
+    {
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "block_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 60.76755,
+        "min": 58.33357,
+        "max": 61.69967
+      },
+      "p50_us": {
+        "median": 54.85,
+        "min": 54.3,
+        "max": 56.0
+      },
+      "late_completion_us": {
+        "median": 61.13162666666667,
+        "min": 58.34128,
+        "max": 63.16014666666667
+      }
+    },
+    {
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "block_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 78.495385,
+        "min": 73.42794,
+        "max": 83.1485
+      },
+      "p50_us": {
+        "median": 71.6,
+        "min": 68.7,
+        "max": 75.5
+      },
+      "late_completion_us": {
+        "median": 79.41346,
+        "min": 74.10565333333334,
+        "max": 83.25773333333333
+      }
+    },
+    {
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "sky_place",
+      "reps": 4,
+      "completion_us": {
+        "median": 620.31801,
+        "min": 618.77661,
+        "max": 642.2276999999999
+      },
+      "p50_us": {
+        "median": 585.3,
+        "min": 581.1,
+        "max": 599.9
+      },
+      "late_completion_us": {
+        "median": 627.5241133333334,
+        "min": 613.2916533333333,
+        "max": 636.9933733333332
+      }
+    },
+    {
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "sky_remove",
+      "reps": 4,
+      "completion_us": {
+        "median": 573.4844,
+        "min": 565.32282,
+        "max": 574.9904399999999
+      },
+      "p50_us": {
+        "median": 537.5,
+        "min": 537.4,
+        "max": 541.8
+      },
+      "late_completion_us": {
+        "median": 570.1444799999999,
+        "min": 567.0843466666666,
+        "max": 582.9013066666666
+      }
+    }
+  ],
+  "contrasts": [
+    {
+      "phase": "block_place",
+      "a": "skyunswitch",
+      "b": "main",
+      "paired_deltas_us": [
+        1.0204799999999992,
+        -1.4082899999999938,
+        8.039990000000003,
+        1.5187099999999845
+      ],
+      "median": 1.2695949999999918,
+      "min": -1.4082899999999938,
+      "max": 8.039990000000003
+    },
+    {
+      "phase": "block_place",
+      "a": "skyblock",
+      "b": "skyunswitch",
+      "paired_deltas_us": [
+        -0.49007999999999896,
+        1.0162799999999947,
+        -11.62191,
+        8.97890000000001
+      ],
+      "median": 0.2630999999999979,
+      "min": -11.62191,
+      "max": 8.97890000000001
+    },
+    {
+      "phase": "block_place",
+      "a": "skyint",
+      "b": "skyunswitch",
+      "paired_deltas_us": [
+        0.3291200000000032,
+        15.849900000000005,
+        -6.68383,
+        1.4720000000000084
+      ],
+      "median": 0.9005600000000058,
+      "min": -6.68383,
+      "max": 15.849900000000005
+    },
+    {
+      "phase": "block_place",
+      "a": "skyblockint",
+      "b": "skyblock",
+      "paired_deltas_us": [
+        9.347550000000005,
+        0.2716800000000035,
+        1.4499100000000027,
+        2.3352200000000067
+      ],
+      "median": 1.8925650000000047,
+      "min": 0.2716800000000035,
+      "max": 9.347550000000005
+    },
+    {
+      "phase": "block_place",
+      "a": "skyblockint",
+      "b": "skyint",
+      "paired_deltas_us": [
+        8.528350000000003,
+        -14.561940000000007,
+        -3.4881699999999967,
+        9.842120000000008
+      ],
+      "median": 2.5200900000000033,
+      "min": -14.561940000000007,
+      "max": 9.842120000000008
+    },
+    {
+      "phase": "block_remove",
+      "a": "skyunswitch",
+      "b": "main",
+      "paired_deltas_us": [
+        -0.18843000000001098,
+        0.07819999999999538,
+        8.269549999999995,
+        0.6435000000000031
+      ],
+      "median": 0.3608499999999992,
+      "min": -0.18843000000001098,
+      "max": 8.269549999999995
+    },
+    {
+      "phase": "block_remove",
+      "a": "skyblock",
+      "b": "skyunswitch",
+      "paired_deltas_us": [
+        -0.3145399999999938,
+        0.07688000000000272,
+        -11.652079999999998,
+        9.355189999999979
+      ],
+      "median": -0.11882999999999555,
+      "min": -11.652079999999998,
+      "max": 9.355189999999979
+    },
+    {
+      "phase": "block_remove",
+      "a": "skyint",
+      "b": "skyunswitch",
+      "paired_deltas_us": [
+        0.5221800000000059,
+        12.137040000000013,
+        -7.975260000000006,
+        1.83368999999999
+      ],
+      "median": 1.177934999999998,
+      "min": -7.975260000000006,
+      "max": 12.137040000000013
+    },
+    {
+      "phase": "block_remove",
+      "a": "skyblockint",
+      "b": "skyblock",
+      "paired_deltas_us": [
+        8.298749999999998,
+        -0.20574999999999477,
+        1.6524599999999907,
+        2.10317000000002
+      ],
+      "median": 1.8778150000000053,
+      "min": -0.20574999999999477,
+      "max": 8.298749999999998
+    },
+    {
+      "phase": "block_remove",
+      "a": "skyblockint",
+      "b": "skyint",
+      "paired_deltas_us": [
+        7.462029999999999,
+        -12.265910000000005,
+        -2.0243600000000015,
+        9.624670000000009
+      ],
+      "median": 2.7188349999999986,
+      "min": -12.265910000000005,
+      "max": 9.624670000000009
+    },
+    {
+      "phase": "sky_place",
+      "a": "skyunswitch",
+      "b": "main",
+      "paired_deltas_us": [
+        -39.69239999999991,
+        -29.63000999999997,
+        -22.662509999999884,
+        3.0381499999999733
+      ],
+      "median": -26.146259999999927,
+      "min": -39.69239999999991,
+      "max": 3.0381499999999733
+    },
+    {
+      "phase": "sky_place",
+      "a": "skyblock",
+      "b": "skyunswitch",
+      "paired_deltas_us": [
+        17.386229999999955,
+        -2.4644000000000688,
+        -20.503760000000057,
+        27.833889999999997
+      ],
+      "median": 7.460914999999943,
+      "min": -20.503760000000057,
+      "max": 27.833889999999997
+    },
+    {
+      "phase": "sky_place",
+      "a": "skyint",
+      "b": "skyunswitch",
+      "paired_deltas_us": [
+        0.41245999999989635,
+        99.56033999999988,
+        4.656789999999887,
+        16.30065000000002
+      ],
+      "median": 10.478719999999953,
+      "min": 0.41245999999989635,
+      "max": 99.56033999999988
+    },
+    {
+      "phase": "sky_place",
+      "a": "skyblockint",
+      "b": "skyblock",
+      "paired_deltas_us": [
+        61.864779999999996,
+        21.76261999999997,
+        17.717419999999947,
+        61.262050000000045
+      ],
+      "median": 41.51233500000001,
+      "min": 17.717419999999947,
+      "max": 61.864779999999996
+    },
+    {
+      "phase": "sky_place",
+      "a": "skyblockint",
+      "b": "skyint",
+      "paired_deltas_us": [
+        78.83855000000005,
+        -80.26211999999998,
+        -7.4431299999999965,
+        72.79529000000002
+      ],
+      "median": 32.67608000000001,
+      "min": -80.26211999999998,
+      "max": 78.83855000000005
+    },
+    {
+      "phase": "sky_remove",
+      "a": "skyunswitch",
+      "b": "main",
+      "paired_deltas_us": [
+        -58.86225000000002,
+        -42.123140000000035,
+        -66.28953000000013,
+        -21.328489999999988
+      ],
+      "median": -50.492695000000026,
+      "min": -66.28953000000013,
+      "max": -21.328489999999988
+    },
+    {
+      "phase": "sky_remove",
+      "a": "skyblock",
+      "b": "skyunswitch",
+      "paired_deltas_us": [
+        21.119230000000016,
+        -10.077669999999898,
+        -8.524249999999938,
+        34.09109999999987
+      ],
+      "median": 6.297490000000039,
+      "min": -10.077669999999898,
+      "max": 34.09109999999987
+    },
+    {
+      "phase": "sky_remove",
+      "a": "skyint",
+      "b": "skyunswitch",
+      "paired_deltas_us": [
+        4.681310000000053,
+        82.94941000000006,
+        24.53830000000005,
+        -6.444849999999974
+      ],
+      "median": 14.609805000000051,
+      "min": -6.444849999999974,
+      "max": 82.94941000000006
+    },
+    {
+      "phase": "sky_remove",
+      "a": "skyblockint",
+      "b": "skyblock",
+      "paired_deltas_us": [
+        63.49204000000009,
+        16.940000000000055,
+        6.3980300000000625,
+        49.8592900000001
+      ],
+      "median": 33.39964500000008,
+      "min": 6.3980300000000625,
+      "max": 63.49204000000009
+    },
+    {
+      "phase": "sky_remove",
+      "a": "skyblockint",
+      "b": "skyint",
+      "paired_deltas_us": [
+        79.92996000000005,
+        -76.0870799999999,
+        -26.664519999999925,
+        90.39523999999994
+      ],
+      "median": 26.632720000000063,
+      "min": -76.0870799999999,
+      "max": 90.39523999999994
+    }
+  ],
+  "trials": [
+    {
+      "run": "confirm-r1-pulsar-main",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "sky_remove",
+      "completion_us": 628.68009,
+      "p50_us": 567.45,
+      "late_completion_us": 633.6808133333334
+    },
+    {
+      "run": "confirm-r1-pulsar-main",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "sky_place",
+      "completion_us": 633.67782,
+      "p50_us": 573.5,
+      "late_completion_us": 637.4119733333334
+    },
+    {
+      "run": "confirm-r1-pulsar-main",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "block_place",
+      "completion_us": 63.06843,
+      "p50_us": 54.6,
+      "late_completion_us": 63.269
+    },
+    {
+      "run": "confirm-r1-pulsar-main",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "block_remove",
+      "completion_us": 65.98274,
+      "p50_us": 58.7,
+      "late_completion_us": 66.08996
+    },
+    {
+      "run": "confirm-r1-pulsar-skyblock",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "sky_remove",
+      "completion_us": 590.93707,
+      "p50_us": 546.9,
+      "late_completion_us": 590.79028
+    },
+    {
+      "run": "confirm-r1-pulsar-skyblock",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "sky_place",
+      "completion_us": 611.37165,
+      "p50_us": 566.9,
+      "late_completion_us": 611.9796133333333
+    },
+    {
+      "run": "confirm-r1-pulsar-skyblock",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "block_place",
+      "completion_us": 63.59883,
+      "p50_us": 55.4,
+      "late_completion_us": 63.716519999999996
+    },
+    {
+      "run": "confirm-r1-pulsar-skyblock",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "block_remove",
+      "completion_us": 65.47977,
+      "p50_us": 60.0,
+      "late_completion_us": 65.73236
+    },
+    {
+      "run": "confirm-r1-pulsar-skyblockint",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "sky_remove",
+      "completion_us": 654.42911,
+      "p50_us": 604.45,
+      "late_completion_us": 654.07304
+    },
+    {
+      "run": "confirm-r1-pulsar-skyblockint",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "sky_place",
+      "completion_us": 673.23643,
+      "p50_us": 625.1,
+      "late_completion_us": 674.5400266666666
+    },
+    {
+      "run": "confirm-r1-pulsar-skyblockint",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "block_place",
+      "completion_us": 72.94638,
+      "p50_us": 62.1,
+      "late_completion_us": 73.67276
+    },
+    {
+      "run": "confirm-r1-pulsar-skyblockint",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "block_remove",
+      "completion_us": 73.77852,
+      "p50_us": 65.3,
+      "late_completion_us": 74.63381333333334
+    },
+    {
+      "run": "confirm-r1-pulsar-skyint",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "sky_remove",
+      "completion_us": 574.49915,
+      "p50_us": 540.5,
+      "late_completion_us": 575.36012
+    },
+    {
+      "run": "confirm-r1-pulsar-skyint",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "sky_place",
+      "completion_us": 594.39788,
+      "p50_us": 558.8,
+      "late_completion_us": 594.8266266666667
+    },
+    {
+      "run": "confirm-r1-pulsar-skyint",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "block_place",
+      "completion_us": 64.41803,
+      "p50_us": 56.3,
+      "late_completion_us": 64.02957333333333
+    },
+    {
+      "run": "confirm-r1-pulsar-skyint",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "block_remove",
+      "completion_us": 66.31649,
+      "p50_us": 59.7,
+      "late_completion_us": 65.83532000000001
+    },
+    {
+      "run": "confirm-r1-pulsar-skyunswitch",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "sky_remove",
+      "completion_us": 569.8178399999999,
+      "p50_us": 539.2,
+      "late_completion_us": 569.9479066666667
+    },
+    {
+      "run": "confirm-r1-pulsar-skyunswitch",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "sky_place",
+      "completion_us": 593.9854200000001,
+      "p50_us": 561.2,
+      "late_completion_us": 594.36676
+    },
+    {
+      "run": "confirm-r1-pulsar-skyunswitch",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "block_place",
+      "completion_us": 64.08891,
+      "p50_us": 55.1,
+      "late_completion_us": 64.59350666666667
+    },
+    {
+      "run": "confirm-r1-pulsar-skyunswitch",
+      "rep": 1,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "block_remove",
+      "completion_us": 65.79431,
+      "p50_us": 58.7,
+      "late_completion_us": 66.16238666666668
+    },
+    {
+      "run": "confirm-r1-starlight-main",
+      "rep": 1,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "sky_remove",
+      "completion_us": 574.88306,
+      "p50_us": 541.8,
+      "late_completion_us": 582.9013066666666
+    },
+    {
+      "run": "confirm-r1-starlight-main",
+      "rep": 1,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "sky_place",
+      "completion_us": 620.929,
+      "p50_us": 582.8,
+      "late_completion_us": 630.0183733333333
+    },
+    {
+      "run": "confirm-r1-starlight-main",
+      "rep": 1,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "block_place",
+      "completion_us": 58.33357,
+      "p50_us": 54.5,
+      "late_completion_us": 58.34128
+    },
+    {
+      "run": "confirm-r1-starlight-main",
+      "rep": 1,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "block_remove",
+      "completion_us": 76.40092999999999,
+      "p50_us": 71.8,
+      "late_completion_us": 76.4012
+    },
+    {
+      "run": "confirm-r2-pulsar-main",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "sky_remove",
+      "completion_us": 639.88474,
+      "p50_us": 584.9,
+      "late_completion_us": 643.1983333333334
+    },
+    {
+      "run": "confirm-r2-pulsar-main",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "sky_place",
+      "completion_us": 634.66555,
+      "p50_us": 578.9,
+      "late_completion_us": 638.8096666666667
+    },
+    {
+      "run": "confirm-r2-pulsar-main",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "block_place",
+      "completion_us": 66.65105,
+      "p50_us": 56.6,
+      "late_completion_us": 66.6378
+    },
+    {
+      "run": "confirm-r2-pulsar-main",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "block_remove",
+      "completion_us": 68.03284,
+      "p50_us": 59.1,
+      "late_completion_us": 67.87288000000001
+    },
+    {
+      "run": "confirm-r2-pulsar-skyblock",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "sky_remove",
+      "completion_us": 587.68393,
+      "p50_us": 546.3,
+      "late_completion_us": 589.5957066666666
+    },
+    {
+      "run": "confirm-r2-pulsar-skyblock",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "sky_place",
+      "completion_us": 602.57114,
+      "p50_us": 558.8,
+      "late_completion_us": 604.2905999999999
+    },
+    {
+      "run": "confirm-r2-pulsar-skyblock",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "block_place",
+      "completion_us": 66.25904,
+      "p50_us": 58.1,
+      "late_completion_us": 66.75160000000001
+    },
+    {
+      "run": "confirm-r2-pulsar-skyblock",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "block_remove",
+      "completion_us": 68.18791999999999,
+      "p50_us": 61.9,
+      "late_completion_us": 68.56232000000001
+    },
+    {
+      "run": "confirm-r2-pulsar-skyblockint",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "sky_remove",
+      "completion_us": 604.6239300000001,
+      "p50_us": 551.5,
+      "late_completion_us": 601.1055066666667
+    },
+    {
+      "run": "confirm-r2-pulsar-skyblockint",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "sky_place",
+      "completion_us": 624.33376,
+      "p50_us": 568.6,
+      "late_completion_us": 621.2185999999999
+    },
+    {
+      "run": "confirm-r2-pulsar-skyblockint",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "block_place",
+      "completion_us": 66.53072,
+      "p50_us": 57.4,
+      "late_completion_us": 65.77321333333333
+    },
+    {
+      "run": "confirm-r2-pulsar-skyblockint",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "block_remove",
+      "completion_us": 67.98217,
+      "p50_us": 60.3,
+      "late_completion_us": 67.23822666666666
+    },
+    {
+      "run": "confirm-r2-pulsar-skyint",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "sky_remove",
+      "completion_us": 680.71101,
+      "p50_us": 656.55,
+      "late_completion_us": 684.41416
+    },
+    {
+      "run": "confirm-r2-pulsar-skyint",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "sky_place",
+      "completion_us": 704.59588,
+      "p50_us": 680.6,
+      "late_completion_us": 708.6439333333334
+    },
+    {
+      "run": "confirm-r2-pulsar-skyint",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "block_place",
+      "completion_us": 81.09266000000001,
+      "p50_us": 74.0,
+      "late_completion_us": 81.30092
+    },
+    {
+      "run": "confirm-r2-pulsar-skyint",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "block_remove",
+      "completion_us": 80.24808,
+      "p50_us": 75.7,
+      "late_completion_us": 80.41209333333333
+    },
+    {
+      "run": "confirm-r2-pulsar-skyunswitch",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "sky_remove",
+      "completion_us": 597.7615999999999,
+      "p50_us": 559.0,
+      "late_completion_us": 597.2124533333333
+    },
+    {
+      "run": "confirm-r2-pulsar-skyunswitch",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "sky_place",
+      "completion_us": 605.0355400000001,
+      "p50_us": 566.4,
+      "late_completion_us": 604.5798933333333
+    },
+    {
+      "run": "confirm-r2-pulsar-skyunswitch",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "block_place",
+      "completion_us": 65.24276,
+      "p50_us": 55.4,
+      "late_completion_us": 66.68785333333334
+    },
+    {
+      "run": "confirm-r2-pulsar-skyunswitch",
+      "rep": 2,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "block_remove",
+      "completion_us": 68.11103999999999,
+      "p50_us": 59.1,
+      "late_completion_us": 69.48126666666666
+    },
+    {
+      "run": "confirm-r2-starlight-main",
+      "rep": 2,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "sky_remove",
+      "completion_us": 574.9904399999999,
+      "p50_us": 537.5,
+      "late_completion_us": 570.4788266666667
+    },
+    {
+      "run": "confirm-r2-starlight-main",
+      "rep": 2,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "sky_place",
+      "completion_us": 642.2276999999999,
+      "p50_us": 599.9,
+      "late_completion_us": 636.9933733333332
+    },
+    {
+      "run": "confirm-r2-starlight-main",
+      "rep": 2,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "block_place",
+      "completion_us": 61.355760000000004,
+      "p50_us": 55.2,
+      "late_completion_us": 61.48266666666667
+    },
+    {
+      "run": "confirm-r2-starlight-main",
+      "rep": 2,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "block_remove",
+      "completion_us": 83.1485,
+      "p50_us": 75.5,
+      "late_completion_us": 83.25773333333333
+    },
+    {
+      "run": "confirm-r3-pulsar-main",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "sky_remove",
+      "completion_us": 670.61224,
+      "p50_us": 631.5,
+      "late_completion_us": 670.5570133333333
+    },
+    {
+      "run": "confirm-r3-pulsar-main",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "sky_place",
+      "completion_us": 658.50407,
+      "p50_us": 620.6,
+      "late_completion_us": 658.1854266666667
+    },
+    {
+      "run": "confirm-r3-pulsar-main",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "block_place",
+      "completion_us": 69.36955999999999,
+      "p50_us": 60.8,
+      "late_completion_us": 67.47316000000001
+    },
+    {
+      "run": "confirm-r3-pulsar-main",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "block_remove",
+      "completion_us": 70.81475,
+      "p50_us": 64.5,
+      "late_completion_us": 69.45309333333334
+    },
+    {
+      "run": "confirm-r3-pulsar-skyblock",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "sky_remove",
+      "completion_us": 595.79846,
+      "p50_us": 545.9,
+      "late_completion_us": 595.6306266666667
+    },
+    {
+      "run": "confirm-r3-pulsar-skyblock",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "sky_place",
+      "completion_us": 615.3378,
+      "p50_us": 563.3,
+      "late_completion_us": 615.68928
+    },
+    {
+      "run": "confirm-r3-pulsar-skyblock",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "block_place",
+      "completion_us": 65.78764,
+      "p50_us": 57.6,
+      "late_completion_us": 65.50633333333333
+    },
+    {
+      "run": "confirm-r3-pulsar-skyblock",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "block_remove",
+      "completion_us": 67.43222,
+      "p50_us": 60.9,
+      "late_completion_us": 67.40329333333334
+    },
+    {
+      "run": "confirm-r3-pulsar-skyblockint",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "sky_remove",
+      "completion_us": 602.19649,
+      "p50_us": 541.0,
+      "late_completion_us": 595.5327066666666
+    },
+    {
+      "run": "confirm-r3-pulsar-skyblockint",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "sky_place",
+      "completion_us": 633.05522,
+      "p50_us": 571.55,
+      "late_completion_us": 626.0510266666666
+    },
+    {
+      "run": "confirm-r3-pulsar-skyblockint",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "block_place",
+      "completion_us": 67.23755,
+      "p50_us": 56.3,
+      "late_completion_us": 67.74498666666666
+    },
+    {
+      "run": "confirm-r3-pulsar-skyblockint",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "block_remove",
+      "completion_us": 69.08467999999999,
+      "p50_us": 60.0,
+      "late_completion_us": 69.36473333333333
+    },
+    {
+      "run": "confirm-r3-pulsar-skyint",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "sky_remove",
+      "completion_us": 628.86101,
+      "p50_us": 577.0,
+      "late_completion_us": 623.9792933333333
+    },
+    {
+      "run": "confirm-r3-pulsar-skyint",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "sky_place",
+      "completion_us": 640.49835,
+      "p50_us": 590.45,
+      "late_completion_us": 636.3072
+    },
+    {
+      "run": "confirm-r3-pulsar-skyint",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "block_place",
+      "completion_us": 70.72572,
+      "p50_us": 62.4,
+      "late_completion_us": 70.24112
+    },
+    {
+      "run": "confirm-r3-pulsar-skyint",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "block_remove",
+      "completion_us": 71.10904,
+      "p50_us": 64.1,
+      "late_completion_us": 70.44664
+    },
+    {
+      "run": "confirm-r3-pulsar-skyunswitch",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "sky_remove",
+      "completion_us": 604.3227099999999,
+      "p50_us": 541.2,
+      "late_completion_us": 607.5094399999999
+    },
+    {
+      "run": "confirm-r3-pulsar-skyunswitch",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "sky_place",
+      "completion_us": 635.8415600000001,
+      "p50_us": 569.8,
+      "late_completion_us": 639.53524
+    },
+    {
+      "run": "confirm-r3-pulsar-skyunswitch",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "block_place",
+      "completion_us": 77.40955,
+      "p50_us": 72.4,
+      "late_completion_us": 79.99429333333333
+    },
+    {
+      "run": "confirm-r3-pulsar-skyunswitch",
+      "rep": 3,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "block_remove",
+      "completion_us": 79.0843,
+      "p50_us": 75.2,
+      "late_completion_us": 81.34621333333334
+    },
+    {
+      "run": "confirm-r3-starlight-main",
+      "rep": 3,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "sky_remove",
+      "completion_us": 565.32282,
+      "p50_us": 537.4,
+      "late_completion_us": 569.8101333333333
+    },
+    {
+      "run": "confirm-r3-starlight-main",
+      "rep": 3,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "sky_place",
+      "completion_us": 619.70702,
+      "p50_us": 587.8,
+      "late_completion_us": 625.0298533333333
+    },
+    {
+      "run": "confirm-r3-starlight-main",
+      "rep": 3,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "block_place",
+      "completion_us": 61.69967,
+      "p50_us": 54.3,
+      "late_completion_us": 63.16014666666667
+    },
+    {
+      "run": "confirm-r3-starlight-main",
+      "rep": 3,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "block_remove",
+      "completion_us": 80.58984,
+      "p50_us": 71.4,
+      "late_completion_us": 82.42572
+    },
+    {
+      "run": "confirm-r4-pulsar-main",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "sky_remove",
+      "completion_us": 655.3296,
+      "p50_us": 589.5,
+      "late_completion_us": 658.3355600000001
+    },
+    {
+      "run": "confirm-r4-pulsar-main",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "sky_place",
+      "completion_us": 643.4512,
+      "p50_us": 577.05,
+      "late_completion_us": 645.3384933333333
+    },
+    {
+      "run": "confirm-r4-pulsar-main",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "block_place",
+      "completion_us": 68.46658000000001,
+      "p50_us": 58.9,
+      "late_completion_us": 69.30532000000001
+    },
+    {
+      "run": "confirm-r4-pulsar-main",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "main",
+      "phase": "block_remove",
+      "completion_us": 69.87699,
+      "p50_us": 62.5,
+      "late_completion_us": 70.61944
+    },
+    {
+      "run": "confirm-r4-pulsar-skyblock",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "sky_remove",
+      "completion_us": 668.0922099999999,
+      "p50_us": 624.9,
+      "late_completion_us": 673.5585066666667
+    },
+    {
+      "run": "confirm-r4-pulsar-skyblock",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "sky_place",
+      "completion_us": 674.3232399999999,
+      "p50_us": 634.6,
+      "late_completion_us": 678.73152
+    },
+    {
+      "run": "confirm-r4-pulsar-skyblock",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "block_place",
+      "completion_us": 78.96419,
+      "p50_us": 71.9,
+      "late_completion_us": 76.22492
+    },
+    {
+      "run": "confirm-r4-pulsar-skyblock",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyblock",
+      "phase": "block_remove",
+      "completion_us": 79.87567999999999,
+      "p50_us": 73.8,
+      "late_completion_us": 77.48898666666666
+    },
+    {
+      "run": "confirm-r4-pulsar-skyblockint",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "sky_remove",
+      "completion_us": 717.9515,
+      "p50_us": 706.25,
+      "late_completion_us": 739.3664666666667
+    },
+    {
+      "run": "confirm-r4-pulsar-skyblockint",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "sky_place",
+      "completion_us": 735.58529,
+      "p50_us": 724.5,
+      "late_completion_us": 757.1828533333334
+    },
+    {
+      "run": "confirm-r4-pulsar-skyblockint",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "block_place",
+      "completion_us": 81.29941000000001,
+      "p50_us": 78.4,
+      "late_completion_us": 80.23428
+    },
+    {
+      "run": "confirm-r4-pulsar-skyblockint",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyblockint",
+      "phase": "block_remove",
+      "completion_us": 81.97885000000001,
+      "p50_us": 80.6,
+      "late_completion_us": 81.29072000000001
+    },
+    {
+      "run": "confirm-r4-pulsar-skyint",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "sky_remove",
+      "completion_us": 627.5562600000001,
+      "p50_us": 589.0,
+      "late_completion_us": 629.3309333333334
+    },
+    {
+      "run": "confirm-r4-pulsar-skyint",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "sky_place",
+      "completion_us": 662.79,
+      "p50_us": 624.2,
+      "late_completion_us": 664.3835466666667
+    },
+    {
+      "run": "confirm-r4-pulsar-skyint",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "block_place",
+      "completion_us": 71.45729,
+      "p50_us": 64.1,
+      "late_completion_us": 72.04497333333333
+    },
+    {
+      "run": "confirm-r4-pulsar-skyint",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyint",
+      "phase": "block_remove",
+      "completion_us": 72.35418,
+      "p50_us": 66.15,
+      "late_completion_us": 72.62336
+    },
+    {
+      "run": "confirm-r4-pulsar-skyunswitch",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "sky_remove",
+      "completion_us": 634.00111,
+      "p50_us": 606.2,
+      "late_completion_us": 627.38608
+    },
+    {
+      "run": "confirm-r4-pulsar-skyunswitch",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "sky_place",
+      "completion_us": 646.48935,
+      "p50_us": 617.5,
+      "late_completion_us": 639.6720799999999
+    },
+    {
+      "run": "confirm-r4-pulsar-skyunswitch",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "block_place",
+      "completion_us": 69.98528999999999,
+      "p50_us": 62.7,
+      "late_completion_us": 69.74412
+    },
+    {
+      "run": "confirm-r4-pulsar-skyunswitch",
+      "rep": 4,
+      "engine": "pulsar",
+      "variant": "skyunswitch",
+      "phase": "block_remove",
+      "completion_us": 70.52049000000001,
+      "p50_us": 64.6,
+      "late_completion_us": 70.40558666666666
+    },
+    {
+      "run": "confirm-r4-starlight-main",
+      "rep": 4,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "sky_remove",
+      "completion_us": 572.08574,
+      "p50_us": 537.5,
+      "late_completion_us": 567.0843466666666
+    },
+    {
+      "run": "confirm-r4-starlight-main",
+      "rep": 4,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "sky_place",
+      "completion_us": 618.77661,
+      "p50_us": 581.1,
+      "late_completion_us": 613.2916533333333
+    },
+    {
+      "run": "confirm-r4-starlight-main",
+      "rep": 4,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "block_place",
+      "completion_us": 60.179339999999996,
+      "p50_us": 56.0,
+      "late_completion_us": 60.78058666666667
+    },
+    {
+      "run": "confirm-r4-starlight-main",
+      "rep": 4,
+      "engine": "starlight",
+      "variant": "main",
+      "phase": "block_remove",
+      "completion_us": 73.42794,
+      "p50_us": 68.7,
+      "late_completion_us": 74.10565333333334
+    }
+  ]
+}

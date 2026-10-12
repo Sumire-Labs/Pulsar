@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Resolve sky source-face exclusions once per queue entry, retaining the encoded
+  direction order and all sided/contextual/fluid behavior.
+- Specialize block propagation through verified plain air, avoiding generic
+  absorption, emission and sided-flag work after the existing level guards.
+- Keep a just-active shared worker available for a bounded 5 microseconds for
+  rapid follow-up work, without holding dispatcher or queue monitors.
 - Claim paired same-chunk light work after the first lane finishes, so later
   notifications can join the queued partner batch while the existing 5x5
   reservation remains held.

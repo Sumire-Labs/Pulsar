@@ -1,0 +1,45 @@
+{
+  "formal_runs": 20,
+  "command": "lightbench updates 10000 10000",
+  "cases": [
+    "pulsar-base",
+    "pulsar-sky",
+    "pulsar-block",
+    "pulsar-both",
+    "starlight-base"
+  ],
+  "orders": [
+    [
+      0,
+      4,
+      1,
+      2,
+      3
+    ],
+    [
+      3,
+      2,
+      1,
+      4,
+      0
+    ],
+    [
+      2,
+      0,
+      4,
+      3,
+      1
+    ],
+    [
+      1,
+      3,
+      4,
+      0,
+      2
+    ]
+  ],
+  "spin_ns": 5000,
+  "wait": "legacy",
+  "profiling": false,
+  "scope": "Independent channel-specific air-path specializations. Already-matched early level guard proves plain-air writes, source flags0/emission0, generic contextual/fluid/sided paths retained. All conditions share corrected diagnostic scheduler, auto10workers, offline launch. Empty-cache normalization discarded: runtime input had0non-null emptysections."
+}

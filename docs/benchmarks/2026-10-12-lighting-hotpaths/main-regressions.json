@@ -1,0 +1,17 @@
+{
+  "main_updates_valid": true,
+  "main_shape_hashes_equal_original": true,
+  "flatgen_core_chunks": 289,
+  "flatgen_all_terrain_and_light_hashes_equal_original": true,
+  "sorted_core_hash": "a6ccfffdca601f779aa9de82084dd435c5036ddb3080429305545cf98229d59e",
+  "dense_qualified_reports": [
+    "1791802658837-spikes-pulsar-2.json",
+    "1791802665836-tps-pulsar-64.json",
+    "1791802672831-tps-pulsar-128.json",
+    "1791802679838-tps-pulsar-256.json",
+    "1791802686841-tps-pulsar-512.json",
+    "1791802693839-tps-pulsar-1024.json",
+    "1791802700845-tps-pulsar-2048.json"
+  ],
+  "dense_reports_are_correctness_regression_not_repeated_ranking": true
+}

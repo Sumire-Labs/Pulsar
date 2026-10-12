@@ -20,6 +20,7 @@ final class ParallelLightScheduler {
     private final Semaphore work = new Semaphore(0);
     private final AtomicBoolean signalled = new AtomicBoolean();
     private int turn;
+    private static final long IDLE_SPIN_NS = 5_000L;
 
     private ParallelLightScheduler(int threads) {
         for (int i = 0; i < threads; i++) {
@@ -75,9 +76,23 @@ final class ParallelLightScheduler {
     }
 
     private void run() {
+        long warmUntil = 0L;
         while (true) {
             Claim claim = claim();
             if (claim == null) {
+                // A consumed hint must be followed by a new claim, never a wait.
+                if (work.tryAcquire()) {
+                    signalled.set(false);
+                    continue;
+                }
+                // Catch a rapid follow-up on the recent worker without holding
+                // the dispatcher or a queue monitor while waiting for its hint.
+                if (warmUntil != 0L && System.nanoTime() - warmUntil < 0L) {
+                    while (!signalled.get() && System.nanoTime() - warmUntil < 0L) {
+                        Thread.onSpinWait();
+                    }
+                    if (signalled.get()) continue;
+                }
                 try { work.acquire(); } catch (InterruptedException stopped) { return; }
                 signalled.set(false);
                 continue;
@@ -96,6 +111,7 @@ final class ParallelLightScheduler {
                 if (partnerTask != null) claim.partner.jobFinished();
                 signal();
             }
+            warmUntil = System.nanoTime() + IDLE_SPIN_NS;
         }
     }
 

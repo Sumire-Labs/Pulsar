@@ -1,5 +1,7 @@
 # Async handoff and completion waiting
 
+**Attribution update2026-10-12:** the producer-held controls used a1ms monitor wait for prior reservation cleanup. Although outside the edit clock, it can change inter-edit idle time and task-body timings. Their held-worker/caller attribution is superseded by the corrected controls in [the hot-path investigation](../../2026-10-12-lighting-hotpaths/README.md). Ordinary legacy/direct-future trials did not use that hold and remain valid. Retained timings are historical diagnostic observations, not a clean isolated handoff cost.
+
 ## Findings
 
 Measurements completed2026-10-10; final analysis recorded2026-10-12. With producer notifications fully queued, worker/poll versus caller execution differs by about3.04µs in the placement medians (66.65 versus63.60µs). Paired differences range from−0.83 to+11.19µs, so this is not a stable fixed cost. Caller placement is close to the contemporaneous Starlight result64.24µs, but the experiment does not establish that every part of the normal-engine gap is dispatch overhead.
