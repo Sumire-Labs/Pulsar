@@ -1,5 +1,7 @@
 # Pulsar / Starlight-1.12: attribution and implementation study
 
+The subsequent [async handoff study](handoff/README.md) completed48 primary and12 sampled trials. Holding notifications constant, worker/poll versus caller placement was66.65µs versus63.60µs; Sky opening was610.04µs versus622.08µs. Handoff alone did not explain the remaining Sky gap. [Deferred investigations](FOLLOW-UP.md) are retained for later; no further runtime change was adopted.
+
 The main actionable finding was **premature partner-batch capture in Pulsar's shared scheduler**. The ordinary World lighting check can follow the Chunk-level fallback notification for the same position. The fallback exists for direct Chunk mutations and light-relevant changes that vanilla's scalar checks can miss; it must not simply be deleted.
 
 The old shared scheduler claimed both lane snapshots before executing the first lane. Notifications arriving while that lane ran could no longer join the already-claimed partner. In the sampled placement data, **126 of 2,684 edits (4.69%)** ran multiple Block passes. Single-pass edits recorded 1,834 increase entries and one decrease entry; multiple-pass edits recorded **3,668 increase entries and 2,256 decrease entries**. 85.7% of the multiple-pass cases started with Sky. This is observed extra propagation work, not merely time spent copying results.

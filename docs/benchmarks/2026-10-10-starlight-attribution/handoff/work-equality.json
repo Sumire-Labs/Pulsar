@@ -1,0 +1,195 @@
+{
+  "fields": [
+    "sky_tasks",
+    "block_tasks",
+    "sky_positions",
+    "block_positions",
+    "sky_increase_entries",
+    "sky_decrease_entries",
+    "block_increase_entries",
+    "block_decrease_entries",
+    "sky_engines",
+    "block_engines"
+  ],
+  "compared_phase_index_pairs": 2838,
+  "different_work_pairs": 0,
+  "differences": [],
+  "unique_work_counts": {
+    "block_remove": {
+      "caller": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 7,
+          "sky_decrease_entries": 1,
+          "block_increase_entries": 0,
+          "block_decrease_entries": 2255,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ],
+      "gated": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 7,
+          "sky_decrease_entries": 1,
+          "block_increase_entries": 0,
+          "block_decrease_entries": 2255,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ],
+      "gatedpoll": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 7,
+          "sky_decrease_entries": 1,
+          "block_increase_entries": 0,
+          "block_decrease_entries": 2255,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ]
+    },
+    "block_place": {
+      "caller": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 9,
+          "sky_decrease_entries": 2,
+          "block_increase_entries": 1834,
+          "block_decrease_entries": 1,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ],
+      "gated": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 9,
+          "sky_decrease_entries": 2,
+          "block_increase_entries": 1834,
+          "block_decrease_entries": 1,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ],
+      "gatedpoll": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 9,
+          "sky_decrease_entries": 2,
+          "block_increase_entries": 1834,
+          "block_decrease_entries": 1,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ]
+    },
+    "sky_remove": {
+      "caller": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 21174,
+          "sky_decrease_entries": 1,
+          "block_increase_entries": 0,
+          "block_decrease_entries": 1,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ],
+      "gated": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 21174,
+          "sky_decrease_entries": 1,
+          "block_increase_entries": 0,
+          "block_decrease_entries": 1,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ],
+      "gatedpoll": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 21174,
+          "sky_decrease_entries": 1,
+          "block_increase_entries": 0,
+          "block_decrease_entries": 1,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ]
+    },
+    "sky_place": {
+      "caller": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 1,
+          "sky_decrease_entries": 24420,
+          "block_increase_entries": 0,
+          "block_decrease_entries": 1,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ],
+      "gated": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 1,
+          "sky_decrease_entries": 24420,
+          "block_increase_entries": 0,
+          "block_decrease_entries": 1,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ],
+      "gatedpoll": [
+        {
+          "sky_tasks": 1,
+          "block_tasks": 1,
+          "sky_positions": 1,
+          "block_positions": 1,
+          "sky_increase_entries": 1,
+          "sky_decrease_entries": 24420,
+          "block_increase_entries": 0,
+          "block_decrease_entries": 1,
+          "sky_engines": 1,
+          "block_engines": 1
+        }
+      ]
+    }
+  }
+}

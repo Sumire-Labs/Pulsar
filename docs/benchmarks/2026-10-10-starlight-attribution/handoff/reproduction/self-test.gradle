@@ -1,0 +1,16 @@
+allprojects {
+    afterEvaluate {
+        tasks.register('compileHandoffSelfTest', JavaCompile) {
+            source=fileTree('E:/Github/pulsar-handoff-20261010/src-test')
+            classpath=files('E:/Github/pulsar-handoff-20261010/classes')+sourceSets.test.runtimeClasspath+sourceSets.main.compileClasspath
+            destinationDirectory=file('E:/Github/pulsar-handoff-20261010/test-classes')
+            javaCompiler=javaToolchains.compilerFor { languageVersion=JavaLanguageVersion.of(25) }
+        }
+        tasks.register('handoffSelfTest', JavaExec) {
+            dependsOn 'compileHandoffSelfTest'
+            classpath=files('E:/Github/pulsar-handoff-20261010/classes','E:/Github/pulsar-handoff-20261010/test-classes')+sourceSets.test.runtimeClasspath+sourceSets.main.compileClasspath
+            mainClass='com.sumirelabs.pulsar.light.HandoffSelfTest'
+            javaLauncher=javaToolchains.launcherFor { languageVersion=JavaLanguageVersion.of(25) }
+        }
+    }
+}

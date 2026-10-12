@@ -1,0 +1,2318 @@
+{
+  "formal_runs": 48,
+  "sampled_runs": 12,
+  "groups": {
+    "block_place/pulsar/caller": {
+      "reps": 4,
+      "submission_us": {
+        "median": 0.629215,
+        "min": 0.62185,
+        "max": 0.68674
+      },
+      "late_submission_us": {
+        "median": 0.58434,
+        "min": 0.539,
+        "max": 0.64348
+      },
+      "barrier_us": {
+        "median": 62.91726,
+        "min": 58.51176,
+        "max": 64.98819
+      },
+      "late_barrier_us": {
+        "median": 62.98072666666667,
+        "min": 58.63441333333333,
+        "max": 64.77330666666667
+      },
+      "completion_us": {
+        "median": 63.604015000000004,
+        "min": 59.18181,
+        "max": 65.72586
+      },
+      "late_completion_us": {
+        "median": 63.622659999999996,
+        "min": 59.22161333333334,
+        "max": 65.46637333333334
+      },
+      "edit_p50_us": {
+        "median": 56.175,
+        "min": 54.0,
+        "max": 63.2
+      },
+      "edit_p95_us": {
+        "median": 84.15,
+        "min": 80.8,
+        "max": 99.3
+      },
+      "edit_p99_us": {
+        "median": 94.15,
+        "min": 86.1,
+        "max": 141.2
+      },
+      "edit_max_us": {
+        "median": 250.54999999999998,
+        "min": 237.9,
+        "max": 438.8
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "block_place/pulsar/future": {
+      "reps": 4,
+      "submission_us": {
+        "median": 3.934745,
+        "min": 3.69387,
+        "max": 4.03651
+      },
+      "late_submission_us": {
+        "median": 3.5600466666666666,
+        "min": 3.42328,
+        "max": 3.9091066666666667
+      },
+      "barrier_us": {
+        "median": 76.04714,
+        "min": 75.79603999999999,
+        "max": 79.20456
+      },
+      "late_barrier_us": {
+        "median": 76.09194,
+        "min": 75.66980000000001,
+        "max": 79.97290666666666
+      },
+      "completion_us": {
+        "median": 80.01192,
+        "min": 79.72557,
+        "max": 83.24968
+      },
+      "late_completion_us": {
+        "median": 79.69471999999999,
+        "min": 79.24369333333333,
+        "max": 83.95039999999999
+      },
+      "edit_p50_us": {
+        "median": 75.1,
+        "min": 74.9,
+        "max": 75.5
+      },
+      "edit_p95_us": {
+        "median": 108.85,
+        "min": 103.7,
+        "max": 119.9
+      },
+      "edit_p99_us": {
+        "median": 157.3,
+        "min": 151.8,
+        "max": 193.7
+      },
+      "edit_max_us": {
+        "median": 438.85,
+        "min": 378.1,
+        "max": 562.3
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "block_place/pulsar/gated": {
+      "reps": 4,
+      "submission_us": {
+        "median": 3.621985,
+        "min": 3.40565,
+        "max": 4.140689999999999
+      },
+      "late_submission_us": {
+        "median": 3.409806666666667,
+        "min": 3.2203333333333335,
+        "max": 3.941613333333333
+      },
+      "barrier_us": {
+        "median": 76.77253000000002,
+        "min": 75.03859,
+        "max": 78.78174
+      },
+      "late_barrier_us": {
+        "median": 77.138,
+        "min": 74.81445333333333,
+        "max": 79.13530666666666
+      },
+      "completion_us": {
+        "median": 80.61679000000001,
+        "min": 78.89364,
+        "max": 82.31571000000001
+      },
+      "late_completion_us": {
+        "median": 80.79140000000001,
+        "min": 78.41194666666667,
+        "max": 82.50209333333333
+      },
+      "edit_p50_us": {
+        "median": 74.30000000000001,
+        "min": 74.0,
+        "max": 75.8
+      },
+      "edit_p95_us": {
+        "median": 110.0,
+        "min": 108.1,
+        "max": 120.8
+      },
+      "edit_p99_us": {
+        "median": 161.95,
+        "min": 151.4,
+        "max": 172.3
+      },
+      "edit_max_us": {
+        "median": 411.55,
+        "min": 360.7,
+        "max": 499.2
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "block_place/pulsar/gatedpoll": {
+      "reps": 4,
+      "submission_us": {
+        "median": 0.801195,
+        "min": 0.72857,
+        "max": 0.91455
+      },
+      "late_submission_us": {
+        "median": 0.7482599999999999,
+        "min": 0.7147733333333333,
+        "max": 0.9030533333333333
+      },
+      "barrier_us": {
+        "median": 65.83932,
+        "min": 63.55502,
+        "max": 69.52381
+      },
+      "late_barrier_us": {
+        "median": 65.46590666666665,
+        "min": 63.68193333333333,
+        "max": 70.02162666666666
+      },
+      "completion_us": {
+        "median": 66.64841000000001,
+        "min": 64.51921,
+        "max": 70.37665
+      },
+      "late_completion_us": {
+        "median": 66.24047333333333,
+        "min": 64.63472,
+        "max": 70.82376
+      },
+      "edit_p50_us": {
+        "median": 59.0,
+        "min": 56.3,
+        "max": 63.6
+      },
+      "edit_p95_us": {
+        "median": 94.15,
+        "min": 85.1,
+        "max": 118.6
+      },
+      "edit_p99_us": {
+        "median": 135.4,
+        "min": 126.8,
+        "max": 162.1
+      },
+      "edit_max_us": {
+        "median": 411.5,
+        "min": 345.8,
+        "max": 1114.7
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "block_place/pulsar/legacy": {
+      "reps": 4,
+      "submission_us": {
+        "median": 1.036775,
+        "min": 0.78683,
+        "max": 1.39039
+      },
+      "late_submission_us": {
+        "median": 0.9581733333333333,
+        "min": 0.7393200000000001,
+        "max": 1.3555466666666667
+      },
+      "barrier_us": {
+        "median": 66.088435,
+        "min": 62.35166,
+        "max": 67.2704
+      },
+      "late_barrier_us": {
+        "median": 66.36386666666667,
+        "min": 62.12489333333333,
+        "max": 68.75706666666666
+      },
+      "completion_us": {
+        "median": 67.34892500000001,
+        "min": 63.19033,
+        "max": 68.36828
+      },
+      "late_completion_us": {
+        "median": 67.59198666666667,
+        "min": 62.916239999999995,
+        "max": 69.73034666666666
+      },
+      "edit_p50_us": {
+        "median": 60.5,
+        "min": 55.0,
+        "max": 65.3
+      },
+      "edit_p95_us": {
+        "median": 92.0,
+        "min": 86.8,
+        "max": 99.8
+      },
+      "edit_p99_us": {
+        "median": 148.8,
+        "min": 144.1,
+        "max": 166.0
+      },
+      "edit_max_us": {
+        "median": 493.70000000000005,
+        "min": 408.6,
+        "max": 2731.1
+      },
+      "await_calls": [
+        30002,
+        30002,
+        30002,
+        30002
+      ],
+      "await_false": [
+        29954,
+        29947,
+        29941,
+        29951
+      ]
+    },
+    "block_place/starlight/legacy": {
+      "reps": 4,
+      "submission_us": {
+        "median": 0.32245999999999997,
+        "min": 0.28728,
+        "max": 0.34629000000000004
+      },
+      "late_submission_us": {
+        "median": 0.3181666666666667,
+        "min": 0.27202666666666664,
+        "max": 0.3492533333333333
+      },
+      "barrier_us": {
+        "median": 63.864305,
+        "min": 59.55793,
+        "max": 74.23972
+      },
+      "late_barrier_us": {
+        "median": 62.59340666666667,
+        "min": 57.88832,
+        "max": 72.70039999999999
+      },
+      "completion_us": {
+        "median": 64.23797,
+        "min": 59.890620000000006,
+        "max": 74.63548
+      },
+      "late_completion_us": {
+        "median": 62.96185333333334,
+        "min": 58.20456,
+        "max": 73.09776
+      },
+      "edit_p50_us": {
+        "median": 56.55,
+        "min": 54.3,
+        "max": 65.3
+      },
+      "edit_p95_us": {
+        "median": 89.55000000000001,
+        "min": 74.9,
+        "max": 107.7
+      },
+      "edit_p99_us": {
+        "median": 121.94999999999999,
+        "min": 83.2,
+        "max": 163.0
+      },
+      "edit_max_us": {
+        "median": 346.4,
+        "min": 132.3,
+        "max": 532.7
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "block_remove/pulsar/caller": {
+      "reps": 4,
+      "submission_us": {
+        "median": 0.604505,
+        "min": 0.58702,
+        "max": 0.6577999999999999
+      },
+      "late_submission_us": {
+        "median": 0.5679,
+        "min": 0.5302,
+        "max": 0.62252
+      },
+      "barrier_us": {
+        "median": 66.04677,
+        "min": 64.8286,
+        "max": 68.07727
+      },
+      "late_barrier_us": {
+        "median": 66.18514666666667,
+        "min": 64.91852,
+        "max": 67.69772
+      },
+      "completion_us": {
+        "median": 66.70165,
+        "min": 65.46647,
+        "max": 68.78231
+      },
+      "late_completion_us": {
+        "median": 66.78559999999999,
+        "min": 65.53473333333334,
+        "max": 68.36850666666666
+      },
+      "edit_p50_us": {
+        "median": 60.400000000000006,
+        "min": 58.0,
+        "max": 66.5
+      },
+      "edit_p95_us": {
+        "median": 88.5,
+        "min": 84.9,
+        "max": 103.1
+      },
+      "edit_p99_us": {
+        "median": 97.55,
+        "min": 93.0,
+        "max": 146.1
+      },
+      "edit_max_us": {
+        "median": 196.45,
+        "min": 158.4,
+        "max": 572.7
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "block_remove/pulsar/future": {
+      "reps": 4,
+      "submission_us": {
+        "median": 3.855335,
+        "min": 3.64636,
+        "max": 3.93805
+      },
+      "late_submission_us": {
+        "median": 3.5410266666666668,
+        "min": 3.3663333333333334,
+        "max": 3.89212
+      },
+      "barrier_us": {
+        "median": 78.790855,
+        "min": 77.72449,
+        "max": 82.01011
+      },
+      "late_barrier_us": {
+        "median": 78.79990666666666,
+        "min": 77.88790666666667,
+        "max": 82.41124
+      },
+      "completion_us": {
+        "median": 82.643205,
+        "min": 81.61074,
+        "max": 86.01651
+      },
+      "late_completion_us": {
+        "median": 82.31142666666668,
+        "min": 81.54984,
+        "max": 86.3726
+      },
+      "edit_p50_us": {
+        "median": 77.6,
+        "min": 76.5,
+        "max": 78.4
+      },
+      "edit_p95_us": {
+        "median": 112.4,
+        "min": 108.4,
+        "max": 123.1
+      },
+      "edit_p99_us": {
+        "median": 157.15,
+        "min": 148.4,
+        "max": 189.5
+      },
+      "edit_max_us": {
+        "median": 449.04999999999995,
+        "min": 368.7,
+        "max": 471.2
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "block_remove/pulsar/gated": {
+      "reps": 4,
+      "submission_us": {
+        "median": 3.59491,
+        "min": 3.3541399999999997,
+        "max": 4.25197
+      },
+      "late_submission_us": {
+        "median": 3.40848,
+        "min": 3.2083333333333335,
+        "max": 4.148
+      },
+      "barrier_us": {
+        "median": 78.690415,
+        "min": 77.6603,
+        "max": 84.9054
+      },
+      "late_barrier_us": {
+        "median": 78.81541333333334,
+        "min": 77.95639999999999,
+        "max": 84.92481333333333
+      },
+      "completion_us": {
+        "median": 82.76562,
+        "min": 81.08766,
+        "max": 88.41705999999999
+      },
+      "late_completion_us": {
+        "median": 82.72876666666667,
+        "min": 81.23824,
+        "max": 88.28572
+      },
+      "edit_p50_us": {
+        "median": 77.2,
+        "min": 75.9,
+        "max": 79.7
+      },
+      "edit_p95_us": {
+        "median": 112.55,
+        "min": 109.9,
+        "max": 127.4
+      },
+      "edit_p99_us": {
+        "median": 160.2,
+        "min": 153.3,
+        "max": 188.4
+      },
+      "edit_max_us": {
+        "median": 466.7,
+        "min": 358.5,
+        "max": 586.9
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "block_remove/pulsar/gatedpoll": {
+      "reps": 4,
+      "submission_us": {
+        "median": 0.793925,
+        "min": 0.74379,
+        "max": 0.8981699999999999
+      },
+      "late_submission_us": {
+        "median": 0.7533000000000001,
+        "min": 0.7216266666666666,
+        "max": 0.9065333333333333
+      },
+      "barrier_us": {
+        "median": 69.25599,
+        "min": 65.6784,
+        "max": 73.38006
+      },
+      "late_barrier_us": {
+        "median": 68.94869333333332,
+        "min": 65.86353333333334,
+        "max": 73.73732000000001
+      },
+      "completion_us": {
+        "median": 70.067515,
+        "min": 66.62563,
+        "max": 74.22950999999999
+      },
+      "late_completion_us": {
+        "median": 69.72327333333334,
+        "min": 66.81884,
+        "max": 74.55778666666667
+      },
+      "edit_p50_us": {
+        "median": 62.3,
+        "min": 58.0,
+        "max": 67.8
+      },
+      "edit_p95_us": {
+        "median": 97.75,
+        "min": 89.9,
+        "max": 123.4
+      },
+      "edit_p99_us": {
+        "median": 138.9,
+        "min": 128.1,
+        "max": 171.8
+      },
+      "edit_max_us": {
+        "median": 460.0,
+        "min": 383.3,
+        "max": 916.3
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "block_remove/pulsar/legacy": {
+      "reps": 4,
+      "submission_us": {
+        "median": 1.011415,
+        "min": 0.76252,
+        "max": 1.20801
+      },
+      "late_submission_us": {
+        "median": 0.9591,
+        "min": 0.7106266666666666,
+        "max": 1.1371733333333334
+      },
+      "barrier_us": {
+        "median": 68.48001500000001,
+        "min": 64.96647,
+        "max": 69.81358999999999
+      },
+      "late_barrier_us": {
+        "median": 68.80678666666667,
+        "min": 64.76932,
+        "max": 71.43578666666667
+      },
+      "completion_us": {
+        "median": 69.62705,
+        "min": 65.77914999999999,
+        "max": 70.90925
+      },
+      "late_completion_us": {
+        "median": 69.89758666666665,
+        "min": 65.53029333333333,
+        "max": 72.46793333333333
+      },
+      "edit_p50_us": {
+        "median": 63.349999999999994,
+        "min": 58.2,
+        "max": 67.6
+      },
+      "edit_p95_us": {
+        "median": 95.15,
+        "min": 89.5,
+        "max": 101.9
+      },
+      "edit_p99_us": {
+        "median": 132.85000000000002,
+        "min": 124.7,
+        "max": 145.0
+      },
+      "edit_max_us": {
+        "median": 1313.8500000000001,
+        "min": 364.9,
+        "max": 5252.7
+      },
+      "await_calls": [
+        30002,
+        30002,
+        30002,
+        30002
+      ],
+      "await_false": [
+        29954,
+        29947,
+        29941,
+        29951
+      ]
+    },
+    "block_remove/starlight/legacy": {
+      "reps": 4,
+      "submission_us": {
+        "median": 0.296285,
+        "min": 0.27881,
+        "max": 0.33026
+      },
+      "late_submission_us": {
+        "median": 0.29906,
+        "min": 0.26024,
+        "max": 0.3288666666666667
+      },
+      "barrier_us": {
+        "median": 76.84997,
+        "min": 69.86564,
+        "max": 82.40889
+      },
+      "late_barrier_us": {
+        "median": 75.37208666666668,
+        "min": 67.80321333333333,
+        "max": 80.87885333333334
+      },
+      "completion_us": {
+        "median": 77.19635,
+        "min": 70.19055,
+        "max": 82.79233
+      },
+      "late_completion_us": {
+        "median": 75.72038666666667,
+        "min": 68.10829333333334,
+        "max": 81.26302666666668
+      },
+      "edit_p50_us": {
+        "median": 69.85,
+        "min": 64.6,
+        "max": 73.7
+      },
+      "edit_p95_us": {
+        "median": 103.69999999999999,
+        "min": 86.4,
+        "max": 117.0
+      },
+      "edit_p99_us": {
+        "median": 141.95,
+        "min": 96.1,
+        "max": 181.4
+      },
+      "edit_max_us": {
+        "median": 524.55,
+        "min": 111.1,
+        "max": 701.2
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "sky_place/pulsar/caller": {
+      "reps": 4,
+      "submission_us": {
+        "median": 1.5309000000000001,
+        "min": 0.9238,
+        "max": 1.6812
+      },
+      "late_submission_us": {
+        "median": 1.5845333333333333,
+        "min": 0.9136,
+        "max": 1.698
+      },
+      "barrier_us": {
+        "median": 618.5798,
+        "min": 565.9572,
+        "max": 635.8838000000001
+      },
+      "late_barrier_us": {
+        "median": 630.9156,
+        "min": 569.0144,
+        "max": 635.3861333333333
+      },
+      "completion_us": {
+        "median": 620.1765,
+        "min": 566.9300999999999,
+        "max": 637.6251
+      },
+      "late_completion_us": {
+        "median": 632.5771333333334,
+        "min": 569.978,
+        "max": 637.1317333333333
+      },
+      "edit_p50_us": {
+        "median": 564.575,
+        "min": 544.2,
+        "max": 601.5
+      },
+      "edit_p95_us": {
+        "median": 825.9,
+        "min": 691.6,
+        "max": 846.1
+      },
+      "edit_p99_us": {
+        "median": 974.45,
+        "min": 880.7,
+        "max": 1012.0
+      },
+      "edit_max_us": {
+        "median": 1315.5,
+        "min": 1262.4,
+        "max": 1414.1
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "sky_place/pulsar/future": {
+      "reps": 4,
+      "submission_us": {
+        "median": 5.61275,
+        "min": 5.408399999999999,
+        "max": 6.3071
+      },
+      "late_submission_us": {
+        "median": 5.572333333333333,
+        "min": 5.272266666666666,
+        "max": 6.449466666666666
+      },
+      "barrier_us": {
+        "median": 587.59825,
+        "min": 584.599,
+        "max": 605.4139
+      },
+      "late_barrier_us": {
+        "median": 588.2663333333333,
+        "min": 583.2258666666667,
+        "max": 598.9610666666666
+      },
+      "completion_us": {
+        "median": 593.2919999999999,
+        "min": 590.9857,
+        "max": 610.9018000000001
+      },
+      "late_completion_us": {
+        "median": 593.9197999999999,
+        "min": 589.7538666666667,
+        "max": 604.3124
+      },
+      "edit_p50_us": {
+        "median": 566.8,
+        "min": 566.0,
+        "max": 569.4
+      },
+      "edit_p95_us": {
+        "median": 713.65,
+        "min": 673.5,
+        "max": 839.6
+      },
+      "edit_p99_us": {
+        "median": 873.7,
+        "min": 843.2,
+        "max": 1103.3
+      },
+      "edit_max_us": {
+        "median": 1435.6,
+        "min": 1368.4,
+        "max": 1553.7
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "sky_place/pulsar/gated": {
+      "reps": 4,
+      "submission_us": {
+        "median": 5.984999999999999,
+        "min": 5.8292,
+        "max": 6.4798
+      },
+      "late_submission_us": {
+        "median": 5.891666666666667,
+        "min": 5.794133333333333,
+        "max": 6.221066666666666
+      },
+      "barrier_us": {
+        "median": 594.9172000000001,
+        "min": 585.0813,
+        "max": 614.738
+      },
+      "late_barrier_us": {
+        "median": 594.3596,
+        "min": 581.9869333333334,
+        "max": 618.4822666666668
+      },
+      "completion_us": {
+        "median": 600.8583000000001,
+        "min": 591.2564,
+        "max": 621.2975
+      },
+      "late_completion_us": {
+        "median": 600.2628666666667,
+        "min": 588.0137333333333,
+        "max": 624.7845333333333
+      },
+      "edit_p50_us": {
+        "median": 572.7750000000001,
+        "min": 564.35,
+        "max": 578.2
+      },
+      "edit_p95_us": {
+        "median": 721.35,
+        "min": 686.1,
+        "max": 840.2
+      },
+      "edit_p99_us": {
+        "median": 933.25,
+        "min": 859.4,
+        "max": 1117.1
+      },
+      "edit_max_us": {
+        "median": 1326.8,
+        "min": 1207.3,
+        "max": 1459.6
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "sky_place/pulsar/gatedpoll": {
+      "reps": 4,
+      "submission_us": {
+        "median": 1.8225,
+        "min": 1.5679,
+        "max": 2.288
+      },
+      "late_submission_us": {
+        "median": 1.6927333333333334,
+        "min": 1.4697333333333333,
+        "max": 2.2858666666666667
+      },
+      "barrier_us": {
+        "median": 606.0368,
+        "min": 598.031,
+        "max": 621.2734
+      },
+      "late_barrier_us": {
+        "median": 611.2706000000001,
+        "min": 593.5281333333334,
+        "max": 621.2669333333333
+      },
+      "completion_us": {
+        "median": 607.6792499999999,
+        "min": 600.1605999999999,
+        "max": 623.6261999999999
+      },
+      "late_completion_us": {
+        "median": 612.8430000000001,
+        "min": 595.4398666666667,
+        "max": 623.6152
+      },
+      "edit_p50_us": {
+        "median": 566.125,
+        "min": 565.25,
+        "max": 569.85
+      },
+      "edit_p95_us": {
+        "median": 774.85,
+        "min": 737.9,
+        "max": 884.9
+      },
+      "edit_p99_us": {
+        "median": 942.25,
+        "min": 827.5,
+        "max": 1134.2
+      },
+      "edit_max_us": {
+        "median": 1289.15,
+        "min": 1182.4,
+        "max": 1359.8
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "sky_place/pulsar/legacy": {
+      "reps": 4,
+      "submission_us": {
+        "median": 2.2805,
+        "min": 1.8842,
+        "max": 2.4749
+      },
+      "late_submission_us": {
+        "median": 2.1822666666666666,
+        "min": 1.7322666666666666,
+        "max": 2.3149333333333333
+      },
+      "barrier_us": {
+        "median": 612.82125,
+        "min": 582.2006,
+        "max": 629.4184
+      },
+      "late_barrier_us": {
+        "median": 607.2491333333332,
+        "min": 584.1591999999999,
+        "max": 624.4582666666668
+      },
+      "completion_us": {
+        "median": 615.02805,
+        "min": 584.7371999999999,
+        "max": 631.6655
+      },
+      "late_completion_us": {
+        "median": 609.3324,
+        "min": 586.5346666666667,
+        "max": 626.6075999999999
+      },
+      "edit_p50_us": {
+        "median": 563.2,
+        "min": 554.05,
+        "max": 568.75
+      },
+      "edit_p95_us": {
+        "median": 804.55,
+        "min": 721.5,
+        "max": 897.1
+      },
+      "edit_p99_us": {
+        "median": 1116.6,
+        "min": 783.5,
+        "max": 1236.9
+      },
+      "edit_max_us": {
+        "median": 1541.6999999999998,
+        "min": 1126.1,
+        "max": 2734.2
+      },
+      "await_calls": [
+        12008,
+        12008,
+        12008,
+        12008
+      ],
+      "await_false": [
+        11993,
+        11993,
+        11995,
+        11995
+      ]
+    },
+    "sky_place/starlight/legacy": {
+      "reps": 4,
+      "submission_us": {
+        "median": 5.9666999999999994,
+        "min": 5.690600000000001,
+        "max": 6.9748
+      },
+      "late_submission_us": {
+        "median": 6.306,
+        "min": 5.784666666666667,
+        "max": 7.156266666666666
+      },
+      "barrier_us": {
+        "median": 622.3216500000001,
+        "min": 612.526,
+        "max": 684.4887
+      },
+      "late_barrier_us": {
+        "median": 633.1644666666666,
+        "min": 616.4928000000001,
+        "max": 666.9398666666667
+      },
+      "completion_us": {
+        "median": 628.34025,
+        "min": 618.2723000000001,
+        "max": 691.5234
+      },
+      "late_completion_us": {
+        "median": 639.5231333333334,
+        "min": 622.3328,
+        "max": 674.1541333333333
+      },
+      "edit_p50_us": {
+        "median": 590.825,
+        "min": 576.45,
+        "max": 641.2
+      },
+      "edit_p95_us": {
+        "median": 866.35,
+        "min": 753.1,
+        "max": 920.3
+      },
+      "edit_p99_us": {
+        "median": 989.2,
+        "min": 863.1,
+        "max": 1103.5
+      },
+      "edit_max_us": {
+        "median": 1278.0,
+        "min": 963.1,
+        "max": 2949.7
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "sky_remove/pulsar/caller": {
+      "reps": 4,
+      "submission_us": {
+        "median": 1.9063500000000002,
+        "min": 1.4116,
+        "max": 2.1535
+      },
+      "late_submission_us": {
+        "median": 1.8850666666666664,
+        "min": 1.3754666666666666,
+        "max": 2.2356
+      },
+      "barrier_us": {
+        "median": 620.10915,
+        "min": 575.3943,
+        "max": 631.4336999999999
+      },
+      "late_barrier_us": {
+        "median": 627.4917333333333,
+        "min": 577.7644,
+        "max": 639.3886666666666
+      },
+      "completion_us": {
+        "median": 622.07765,
+        "min": 576.8542,
+        "max": 633.6443
+      },
+      "late_completion_us": {
+        "median": 629.4395333333333,
+        "min": 579.1881333333333,
+        "max": 641.6830666666666
+      },
+      "edit_p50_us": {
+        "median": 572.425,
+        "min": 555.1,
+        "max": 585.1
+      },
+      "edit_p95_us": {
+        "median": 834.85,
+        "min": 701.7,
+        "max": 847.4
+      },
+      "edit_p99_us": {
+        "median": 976.75,
+        "min": 880.9,
+        "max": 1045.2
+      },
+      "edit_max_us": {
+        "median": 1313.65,
+        "min": 1139.3,
+        "max": 1605.8
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "sky_remove/pulsar/future": {
+      "reps": 4,
+      "submission_us": {
+        "median": 6.29205,
+        "min": 5.6698,
+        "max": 6.8948
+      },
+      "late_submission_us": {
+        "median": 6.278933333333333,
+        "min": 5.6776,
+        "max": 6.789333333333333
+      },
+      "barrier_us": {
+        "median": 597.79255,
+        "min": 589.4409,
+        "max": 601.9743000000001
+      },
+      "late_barrier_us": {
+        "median": 596.1904,
+        "min": 588.106,
+        "max": 599.8454666666667
+      },
+      "completion_us": {
+        "median": 604.15575,
+        "min": 595.4011999999999,
+        "max": 608.7539
+      },
+      "late_completion_us": {
+        "median": 602.4266666666666,
+        "min": 594.1092,
+        "max": 606.7133333333334
+      },
+      "edit_p50_us": {
+        "median": 577.175,
+        "min": 568.8,
+        "max": 580.35
+      },
+      "edit_p95_us": {
+        "median": 739.25,
+        "min": 672.9,
+        "max": 804.9
+      },
+      "edit_p99_us": {
+        "median": 882.25,
+        "min": 859.5,
+        "max": 1004.8
+      },
+      "edit_max_us": {
+        "median": 1251.25,
+        "min": 1093.9,
+        "max": 1387.7
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "sky_remove/pulsar/gated": {
+      "reps": 4,
+      "submission_us": {
+        "median": 5.6553,
+        "min": 5.2971,
+        "max": 5.8629
+      },
+      "late_submission_us": {
+        "median": 5.5334,
+        "min": 5.2703999999999995,
+        "max": 5.6390666666666664
+      },
+      "barrier_us": {
+        "median": 597.21335,
+        "min": 590.729,
+        "max": 617.982
+      },
+      "late_barrier_us": {
+        "median": 594.8783333333333,
+        "min": 592.2701333333333,
+        "max": 623.3575999999999
+      },
+      "completion_us": {
+        "median": 602.8198,
+        "min": 596.3881,
+        "max": 623.9239
+      },
+      "late_completion_us": {
+        "median": 600.4071999999999,
+        "min": 597.998,
+        "max": 628.89
+      },
+      "edit_p50_us": {
+        "median": 573.4000000000001,
+        "min": 569.2,
+        "max": 579.2
+      },
+      "edit_p95_us": {
+        "median": 743.3,
+        "min": 716.4,
+        "max": 844.8
+      },
+      "edit_p99_us": {
+        "median": 930.8,
+        "min": 874.2,
+        "max": 1203.9
+      },
+      "edit_max_us": {
+        "median": 1414.0500000000002,
+        "min": 1255.1,
+        "max": 1916.0
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "sky_remove/pulsar/gatedpoll": {
+      "reps": 4,
+      "submission_us": {
+        "median": 2.43745,
+        "min": 2.0929,
+        "max": 2.9594
+      },
+      "late_submission_us": {
+        "median": 2.2393333333333336,
+        "min": 1.9842666666666666,
+        "max": 2.8688000000000002
+      },
+      "barrier_us": {
+        "median": 607.4535999999999,
+        "min": 606.3063000000001,
+        "max": 634.1725
+      },
+      "late_barrier_us": {
+        "median": 610.8268666666667,
+        "min": 604.5136,
+        "max": 631.2088
+      },
+      "completion_us": {
+        "median": 610.04445,
+        "min": 608.4638,
+        "max": 637.0386
+      },
+      "late_completion_us": {
+        "median": 612.9084666666666,
+        "min": 607.0024000000001,
+        "max": 634.1673333333333
+      },
+      "edit_p50_us": {
+        "median": 570.175,
+        "min": 565.1,
+        "max": 574.3
+      },
+      "edit_p95_us": {
+        "median": 796.05,
+        "min": 757.6,
+        "max": 908.9
+      },
+      "edit_p99_us": {
+        "median": 993.25,
+        "min": 864.9,
+        "max": 1183.4
+      },
+      "edit_max_us": {
+        "median": 1366.25,
+        "min": 1214.1,
+        "max": 1714.2
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "sky_remove/pulsar/legacy": {
+      "reps": 4,
+      "submission_us": {
+        "median": 2.9815,
+        "min": 2.611,
+        "max": 3.3438000000000003
+      },
+      "late_submission_us": {
+        "median": 2.8626,
+        "min": 2.3826666666666667,
+        "max": 3.1814666666666667
+      },
+      "barrier_us": {
+        "median": 617.56485,
+        "min": 602.5314000000001,
+        "max": 637.0941
+      },
+      "late_barrier_us": {
+        "median": 613.3643333333333,
+        "min": 603.2878666666667,
+        "max": 629.2678666666667
+      },
+      "completion_us": {
+        "median": 620.3886500000001,
+        "min": 605.6661,
+        "max": 640.5027
+      },
+      "late_completion_us": {
+        "median": 616.2899333333334,
+        "min": 605.7482666666667,
+        "max": 632.5129333333333
+      },
+      "edit_p50_us": {
+        "median": 573.5250000000001,
+        "min": 571.8,
+        "max": 578.8
+      },
+      "edit_p95_us": {
+        "median": 809.75,
+        "min": 753.9,
+        "max": 887.9
+      },
+      "edit_p99_us": {
+        "median": 1071.75,
+        "min": 838.8,
+        "max": 1131.7
+      },
+      "edit_max_us": {
+        "median": 1342.5,
+        "min": 1291.7,
+        "max": 6577.9
+      },
+      "await_calls": [
+        12008,
+        12008,
+        12008,
+        12008
+      ],
+      "await_false": [
+        11993,
+        11993,
+        11995,
+        11995
+      ]
+    },
+    "sky_remove/starlight/legacy": {
+      "reps": 4,
+      "submission_us": {
+        "median": 6.3438,
+        "min": 6.135,
+        "max": 7.6318
+      },
+      "late_submission_us": {
+        "median": 6.6606000000000005,
+        "min": 6.2396,
+        "max": 7.7748
+      },
+      "barrier_us": {
+        "median": 564.1467,
+        "min": 549.7269,
+        "max": 620.9828
+      },
+      "late_barrier_us": {
+        "median": 573.4018666666667,
+        "min": 553.3344000000001,
+        "max": 606.3569333333334
+      },
+      "completion_us": {
+        "median": 570.54585,
+        "min": 555.9184,
+        "max": 628.674
+      },
+      "late_completion_us": {
+        "median": 580.1196,
+        "min": 559.6313333333334,
+        "max": 614.1884
+      },
+      "edit_p50_us": {
+        "median": 533.55,
+        "min": 521.6,
+        "max": 582.85
+      },
+      "edit_p95_us": {
+        "median": 795.95,
+        "min": 651.1,
+        "max": 838.3
+      },
+      "edit_p99_us": {
+        "median": 935.3499999999999,
+        "min": 779.4,
+        "max": 980.3
+      },
+      "edit_max_us": {
+        "median": 1133.8,
+        "min": 1016.6,
+        "max": 1515.5
+      },
+      "await_calls": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "await_false": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "contrasts": {
+    "block_place/gatedpoll-minus-caller": {
+      "paired_run_mean_deltas_us": [
+        1.8844099999999955,
+        11.19484,
+        3.8297199999999947,
+        -0.8319899999999905
+      ],
+      "median_delta_us": 2.857064999999995,
+      "min_delta_us": -0.8319899999999905,
+      "max_delta_us": 11.19484
+    },
+    "block_place/gated-minus-gatedpoll": {
+      "paired_run_mean_deltas_us": [
+        14.374430000000004,
+        9.110070000000007,
+        13.343909999999994,
+        17.421840000000003
+      ],
+      "median_delta_us": 13.859169999999999,
+      "min_delta_us": 9.110070000000007,
+      "max_delta_us": 17.421840000000003
+    },
+    "block_place/future-minus-legacy": {
+      "paired_run_mean_deltas_us": [
+        15.14904,
+        16.53524,
+        11.406430000000015,
+        13.651920000000004
+      ],
+      "median_delta_us": 14.400480000000002,
+      "min_delta_us": 11.406430000000015,
+      "max_delta_us": 16.53524
+    },
+    "block_place/legacy-minus-caller": {
+      "paired_run_mean_deltas_us": [
+        5.465839999999993,
+        4.008520000000004,
+        3.795049999999989,
+        0.8713500000000067
+      ],
+      "median_delta_us": 3.9017849999999967,
+      "min_delta_us": 0.8713500000000067,
+      "max_delta_us": 5.465839999999993
+    },
+    "block_place/legacy-minus-gatedpoll": {
+      "paired_run_mean_deltas_us": [
+        3.5814299999999974,
+        -7.186319999999995,
+        -0.03467000000000553,
+        1.7033399999999972
+      ],
+      "median_delta_us": 0.8343349999999958,
+      "min_delta_us": -7.186319999999995,
+      "max_delta_us": 3.5814299999999974
+    },
+    "block_remove/gatedpoll-minus-caller": {
+      "paired_run_mean_deltas_us": [
+        1.15916,
+        8.718369999999993,
+        4.530489999999986,
+        -1.0699299999999852
+      ],
+      "median_delta_us": 2.844824999999993,
+      "min_delta_us": -1.0699299999999852,
+      "max_delta_us": 8.718369999999993
+    },
+    "block_remove/gated-minus-gatedpoll": {
+      "paired_run_mean_deltas_us": [
+        16.036209999999997,
+        6.858150000000009,
+        10.446750000000009,
+        20.704679999999982
+      ],
+      "median_delta_us": 13.241480000000003,
+      "min_delta_us": 6.858150000000009,
+      "max_delta_us": 20.704679999999982
+    },
+    "block_remove/future-minus-legacy": {
+      "paired_run_mean_deltas_us": [
+        15.88197000000001,
+        16.539750000000012,
+        10.701490000000007,
+        13.847949999999997
+      ],
+      "median_delta_us": 14.864960000000004,
+      "min_delta_us": 10.701490000000007,
+      "max_delta_us": 16.539750000000012
+    },
+    "block_remove/legacy-minus-caller": {
+      "paired_run_mean_deltas_us": [
+        4.668069999999986,
+        0.26800999999998965,
+        3.017089999999996,
+        0.3372499999999974
+      ],
+      "median_delta_us": 1.6771699999999967,
+      "min_delta_us": 0.26800999999998965,
+      "max_delta_us": 4.668069999999986
+    },
+    "block_remove/legacy-minus-gatedpoll": {
+      "paired_run_mean_deltas_us": [
+        3.508909999999986,
+        -8.450360000000003,
+        -1.51339999999999,
+        1.4071799999999826
+      ],
+      "median_delta_us": -0.053110000000003765,
+      "min_delta_us": -8.450360000000003,
+      "max_delta_us": 3.508909999999986
+    },
+    "sky_place/gatedpoll-minus-caller": {
+      "paired_run_mean_deltas_us": [
+        56.6961,
+        -31.05090000000007,
+        -22.788200000000074,
+        -8.619899999999916
+      ],
+      "median_delta_us": -15.704049999999995,
+      "min_delta_us": -31.05090000000007,
+      "max_delta_us": 56.6961
+    },
+    "sky_place/gated-minus-gatedpoll": {
+      "paired_run_mean_deltas_us": [
+        -13.257899999999836,
+        14.723300000000108,
+        -8.904199999999946,
+        -17.436000000000035
+      ],
+      "median_delta_us": -11.081049999999891,
+      "min_delta_us": -17.436000000000035,
+      "max_delta_us": 14.723300000000108
+    },
+    "sky_place/future-minus-legacy": {
+      "paired_run_mean_deltas_us": [
+        6.2485000000000355,
+        -10.269300000000044,
+        -33.202800000000025,
+        -20.763699999999858
+      ],
+      "median_delta_us": -15.51649999999995,
+      "min_delta_us": -33.202800000000025,
+      "max_delta_us": 6.2485000000000355
+    },
+    "sky_place/legacy-minus-caller": {
+      "paired_run_mean_deltas_us": [
+        17.80709999999999,
+        -34.418199999999956,
+        3.9003999999999905,
+        14.261300000000006
+      ],
+      "median_delta_us": 9.080849999999998,
+      "min_delta_us": -34.418199999999956,
+      "max_delta_us": 17.80709999999999
+    },
+    "sky_place/legacy-minus-gatedpoll": {
+      "paired_run_mean_deltas_us": [
+        -38.88900000000001,
+        -3.3672999999998865,
+        26.688600000000065,
+        22.88119999999992
+      ],
+      "median_delta_us": 9.756950000000018,
+      "min_delta_us": -38.88900000000001,
+      "max_delta_us": 26.688600000000065
+    },
+    "sky_remove/gatedpoll-minus-caller": {
+      "paired_run_mean_deltas_us": [
+        60.18439999999998,
+        -14.435299999999984,
+        -22.055900000000065,
+        -12.755699999999933
+      ],
+      "median_delta_us": -13.595499999999959,
+      "min_delta_us": -22.055900000000065,
+      "max_delta_us": 60.18439999999998
+    },
+    "sky_remove/gated-minus-gatedpoll": {
+      "paired_run_mean_deltas_us": [
+        -37.09910000000002,
+        15.460100000000011,
+        -5.888299999999958,
+        -12.11239999999998
+      ],
+      "median_delta_us": -9.000349999999969,
+      "min_delta_us": -37.09910000000002,
+      "max_delta_us": 15.460100000000011
+    },
+    "sky_remove/future-minus-legacy": {
+      "paired_run_mean_deltas_us": [
+        -2.445799999999963,
+        -2.849900000000048,
+        -45.1015000000001,
+        -24.082300000000032
+      ],
+      "median_delta_us": -13.46610000000004,
+      "min_delta_us": -45.1015000000001,
+      "max_delta_us": -2.445799999999963
+    },
+    "sky_remove/legacy-minus-caller": {
+      "paired_run_mean_deltas_us": [
+        28.811900000000037,
+        -11.295299999999884,
+        6.8583999999999605,
+        7.917300000000068
+      ],
+      "median_delta_us": 7.3878500000000145,
+      "min_delta_us": -11.295299999999884,
+      "max_delta_us": 28.811900000000037
+    },
+    "sky_remove/legacy-minus-gatedpoll": {
+      "paired_run_mean_deltas_us": [
+        -31.372499999999945,
+        3.1400000000001,
+        28.914300000000026,
+        20.673000000000002
+      ],
+      "median_delta_us": 11.906500000000051,
+      "min_delta_us": -31.372499999999945,
+      "max_delta_us": 28.914300000000026
+    }
+  },
+  "sampled": [
+    {
+      "run": "sampled-blocks-r1-pulsar-caller",
+      "mode": "caller",
+      "phase": "block_place",
+      "n": 671,
+      "completion_us": 64.2435171385991,
+      "submit_us": 0.674962742175857,
+      "dispatch_us": 0.17242921013412818,
+      "body_us": 61.030849478390465,
+      "tail_us": 2.2496274217585692,
+      "between_tasks_us": 0.11564828614008943,
+      "nonbody_us": 3.212667660208644,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 9,
+      "sky_dec": 2,
+      "block_inc": 1834,
+      "block_dec": 1,
+      "sky_first": 1
+    },
+    {
+      "run": "sampled-blocks-r1-pulsar-caller",
+      "mode": "caller",
+      "phase": "block_remove",
+      "n": 613,
+      "completion_us": 66.40097879282219,
+      "submit_us": 0.6766721044045677,
+      "dispatch_us": 0.1707993474714519,
+      "body_us": 63.08221859706362,
+      "tail_us": 2.3251223491027733,
+      "between_tasks_us": 0.1461663947797716,
+      "nonbody_us": 3.3187601957585646,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 7,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 2255,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-blocks-r1-pulsar-gated",
+      "mode": "gated",
+      "phase": "block_place",
+      "n": 671,
+      "completion_us": 83.08688524590164,
+      "submit_us": 3.365275707898659,
+      "dispatch_us": 7.4502235469448586,
+      "body_us": 64.57332339791355,
+      "tail_us": 7.311177347242921,
+      "between_tasks_us": 0.38688524590163936,
+      "nonbody_us": 18.51356184798808,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 9,
+      "sky_dec": 2,
+      "block_inc": 1834,
+      "block_dec": 1,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-blocks-r1-pulsar-gated",
+      "mode": "gated",
+      "phase": "block_remove",
+      "n": 613,
+      "completion_us": 87.81141924959216,
+      "submit_us": 3.6097879282218597,
+      "dispatch_us": 7.3409461663947795,
+      "body_us": 67.66655791190864,
+      "tail_us": 7.006851549755302,
+      "between_tasks_us": 2.1872756933115824,
+      "nonbody_us": 20.144861337683523,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 7,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 2255,
+      "sky_first": 1
+    },
+    {
+      "run": "sampled-blocks-r1-pulsar-gatedpoll",
+      "mode": "gatedpoll",
+      "phase": "block_place",
+      "n": 671,
+      "completion_us": 65.6488822652757,
+      "submit_us": 0.7853949329359166,
+      "dispatch_us": 1.960208643815201,
+      "body_us": 62.257824143070046,
+      "tail_us": 0.38822652757078985,
+      "between_tasks_us": 0.2572280178837556,
+      "nonbody_us": 3.391058122205663,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 9,
+      "sky_dec": 2,
+      "block_inc": 1834,
+      "block_dec": 1,
+      "sky_first": 1
+    },
+    {
+      "run": "sampled-blocks-r1-pulsar-gatedpoll",
+      "mode": "gatedpoll",
+      "phase": "block_remove",
+      "n": 613,
+      "completion_us": 69.62887438825449,
+      "submit_us": 0.8225122349102774,
+      "dispatch_us": 2.225938009787928,
+      "body_us": 65.70603588907015,
+      "tail_us": 0.6047308319738989,
+      "between_tasks_us": 0.2696574225122349,
+      "nonbody_us": 3.9228384991843392,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 7,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 2255,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-blocks-r2-pulsar-caller",
+      "mode": "caller",
+      "phase": "block_place",
+      "n": 671,
+      "completion_us": 64.51222056631893,
+      "submit_us": 0.7906110283159463,
+      "dispatch_us": 0.20059612518628914,
+      "body_us": 61.07451564828614,
+      "tail_us": 2.328614008941878,
+      "between_tasks_us": 0.11788375558867363,
+      "nonbody_us": 3.4377049180327868,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 9,
+      "sky_dec": 2,
+      "block_inc": 1834,
+      "block_dec": 1,
+      "sky_first": 1
+    },
+    {
+      "run": "sampled-blocks-r2-pulsar-caller",
+      "mode": "caller",
+      "phase": "block_remove",
+      "n": 613,
+      "completion_us": 67.49641109298531,
+      "submit_us": 0.6274061990212072,
+      "dispatch_us": 0.18792822185970637,
+      "body_us": 64.14828711256118,
+      "tail_us": 2.3787928221859707,
+      "between_tasks_us": 0.15399673735725938,
+      "nonbody_us": 3.3481239804241434,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 7,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 2255,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-blocks-r2-pulsar-gated",
+      "mode": "gated",
+      "phase": "block_place",
+      "n": 671,
+      "completion_us": 81.64694485842027,
+      "submit_us": 3.816393442622951,
+      "dispatch_us": 6.6263785394932935,
+      "body_us": 63.56646795827124,
+      "tail_us": 7.298956780923994,
+      "between_tasks_us": 0.33874813710879287,
+      "nonbody_us": 18.08047690014903,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 9,
+      "sky_dec": 2,
+      "block_inc": 1834,
+      "block_dec": 1,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-blocks-r2-pulsar-gated",
+      "mode": "gated",
+      "phase": "block_remove",
+      "n": 613,
+      "completion_us": 85.90570962479609,
+      "submit_us": 3.789559543230016,
+      "dispatch_us": 6.858401305057097,
+      "body_us": 65.91745513866232,
+      "tail_us": 7.156117455138662,
+      "between_tasks_us": 2.1841761827079935,
+      "nonbody_us": 19.98825448613377,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 7,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 2255,
+      "sky_first": 1
+    },
+    {
+      "run": "sampled-blocks-r2-pulsar-gatedpoll",
+      "mode": "gatedpoll",
+      "phase": "block_place",
+      "n": 671,
+      "completion_us": 71.26065573770492,
+      "submit_us": 0.7481371087928465,
+      "dispatch_us": 1.9545454545454546,
+      "body_us": 67.65692995529061,
+      "tail_us": 0.6232488822652757,
+      "between_tasks_us": 0.27779433681073024,
+      "nonbody_us": 3.603725782414307,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 9,
+      "sky_dec": 2,
+      "block_inc": 1834,
+      "block_dec": 1,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-blocks-r2-pulsar-gatedpoll",
+      "mode": "gatedpoll",
+      "phase": "block_remove",
+      "n": 613,
+      "completion_us": 73.77650897226754,
+      "submit_us": 0.8796084828711256,
+      "dispatch_us": 2.3034257748776508,
+      "body_us": 70.14013050570962,
+      "tail_us": 0.18907014681892334,
+      "between_tasks_us": 0.2642740619902121,
+      "nonbody_us": 3.636378466557912,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 7,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 2255,
+      "sky_first": 1
+    },
+    {
+      "run": "sampled-sky-r1-pulsar-caller",
+      "mode": "caller",
+      "phase": "sky_remove",
+      "n": 70,
+      "completion_us": 691.8342857142857,
+      "submit_us": 2.0,
+      "dispatch_us": 0.5085714285714286,
+      "body_us": 685.6257142857143,
+      "tail_us": 3.5371428571428574,
+      "between_tasks_us": 0.16285714285714287,
+      "nonbody_us": 6.208571428571428,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 21174,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-sky-r1-pulsar-caller",
+      "mode": "caller",
+      "phase": "sky_place",
+      "n": 65,
+      "completion_us": 700.516923076923,
+      "submit_us": 2.3707692307692305,
+      "dispatch_us": 0.4276923076923077,
+      "body_us": 691.7784615384616,
+      "tail_us": 4.9338461538461535,
+      "between_tasks_us": 1.0061538461538462,
+      "nonbody_us": 8.738461538461538,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 1,
+      "sky_dec": 24420,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 1
+    },
+    {
+      "run": "sampled-sky-r1-pulsar-gated",
+      "mode": "gated",
+      "phase": "sky_remove",
+      "n": 70,
+      "completion_us": 587.6114285714286,
+      "submit_us": 6.382857142857143,
+      "dispatch_us": 6.661428571428572,
+      "body_us": 568.28,
+      "tail_us": 3.8,
+      "between_tasks_us": 2.487142857142857,
+      "nonbody_us": 19.33142857142857,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 21174,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 1
+    },
+    {
+      "run": "sampled-sky-r1-pulsar-gated",
+      "mode": "gated",
+      "phase": "sky_place",
+      "n": 65,
+      "completion_us": 591.4,
+      "submit_us": 4.613846153846154,
+      "dispatch_us": 5.713846153846154,
+      "body_us": 572.0061538461539,
+      "tail_us": 8.70923076923077,
+      "between_tasks_us": 0.3569230769230769,
+      "nonbody_us": 19.393846153846155,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 1,
+      "sky_dec": 24420,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-sky-r1-pulsar-gatedpoll",
+      "mode": "gatedpoll",
+      "phase": "sky_remove",
+      "n": 70,
+      "completion_us": 622.8142857142857,
+      "submit_us": 2.69,
+      "dispatch_us": 4.228571428571429,
+      "body_us": 613.5757142857143,
+      "tail_us": 1.9314285714285715,
+      "between_tasks_us": 0.38857142857142857,
+      "nonbody_us": 9.23857142857143,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 21174,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-sky-r1-pulsar-gatedpoll",
+      "mode": "gatedpoll",
+      "phase": "sky_place",
+      "n": 65,
+      "completion_us": 605.5215384615385,
+      "submit_us": 2.9323076923076923,
+      "dispatch_us": 4.523076923076923,
+      "body_us": 593.4076923076923,
+      "tail_us": 4.224615384615385,
+      "between_tasks_us": 0.4338461538461538,
+      "nonbody_us": 12.113846153846154,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 1,
+      "sky_dec": 24420,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 1
+    },
+    {
+      "run": "sampled-sky-r2-pulsar-caller",
+      "mode": "caller",
+      "phase": "sky_remove",
+      "n": 70,
+      "completion_us": 578.5571428571428,
+      "submit_us": 1.4414285714285715,
+      "dispatch_us": 0.24857142857142858,
+      "body_us": 574.2128571428572,
+      "tail_us": 2.4485714285714284,
+      "between_tasks_us": 0.2057142857142857,
+      "nonbody_us": 4.344285714285714,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 21174,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-sky-r2-pulsar-caller",
+      "mode": "caller",
+      "phase": "sky_place",
+      "n": 65,
+      "completion_us": 587.2,
+      "submit_us": 0.9461538461538461,
+      "dispatch_us": 0.24307692307692308,
+      "body_us": 583.2984615384615,
+      "tail_us": 2.4846153846153847,
+      "between_tasks_us": 0.2276923076923077,
+      "nonbody_us": 3.9015384615384616,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 1,
+      "sky_dec": 24420,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 1
+    },
+    {
+      "run": "sampled-sky-r2-pulsar-gated",
+      "mode": "gated",
+      "phase": "sky_remove",
+      "n": 70,
+      "completion_us": 661.8271428571428,
+      "submit_us": 5.46,
+      "dispatch_us": 8.86,
+      "body_us": 638.7571428571429,
+      "tail_us": 8.35142857142857,
+      "between_tasks_us": 0.3985714285714286,
+      "nonbody_us": 23.07,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 21174,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-sky-r2-pulsar-gated",
+      "mode": "gated",
+      "phase": "sky_place",
+      "n": 65,
+      "completion_us": 613.3292307692308,
+      "submit_us": 5.713846153846154,
+      "dispatch_us": 8.10923076923077,
+      "body_us": 593.4784615384615,
+      "tail_us": 3.4923076923076923,
+      "between_tasks_us": 2.5353846153846153,
+      "nonbody_us": 19.85076923076923,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 1,
+      "sky_dec": 24420,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 1
+    },
+    {
+      "run": "sampled-sky-r2-pulsar-gatedpoll",
+      "mode": "gatedpoll",
+      "phase": "sky_remove",
+      "n": 70,
+      "completion_us": 642.3971428571429,
+      "submit_us": 2.7485714285714287,
+      "dispatch_us": 4.555714285714286,
+      "body_us": 634.1214285714286,
+      "tail_us": 0.6142857142857143,
+      "between_tasks_us": 0.35714285714285715,
+      "nonbody_us": 8.275714285714285,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 21174,
+      "sky_dec": 1,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 0
+    },
+    {
+      "run": "sampled-sky-r2-pulsar-gatedpoll",
+      "mode": "gatedpoll",
+      "phase": "sky_place",
+      "n": 65,
+      "completion_us": 622.56,
+      "submit_us": 2.856923076923077,
+      "dispatch_us": 4.613846153846154,
+      "body_us": 613.5476923076923,
+      "tail_us": 1.1292307692307693,
+      "between_tasks_us": 0.4123076923076923,
+      "nonbody_us": 9.012307692307692,
+      "sky_tasks": 1,
+      "block_tasks": 1,
+      "sky_positions": 1,
+      "block_positions": 1,
+      "sky_inc": 1,
+      "sky_dec": 24420,
+      "block_inc": 0,
+      "block_dec": 1,
+      "sky_first": 1
+    }
+  ]
+}

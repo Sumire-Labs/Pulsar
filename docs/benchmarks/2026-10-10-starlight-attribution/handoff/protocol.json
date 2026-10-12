@@ -1,0 +1,54 @@
+{
+  "source_main": "87e75ec (production scheduler3347942)",
+  "formal_runs": 48,
+  "cases": [
+    "pulsar-legacy",
+    "pulsar-future",
+    "pulsar-gated",
+    "pulsar-gatedpoll",
+    "pulsar-caller",
+    "starlight-legacy"
+  ],
+  "repetitions": 4,
+  "orders": [
+    [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    [
+      5,
+      4,
+      3,
+      2,
+      1,
+      0
+    ],
+    [
+      2,
+      0,
+      5,
+      1,
+      4,
+      3
+    ],
+    [
+      3,
+      4,
+      1,
+      5,
+      0,
+      2
+    ]
+  ],
+  "blocks": "lightbench blockupdates 5000 10000",
+  "sky": "lightbench updates 2000 1000",
+  "profiling": false,
+  "supplemental": "2 reps x blocks/sky x gated/gatedpoll/caller, sampled schema3",
+  "primary_comparison": "gatedpoll versus caller: same producer hold and full batch; release to worker plus global polling versus caller execution plus same global barrier. Gated versus gatedpoll: same handoff, direct future wait versus polling. Future versus legacy: wait policies under normal concurrency.",
+  "exclusions": "No propagation/shadow semantic changes; other comparisons deferred.",
+  "superseded": "Six initial native trials and three pilots retained under superseded/. They prompted adding gatedpoll; excluded from all final summaries."
+}

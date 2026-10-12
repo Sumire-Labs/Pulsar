@@ -1,0 +1,20 @@
+{
+  "lightbench": {
+    "tests": 60,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "scheduler_self_test": {
+    "passed": true,
+    "checks": [
+      "held owner exclusion",
+      "independent-world progress",
+      "caller thread execution",
+      "duplicate coordinate merge",
+      "future completion",
+      "worker execution after release"
+    ]
+  },
+  "production_sources_changed": false
+}

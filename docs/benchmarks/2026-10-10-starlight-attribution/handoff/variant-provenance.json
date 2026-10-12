@@ -1,0 +1,24 @@
+{
+  "diagnostic": {
+    "changed_entries": [
+      "com/sumirelabs/pulsar/light/ParallelLightScheduler$Claim.class",
+      "com/sumirelabs/pulsar/light/ParallelLightScheduler.class"
+    ],
+    "all_other_entries_identical": true,
+    "sha256": "4dafbb1d75ff05b2dd8eff2bb1e154c8e84683aa54c9373a45e16299755f2cb7"
+  },
+  "sampled": {
+    "changed_entries": [
+      "com/sumirelabs/pulsar/light/ChunkTasks.class",
+      "com/sumirelabs/pulsar/light/LightEngineWorker.class",
+      "com/sumirelabs/pulsar/light/ParallelLightScheduler$Claim.class",
+      "com/sumirelabs/pulsar/light/ParallelLightScheduler.class",
+      "com/sumirelabs/pulsar/light/engine/PulsarEngine$AxisDirection.class",
+      "com/sumirelabs/pulsar/light/engine/PulsarEngine.class",
+      "com/sumirelabs/pulsar/light/engine/ScalarBlockEngine.class",
+      "com/sumirelabs/pulsar/light/engine/SkyLightColumnProcessor.class"
+    ],
+    "all_other_entries_identical": true,
+    "sha256": "12d79e627ef6d240cbc5299c2eef85fb727855bc94223c2534ccec4fc6ede3a7"
+  }
+}
