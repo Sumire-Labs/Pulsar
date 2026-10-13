@@ -1,0 +1,882 @@
+{
+  "checks": {
+    "same_native_environment": true,
+    "same_native_non_engine_mods": true,
+    "included_public_trials": 26
+  },
+  "summary": [
+    {
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_place",
+      "jvms": 2,
+      "median_ns": 78376.275,
+      "min_ns": 77208.17,
+      "max_ns": 79544.38,
+      "p99_median_ns": 188400.0
+    },
+    {
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "jvms": 2,
+      "median_ns": 80407.905,
+      "min_ns": 80135.52,
+      "max_ns": 80680.29,
+      "p99_median_ns": 156950.0
+    },
+    {
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_place",
+      "jvms": 2,
+      "median_ns": 75899.38500000001,
+      "min_ns": 74489.21,
+      "max_ns": 77309.56,
+      "p99_median_ns": 184800.0
+    },
+    {
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "jvms": 2,
+      "median_ns": 77880.2,
+      "min_ns": 77022.53,
+      "max_ns": 78737.87,
+      "p99_median_ns": 138100.0
+    },
+    {
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "jvms": 4,
+      "median_ns": 4121331.5,
+      "min_ns": 3411952,
+      "max_ns": 4200539,
+      "p99_median_ns": null
+    },
+    {
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "post_drain",
+      "jvms": 4,
+      "median_ns": 14127850.0,
+      "min_ns": 13600100,
+      "max_ns": 18277500,
+      "p99_median_ns": null
+    },
+    {
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "jvms": 4,
+      "median_ns": 3832957.5,
+      "min_ns": 3360076,
+      "max_ns": 4169177,
+      "p99_median_ns": null
+    },
+    {
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "post_drain",
+      "jvms": 4,
+      "median_ns": 16333900.0,
+      "min_ns": 14541500,
+      "max_ns": 19949900,
+      "p99_median_ns": null
+    },
+    {
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_place",
+      "jvms": 4,
+      "median_ns": 79498.95000000001,
+      "min_ns": 76627.4,
+      "max_ns": 95263.5,
+      "p99_median_ns": 204950.0
+    },
+    {
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "jvms": 4,
+      "median_ns": 79452.35,
+      "min_ns": 76318.7,
+      "max_ns": 93210.1,
+      "p99_median_ns": 155500.0
+    },
+    {
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "jvms": 4,
+      "median_ns": 787752.8999999999,
+      "min_ns": 743051.9,
+      "max_ns": 853215.2,
+      "p99_median_ns": 1435150.0
+    },
+    {
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "jvms": 4,
+      "median_ns": 770715.75,
+      "min_ns": 724162.5,
+      "max_ns": 843919.6,
+      "p99_median_ns": 1446250.0
+    },
+    {
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_place",
+      "jvms": 4,
+      "median_ns": 82497.29999999999,
+      "min_ns": 73870.6,
+      "max_ns": 114169.4,
+      "p99_median_ns": 229350.0
+    },
+    {
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "jvms": 4,
+      "median_ns": 81889.15,
+      "min_ns": 74577.6,
+      "max_ns": 108382.1,
+      "p99_median_ns": 167100.0
+    },
+    {
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "jvms": 4,
+      "median_ns": 830006.2,
+      "min_ns": 735458.7,
+      "max_ns": 1082275.3,
+      "p99_median_ns": 1416800.0
+    },
+    {
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "jvms": 4,
+      "median_ns": 799311.3,
+      "min_ns": 691010.7,
+      "max_ns": 1150075.5,
+      "p99_median_ns": 1444250.0
+    }
+  ],
+  "rows": [
+    {
+      "run": "blocks-r1-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 79544.38,
+      "p50_ns": 71600.0,
+      "p95_ns": 115300,
+      "p99_ns": 190700,
+      "submission_mean_ns": 1363.96
+    },
+    {
+      "run": "blocks-r1-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 80680.29,
+      "p50_ns": 73900.0,
+      "p95_ns": 112200,
+      "p99_ns": 166400,
+      "submission_mean_ns": 1314.98
+    },
+    {
+      "run": "blocks-r1-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 77309.56,
+      "p50_ns": 70200.0,
+      "p95_ns": 104300,
+      "p99_ns": 190100,
+      "submission_mean_ns": 1261.72
+    },
+    {
+      "run": "blocks-r1-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 78737.87,
+      "p50_ns": 73500.0,
+      "p95_ns": 103800,
+      "p99_ns": 139100,
+      "submission_mean_ns": 1228.27
+    },
+    {
+      "run": "blocks-r2-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 77208.17,
+      "p50_ns": 68900.0,
+      "p95_ns": 103800,
+      "p99_ns": 186100,
+      "submission_mean_ns": 1381.04
+    },
+    {
+      "run": "blocks-r2-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 80135.52,
+      "p50_ns": 74000.0,
+      "p95_ns": 106300,
+      "p99_ns": 147500,
+      "submission_mean_ns": 1384.92
+    },
+    {
+      "run": "blocks-r2-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 74489.21,
+      "p50_ns": 67400.0,
+      "p95_ns": 101500,
+      "p99_ns": 179500,
+      "submission_mean_ns": 1502.4
+    },
+    {
+      "run": "blocks-r2-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 77022.53,
+      "p50_ns": 71500.0,
+      "p95_ns": 102800,
+      "p99_ns": 137100,
+      "submission_mean_ns": 1422.83
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 3411952
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "post_drain",
+      "mean_ns": 13600100
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 4169177
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "post_drain",
+      "mean_ns": 19949900
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 4200539
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "post_drain",
+      "mean_ns": 18277500
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 3360076
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "post_drain",
+      "mean_ns": 14541500
+    },
+    {
+      "run": "continuous-r3-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 4174181
+    },
+    {
+      "run": "continuous-r3-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "post_drain",
+      "mean_ns": 13979900
+    },
+    {
+      "run": "continuous-r3-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 4085087
+    },
+    {
+      "run": "continuous-r3-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "post_drain",
+      "mean_ns": 15750600
+    },
+    {
+      "run": "continuous-r4-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 4068482
+    },
+    {
+      "run": "continuous-r4-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "post_drain",
+      "mean_ns": 14275800
+    },
+    {
+      "run": "continuous-r4-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 3580828
+    },
+    {
+      "run": "continuous-r4-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "post_drain",
+      "mean_ns": 16917200
+    },
+    {
+      "run": "sky-r1-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 812856.5,
+      "p50_ns": 768450.0,
+      "p95_ns": 1097700,
+      "p99_ns": 1537800,
+      "submission_mean_ns": 5960.3
+    },
+    {
+      "run": "sky-r1-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 819701.6,
+      "p50_ns": 790700.0,
+      "p95_ns": 1088000,
+      "p99_ns": 1426800,
+      "submission_mean_ns": 4754.7
+    },
+    {
+      "run": "sky-r1-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 79234.8,
+      "p50_ns": 69550.0,
+      "p95_ns": 117600,
+      "p99_ns": 198000,
+      "submission_mean_ns": 1086.4
+    },
+    {
+      "run": "sky-r1-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 79105.4,
+      "p50_ns": 72500.0,
+      "p95_ns": 105100,
+      "p99_ns": 151300,
+      "submission_mean_ns": 1015.4
+    },
+    {
+      "run": "sky-r1-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 876002.9,
+      "p50_ns": 861900.0,
+      "p95_ns": 1171000,
+      "p99_ns": 1514000,
+      "submission_mean_ns": 9536.5
+    },
+    {
+      "run": "sky-r1-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 904001.7,
+      "p50_ns": 897500.0,
+      "p95_ns": 1148200,
+      "p99_ns": 1401300,
+      "submission_mean_ns": 7615.4
+    },
+    {
+      "run": "sky-r1-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 114169.4,
+      "p50_ns": 98400.0,
+      "p95_ns": 242300,
+      "p99_ns": 311000,
+      "submission_mean_ns": 3153
+    },
+    {
+      "run": "sky-r1-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 108382.1,
+      "p50_ns": 99800.0,
+      "p95_ns": 160600,
+      "p99_ns": 312700,
+      "submission_mean_ns": 3094.7
+    },
+    {
+      "run": "sky-r2-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 843919.6,
+      "p50_ns": 811550.0,
+      "p95_ns": 1127100,
+      "p99_ns": 1639200,
+      "submission_mean_ns": 6969.5
+    },
+    {
+      "run": "sky-r2-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 853215.2,
+      "p50_ns": 818900.0,
+      "p95_ns": 1129700,
+      "p99_ns": 1552600,
+      "submission_mean_ns": 6262.3
+    },
+    {
+      "run": "sky-r2-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 95263.5,
+      "p50_ns": 89200.0,
+      "p95_ns": 137100,
+      "p99_ns": 258900,
+      "submission_mean_ns": 1390.1
+    },
+    {
+      "run": "sky-r2-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 93210.1,
+      "p50_ns": 90700.0,
+      "p95_ns": 121600,
+      "p99_ns": 159700,
+      "submission_mean_ns": 1372.7
+    },
+    {
+      "run": "sky-r2-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 691010.7,
+      "p50_ns": 653650.0,
+      "p95_ns": 873600,
+      "p99_ns": 948000,
+      "submission_mean_ns": 4747.4
+    },
+    {
+      "run": "sky-r2-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 735458.7,
+      "p50_ns": 694300.0,
+      "p95_ns": 936500,
+      "p99_ns": 1066400,
+      "submission_mean_ns": 3641.6
+    },
+    {
+      "run": "sky-r2-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 75721.2,
+      "p50_ns": 66600.0,
+      "p95_ns": 108800,
+      "p99_ns": 207500,
+      "submission_mean_ns": 1023.4
+    },
+    {
+      "run": "sky-r2-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 76645.4,
+      "p50_ns": 70600.0,
+      "p95_ns": 103200,
+      "p99_ns": 130100,
+      "submission_mean_ns": 1006.8
+    },
+    {
+      "run": "sky-r3-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 728575,
+      "p50_ns": 666700.0,
+      "p95_ns": 1011400,
+      "p99_ns": 1341200,
+      "submission_mean_ns": 5068.5
+    },
+    {
+      "run": "sky-r3-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 755804.2,
+      "p50_ns": 693500.0,
+      "p95_ns": 1044500,
+      "p99_ns": 1443500,
+      "submission_mean_ns": 3775.4
+    },
+    {
+      "run": "sky-r3-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 79763.1,
+      "p50_ns": 67700.0,
+      "p95_ns": 138000,
+      "p99_ns": 211900,
+      "submission_mean_ns": 1016.5
+    },
+    {
+      "run": "sky-r3-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 79799.3,
+      "p50_ns": 72000.0,
+      "p95_ns": 122900,
+      "p99_ns": 173300,
+      "submission_mean_ns": 919.9
+    },
+    {
+      "run": "sky-r3-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 722619.7,
+      "p50_ns": 658850.0,
+      "p95_ns": 1098000,
+      "p99_ns": 1374500,
+      "submission_mean_ns": 4164.4
+    },
+    {
+      "run": "sky-r3-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 756010.7,
+      "p50_ns": 687550.0,
+      "p95_ns": 1145900,
+      "p99_ns": 1432300,
+      "submission_mean_ns": 3038.6
+    },
+    {
+      "run": "sky-r3-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 73870.6,
+      "p50_ns": 65400.0,
+      "p95_ns": 106900,
+      "p99_ns": 210100,
+      "submission_mean_ns": 915.4
+    },
+    {
+      "run": "sky-r3-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 74577.6,
+      "p50_ns": 69350.0,
+      "p95_ns": 97600,
+      "p99_ns": 157000,
+      "submission_mean_ns": 880
+    },
+    {
+      "run": "sky-r4-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 724162.5,
+      "p50_ns": 665600.0,
+      "p95_ns": 950200,
+      "p99_ns": 1354700,
+      "submission_mean_ns": 4236.8
+    },
+    {
+      "run": "sky-r4-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 743051.9,
+      "p50_ns": 686400.0,
+      "p95_ns": 926600,
+      "p99_ns": 1321200,
+      "submission_mean_ns": 3006.6
+    },
+    {
+      "run": "sky-r4-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 76627.4,
+      "p50_ns": 66500.0,
+      "p95_ns": 104100,
+      "p99_ns": 187300,
+      "submission_mean_ns": 883
+    },
+    {
+      "run": "sky-r4-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 76318.7,
+      "p50_ns": 70000.0,
+      "p95_ns": 101300,
+      "p99_ns": 115100,
+      "submission_mean_ns": 817.7
+    },
+    {
+      "run": "sky-r4-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 1150075.5,
+      "p50_ns": 803150.0,
+      "p95_ns": 2653300,
+      "p99_ns": 7588700,
+      "submission_mean_ns": 9316.1
+    },
+    {
+      "run": "sky-r4-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 1082275.3,
+      "p50_ns": 828550.0,
+      "p95_ns": 2489900,
+      "p99_ns": 5123700,
+      "submission_mean_ns": 5801.7
+    },
+    {
+      "run": "sky-r4-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 89273.4,
+      "p50_ns": 77950.0,
+      "p95_ns": 145100,
+      "p99_ns": 248600,
+      "submission_mean_ns": 1637.9
+    },
+    {
+      "run": "sky-r4-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 87132.9,
+      "p50_ns": 80900.0,
+      "p95_ns": 125300,
+      "p99_ns": 177200,
+      "submission_mean_ns": 1674
+    }
+  ],
+  "probes": [],
+  "trials": [
+    {
+      "run": "blocks-r1-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "blocks-r1-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "blocks-r2-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "blocks-r2-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "callbacks-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "callbacks-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "continuous-r3-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "continuous-r3-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "continuous-r4-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "continuous-r4-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "generation-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "generation-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "shapes-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "shapes-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "sky-r1-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "sky-r1-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "sky-r2-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "sky-r2-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "sky-r3-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "sky-r3-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    },
+    {
+      "run": "sky-r4-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "sky-r4-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "691D522299C702420AF68261BC9BA4AC94A6FB04515DC6451C692A024C10A0F7"
+    }
+  ]
+}

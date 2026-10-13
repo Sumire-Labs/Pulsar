@@ -1,0 +1,1783 @@
+{
+  "checks": {
+    "same_native_environment": true,
+    "same_native_non_engine_mods": true,
+    "included_public_trials": 36
+  },
+  "summary": [
+    {
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_place",
+      "jvms": 4,
+      "median_ns": 103681.03,
+      "min_ns": 77905.18,
+      "max_ns": 162587.09,
+      "p99_median_ns": 415900.0
+    },
+    {
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "jvms": 4,
+      "median_ns": 104800.18,
+      "min_ns": 78714.17,
+      "max_ns": 160035.14,
+      "p99_median_ns": 386500.0
+    },
+    {
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_place",
+      "jvms": 4,
+      "median_ns": 75441.39499999999,
+      "min_ns": 70584.28,
+      "max_ns": 87259.26,
+      "p99_median_ns": 161700.0
+    },
+    {
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "jvms": 4,
+      "median_ns": 79271.255,
+      "min_ns": 73914.49,
+      "max_ns": 90344.6,
+      "p99_median_ns": 165650.0
+    },
+    {
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "jvms": 4,
+      "median_ns": 4194827.5,
+      "min_ns": 3316754,
+      "max_ns": 5635128,
+      "p99_median_ns": null
+    },
+    {
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "post_drain",
+      "jvms": 4,
+      "median_ns": 14087450.0,
+      "min_ns": 12216900,
+      "max_ns": 15063100,
+      "p99_median_ns": null
+    },
+    {
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "jvms": 4,
+      "median_ns": 5285810.0,
+      "min_ns": 4593351,
+      "max_ns": 10163662,
+      "p99_median_ns": null
+    },
+    {
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "post_drain",
+      "jvms": 4,
+      "median_ns": 15455550.0,
+      "min_ns": 13254500,
+      "max_ns": 19623700,
+      "p99_median_ns": null
+    },
+    {
+      "family": "long",
+      "engine": "baseline",
+      "metric": "block_place",
+      "jvms": 2,
+      "median_ns": 80900.63,
+      "min_ns": 79066.83,
+      "max_ns": 82734.43,
+      "p99_median_ns": 230600.0
+    },
+    {
+      "family": "long",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "jvms": 2,
+      "median_ns": 80872.23,
+      "min_ns": 77564.04,
+      "max_ns": 84180.42,
+      "p99_median_ns": 192550.0
+    },
+    {
+      "family": "long",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "jvms": 2,
+      "median_ns": 720982.985,
+      "min_ns": 693704.7,
+      "max_ns": 748261.27,
+      "p99_median_ns": 1266300.0
+    },
+    {
+      "family": "long",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "jvms": 2,
+      "median_ns": 702808.35,
+      "min_ns": 680191.57,
+      "max_ns": 725425.13,
+      "p99_median_ns": 1242350.0
+    },
+    {
+      "family": "long",
+      "engine": "candidate",
+      "metric": "block_place",
+      "jvms": 2,
+      "median_ns": 71124.845,
+      "min_ns": 70187.11,
+      "max_ns": 72062.58,
+      "p99_median_ns": 128800.0
+    },
+    {
+      "family": "long",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "jvms": 2,
+      "median_ns": 74228.07,
+      "min_ns": 73167,
+      "max_ns": 75289.14,
+      "p99_median_ns": 133550.0
+    },
+    {
+      "family": "long",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "jvms": 2,
+      "median_ns": 718635.12,
+      "min_ns": 716413.76,
+      "max_ns": 720856.48,
+      "p99_median_ns": 1082600.0
+    },
+    {
+      "family": "long",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "jvms": 2,
+      "median_ns": 677975.71,
+      "min_ns": 677537.69,
+      "max_ns": 678413.73,
+      "p99_median_ns": 1024500.0
+    },
+    {
+      "family": "probe",
+      "engine": "baseline",
+      "metric": "block_place",
+      "jvms": 1,
+      "median_ns": 111326.33,
+      "min_ns": 111326.33,
+      "max_ns": 111326.33,
+      "p99_median_ns": 370100
+    },
+    {
+      "family": "probe",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "jvms": 1,
+      "median_ns": 106658.52,
+      "min_ns": 106658.52,
+      "max_ns": 106658.52,
+      "p99_median_ns": 368300
+    },
+    {
+      "family": "probe",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "jvms": 1,
+      "median_ns": 752442.92,
+      "min_ns": 752442.92,
+      "max_ns": 752442.92,
+      "p99_median_ns": 1261800
+    },
+    {
+      "family": "probe",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "jvms": 1,
+      "median_ns": 732081.56,
+      "min_ns": 732081.56,
+      "max_ns": 732081.56,
+      "p99_median_ns": 1231300
+    },
+    {
+      "family": "probe",
+      "engine": "candidate",
+      "metric": "block_place",
+      "jvms": 1,
+      "median_ns": 77423.89,
+      "min_ns": 77423.89,
+      "max_ns": 77423.89,
+      "p99_median_ns": 154100
+    },
+    {
+      "family": "probe",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "jvms": 1,
+      "median_ns": 81558.26,
+      "min_ns": 81558.26,
+      "max_ns": 81558.26,
+      "p99_median_ns": 163300
+    },
+    {
+      "family": "probe",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "jvms": 1,
+      "median_ns": 758021.24,
+      "min_ns": 758021.24,
+      "max_ns": 758021.24,
+      "p99_median_ns": 1118700
+    },
+    {
+      "family": "probe",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "jvms": 1,
+      "median_ns": 710264.21,
+      "min_ns": 710264.21,
+      "max_ns": 710264.21,
+      "p99_median_ns": 1042100
+    },
+    {
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_place",
+      "jvms": 4,
+      "median_ns": 94181.4,
+      "min_ns": 74472.5,
+      "max_ns": 102063.2,
+      "p99_median_ns": 259100.0
+    },
+    {
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "jvms": 4,
+      "median_ns": 92283.55,
+      "min_ns": 74774.5,
+      "max_ns": 97207.4,
+      "p99_median_ns": 196900.0
+    },
+    {
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "jvms": 4,
+      "median_ns": 798834.2,
+      "min_ns": 710403.3,
+      "max_ns": 964855.6,
+      "p99_median_ns": 1325950.0
+    },
+    {
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "jvms": 4,
+      "median_ns": 790590.0,
+      "min_ns": 689176.3,
+      "max_ns": 945708.7,
+      "p99_median_ns": 1311350.0
+    },
+    {
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_place",
+      "jvms": 4,
+      "median_ns": 77408.25,
+      "min_ns": 71529.3,
+      "max_ns": 80917.5,
+      "p99_median_ns": 153350.0
+    },
+    {
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "jvms": 4,
+      "median_ns": 81813.95,
+      "min_ns": 74747,
+      "max_ns": 85950.8,
+      "p99_median_ns": 168150.0
+    },
+    {
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "jvms": 4,
+      "median_ns": 748843.8999999999,
+      "min_ns": 721686.8,
+      "max_ns": 807982.6,
+      "p99_median_ns": 1263000.0
+    },
+    {
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "jvms": 4,
+      "median_ns": 707754.3,
+      "min_ns": 687547.4,
+      "max_ns": 769921.8,
+      "p99_median_ns": 1195050.0
+    }
+  ],
+  "rows": [
+    {
+      "run": "blocks-r1-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 80909.62,
+      "p50_ns": 70200.0,
+      "p95_ns": 122900,
+      "p99_ns": 227300,
+      "submission_mean_ns": 1669.94
+    },
+    {
+      "run": "blocks-r1-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 81636.7,
+      "p50_ns": 72900.0,
+      "p95_ns": 119200,
+      "p99_ns": 176200,
+      "submission_mean_ns": 1573.23
+    },
+    {
+      "run": "blocks-r1-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 87259.26,
+      "p50_ns": 80100.0,
+      "p95_ns": 123600,
+      "p99_ns": 231100,
+      "submission_mean_ns": 1888.53
+    },
+    {
+      "run": "blocks-r1-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 90344.6,
+      "p50_ns": 83300.0,
+      "p95_ns": 127900,
+      "p99_ns": 238500,
+      "submission_mean_ns": 1711.69
+    },
+    {
+      "run": "blocks-r2-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 77905.18,
+      "p50_ns": 69200.0,
+      "p95_ns": 112800,
+      "p99_ns": 195700,
+      "submission_mean_ns": 1415.68
+    },
+    {
+      "run": "blocks-r2-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 78714.17,
+      "p50_ns": 72200.0,
+      "p95_ns": 105300,
+      "p99_ns": 164700,
+      "submission_mean_ns": 1402.51
+    },
+    {
+      "run": "blocks-r2-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 76699.73,
+      "p50_ns": 67100.0,
+      "p95_ns": 112600,
+      "p99_ns": 173200,
+      "submission_mean_ns": 1276.69
+    },
+    {
+      "run": "blocks-r2-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 80117.7,
+      "p50_ns": 70600.0,
+      "p95_ns": 117500,
+      "p99_ns": 178100,
+      "submission_mean_ns": 1311.17
+    },
+    {
+      "run": "blocks-r3-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 126452.44,
+      "p50_ns": 95600.0,
+      "p95_ns": 231800,
+      "p99_ns": 604500,
+      "submission_mean_ns": 4262.95
+    },
+    {
+      "run": "blocks-r3-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 127963.66,
+      "p50_ns": 97600.0,
+      "p95_ns": 220400,
+      "p99_ns": 596800,
+      "submission_mean_ns": 4407.63
+    },
+    {
+      "run": "blocks-r3-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 70584.28,
+      "p50_ns": 64400.0,
+      "p95_ns": 95900,
+      "p99_ns": 130800,
+      "submission_mean_ns": 1176.26
+    },
+    {
+      "run": "blocks-r3-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 73914.49,
+      "p50_ns": 68000.0,
+      "p95_ns": 99600,
+      "p99_ns": 136700,
+      "submission_mean_ns": 1125.76
+    },
+    {
+      "run": "blocks-r4-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 162587.09,
+      "p50_ns": 103000.0,
+      "p95_ns": 366000,
+      "p99_ns": 1139200,
+      "submission_mean_ns": 7670.17
+    },
+    {
+      "run": "blocks-r4-baseline",
+      "family": "blocks",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 160035.14,
+      "p50_ns": 106700.0,
+      "p95_ns": 351100,
+      "p99_ns": 956000,
+      "submission_mean_ns": 6328.35
+    },
+    {
+      "run": "blocks-r4-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 74183.06,
+      "p50_ns": 69800.0,
+      "p95_ns": 100400,
+      "p99_ns": 150200,
+      "submission_mean_ns": 1228.93
+    },
+    {
+      "run": "blocks-r4-candidate",
+      "family": "blocks",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 78424.81,
+      "p50_ns": 74300.0,
+      "p95_ns": 104800,
+      "p99_ns": 153200,
+      "submission_mean_ns": 1223.71
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 5635128
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "post_drain",
+      "mean_ns": 15063100
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 5877100
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "post_drain",
+      "mean_ns": 13254500
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 3713041
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "post_drain",
+      "mean_ns": 13469100
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 4593351
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "post_drain",
+      "mean_ns": 19623700
+    },
+    {
+      "run": "continuous-r3-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 3316754
+    },
+    {
+      "run": "continuous-r3-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "post_drain",
+      "mean_ns": 12216900
+    },
+    {
+      "run": "continuous-r3-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 10163662
+    },
+    {
+      "run": "continuous-r3-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "post_drain",
+      "mean_ns": 15177800
+    },
+    {
+      "run": "continuous-r4-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 4676614
+    },
+    {
+      "run": "continuous-r4-baseline",
+      "family": "continuous",
+      "engine": "baseline",
+      "metric": "post_drain",
+      "mean_ns": 14705800
+    },
+    {
+      "run": "continuous-r4-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 4694520
+    },
+    {
+      "run": "continuous-r4-candidate",
+      "family": "continuous",
+      "engine": "candidate",
+      "metric": "post_drain",
+      "mean_ns": 15733300
+    },
+    {
+      "run": "long-r1-baseline",
+      "family": "long",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 725425.13,
+      "p50_ns": 670000.0,
+      "p95_ns": 1088900,
+      "p99_ns": 1445600,
+      "submission_mean_ns": 4140.34
+    },
+    {
+      "run": "long-r1-baseline",
+      "family": "long",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 748261.27,
+      "p50_ns": 691100.0,
+      "p95_ns": 1115000,
+      "p99_ns": 1468800,
+      "submission_mean_ns": 2824.78
+    },
+    {
+      "run": "long-r1-baseline",
+      "family": "long",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 82734.43,
+      "p50_ns": 68900.0,
+      "p95_ns": 158300,
+      "p99_ns": 234400,
+      "submission_mean_ns": 1497.27
+    },
+    {
+      "run": "long-r1-baseline",
+      "family": "long",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 84180.42,
+      "p50_ns": 72900.0,
+      "p95_ns": 139100,
+      "p99_ns": 216500,
+      "submission_mean_ns": 1515.6
+    },
+    {
+      "run": "long-r1-candidate",
+      "family": "long",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 678413.73,
+      "p50_ns": 656400.0,
+      "p95_ns": 852800,
+      "p99_ns": 958400,
+      "submission_mean_ns": 2724.58
+    },
+    {
+      "run": "long-r1-candidate",
+      "family": "long",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 716413.76,
+      "p50_ns": 693500.0,
+      "p95_ns": 901600,
+      "p99_ns": 1013700,
+      "submission_mean_ns": 1923.38
+    },
+    {
+      "run": "long-r1-candidate",
+      "family": "long",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 70187.11,
+      "p50_ns": 63200.0,
+      "p95_ns": 97000,
+      "p99_ns": 126500,
+      "submission_mean_ns": 805.95
+    },
+    {
+      "run": "long-r1-candidate",
+      "family": "long",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 73167,
+      "p50_ns": 66900.0,
+      "p95_ns": 99100,
+      "p99_ns": 130200,
+      "submission_mean_ns": 783.42
+    },
+    {
+      "run": "long-r2-baseline",
+      "family": "long",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 680191.57,
+      "p50_ns": 648600.0,
+      "p95_ns": 867000,
+      "p99_ns": 1039100,
+      "submission_mean_ns": 4124.39
+    },
+    {
+      "run": "long-r2-baseline",
+      "family": "long",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 693704.7,
+      "p50_ns": 665100.0,
+      "p95_ns": 882200,
+      "p99_ns": 1063800,
+      "submission_mean_ns": 2933.15
+    },
+    {
+      "run": "long-r2-baseline",
+      "family": "long",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 79066.83,
+      "p50_ns": 68500.0,
+      "p95_ns": 128700,
+      "p99_ns": 226800,
+      "submission_mean_ns": 1121.17
+    },
+    {
+      "run": "long-r2-baseline",
+      "family": "long",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 77564.04,
+      "p50_ns": 70700.0,
+      "p95_ns": 110200,
+      "p99_ns": 168600,
+      "submission_mean_ns": 1078.21
+    },
+    {
+      "run": "long-r2-candidate",
+      "family": "long",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 677537.69,
+      "p50_ns": 636200.0,
+      "p95_ns": 896600,
+      "p99_ns": 1090600,
+      "submission_mean_ns": 3491.17
+    },
+    {
+      "run": "long-r2-candidate",
+      "family": "long",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 720856.48,
+      "p50_ns": 675700.0,
+      "p95_ns": 952800,
+      "p99_ns": 1151500,
+      "submission_mean_ns": 2926.19
+    },
+    {
+      "run": "long-r2-candidate",
+      "family": "long",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 72062.58,
+      "p50_ns": 66200.0,
+      "p95_ns": 99300,
+      "p99_ns": 131100,
+      "submission_mean_ns": 1001.92
+    },
+    {
+      "run": "long-r2-candidate",
+      "family": "long",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 75289.14,
+      "p50_ns": 69400.0,
+      "p95_ns": 102500,
+      "p99_ns": 136900,
+      "submission_mean_ns": 1044.08
+    },
+    {
+      "run": "probe-baseline",
+      "family": "probe",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 732081.56,
+      "p50_ns": 688200.0,
+      "p95_ns": 965800,
+      "p99_ns": 1231300,
+      "submission_mean_ns": 5769.69
+    },
+    {
+      "run": "probe-baseline",
+      "family": "probe",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 752442.92,
+      "p50_ns": 706550.0,
+      "p95_ns": 974500,
+      "p99_ns": 1261800,
+      "submission_mean_ns": 3728.52
+    },
+    {
+      "run": "probe-baseline",
+      "family": "probe",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 111326.33,
+      "p50_ns": 86400.0,
+      "p95_ns": 238300,
+      "p99_ns": 370100,
+      "submission_mean_ns": 1990.11
+    },
+    {
+      "run": "probe-baseline",
+      "family": "probe",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 106658.52,
+      "p50_ns": 88200.0,
+      "p95_ns": 147700,
+      "p99_ns": 368300,
+      "submission_mean_ns": 1793.61
+    },
+    {
+      "run": "probe-candidate",
+      "family": "probe",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 710264.21,
+      "p50_ns": 686300.0,
+      "p95_ns": 899100,
+      "p99_ns": 1042100,
+      "submission_mean_ns": 3141.66
+    },
+    {
+      "run": "probe-candidate",
+      "family": "probe",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 758021.24,
+      "p50_ns": 730750.0,
+      "p95_ns": 968700,
+      "p99_ns": 1118700,
+      "submission_mean_ns": 2350.3
+    },
+    {
+      "run": "probe-candidate",
+      "family": "probe",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 77423.89,
+      "p50_ns": 72900.0,
+      "p95_ns": 108500,
+      "p99_ns": 154100,
+      "submission_mean_ns": 1392.83
+    },
+    {
+      "run": "probe-candidate",
+      "family": "probe",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 81558.26,
+      "p50_ns": 77400.0,
+      "p95_ns": 114200,
+      "p99_ns": 163300,
+      "submission_mean_ns": 1409.44
+    },
+    {
+      "run": "sky-r1-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 787748.3,
+      "p50_ns": 789800.0,
+      "p95_ns": 980200,
+      "p99_ns": 1241700,
+      "submission_mean_ns": 5875
+    },
+    {
+      "run": "sky-r1-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 793917,
+      "p50_ns": 798000.0,
+      "p95_ns": 975800,
+      "p99_ns": 1265600,
+      "submission_mean_ns": 4873.4
+    },
+    {
+      "run": "sky-r1-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 102063.2,
+      "p50_ns": 92550.0,
+      "p95_ns": 189700,
+      "p99_ns": 297200,
+      "submission_mean_ns": 2493.8
+    },
+    {
+      "run": "sky-r1-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 97207.4,
+      "p50_ns": 93200.0,
+      "p95_ns": 139200,
+      "p99_ns": 221700,
+      "submission_mean_ns": 2264.1
+    },
+    {
+      "run": "sky-r1-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 715288.7,
+      "p50_ns": 674300.0,
+      "p95_ns": 953900,
+      "p99_ns": 1256000,
+      "submission_mean_ns": 4174.3
+    },
+    {
+      "run": "sky-r1-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 760039.6,
+      "p50_ns": 712050.0,
+      "p95_ns": 1099200,
+      "p99_ns": 1418900,
+      "submission_mean_ns": 3659
+    },
+    {
+      "run": "sky-r1-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 80917.5,
+      "p50_ns": 68100.0,
+      "p95_ns": 139000,
+      "p99_ns": 209400,
+      "submission_mean_ns": 1534.6
+    },
+    {
+      "run": "sky-r1-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 85950.8,
+      "p50_ns": 71800.0,
+      "p95_ns": 142900,
+      "p99_ns": 210200,
+      "submission_mean_ns": 1204.2
+    },
+    {
+      "run": "sky-r2-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 689176.3,
+      "p50_ns": 641900.0,
+      "p95_ns": 912200,
+      "p99_ns": 1263100,
+      "submission_mean_ns": 4402.2
+    },
+    {
+      "run": "sky-r2-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 710403.3,
+      "p50_ns": 670750.0,
+      "p95_ns": 947700,
+      "p99_ns": 1229300,
+      "submission_mean_ns": 3260
+    },
+    {
+      "run": "sky-r2-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 74472.5,
+      "p50_ns": 64100.0,
+      "p95_ns": 114500,
+      "p99_ns": 185000,
+      "submission_mean_ns": 833.7
+    },
+    {
+      "run": "sky-r2-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 74774.5,
+      "p50_ns": 67800.0,
+      "p95_ns": 99000,
+      "p99_ns": 156400,
+      "submission_mean_ns": 719.8
+    },
+    {
+      "run": "sky-r2-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 700219.9,
+      "p50_ns": 686700.0,
+      "p95_ns": 867500,
+      "p99_ns": 1004100,
+      "submission_mean_ns": 3284.1
+    },
+    {
+      "run": "sky-r2-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 737648.2,
+      "p50_ns": 729050.0,
+      "p95_ns": 910700,
+      "p99_ns": 1026300,
+      "submission_mean_ns": 2724.4
+    },
+    {
+      "run": "sky-r2-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 74338.3,
+      "p50_ns": 68400.0,
+      "p95_ns": 96000,
+      "p99_ns": 156300,
+      "submission_mean_ns": 959.7
+    },
+    {
+      "run": "sky-r2-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 78690.2,
+      "p50_ns": 72800.0,
+      "p95_ns": 105700,
+      "p99_ns": 155600,
+      "submission_mean_ns": 994.4
+    },
+    {
+      "run": "sky-r3-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 945708.7,
+      "p50_ns": 897250.0,
+      "p95_ns": 1305700,
+      "p99_ns": 2149500,
+      "submission_mean_ns": 12971.4
+    },
+    {
+      "run": "sky-r3-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 964855.6,
+      "p50_ns": 903850.0,
+      "p95_ns": 1249000,
+      "p99_ns": 2261700,
+      "submission_mean_ns": 13487.5
+    },
+    {
+      "run": "sky-r3-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 93250.6,
+      "p50_ns": 85700.0,
+      "p95_ns": 179600,
+      "p99_ns": 264700,
+      "submission_mean_ns": 1926
+    },
+    {
+      "run": "sky-r3-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 91947.3,
+      "p50_ns": 86750.0,
+      "p95_ns": 143000,
+      "p99_ns": 218200,
+      "submission_mean_ns": 1712.1
+    },
+    {
+      "run": "sky-r3-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 687547.4,
+      "p50_ns": 656450.0,
+      "p95_ns": 899500,
+      "p99_ns": 1134100,
+      "submission_mean_ns": 4257.4
+    },
+    {
+      "run": "sky-r3-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 721686.8,
+      "p50_ns": 693100.0,
+      "p95_ns": 926200,
+      "p99_ns": 1107100,
+      "submission_mean_ns": 3405.5
+    },
+    {
+      "run": "sky-r3-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 71529.3,
+      "p50_ns": 63800.0,
+      "p95_ns": 94000,
+      "p99_ns": 129300,
+      "submission_mean_ns": 765.6
+    },
+    {
+      "run": "sky-r3-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 74747,
+      "p50_ns": 67700.0,
+      "p95_ns": 98200,
+      "p99_ns": 144900,
+      "submission_mean_ns": 777
+    },
+    {
+      "run": "sky-r4-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 793431.7,
+      "p50_ns": 780150.0,
+      "p95_ns": 1033800,
+      "p99_ns": 1359600,
+      "submission_mean_ns": 5600.1
+    },
+    {
+      "run": "sky-r4-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 803751.4,
+      "p50_ns": 779800.0,
+      "p95_ns": 1052200,
+      "p99_ns": 1386300,
+      "submission_mean_ns": 4579.3
+    },
+    {
+      "run": "sky-r4-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 95112.2,
+      "p50_ns": 88900.0,
+      "p95_ns": 168300,
+      "p99_ns": 253500,
+      "submission_mean_ns": 1755.5
+    },
+    {
+      "run": "sky-r4-baseline",
+      "family": "sky",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 92619.8,
+      "p50_ns": 90300.0,
+      "p95_ns": 122900,
+      "p99_ns": 175600,
+      "submission_mean_ns": 1746.5
+    },
+    {
+      "run": "sky-r4-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 769921.8,
+      "p50_ns": 760900.0,
+      "p95_ns": 1007200,
+      "p99_ns": 1329700,
+      "submission_mean_ns": 4991.1
+    },
+    {
+      "run": "sky-r4-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 807982.6,
+      "p50_ns": 799950.0,
+      "p95_ns": 1028400,
+      "p99_ns": 1481500,
+      "submission_mean_ns": 5295.1
+    },
+    {
+      "run": "sky-r4-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 80478.2,
+      "p50_ns": 79950.0,
+      "p95_ns": 105200,
+      "p99_ns": 150400,
+      "submission_mean_ns": 1995.2
+    },
+    {
+      "run": "sky-r4-candidate",
+      "family": "sky",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 84937.7,
+      "p50_ns": 83000.0,
+      "p95_ns": 112200,
+      "p99_ns": 180700,
+      "submission_mean_ns": 2014.8
+    }
+  ],
+  "probes": [
+    {
+      "run": "probe-baseline",
+      "engine": "baseline",
+      "phase": "block_place",
+      "n": 671,
+      "sky_extra": 217,
+      "block_extra": 43,
+      "work": {
+        "sky_": [
+          {
+            "signature": [
+              2,
+              2,
+              0,
+              2
+            ],
+            "count": 217
+          },
+          {
+            "signature": [
+              1,
+              1,
+              0,
+              1
+            ],
+            "count": 454
+          }
+        ],
+        "block_": [
+          {
+            "signature": [
+              1,
+              1,
+              1834,
+              1
+            ],
+            "count": 628
+          },
+          {
+            "signature": [
+              2,
+              2,
+              3668,
+              2256
+            ],
+            "count": 43
+          }
+        ]
+      }
+    },
+    {
+      "run": "probe-baseline",
+      "engine": "baseline",
+      "phase": "block_remove",
+      "n": 613,
+      "sky_extra": 179,
+      "block_extra": 25,
+      "work": {
+        "sky_": [
+          {
+            "signature": [
+              1,
+              1,
+              0,
+              1
+            ],
+            "count": 434
+          },
+          {
+            "signature": [
+              2,
+              2,
+              0,
+              2
+            ],
+            "count": 179
+          }
+        ],
+        "block_": [
+          {
+            "signature": [
+              1,
+              1,
+              0,
+              2255
+            ],
+            "count": 588
+          },
+          {
+            "signature": [
+              2,
+              2,
+              0,
+              2256
+            ],
+            "count": 25
+          }
+        ]
+      }
+    },
+    {
+      "run": "probe-baseline",
+      "engine": "baseline",
+      "phase": "sky_place",
+      "n": 590,
+      "sky_extra": 431,
+      "block_extra": 4,
+      "work": {
+        "sky_": [
+          {
+            "signature": [
+              2,
+              2,
+              2,
+              24421
+            ],
+            "count": 431
+          },
+          {
+            "signature": [
+              1,
+              1,
+              1,
+              24420
+            ],
+            "count": 159
+          }
+        ],
+        "block_": [
+          {
+            "signature": [
+              1,
+              1,
+              0,
+              1
+            ],
+            "count": 586
+          },
+          {
+            "signature": [
+              2,
+              2,
+              0,
+              2
+            ],
+            "count": 4
+          }
+        ]
+      }
+    },
+    {
+      "run": "probe-baseline",
+      "engine": "baseline",
+      "phase": "sky_remove",
+      "n": 629,
+      "sky_extra": 424,
+      "block_extra": 20,
+      "work": {
+        "sky_": [
+          {
+            "signature": [
+              2,
+              2,
+              21236,
+              2
+            ],
+            "count": 424
+          },
+          {
+            "signature": [
+              1,
+              1,
+              21174,
+              1
+            ],
+            "count": 205
+          }
+        ],
+        "block_": [
+          {
+            "signature": [
+              1,
+              1,
+              0,
+              1
+            ],
+            "count": 609
+          },
+          {
+            "signature": [
+              2,
+              2,
+              0,
+              2
+            ],
+            "count": 20
+          }
+        ]
+      }
+    },
+    {
+      "run": "probe-candidate",
+      "engine": "candidate",
+      "phase": "block_place",
+      "n": 671,
+      "sky_extra": 0,
+      "block_extra": 0,
+      "work": {
+        "sky_": [
+          {
+            "signature": [
+              1,
+              1,
+              0,
+              1
+            ],
+            "count": 671
+          }
+        ],
+        "block_": [
+          {
+            "signature": [
+              1,
+              1,
+              1834,
+              1
+            ],
+            "count": 671
+          }
+        ]
+      }
+    },
+    {
+      "run": "probe-candidate",
+      "engine": "candidate",
+      "phase": "block_remove",
+      "n": 613,
+      "sky_extra": 0,
+      "block_extra": 0,
+      "work": {
+        "sky_": [
+          {
+            "signature": [
+              1,
+              1,
+              0,
+              1
+            ],
+            "count": 613
+          }
+        ],
+        "block_": [
+          {
+            "signature": [
+              1,
+              1,
+              0,
+              2255
+            ],
+            "count": 613
+          }
+        ]
+      }
+    },
+    {
+      "run": "probe-candidate",
+      "engine": "candidate",
+      "phase": "sky_place",
+      "n": 590,
+      "sky_extra": 0,
+      "block_extra": 0,
+      "work": {
+        "sky_": [
+          {
+            "signature": [
+              1,
+              1,
+              1,
+              24420
+            ],
+            "count": 590
+          }
+        ],
+        "block_": [
+          {
+            "signature": [
+              1,
+              1,
+              0,
+              1
+            ],
+            "count": 590
+          }
+        ]
+      }
+    },
+    {
+      "run": "probe-candidate",
+      "engine": "candidate",
+      "phase": "sky_remove",
+      "n": 629,
+      "sky_extra": 0,
+      "block_extra": 0,
+      "work": {
+        "sky_": [
+          {
+            "signature": [
+              1,
+              1,
+              21174,
+              1
+            ],
+            "count": 629
+          }
+        ],
+        "block_": [
+          {
+            "signature": [
+              1,
+              1,
+              0,
+              1
+            ],
+            "count": 629
+          }
+        ]
+      }
+    }
+  ],
+  "trials": [
+    {
+      "run": "blocks-r1-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "blocks-r1-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "blocks-r2-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "blocks-r2-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "blocks-r3-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "blocks-r3-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "blocks-r4-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "blocks-r4-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "callbacks-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "callbacks-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "continuous-r3-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "continuous-r3-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "continuous-r4-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "continuous-r4-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "generation-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "generation-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "long-r1-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "long-r1-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "long-r2-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "long-r2-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "probe-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline-profile.jar",
+      "sha256": "9756435D9C06E6683E440E1177AE0912E8E98F65709A0193EBC2B554A9FFAED7"
+    },
+    {
+      "run": "probe-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate-profile.jar",
+      "sha256": "A300E3FFA8A8D523900C04C62CC57E8E751449C6E6568B8443ABA2B3761EA451"
+    },
+    {
+      "run": "shapes-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "shapes-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "sky-r1-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "sky-r1-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "sky-r2-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "sky-r2-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "sky-r3-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "sky-r3-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    },
+    {
+      "run": "sky-r4-baseline",
+      "engine": "baseline",
+      "jar": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "sky-r4-candidate",
+      "engine": "candidate",
+      "jar": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    }
+  ]
+}

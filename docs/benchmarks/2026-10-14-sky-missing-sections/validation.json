@@ -1,0 +1,22 @@
+{
+  "restored_production_unit_tests": {
+    "tests": 180,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "production_source_matches_parent": true,
+  "parent": "0429e7f",
+  "combined_scored_jvms": 44,
+  "isolated_scored_jvms": 26,
+  "published_pulsar_trials": 62,
+  "raw_archives_crc_valid": true,
+  "original_game_instance_restored": true,
+  "shape_and_generation_equal": {
+    "generation_core_chunks": 289,
+    "generation_terrain_and_light_equal": true,
+    "shape_states": 15,
+    "shape_snapshots": 45,
+    "shape_snapshots_equal": true
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "common_mods": [
+    {
+      "file": "+Fugue-0.24.3.jar",
+      "sha256": "00DC2DE461B8A9BF0D9B684AA0377713BDA85CA63DA5EC93028C226ED2119EFD"
+    },
+    {
+      "file": "-cleanroom-relauncher-1.1.2.jar",
+      "sha256": "E120ADAFABB0145EFF704633ED5304C356D0E20C1CD4831347A8530D152164B3"
+    },
+    {
+      "file": "-Red-Core-MC-1.8-1.12-0.7.1.jar",
+      "sha256": "9935912816062CA46A2ECD020D813EE2DDE8E6B228DAEC068B465EB72EA51368"
+    },
+    {
+      "file": "four-engine-driver.jar",
+      "sha256": "4A63000F1E8B36C343F5A845EBECDE20226666DED4ADC2AB989754CB2884AB1E"
+    },
+    {
+      "file": "lightbench-1.1.0-bench9.jar",
+      "sha256": "7FC43F287B46BF9C62CA8A9A8029D989765E836D8A0EC542873320676386B0B9"
+    },
+    {
+      "file": "scalar-3.8.4-1.jar",
+      "sha256": "A4C2CD912C36CD5A5055153EC950455349EED6DAEFEB747013B5F675190EB1FD"
+    },
+    {
+      "file": "1.12.2\\scala-library-3.8.4.jar",
+      "sha256": "1B8330DE5774C15874173F168B674255CAA00C5EF3648AB0B6CB763BB7FD2DE7"
+    },
+    {
+      "file": "1.12.2\\scala-parser-combinators_3-2.4.0.jar",
+      "sha256": "50F1B3DCF8F14975702DC6DA287797E391FC5D4834E4D3E7E9F9125EFDB2DE9A"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "driver-profile.jar",
+      "sha256": "A363239642316BCDE439A9FFD1865E060C7466B58C98DCAEA87A7776DABED965"
+    },
+    {
+      "file": "hotpath-audit.jar",
+      "sha256": "F81A044711123B0FD00385508DFA367C0A9DDBDA8A3CEA053152E25EAF0A3539"
+    },
+    {
+      "file": "lightbench-profile.jar",
+      "sha256": "6CD69BE300BEE1F927093B21914A7E94966672044D54CA8F8EB7BE52C03AC496"
+    },
+    {
+      "file": "pulsar-baseline-profile.jar",
+      "sha256": "9756435D9C06E6683E440E1177AE0912E8E98F65709A0193EBC2B554A9FFAED7"
+    },
+    {
+      "file": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "file": "pulsar-candidate-profile.jar",
+      "sha256": "A300E3FFA8A8D523900C04C62CC57E8E751449C6E6568B8443ABA2B3761EA451"
+    },
+    {
+      "file": "pulsar-candidate.jar",
+      "sha256": "17F92A4F57B51A4FCD55C3D406F6C9EAAD2409C846BB2960D9338E697CD8ADB8"
+    }
+  ]
+}
