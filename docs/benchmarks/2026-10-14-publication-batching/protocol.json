@@ -1,0 +1,26 @@
+{
+  "runtime": "Cleanroom 0.6.12-alpha / Java 25.0.4.1 / default Version2 config / automatic 10 shared workers",
+  "measurements": "Updates: 4 fresh JVM runs per variant, 10000 warmup pairs +10000 measured pairs for all4phases. Continuous: 2 runs per variant, correctness/stress with descriptive timings. Generation289chunks and shapeaudit each once per variant.",
+  "source": "5ab6bb3",
+  "orders": [
+    [
+      "baseline",
+      "candidate"
+    ],
+    [
+      "candidate",
+      "baseline"
+    ],
+    [
+      "candidate",
+      "baseline"
+    ],
+    [
+      "baseline",
+      "candidate"
+    ]
+  ],
+  "acceptance": "All correctness tests and audits must pass. Seek repeatable >=2% update-latency or >=5% dense-load improvement, with no material >3% regression in another update phase; otherwise retain as rejected experiment, do not claim speedup.",
+  "licensing": "Independent Pulsar implementation; no Lucis code copied.",
+  "change": "Group server dirty-section publication under one registration check and chunk monitor; client path unchanged"
+}

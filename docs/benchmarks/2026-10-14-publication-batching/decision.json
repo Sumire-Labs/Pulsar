@@ -1,0 +1,20 @@
+{
+  "adopted": false,
+  "reason": "No demonstrated improvement; all four update medians increased and each exceeded the predefined 3% regression guard. Inter-run ranges overlap; this is not a confidence interval or proof of a universal slowdown.",
+  "changes_percent": {
+    "block_place": 4.3769901330591665,
+    "block_remove": 4.910317040809198,
+    "sky_place": 4.209540863814576,
+    "sky_remove": 3.86456211635946
+  },
+  "production_source_changed": false,
+  "checks": {
+    "complete": true,
+    "all_completed_trials_valid": true,
+    "completed_trials": 16,
+    "same_update_environment": true,
+    "same_non_engine_mods": true,
+    "shape_outputs_identical": true,
+    "generation_outputs_identical": true
+  }
+}

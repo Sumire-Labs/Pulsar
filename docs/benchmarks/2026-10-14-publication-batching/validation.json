@@ -1,0 +1,67 @@
+{
+  "unit_tests": {
+    "tests": 184,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native_comparator_crosschecks": [
+    {
+      "variant": "baseline",
+      "phase": "block_place",
+      "runs": 4,
+      "native_values_match": true
+    },
+    {
+      "variant": "baseline",
+      "phase": "block_remove",
+      "runs": 4,
+      "native_values_match": true
+    },
+    {
+      "variant": "baseline",
+      "phase": "sky_place",
+      "runs": 4,
+      "native_values_match": true
+    },
+    {
+      "variant": "baseline",
+      "phase": "sky_remove",
+      "runs": 4,
+      "native_values_match": true
+    },
+    {
+      "variant": "candidate",
+      "phase": "block_place",
+      "runs": 4,
+      "native_values_match": true
+    },
+    {
+      "variant": "candidate",
+      "phase": "block_remove",
+      "runs": 4,
+      "native_values_match": true
+    },
+    {
+      "variant": "candidate",
+      "phase": "sky_place",
+      "runs": 4,
+      "native_values_match": true
+    },
+    {
+      "variant": "candidate",
+      "phase": "sky_remove",
+      "runs": 4,
+      "native_values_match": true
+    }
+  ],
+  "data_checks": {
+    "complete": true,
+    "all_completed_trials_valid": true,
+    "completed_trials": 16,
+    "same_update_environment": true,
+    "same_non_engine_mods": true,
+    "shape_outputs_identical": true,
+    "generation_outputs_identical": true
+  }
+}

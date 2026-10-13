@@ -1,0 +1,67 @@
+{
+  "pulsar_commit": "5ab6bb3878030e02ab62b3d0f1fc7efe359d24fe",
+  "artifacts": [
+    {
+      "file": "pulsar-baseline.jar",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "file": "pulsar-candidate.jar",
+      "sha256": "69D1C425AA3E373BEDCDC12BB55413F73D739EA59B5B4CC26CBE86DF71AA391B"
+    }
+  ],
+  "common_mods": [
+    {
+      "file": "-cleanroom-relauncher-1.1.2.jar",
+      "sha256": "E120ADAFABB0145EFF704633ED5304C356D0E20C1CD4831347A8530D152164B3"
+    },
+    {
+      "file": "-Red-Core-MC-1.8-1.12-0.7.1.jar",
+      "sha256": "9935912816062CA46A2ECD020D813EE2DDE8E6B228DAEC068B465EB72EA51368"
+    },
+    {
+      "file": "+Fugue-0.24.3.jar",
+      "sha256": "00DC2DE461B8A9BF0D9B684AA0377713BDA85CA63DA5EC93028C226ED2119EFD"
+    },
+    {
+      "file": "four-engine-driver.jar",
+      "sha256": "4A63000F1E8B36C343F5A845EBECDE20226666DED4ADC2AB989754CB2884AB1E"
+    },
+    {
+      "file": "lightbench-1.1.0-bench9.jar",
+      "sha256": "7FC43F287B46BF9C62CA8A9A8029D989765E836D8A0EC542873320676386B0B9"
+    },
+    {
+      "file": "scalar-3.8.4-1.jar",
+      "sha256": "A4C2CD912C36CD5A5055153EC950455349EED6DAEFEB747013B5F675190EB1FD"
+    },
+    {
+      "file": "1.12.2\\scala-library-3.8.4.jar",
+      "sha256": "1B8330DE5774C15874173F168B674255CAA00C5EF3648AB0B6CB763BB7FD2DE7"
+    },
+    {
+      "file": "1.12.2\\scala-parser-combinators_3-2.4.0.jar",
+      "sha256": "50F1B3DCF8F14975702DC6DA287797E391FC5D4834E4D3E7E9F9125EFDB2DE9A"
+    }
+  ],
+  "config_baseline": {
+    "id": "default-version2-equal-file-set",
+    "note": "Pulsar default config supplied unchanged even when Pulsar mod is absent; physics settings unchanged, common fingerprint now equal",
+    "pulsar_cfg_sha256": "F1E84DAF1EA3F81006EF6DFF43574E4B488F6CC77587C45CFEA6AAC742D18D92",
+    "source": "Exact frozen default Version2 config reused unchanged; hash verified for every cohort"
+  },
+  "hardware": {
+    "gpu": [
+      {
+        "Name": "AMD Radeon(TM) 8060S Graphics",
+        "DriverVersion": "32.0.31041.1004"
+      }
+    ],
+    "logical_processors": 32,
+    "cpu": "AMD RYZEN AI MAX+ 395 w/ Radeon 8060S          ",
+    "ram_bytes": 102163615744,
+    "os": "Microsoft Windows 11 Pro"
+  },
+  "baseline_artifact_version": "0.5.0",
+  "candidate_artifact_version": "0.5.0-local.dirty"
+}

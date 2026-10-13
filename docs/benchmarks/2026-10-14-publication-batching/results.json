@@ -1,0 +1,1397 @@
+{
+  "checks": {
+    "complete": true,
+    "all_completed_trials_valid": true,
+    "completed_trials": 16,
+    "same_update_environment": true,
+    "same_non_engine_mods": true,
+    "shape_outputs_identical": true,
+    "generation_outputs_identical": true
+  },
+  "summary": [
+    {
+      "metric": "block_place",
+      "variant": "baseline",
+      "jvm_runs": 4,
+      "median_of_run_means_ns": 83391.095,
+      "minimum_run_mean_ns": 75495.32,
+      "maximum_run_mean_ns": 94462.06,
+      "candidate_change_percent": 4.3769901330591665
+    },
+    {
+      "metric": "block_place",
+      "variant": "candidate",
+      "jvm_runs": 4,
+      "median_of_run_means_ns": 87041.115,
+      "minimum_run_mean_ns": 80567.12,
+      "maximum_run_mean_ns": 87762.51,
+      "candidate_change_percent": 4.3769901330591665
+    },
+    {
+      "metric": "block_remove",
+      "variant": "baseline",
+      "jvm_runs": 4,
+      "median_of_run_means_ns": 82381.035,
+      "minimum_run_mean_ns": 74800.2,
+      "maximum_run_mean_ns": 91348.42,
+      "candidate_change_percent": 4.910317040809198
+    },
+    {
+      "metric": "block_remove",
+      "variant": "candidate",
+      "jvm_runs": 4,
+      "median_of_run_means_ns": 86426.205,
+      "minimum_run_mean_ns": 79431.63,
+      "maximum_run_mean_ns": 88389.1,
+      "candidate_change_percent": 4.910317040809198
+    },
+    {
+      "metric": "sky_place",
+      "variant": "baseline",
+      "jvm_runs": 4,
+      "median_of_run_means_ns": 723135.99,
+      "minimum_run_mean_ns": 698149.27,
+      "maximum_run_mean_ns": 748486.56,
+      "candidate_change_percent": 4.209540863814576
+    },
+    {
+      "metric": "sky_place",
+      "variant": "candidate",
+      "jvm_runs": 4,
+      "median_of_run_means_ns": 753576.6950000001,
+      "minimum_run_mean_ns": 732487.04,
+      "maximum_run_mean_ns": 771566.14,
+      "candidate_change_percent": 4.209540863814576
+    },
+    {
+      "metric": "sky_remove",
+      "variant": "baseline",
+      "jvm_runs": 4,
+      "median_of_run_means_ns": 706050.755,
+      "minimum_run_mean_ns": 679964.32,
+      "maximum_run_mean_ns": 723042.1,
+      "candidate_change_percent": 3.86456211635946
+    },
+    {
+      "metric": "sky_remove",
+      "variant": "candidate",
+      "jvm_runs": 4,
+      "median_of_run_means_ns": 733336.5249999999,
+      "minimum_run_mean_ns": 713754.98,
+      "maximum_run_mean_ns": 758404.53,
+      "candidate_change_percent": 3.86456211635946
+    },
+    {
+      "metric": "spikes_2_main_tick",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 401282.5,
+      "minimum_run_mean_ns": 398928.5,
+      "maximum_run_mean_ns": 403636.5,
+      "candidate_change_percent": -10.629730925221015
+    },
+    {
+      "metric": "spikes_2_main_tick",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 358627.25,
+      "minimum_run_mean_ns": 358472.5,
+      "maximum_run_mean_ns": 358782,
+      "candidate_change_percent": -10.629730925221015
+    },
+    {
+      "metric": "spikes_2_post_drain",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 330550.0,
+      "minimum_run_mean_ns": 312700,
+      "maximum_run_mean_ns": 348400,
+      "candidate_change_percent": 5.944637725003776
+    },
+    {
+      "metric": "spikes_2_post_drain",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 350200.0,
+      "minimum_run_mean_ns": 294800,
+      "maximum_run_mean_ns": 405600,
+      "candidate_change_percent": 5.944637725003776
+    },
+    {
+      "metric": "tps_1024_main_tick",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 1938726.5,
+      "minimum_run_mean_ns": 1849874,
+      "maximum_run_mean_ns": 2027579,
+      "candidate_change_percent": 11.077452131592569
+    },
+    {
+      "metric": "tps_1024_main_tick",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 2153488.0,
+      "minimum_run_mean_ns": 2125659,
+      "maximum_run_mean_ns": 2181317,
+      "candidate_change_percent": 11.077452131592569
+    },
+    {
+      "metric": "tps_1024_post_drain",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 9816750.0,
+      "minimum_run_mean_ns": 9792400,
+      "maximum_run_mean_ns": 9841100,
+      "candidate_change_percent": 2.3286729314691668
+    },
+    {
+      "metric": "tps_1024_post_drain",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 10045350.0,
+      "minimum_run_mean_ns": 9327100,
+      "maximum_run_mean_ns": 10763600,
+      "candidate_change_percent": 2.3286729314691668
+    },
+    {
+      "metric": "tps_128_main_tick",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 1139326.0,
+      "minimum_run_mean_ns": 1118764,
+      "maximum_run_mean_ns": 1159888,
+      "candidate_change_percent": 2.287229467246421
+    },
+    {
+      "metric": "tps_128_main_tick",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 1165385.0,
+      "minimum_run_mean_ns": 1056938,
+      "maximum_run_mean_ns": 1273832,
+      "candidate_change_percent": 2.287229467246421
+    },
+    {
+      "metric": "tps_128_post_drain",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 2482000.0,
+      "minimum_run_mean_ns": 2260200,
+      "maximum_run_mean_ns": 2703800,
+      "candidate_change_percent": 0.08863819500402048
+    },
+    {
+      "metric": "tps_128_post_drain",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 2484200.0,
+      "minimum_run_mean_ns": 2239200,
+      "maximum_run_mean_ns": 2729200,
+      "candidate_change_percent": 0.08863819500402048
+    },
+    {
+      "metric": "tps_2048_main_tick",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 3466459.0,
+      "minimum_run_mean_ns": 3294740,
+      "maximum_run_mean_ns": 3638178,
+      "candidate_change_percent": 7.155616148928923
+    },
+    {
+      "metric": "tps_2048_main_tick",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 3714505.5,
+      "minimum_run_mean_ns": 3584266,
+      "maximum_run_mean_ns": 3844745,
+      "candidate_change_percent": 7.155616148928923
+    },
+    {
+      "metric": "tps_2048_post_drain",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 14104250.0,
+      "minimum_run_mean_ns": 13628800,
+      "maximum_run_mean_ns": 14579700,
+      "candidate_change_percent": 17.086339223992763
+    },
+    {
+      "metric": "tps_2048_post_drain",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 16514150.0,
+      "minimum_run_mean_ns": 13603100,
+      "maximum_run_mean_ns": 19425200,
+      "candidate_change_percent": 17.086339223992763
+    },
+    {
+      "metric": "tps_256_main_tick",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 885370.0,
+      "minimum_run_mean_ns": 829763,
+      "maximum_run_mean_ns": 940977,
+      "candidate_change_percent": 2.7016953364130236
+    },
+    {
+      "metric": "tps_256_main_tick",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 909290.0,
+      "minimum_run_mean_ns": 885419,
+      "maximum_run_mean_ns": 933161,
+      "candidate_change_percent": 2.7016953364130236
+    },
+    {
+      "metric": "tps_256_post_drain",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 3805300.0,
+      "minimum_run_mean_ns": 3598300,
+      "maximum_run_mean_ns": 4012300,
+      "candidate_change_percent": 29.089690694557603
+    },
+    {
+      "metric": "tps_256_post_drain",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 4912250.0,
+      "minimum_run_mean_ns": 4063000,
+      "maximum_run_mean_ns": 5761500,
+      "candidate_change_percent": 29.089690694557603
+    },
+    {
+      "metric": "tps_512_main_tick",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 1296356.0,
+      "minimum_run_mean_ns": 1199169,
+      "maximum_run_mean_ns": 1393543,
+      "candidate_change_percent": 4.481407884871125
+    },
+    {
+      "metric": "tps_512_main_tick",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 1354451.0,
+      "minimum_run_mean_ns": 1275129,
+      "maximum_run_mean_ns": 1433773,
+      "candidate_change_percent": 4.481407884871125
+    },
+    {
+      "metric": "tps_512_post_drain",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 6911250.0,
+      "minimum_run_mean_ns": 6147400,
+      "maximum_run_mean_ns": 7675100,
+      "candidate_change_percent": 5.975040694519795
+    },
+    {
+      "metric": "tps_512_post_drain",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 7324200.0,
+      "minimum_run_mean_ns": 6490000,
+      "maximum_run_mean_ns": 8158400,
+      "candidate_change_percent": 5.975040694519795
+    },
+    {
+      "metric": "tps_64_main_tick",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 597996.5,
+      "minimum_run_mean_ns": 575655,
+      "maximum_run_mean_ns": 620338,
+      "candidate_change_percent": 4.680294951559083
+    },
+    {
+      "metric": "tps_64_main_tick",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 625984.5,
+      "minimum_run_mean_ns": 577943,
+      "maximum_run_mean_ns": 674026,
+      "candidate_change_percent": 4.680294951559083
+    },
+    {
+      "metric": "tps_64_post_drain",
+      "variant": "baseline",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 2045150.0,
+      "minimum_run_mean_ns": 1661400,
+      "maximum_run_mean_ns": 2428900,
+      "candidate_change_percent": -9.194924577659336
+    },
+    {
+      "metric": "tps_64_post_drain",
+      "variant": "candidate",
+      "jvm_runs": 2,
+      "median_of_run_means_ns": 1857100.0,
+      "minimum_run_mean_ns": 1804000,
+      "maximum_run_mean_ns": 1910200,
+      "candidate_change_percent": -9.194924577659336
+    }
+  ],
+  "trials": [
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "sha256": "69D1C425AA3E373BEDCDC12BB55413F73D739EA59B5B4CC26CBE86DF71AA391B"
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "sha256": "69D1C425AA3E373BEDCDC12BB55413F73D739EA59B5B4CC26CBE86DF71AA391B"
+    },
+    {
+      "run": "generation-baseline",
+      "variant": "baseline",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "generation-candidate",
+      "variant": "candidate",
+      "sha256": "69D1C425AA3E373BEDCDC12BB55413F73D739EA59B5B4CC26CBE86DF71AA391B"
+    },
+    {
+      "run": "shapes-baseline",
+      "variant": "baseline",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "shapes-candidate",
+      "variant": "candidate",
+      "sha256": "69D1C425AA3E373BEDCDC12BB55413F73D739EA59B5B4CC26CBE86DF71AA391B"
+    },
+    {
+      "run": "updates-r1-baseline",
+      "variant": "baseline",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "updates-r1-candidate",
+      "variant": "candidate",
+      "sha256": "69D1C425AA3E373BEDCDC12BB55413F73D739EA59B5B4CC26CBE86DF71AA391B"
+    },
+    {
+      "run": "updates-r2-baseline",
+      "variant": "baseline",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "updates-r2-candidate",
+      "variant": "candidate",
+      "sha256": "69D1C425AA3E373BEDCDC12BB55413F73D739EA59B5B4CC26CBE86DF71AA391B"
+    },
+    {
+      "run": "updates-r3-baseline",
+      "variant": "baseline",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "updates-r3-candidate",
+      "variant": "candidate",
+      "sha256": "69D1C425AA3E373BEDCDC12BB55413F73D739EA59B5B4CC26CBE86DF71AA391B"
+    },
+    {
+      "run": "updates-r4-baseline",
+      "variant": "baseline",
+      "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C"
+    },
+    {
+      "run": "updates-r4-candidate",
+      "variant": "candidate",
+      "sha256": "69D1C425AA3E373BEDCDC12BB55413F73D739EA59B5B4CC26CBE86DF71AA391B"
+    }
+  ],
+  "metrics": [
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "spikes_2_main_tick",
+      "mean_ns": 403636.5,
+      "samples": 200
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "spikes_2_post_drain",
+      "mean_ns": 312700,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_64_main_tick",
+      "mean_ns": 575655,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_64_post_drain",
+      "mean_ns": 1661400,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_128_main_tick",
+      "mean_ns": 1159888,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_128_post_drain",
+      "mean_ns": 2260200,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_256_main_tick",
+      "mean_ns": 829763,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_256_post_drain",
+      "mean_ns": 3598300,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_512_main_tick",
+      "mean_ns": 1199169,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_512_post_drain",
+      "mean_ns": 7675100,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_1024_main_tick",
+      "mean_ns": 1849874,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_1024_post_drain",
+      "mean_ns": 9792400,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_2048_main_tick",
+      "mean_ns": 3294740,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-baseline",
+      "variant": "baseline",
+      "metric": "tps_2048_post_drain",
+      "mean_ns": 13628800,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "spikes_2_main_tick",
+      "mean_ns": 358782,
+      "samples": 200
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "spikes_2_post_drain",
+      "mean_ns": 405600,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_64_main_tick",
+      "mean_ns": 577943,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_64_post_drain",
+      "mean_ns": 1910200,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_128_main_tick",
+      "mean_ns": 1273832,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_128_post_drain",
+      "mean_ns": 2239200,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_256_main_tick",
+      "mean_ns": 885419,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_256_post_drain",
+      "mean_ns": 5761500,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_512_main_tick",
+      "mean_ns": 1275129,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_512_post_drain",
+      "mean_ns": 6490000,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_1024_main_tick",
+      "mean_ns": 2181317,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_1024_post_drain",
+      "mean_ns": 9327100,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_2048_main_tick",
+      "mean_ns": 3844745,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r1-candidate",
+      "variant": "candidate",
+      "metric": "tps_2048_post_drain",
+      "mean_ns": 13603100,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "spikes_2_main_tick",
+      "mean_ns": 398928.5,
+      "samples": 200
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "spikes_2_post_drain",
+      "mean_ns": 348400,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_64_main_tick",
+      "mean_ns": 620338,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_64_post_drain",
+      "mean_ns": 2428900,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_128_main_tick",
+      "mean_ns": 1118764,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_128_post_drain",
+      "mean_ns": 2703800,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_256_main_tick",
+      "mean_ns": 940977,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_256_post_drain",
+      "mean_ns": 4012300,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_512_main_tick",
+      "mean_ns": 1393543,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_512_post_drain",
+      "mean_ns": 6147400,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_1024_main_tick",
+      "mean_ns": 2027579,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_1024_post_drain",
+      "mean_ns": 9841100,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_2048_main_tick",
+      "mean_ns": 3638178,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-baseline",
+      "variant": "baseline",
+      "metric": "tps_2048_post_drain",
+      "mean_ns": 14579700,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "spikes_2_main_tick",
+      "mean_ns": 358472.5,
+      "samples": 200
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "spikes_2_post_drain",
+      "mean_ns": 294800,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_64_main_tick",
+      "mean_ns": 674026,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_64_post_drain",
+      "mean_ns": 1804000,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_128_main_tick",
+      "mean_ns": 1056938,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_128_post_drain",
+      "mean_ns": 2729200,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_256_main_tick",
+      "mean_ns": 933161,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_256_post_drain",
+      "mean_ns": 4063000,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_512_main_tick",
+      "mean_ns": 1433773,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_512_post_drain",
+      "mean_ns": 8158400,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_1024_main_tick",
+      "mean_ns": 2125659,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_1024_post_drain",
+      "mean_ns": 10763600,
+      "samples": 1
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_2048_main_tick",
+      "mean_ns": 3584266,
+      "samples": 100
+    },
+    {
+      "run": "continuous-r2-candidate",
+      "variant": "candidate",
+      "metric": "tps_2048_post_drain",
+      "mean_ns": 19425200,
+      "samples": 1
+    },
+    {
+      "run": "updates-r1-baseline",
+      "variant": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 723042.1,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r1-baseline",
+      "variant": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 748486.56,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r1-baseline",
+      "variant": "baseline",
+      "metric": "block_place",
+      "mean_ns": 83139.03,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r1-baseline",
+      "variant": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 83147.06,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r1-candidate",
+      "variant": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 725884.22,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r1-candidate",
+      "variant": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 756287.38,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r1-candidate",
+      "variant": "candidate",
+      "metric": "block_place",
+      "mean_ns": 86733.38,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r1-candidate",
+      "variant": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 88389.1,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r2-baseline",
+      "variant": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 679964.32,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r2-baseline",
+      "variant": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 698149.27,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r2-baseline",
+      "variant": "baseline",
+      "metric": "block_place",
+      "mean_ns": 75495.32,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r2-baseline",
+      "variant": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 74800.2,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r2-candidate",
+      "variant": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 740788.83,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r2-candidate",
+      "variant": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 750866.01,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r2-candidate",
+      "variant": "candidate",
+      "metric": "block_place",
+      "mean_ns": 87348.85,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r2-candidate",
+      "variant": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 87143.83,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r3-baseline",
+      "variant": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 705172.6,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r3-baseline",
+      "variant": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 729491.5,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r3-baseline",
+      "variant": "baseline",
+      "metric": "block_place",
+      "mean_ns": 83643.16,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r3-baseline",
+      "variant": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 81615.01,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r3-candidate",
+      "variant": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 758404.53,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r3-candidate",
+      "variant": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 771566.14,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r3-candidate",
+      "variant": "candidate",
+      "metric": "block_place",
+      "mean_ns": 87762.51,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r3-candidate",
+      "variant": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 85708.58,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r4-baseline",
+      "variant": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 706928.91,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r4-baseline",
+      "variant": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 716780.48,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r4-baseline",
+      "variant": "baseline",
+      "metric": "block_place",
+      "mean_ns": 94462.06,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r4-baseline",
+      "variant": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 91348.42,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r4-candidate",
+      "variant": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 713754.98,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r4-candidate",
+      "variant": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 732487.04,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r4-candidate",
+      "variant": "candidate",
+      "metric": "block_place",
+      "mean_ns": 80567.12,
+      "samples": 10000
+    },
+    {
+      "run": "updates-r4-candidate",
+      "variant": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 79431.63,
+      "samples": 10000
+    }
+  ],
+  "generations": {
+    "baseline": {
+      "terrain": "516df469ea1da6e238e4789166f0a511a1b67cbbb1f49a2a693e5fb0796b6dcf",
+      "light": "b0478de21c807a01f689dbc0f27e77ff4c5fbb8df7ec927130774e7f2d923219",
+      "scored_chunks": 289
+    },
+    "candidate": {
+      "terrain": "516df469ea1da6e238e4789166f0a511a1b67cbbb1f49a2a693e5fb0796b6dcf",
+      "light": "b0478de21c807a01f689dbc0f27e77ff4c5fbb8df7ec927130774e7f2d923219",
+      "scored_chunks": 289
+    }
+  },
+  "shapes": {
+    "baseline": {
+      "valid": true,
+      "cases": [
+        {
+          "state": "minecraft:air",
+          "meta": 0,
+          "face_bits": 0,
+          "registry": false,
+          "roof_sky": 15,
+          "roof_block": 13,
+          "lamp_on_hash": "7a3253d660444f72910d31e885dfbf3cb3eecfad434c21cb898290b8872c3b92",
+          "lamp_off_hash": "555a85326ed9842d0da0fdc4cbda1bfacb84bf9191db8f1f8ceceaa893be9d32",
+          "lamp_restored_hash": "7a3253d660444f72910d31e885dfbf3cb3eecfad434c21cb898290b8872c3b92"
+        },
+        {
+          "state": "minecraft:stone",
+          "meta": 0,
+          "face_bits": 0,
+          "registry": false,
+          "roof_sky": 0,
+          "roof_block": 0,
+          "lamp_on_hash": "3a42218533cb4cedde6e8d975aae03d992289ae32aab79ba85699ed9dfd3436e",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3a42218533cb4cedde6e8d975aae03d992289ae32aab79ba85699ed9dfd3436e"
+        },
+        {
+          "state": "minecraft:glass",
+          "meta": 0,
+          "face_bits": 0,
+          "registry": false,
+          "roof_sky": 15,
+          "roof_block": 13,
+          "lamp_on_hash": "7a3253d660444f72910d31e885dfbf3cb3eecfad434c21cb898290b8872c3b92",
+          "lamp_off_hash": "555a85326ed9842d0da0fdc4cbda1bfacb84bf9191db8f1f8ceceaa893be9d32",
+          "lamp_restored_hash": "7a3253d660444f72910d31e885dfbf3cb3eecfad434c21cb898290b8872c3b92"
+        },
+        {
+          "state": "minecraft:stone_slab",
+          "meta": 0,
+          "face_bits": 32,
+          "registry": true,
+          "roof_sky": 14,
+          "roof_block": 0,
+          "lamp_on_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff",
+          "lamp_off_hash": "10015ffe33c047bd3edbae5dffe9c92c4f9d8259fdd33a0f38a8965cbd849177",
+          "lamp_restored_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff"
+        },
+        {
+          "state": "minecraft:stone_slab",
+          "meta": 8,
+          "face_bits": 16,
+          "registry": true,
+          "roof_sky": 0,
+          "roof_block": 13,
+          "lamp_on_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 0,
+          "face_bits": 33,
+          "registry": true,
+          "roof_sky": 14,
+          "roof_block": 0,
+          "lamp_on_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff",
+          "lamp_off_hash": "10015ffe33c047bd3edbae5dffe9c92c4f9d8259fdd33a0f38a8965cbd849177",
+          "lamp_restored_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 1,
+          "face_bits": 34,
+          "registry": true,
+          "roof_sky": 14,
+          "roof_block": 0,
+          "lamp_on_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff",
+          "lamp_off_hash": "10015ffe33c047bd3edbae5dffe9c92c4f9d8259fdd33a0f38a8965cbd849177",
+          "lamp_restored_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 2,
+          "face_bits": 36,
+          "registry": true,
+          "roof_sky": 14,
+          "roof_block": 0,
+          "lamp_on_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff",
+          "lamp_off_hash": "10015ffe33c047bd3edbae5dffe9c92c4f9d8259fdd33a0f38a8965cbd849177",
+          "lamp_restored_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 3,
+          "face_bits": 40,
+          "registry": true,
+          "roof_sky": 14,
+          "roof_block": 0,
+          "lamp_on_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff",
+          "lamp_off_hash": "10015ffe33c047bd3edbae5dffe9c92c4f9d8259fdd33a0f38a8965cbd849177",
+          "lamp_restored_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 4,
+          "face_bits": 17,
+          "registry": true,
+          "roof_sky": 0,
+          "roof_block": 13,
+          "lamp_on_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 5,
+          "face_bits": 18,
+          "registry": true,
+          "roof_sky": 0,
+          "roof_block": 13,
+          "lamp_on_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 6,
+          "face_bits": 20,
+          "registry": true,
+          "roof_sky": 0,
+          "roof_block": 13,
+          "lamp_on_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 7,
+          "face_bits": 24,
+          "registry": true,
+          "roof_sky": 0,
+          "roof_block": 13,
+          "lamp_on_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779"
+        },
+        {
+          "state": "minecraft:water",
+          "meta": 0,
+          "face_bits": 0,
+          "registry": false,
+          "roof_sky": 12,
+          "roof_block": 11,
+          "lamp_on_hash": "5acdaab6dab073c2a0b87c0edfea4f4fed8aa0aef93122aa786fd77dc7e42bfd",
+          "lamp_off_hash": "c2c7a74480c9689acf0b2df94fd10c7b777ffefeae59f122d1656f33d8bd70f4",
+          "lamp_restored_hash": "5acdaab6dab073c2a0b87c0edfea4f4fed8aa0aef93122aa786fd77dc7e42bfd"
+        },
+        {
+          "state": "minecraft:water",
+          "meta": 7,
+          "face_bits": 0,
+          "registry": false,
+          "roof_sky": 12,
+          "roof_block": 11,
+          "lamp_on_hash": "5acdaab6dab073c2a0b87c0edfea4f4fed8aa0aef93122aa786fd77dc7e42bfd",
+          "lamp_off_hash": "c2c7a74480c9689acf0b2df94fd10c7b777ffefeae59f122d1656f33d8bd70f4",
+          "lamp_restored_hash": "5acdaab6dab073c2a0b87c0edfea4f4fed8aa0aef93122aa786fd77dc7e42bfd"
+        }
+      ],
+      "lit_sided_cases": 10,
+      "cells_per_snapshot": 61440,
+      "channels": 2
+    },
+    "candidate": {
+      "valid": true,
+      "cases": [
+        {
+          "state": "minecraft:air",
+          "meta": 0,
+          "face_bits": 0,
+          "registry": false,
+          "roof_sky": 15,
+          "roof_block": 13,
+          "lamp_on_hash": "7a3253d660444f72910d31e885dfbf3cb3eecfad434c21cb898290b8872c3b92",
+          "lamp_off_hash": "555a85326ed9842d0da0fdc4cbda1bfacb84bf9191db8f1f8ceceaa893be9d32",
+          "lamp_restored_hash": "7a3253d660444f72910d31e885dfbf3cb3eecfad434c21cb898290b8872c3b92"
+        },
+        {
+          "state": "minecraft:stone",
+          "meta": 0,
+          "face_bits": 0,
+          "registry": false,
+          "roof_sky": 0,
+          "roof_block": 0,
+          "lamp_on_hash": "3a42218533cb4cedde6e8d975aae03d992289ae32aab79ba85699ed9dfd3436e",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3a42218533cb4cedde6e8d975aae03d992289ae32aab79ba85699ed9dfd3436e"
+        },
+        {
+          "state": "minecraft:glass",
+          "meta": 0,
+          "face_bits": 0,
+          "registry": false,
+          "roof_sky": 15,
+          "roof_block": 13,
+          "lamp_on_hash": "7a3253d660444f72910d31e885dfbf3cb3eecfad434c21cb898290b8872c3b92",
+          "lamp_off_hash": "555a85326ed9842d0da0fdc4cbda1bfacb84bf9191db8f1f8ceceaa893be9d32",
+          "lamp_restored_hash": "7a3253d660444f72910d31e885dfbf3cb3eecfad434c21cb898290b8872c3b92"
+        },
+        {
+          "state": "minecraft:stone_slab",
+          "meta": 0,
+          "face_bits": 32,
+          "registry": true,
+          "roof_sky": 14,
+          "roof_block": 0,
+          "lamp_on_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff",
+          "lamp_off_hash": "10015ffe33c047bd3edbae5dffe9c92c4f9d8259fdd33a0f38a8965cbd849177",
+          "lamp_restored_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff"
+        },
+        {
+          "state": "minecraft:stone_slab",
+          "meta": 8,
+          "face_bits": 16,
+          "registry": true,
+          "roof_sky": 0,
+          "roof_block": 13,
+          "lamp_on_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 0,
+          "face_bits": 33,
+          "registry": true,
+          "roof_sky": 14,
+          "roof_block": 0,
+          "lamp_on_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff",
+          "lamp_off_hash": "10015ffe33c047bd3edbae5dffe9c92c4f9d8259fdd33a0f38a8965cbd849177",
+          "lamp_restored_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 1,
+          "face_bits": 34,
+          "registry": true,
+          "roof_sky": 14,
+          "roof_block": 0,
+          "lamp_on_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff",
+          "lamp_off_hash": "10015ffe33c047bd3edbae5dffe9c92c4f9d8259fdd33a0f38a8965cbd849177",
+          "lamp_restored_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 2,
+          "face_bits": 36,
+          "registry": true,
+          "roof_sky": 14,
+          "roof_block": 0,
+          "lamp_on_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff",
+          "lamp_off_hash": "10015ffe33c047bd3edbae5dffe9c92c4f9d8259fdd33a0f38a8965cbd849177",
+          "lamp_restored_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 3,
+          "face_bits": 40,
+          "registry": true,
+          "roof_sky": 14,
+          "roof_block": 0,
+          "lamp_on_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff",
+          "lamp_off_hash": "10015ffe33c047bd3edbae5dffe9c92c4f9d8259fdd33a0f38a8965cbd849177",
+          "lamp_restored_hash": "425dae373f5f7969b23fd2d2cb59af4912a154085733f3210e1208416d9f2dff"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 4,
+          "face_bits": 17,
+          "registry": true,
+          "roof_sky": 0,
+          "roof_block": 13,
+          "lamp_on_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 5,
+          "face_bits": 18,
+          "registry": true,
+          "roof_sky": 0,
+          "roof_block": 13,
+          "lamp_on_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 6,
+          "face_bits": 20,
+          "registry": true,
+          "roof_sky": 0,
+          "roof_block": 13,
+          "lamp_on_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779"
+        },
+        {
+          "state": "minecraft:oak_stairs",
+          "meta": 7,
+          "face_bits": 24,
+          "registry": true,
+          "roof_sky": 0,
+          "roof_block": 13,
+          "lamp_on_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779",
+          "lamp_off_hash": "37aaa29371d6406b77c8ab6789d1015bf3a656a1c066b0349613b36ac2ee46e6",
+          "lamp_restored_hash": "3efb36e1e07359a101ab4e6edd5604b955e3081749e041edb11f61c6185aa779"
+        },
+        {
+          "state": "minecraft:water",
+          "meta": 0,
+          "face_bits": 0,
+          "registry": false,
+          "roof_sky": 12,
+          "roof_block": 11,
+          "lamp_on_hash": "5acdaab6dab073c2a0b87c0edfea4f4fed8aa0aef93122aa786fd77dc7e42bfd",
+          "lamp_off_hash": "c2c7a74480c9689acf0b2df94fd10c7b777ffefeae59f122d1656f33d8bd70f4",
+          "lamp_restored_hash": "5acdaab6dab073c2a0b87c0edfea4f4fed8aa0aef93122aa786fd77dc7e42bfd"
+        },
+        {
+          "state": "minecraft:water",
+          "meta": 7,
+          "face_bits": 0,
+          "registry": false,
+          "roof_sky": 12,
+          "roof_block": 11,
+          "lamp_on_hash": "5acdaab6dab073c2a0b87c0edfea4f4fed8aa0aef93122aa786fd77dc7e42bfd",
+          "lamp_off_hash": "c2c7a74480c9689acf0b2df94fd10c7b777ffefeae59f122d1656f33d8bd70f4",
+          "lamp_restored_hash": "5acdaab6dab073c2a0b87c0edfea4f4fed8aa0aef93122aa786fd77dc7e42bfd"
+        }
+      ],
+      "lit_sided_cases": 10,
+      "cells_per_snapshot": 61440,
+      "channels": 2
+    }
+  }
+}

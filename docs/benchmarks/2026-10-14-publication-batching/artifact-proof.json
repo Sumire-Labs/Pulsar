@@ -1,0 +1,12 @@
+{
+  "different_entries": [
+    "META-INF/pulsar_at.cfg",
+    "com/sumirelabs/pulsar/Pulsar.class",
+    "com/sumirelabs/pulsar/Reference.class",
+    "com/sumirelabs/pulsar/light/engine/LightEngineCache.class",
+    "mcmod.info",
+    "pack.mcmeta"
+  ],
+  "baseline_sha256": "494b8be4dd205761ce42b2cfcf7e828fb79bd59af36dda2e91e3fb2de091881c",
+  "candidate_sha256": "69d1c425aa3e373bedcdc12bb55413f73d739ea59b5b4cc26cbe86df71aa391b"
+}
