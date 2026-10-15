@@ -61,25 +61,25 @@ It reimplements Starlight-style algorithms for Cleanroom and runs lighting calcu
 
 #### Block Placement and Removal
 
-![Block update completion time](docs/benchmarks/2026-10-12-pulsar-0.5.0/block-latency.png)
+![Block update completion time](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/docs/benchmarks/2026-10-12-pulsar-0.5.0/block-latency.png)
 
 #### Sky Opening and Closing
 
-![Sky opening and closing completion time](docs/benchmarks/2026-10-12-pulsar-0.5.0/sky-latency.png)
+![Sky opening and closing completion time](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/docs/benchmarks/2026-10-12-pulsar-0.5.0/sky-latency.png)
 
 #### Server Load During Continuous Editing
 
 These values measure main-thread MSPT. Async worker CPU time is not included.
 
-![Main-thread MSPT during continuous editing](docs/benchmarks/2026-10-12-pulsar-0.5.0/continuous-server-ticks.png)
+![Main-thread MSPT during continuous editing](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/docs/benchmarks/2026-10-12-pulsar-0.5.0/continuous-server-ticks.png)
 
 #### Flat Terrain Generation
 
-![Equal-output flat terrain generation](docs/benchmarks/2026-10-12-pulsar-0.5.0/flat-generation.png)
+![Equal-output flat terrain generation](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/docs/benchmarks/2026-10-12-pulsar-0.5.0/flat-generation.png)
 
 #### Travel in a Flat World
 
-![Server chunk readiness at travel destinations](docs/benchmarks/2026-10-12-pulsar-0.5.0/flat-travel-readiness.png)
+![Server chunk readiness at travel destinations](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/docs/benchmarks/2026-10-12-pulsar-0.5.0/flat-travel-readiness.png)
 
 </details>
 
@@ -99,4 +99,4 @@ Pulsar uses LLM assistance in the following areas:
 
 ## License
 
-Pulsar is licensed under the [LGPL-3.0](LICENSE.md).
+Pulsar is licensed under the [LGPL-3.0](https://github.com/Sumire-Labs/Pulsar/blob/main/LICENSE.md).
