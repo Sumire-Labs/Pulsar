@@ -12,6 +12,7 @@ import com.sumirelabs.pulsar.util.WorldUtil;
 import net.minecraft.network.play.server.SPacketChunkData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerChunkMapEntry;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -54,6 +55,8 @@ public final class WorldLightManager {
     private final SnapshotChunkMap loadedChunkMap = new SnapshotChunkMap();
     // Only accessed by server-thread packet/update callbacks, never by workers.
     private final DeferredChunkUpdates<Chunk> deferredChunkUpdates = new DeferredChunkUpdates<>();
+    private final DeferredChunkUpdates<Chunk> deferredRelightRefreshes = new DeferredChunkUpdates<>();
+    private final DeferredChunkWatches<PlayerChunkMapEntry, Chunk, EntityPlayerMP> deferredChunkWatches = new DeferredChunkWatches<>();
 
     // Queues for sky and block light. On the server each is drained by its
     // own worker thread; on the client (thin mode) both are drained on the
@@ -111,6 +114,7 @@ public final class WorldLightManager {
     public void unregisterChunk(final int cx, final int cz) {
         this.clientRenderUpdates.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.deferredChunkUpdates.remove(CoordinateUtils.getChunkKey(cx,cz));
+        this.deferredRelightRefreshes.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.loadedChunkMap.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.contextualLight.unload(cx, cz);
     }
@@ -305,10 +309,24 @@ public final class WorldLightManager {
         final Chunk chunk=this.getLoadedChunk(cx,cz);
         if(chunk==null || !((PulsarChunk)chunk).pulsar$isLightReady()) return false;
         // Propagation from a neighboring task can also write this chunk's nibbles.
-        for(int dx=-1;dx<=1;dx++) for(int dz=-1;dz<=1;dz++) {
-            if(this.hasChunkPendingLight(cx+dx,cz+dz)) return false;
-        }
-        return true;
+        return !this.hasPendingLightWorkNear(cx, cz);
+    }
+
+    public void deferChunkWatch(PlayerChunkMapEntry entry, Chunk chunk, EntityPlayerMP player) {
+        this.deferredChunkWatches.defer(entry, chunk, player);
+    }
+
+    public void cancelDeferredChunkWatch(PlayerChunkMapEntry entry, EntityPlayerMP player) {
+        this.deferredChunkWatches.cancel(entry, player);
+    }
+
+    public boolean isPendingChunkWatch(PlayerChunkMapEntry entry, EntityPlayerMP player) {
+        return this.deferredChunkWatches.contains(entry, player);
+    }
+
+    public boolean isPendingChunkWatch(int cx, int cz, EntityPlayerMP player) {
+        if (this.deferredChunkWatches.isEmpty() || !(this.world instanceof WorldServer server)) return false;
+        return this.isPendingChunkWatch(server.getPlayerChunkMap().getEntry(cx, cz), player);
     }
 
     public void deferChunkPacketUpdate(final Chunk chunk) {
@@ -318,6 +336,16 @@ public final class WorldLightManager {
     /** PlayerChunkMap clears its changed-entry set after update(), so it cannot own retries. */
     public void processDeferredChunkUpdates() {
         if(!(this.world instanceof WorldServer serverWorld)) return;
+        this.deferredChunkWatches.drain((entry, chunk) -> entry.getChunk() == chunk
+                        && this.getLoadedChunk(chunk.x, chunk.z) == chunk
+                        && serverWorld.getPlayerChunkMap().getEntry(chunk.x, chunk.z) == entry,
+                (entry, chunk) -> this.canSendUpdatedChunkLight(chunk.x, chunk.z),
+                player -> player.world == this.world && player.connection.getNetworkManager().isChannelOpen(),
+                (entry, player) -> {
+                    entry.sendToPlayer(player);
+                    if (entry.containsPlayer(player)) net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+                            new net.minecraftforge.event.world.ChunkWatchEvent.Watch(entry.getChunk(), player));
+                });
         this.deferredChunkUpdates.drain((key,chunk)-> {
             final PlayerChunkMapEntry entry=serverWorld.getPlayerChunkMap().getEntry(chunk.x,chunk.z);
             if(this.loadedChunkMap.get(key)!=chunk || entry==null || entry.getChunk()!=chunk)
@@ -325,6 +353,14 @@ public final class WorldLightManager {
             return this.canSendUpdatedChunkLight(chunk.x,chunk.z)
                     ? DeferredChunkUpdates.Decision.SEND : DeferredChunkUpdates.Decision.WAIT;
         },(key,chunk)->serverWorld.getPlayerChunkMap().getEntry(chunk.x,chunk.z).update());
+        this.deferredRelightRefreshes.drain((key, chunk) -> {
+            final PlayerChunkMapEntry entry = serverWorld.getPlayerChunkMap().getEntry(chunk.x, chunk.z);
+            if (this.loadedChunkMap.get(key) != chunk || entry == null || entry.getChunk() != chunk)
+                return DeferredChunkUpdates.Decision.DROP;
+            return this.canSendUpdatedChunkLight(chunk.x, chunk.z)
+                    ? DeferredChunkUpdates.Decision.SEND : DeferredChunkUpdates.Decision.WAIT;
+        }, (key, chunk) -> this.sendChunkLightRefresh(serverWorld.getPlayerChunkMap().getEntry(chunk.x, chunk.z),
+                chunk, this.heightContext.getFullChunkSectionMask()));
     }
 
     /** Refresh an existing client chunk without unloading its tracked entities. */
@@ -686,7 +722,8 @@ public final class WorldLightManager {
                     final Chunk current = this.loadedChunkMap.get(key);
                     if (entry != null && current == completion.chunk
                             && ((PulsarChunk) current).pulsar$isLightReady()) {
-                        this.sendChunkLightRefresh(entry,current,this.heightContext.getFullChunkSectionMask());
+                        // Neighbor jobs can still change this chunk after its own relight finishes.
+                        this.deferredRelightRefreshes.defer(key, current);
                     }
                 });
             }, Runnable::run);
@@ -802,6 +839,8 @@ public final class WorldLightManager {
         this.loadedChunkMap.clear();
         this.clientRenderUpdates.clear();
         this.deferredChunkUpdates.clear();
+        this.deferredRelightRefreshes.clear();
+        this.deferredChunkWatches.clear();
         if (this.skyWorker != null) this.skyWorker.requestStop();
         if (this.blockWorker != null) this.blockWorker.requestStop();
         if (this.skyWorker != null) this.skyWorker.awaitStop();

@@ -9,6 +9,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ChunkPacketLightTest {
 
+    @Test void partialPacketsMustResetAbsentSectionsEvenWhenTheirLightIsDefault() {
+        assertTrue(PacketLightSection.needsAbsentStorage(false, null));
+        assertTrue(PacketLightSection.needsAbsentStorage(false, new byte[2048]));
+    }
+
+    @Test void fullPacketsCanOmitDefaultAbsentSectionsButMustKeepBlockLight() {
+        assertFalse(PacketLightSection.needsAbsentStorage(true, null));
+        assertFalse(PacketLightSection.needsAbsentStorage(true, new byte[2048]));
+        byte[] light = new byte[2048]; light[100] = 1;
+        assertTrue(PacketLightSection.needsAbsentStorage(true, light));
+    }
+
     private static final int LIGHT_ARRAY_BYTES = 2048;
 
     @Test

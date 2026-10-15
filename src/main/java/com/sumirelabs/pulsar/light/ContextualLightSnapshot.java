@@ -1,6 +1,6 @@
 package com.sumirelabs.pulsar.light;
 
-import java.util.HashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,7 +17,7 @@ public final class ContextualLightSnapshot<S> {
     private record Cell<S>(S block, int blockInfo, S fluid, int fluidInfo) {}
 
     private final ConcurrentHashMap<Integer, Cell<S>> cells = new ConcurrentHashMap<>();
-    private final Set<Integer> pending = ConcurrentHashMap.newKeySet();
+    private final PendingLightPositions pending = new PendingLightPositions();
     private final Set<Integer> missed = ConcurrentHashMap.newKeySet();
     private final Thread owner = Thread.currentThread();
 
@@ -118,8 +118,8 @@ public final class ContextualLightSnapshot<S> {
 
     /** Bounded batch: callback-triggered requests are left for the next tick. */
     public Set<Integer> takePending() {
-        final Set<Integer> batch = new HashSet<>(this.pending);
-        for (final Integer position : batch) this.pending.remove(position);
-        return batch;
+        return this.takePendingPositions();
     }
+
+    IntSet takePendingPositions() { return this.pending.take(); }
 }

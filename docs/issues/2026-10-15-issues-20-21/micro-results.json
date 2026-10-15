@@ -1,0 +1,82 @@
+[
+  {
+    "elapsed_nanos": 107550900,
+    "allocated_bytes": 180424088,
+    "batches": 1000,
+    "requests": 4096000,
+    "unique_per_batch": 2048,
+    "checksum": 44039168000,
+    "rep": 1,
+    "variant": "baseline"
+  },
+  {
+    "elapsed_nanos": 52246900,
+    "allocated_bytes": 32968136,
+    "batches": 1000,
+    "requests": 4096000,
+    "unique_per_batch": 2048,
+    "checksum": 44039168000,
+    "rep": 1,
+    "variant": "candidate"
+  },
+  {
+    "elapsed_nanos": 51146400,
+    "allocated_bytes": 32968136,
+    "batches": 1000,
+    "requests": 4096000,
+    "unique_per_batch": 2048,
+    "checksum": 44039168000,
+    "rep": 2,
+    "variant": "candidate"
+  },
+  {
+    "elapsed_nanos": 108285600,
+    "allocated_bytes": 180424088,
+    "batches": 1000,
+    "requests": 4096000,
+    "unique_per_batch": 2048,
+    "checksum": 44039168000,
+    "rep": 2,
+    "variant": "baseline"
+  },
+  {
+    "elapsed_nanos": 51652400,
+    "allocated_bytes": 32968136,
+    "batches": 1000,
+    "requests": 4096000,
+    "unique_per_batch": 2048,
+    "checksum": 44039168000,
+    "rep": 3,
+    "variant": "candidate"
+  },
+  {
+    "elapsed_nanos": 109008900,
+    "allocated_bytes": 180424088,
+    "batches": 1000,
+    "requests": 4096000,
+    "unique_per_batch": 2048,
+    "checksum": 44039168000,
+    "rep": 3,
+    "variant": "baseline"
+  },
+  {
+    "elapsed_nanos": 102327100,
+    "allocated_bytes": 180376136,
+    "batches": 1000,
+    "requests": 4096000,
+    "unique_per_batch": 2048,
+    "checksum": 44039168000,
+    "rep": 4,
+    "variant": "baseline"
+  },
+  {
+    "elapsed_nanos": 51348200,
+    "allocated_bytes": 32968136,
+    "batches": 1000,
+    "requests": 4096000,
+    "unique_per_batch": 2048,
+    "checksum": 44039168000,
+    "rep": 4,
+    "variant": "candidate"
+  }
+]

@@ -35,6 +35,8 @@ public final class LightDataSerializer {
     /**
      * Bump when the on-disk layout or BFS semantics change incompatibly.
      */
+    // v13: reject light saved after external bulk section/nibble writes (CQR),
+    // which bypassed Pulsar's change notifications and could persist stale light.
     // v12: discard skylight persisted after dense per-chunk rebuilds, which
     // could leave incorrect light across chunk boundaries.
     // v11: rebuilds caches that may contain direct-sky columns left stale
@@ -50,7 +52,7 @@ public final class LightDataSerializer {
     // v6: invalidated light computed before the 2026-07-26 correctness batch
     // (UNINIT-as-15 sync, missing extrude, decrease re-seed/continuation
     // fixes) — old data relights once on load.
-    public static final int LIGHT_VERSION = 12;
+    public static final int LIGHT_VERSION = 13;
 
     private static final String TAG_ROOT = "PulsarLight";
     private static final String TAG_VERSION = "version";

@@ -22,7 +22,7 @@ public final class ChunkPacketLight {
             final SWMRNibbleArray[] sky, final ExtendedBlockStorage[] storage,
             final boolean hasSky, final int sectionMask) {
         ExtendedBlockStorage[] result = storage;
-        if (block == null) return result;
+        if (block == null && sectionMask == -1) return result;
         for (int sectionY = height.getMinSection(); sectionY <= height.getMaxSection(); sectionY++) {
             final int slot = height.getStorageIndex(sectionY);
             if (slot < 0 || slot >= storage.length || storage[slot] != null
@@ -30,16 +30,21 @@ public final class ChunkPacketLight {
                 continue;
             }
             final int index = height.getLightSectionIndex(sectionY);
-            if (index < 0 || index >= block.length || block[index] == null) continue;
-            final byte[] light;
-            synchronized (block[index]) {
-                final byte[] visible = block[index].getVisibleData();
-                if (PacketLightSection.isTrivial(true, visible, null, false)) continue;
-                light = visible.clone();
+            if (index < 0) continue;
+            final SWMRNibbleArray nibble = block == null || index >= block.length ? null : block[index];
+            byte[] light = null;
+            if (nibble != null) {
+                synchronized (nibble) {
+                    final byte[] visible = nibble.getVisibleData();
+                    if (!PacketLightSection.needsAbsentStorage(sectionMask == -1, visible)) continue;
+                    if (visible != null) light = visible.clone();
+                }
+            } else if (!PacketLightSection.needsAbsentStorage(sectionMask == -1, null)) {
+                continue;
             }
             final ExtendedBlockStorage section = new ExtendedBlockStorage(sectionY << 4, hasSky);
             ChunkLightHelper.fillVanillaFromEngine(height, sky, null, section, sectionY, hasSky);
-            System.arraycopy(light, 0, section.getBlockLight().getData(), 0, light.length);
+            if (light != null) System.arraycopy(light, 0, section.getBlockLight().getData(), 0, light.length);
             if (result == storage) result = storage.clone();
             result[slot] = section;
         }

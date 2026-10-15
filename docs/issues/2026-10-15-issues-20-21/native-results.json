@@ -1,0 +1,326 @@
+{
+  "runs": [
+    "timing2-tps-r1-baseline",
+    "timing2-tps-r1-candidate",
+    "timing2-tps-r2-baseline",
+    "timing2-tps-r2-candidate",
+    "timing2-tps-r3-baseline",
+    "timing2-tps-r3-candidate",
+    "timing2-tps-r4-baseline",
+    "timing2-tps-r4-candidate",
+    "timing2-updates-r1-baseline",
+    "timing2-updates-r1-candidate",
+    "timing2-updates-r2-baseline",
+    "timing2-updates-r2-candidate"
+  ],
+  "same_environment": true,
+  "same_non_engine_mods": true,
+  "summary": [
+    {
+      "engine": "baseline",
+      "metric": "block_place",
+      "jvms": 2,
+      "median_ns": 85786.35,
+      "min_ns": 85386.5,
+      "max_ns": 86186.2
+    },
+    {
+      "engine": "baseline",
+      "metric": "block_remove",
+      "jvms": 2,
+      "median_ns": 81754.85,
+      "min_ns": 80518,
+      "max_ns": 82991.7
+    },
+    {
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "jvms": 4,
+      "median_ns": 192620431.5,
+      "min_ns": 187619355,
+      "max_ns": 198637612
+    },
+    {
+      "engine": "baseline",
+      "metric": "post_run_drain",
+      "jvms": 4,
+      "median_ns": 112500.0,
+      "min_ns": 104200,
+      "max_ns": 221200
+    },
+    {
+      "engine": "baseline",
+      "metric": "sky_place",
+      "jvms": 2,
+      "median_ns": 744393.8500000001,
+      "min_ns": 736849.9,
+      "max_ns": 751937.8
+    },
+    {
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "jvms": 2,
+      "median_ns": 703221.55,
+      "min_ns": 695999.8,
+      "max_ns": 710443.3
+    },
+    {
+      "engine": "candidate",
+      "metric": "block_place",
+      "jvms": 2,
+      "median_ns": 80635.2,
+      "min_ns": 80061.4,
+      "max_ns": 81209
+    },
+    {
+      "engine": "candidate",
+      "metric": "block_remove",
+      "jvms": 2,
+      "median_ns": 76924.45000000001,
+      "min_ns": 75641.8,
+      "max_ns": 78207.1
+    },
+    {
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "jvms": 4,
+      "median_ns": 67638249.5,
+      "min_ns": 66869004,
+      "max_ns": 70209899
+    },
+    {
+      "engine": "candidate",
+      "metric": "post_run_drain",
+      "jvms": 4,
+      "median_ns": 413300.0,
+      "min_ns": 179300,
+      "max_ns": 581000
+    },
+    {
+      "engine": "candidate",
+      "metric": "sky_place",
+      "jvms": 2,
+      "median_ns": 738130.85,
+      "min_ns": 733785,
+      "max_ns": 742476.7
+    },
+    {
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "jvms": 2,
+      "median_ns": 692044.7,
+      "min_ns": 684052,
+      "max_ns": 700037.4
+    }
+  ],
+  "rows": [
+    {
+      "run": "timing2-tps-r1-baseline",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 191141147
+    },
+    {
+      "run": "timing2-tps-r1-baseline",
+      "engine": "baseline",
+      "metric": "post_run_drain",
+      "mean_ns": 111700
+    },
+    {
+      "run": "timing2-tps-r1-candidate",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 67417196
+    },
+    {
+      "run": "timing2-tps-r1-candidate",
+      "engine": "candidate",
+      "metric": "post_run_drain",
+      "mean_ns": 445100
+    },
+    {
+      "run": "timing2-tps-r2-baseline",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 198637612
+    },
+    {
+      "run": "timing2-tps-r2-baseline",
+      "engine": "baseline",
+      "metric": "post_run_drain",
+      "mean_ns": 104200
+    },
+    {
+      "run": "timing2-tps-r2-candidate",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 67859303
+    },
+    {
+      "run": "timing2-tps-r2-candidate",
+      "engine": "candidate",
+      "metric": "post_run_drain",
+      "mean_ns": 581000
+    },
+    {
+      "run": "timing2-tps-r3-baseline",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 194099716
+    },
+    {
+      "run": "timing2-tps-r3-baseline",
+      "engine": "baseline",
+      "metric": "post_run_drain",
+      "mean_ns": 221200
+    },
+    {
+      "run": "timing2-tps-r3-candidate",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 70209899
+    },
+    {
+      "run": "timing2-tps-r3-candidate",
+      "engine": "candidate",
+      "metric": "post_run_drain",
+      "mean_ns": 381500
+    },
+    {
+      "run": "timing2-tps-r4-baseline",
+      "engine": "baseline",
+      "metric": "main_mspt",
+      "mean_ns": 187619355
+    },
+    {
+      "run": "timing2-tps-r4-baseline",
+      "engine": "baseline",
+      "metric": "post_run_drain",
+      "mean_ns": 113300
+    },
+    {
+      "run": "timing2-tps-r4-candidate",
+      "engine": "candidate",
+      "metric": "main_mspt",
+      "mean_ns": 66869004
+    },
+    {
+      "run": "timing2-tps-r4-candidate",
+      "engine": "candidate",
+      "metric": "post_run_drain",
+      "mean_ns": 179300
+    },
+    {
+      "run": "timing2-updates-r1-baseline",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 710443.3,
+      "p99_ns": 1240000
+    },
+    {
+      "run": "timing2-updates-r1-baseline",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 751937.8,
+      "p99_ns": 1352700
+    },
+    {
+      "run": "timing2-updates-r1-baseline",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 85386.5,
+      "p99_ns": 249100
+    },
+    {
+      "run": "timing2-updates-r1-baseline",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 80518,
+      "p99_ns": 159600
+    },
+    {
+      "run": "timing2-updates-r1-candidate",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 684052,
+      "p99_ns": 1239000
+    },
+    {
+      "run": "timing2-updates-r1-candidate",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 733785,
+      "p99_ns": 1386600
+    },
+    {
+      "run": "timing2-updates-r1-candidate",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 80061.4,
+      "p99_ns": 243800
+    },
+    {
+      "run": "timing2-updates-r1-candidate",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 78207.1,
+      "p99_ns": 130400
+    },
+    {
+      "run": "timing2-updates-r2-baseline",
+      "engine": "baseline",
+      "metric": "sky_remove",
+      "mean_ns": 695999.8,
+      "p99_ns": 1246300
+    },
+    {
+      "run": "timing2-updates-r2-baseline",
+      "engine": "baseline",
+      "metric": "sky_place",
+      "mean_ns": 736849.9,
+      "p99_ns": 1308600
+    },
+    {
+      "run": "timing2-updates-r2-baseline",
+      "engine": "baseline",
+      "metric": "block_place",
+      "mean_ns": 86186.2,
+      "p99_ns": 264400
+    },
+    {
+      "run": "timing2-updates-r2-baseline",
+      "engine": "baseline",
+      "metric": "block_remove",
+      "mean_ns": 82991.7,
+      "p99_ns": 157700
+    },
+    {
+      "run": "timing2-updates-r2-candidate",
+      "engine": "candidate",
+      "metric": "sky_remove",
+      "mean_ns": 700037.4,
+      "p99_ns": 1277700
+    },
+    {
+      "run": "timing2-updates-r2-candidate",
+      "engine": "candidate",
+      "metric": "sky_place",
+      "mean_ns": 742476.7,
+      "p99_ns": 1384000
+    },
+    {
+      "run": "timing2-updates-r2-candidate",
+      "engine": "candidate",
+      "metric": "block_place",
+      "mean_ns": 81209,
+      "p99_ns": 241100
+    },
+    {
+      "run": "timing2-updates-r2-candidate",
+      "engine": "candidate",
+      "metric": "block_remove",
+      "mean_ns": 75641.8,
+      "p99_ns": 119000
+    }
+  ]
+}

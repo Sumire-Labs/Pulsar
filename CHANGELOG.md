@@ -5,6 +5,28 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Wait for pending contextual samples and nearby lighting before initial chunk
+  transmission, including players joining an already-sent chunk. Preserve
+  initial-packet, entity-tracking and Forge chunk-watch event ordering, and
+  cancel deferred sends when players leave.
+- Rebuild Pulsar lighting after Chocolate Quest Repoured bulk dungeon writes,
+  including the affected neighboring chunks. Delay relight refresh packets
+  until neighboring work has finished.
+- Include requested absent sections in partial light refreshes even when their
+  light is now default, so stale client light arrays are reset.
+- Invalidate older lighting caches (version 13); previously saved incorrect CQR
+  lighting is recalculated when its chunks next load.
+
+### Changed
+
+- Collect pending contextual light positions in primitive, atomically detached
+  batches, avoiding boxed requests and per-tick set copying/removal. Iterate
+  those batches without boxing and keep callbacks outside the producer monitor.
+
 ## [0.5.0]
 
 ### Changed

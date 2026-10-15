@@ -11,6 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+import it.unimi.dsi.fastutil.ints.IntIterator;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -178,7 +179,9 @@ public final class ContextualLightManager {
             // Local to this batch: reentrant callbacks cannot overwrite a
             // different flush's position. Reuse for capture and tile lookups.
             final BlockPos.MutableBlockPos samplePos = new BlockPos.MutableBlockPos();
-            for (final int key : entry.snapshot.takePending()) {
+            final IntIterator pending = entry.snapshot.takePendingPositions().iterator();
+            while (pending.hasNext()) {
+                final int key = pending.nextInt();
                 final int x = key & 15;
                 final int z = (key >>> 4) & 15;
                 final int y = key >> 8;

@@ -1,0 +1,250 @@
+{
+  "unit_tests": {
+    "tests": 191,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "production_source_matches_frozen": true,
+  "production_contains_no_diagnostics": true,
+  "correctness": {
+    "cqr-baseline-r5": {
+      "stage": {
+        "command": "issueaudit ship",
+        "template": "flat",
+        "engine": "baseline",
+        "engine_jar": "pulsar-baseline.jar",
+        "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C",
+        "mode": "audit",
+        "run": "cqr-baseline-r5",
+        "variant": "original",
+        "created": "2026-10-15T14:50:37.2990971Z"
+      },
+      "cases": [
+        {
+          "name": "world-placement",
+          "mismatches": 0
+        },
+        {
+          "name": "initial-send-race",
+          "context_pending": true,
+          "already_light_ready": true,
+          "sent_while_pending": true
+        },
+        {
+          "name": "initial-send-after-drain",
+          "stored": 10,
+          "retry_sent": true
+        },
+        {
+          "name": "existing-entry-watch-race",
+          "watching_while_pending": true
+        },
+        {
+          "name": "existing-entry-watch-after-drain",
+          "stored": 10,
+          "watching_after_drain": true,
+          "watch_events_while_pending": 1,
+          "watch_events_after_drain": 0
+        },
+        {
+          "name": "direct-chunk-placement",
+          "mismatches": 0
+        },
+        {
+          "name": "full-relight",
+          "mismatches": 0
+        },
+        {
+          "name": "sealed-oak-room",
+          "lit_interior_cells": 0,
+          "max_sky": 0
+        },
+        {
+          "name": "native-cqr-generation",
+          "cells": 68800
+        },
+        {
+          "name": "native-cqr-vs-full-relight",
+          "sky_differences": 10928,
+          "block_differences": 6569
+        }
+      ]
+    },
+    "cqr-candidate-r5": {
+      "stage": {
+        "command": "issueaudit ship",
+        "template": "flat",
+        "engine": "candidate",
+        "engine_jar": "pulsar-candidate.jar",
+        "sha256": "C44CCB692C605C17BC1788A92809AC2E51A70DA09B0581CC574996C10AFF6919",
+        "mode": "audit",
+        "run": "cqr-candidate-r5",
+        "variant": "original",
+        "created": "2026-10-15T14:52:03.2271457Z"
+      },
+      "cases": [
+        {
+          "name": "world-placement",
+          "mismatches": 0
+        },
+        {
+          "name": "initial-send-race",
+          "context_pending": true,
+          "already_light_ready": true,
+          "sent_while_pending": false
+        },
+        {
+          "name": "initial-send-after-drain",
+          "stored": 10,
+          "retry_sent": true
+        },
+        {
+          "name": "existing-entry-watch-race",
+          "watching_while_pending": false
+        },
+        {
+          "name": "existing-entry-watch-after-drain",
+          "stored": 10,
+          "watching_after_drain": true,
+          "watch_events_while_pending": 0,
+          "watch_events_after_drain": 1
+        },
+        {
+          "name": "direct-chunk-placement",
+          "mismatches": 0
+        },
+        {
+          "name": "full-relight",
+          "mismatches": 0
+        },
+        {
+          "name": "sealed-oak-room",
+          "lit_interior_cells": 0,
+          "max_sky": 0
+        },
+        {
+          "name": "native-cqr-generation",
+          "cells": 68800
+        },
+        {
+          "name": "native-cqr-vs-full-relight",
+          "sky_differences": 0,
+          "block_differences": 0
+        }
+      ]
+    },
+    "compat-candidate-r5": {
+      "stage": {
+        "command": "issueaudit ship",
+        "template": "flat",
+        "engine": "candidate",
+        "engine_jar": "pulsar-candidate.jar",
+        "sha256": "C44CCB692C605C17BC1788A92809AC2E51A70DA09B0581CC574996C10AFF6919",
+        "mode": "audit",
+        "run": "compat-candidate-r5",
+        "variant": "original",
+        "created": "2026-10-15T14:53:32.8008900Z"
+      },
+      "cases": [
+        {
+          "name": "world-placement",
+          "mismatches": 0
+        },
+        {
+          "name": "initial-send-race",
+          "context_pending": true,
+          "already_light_ready": true,
+          "sent_while_pending": false
+        },
+        {
+          "name": "initial-send-after-drain",
+          "stored": 10,
+          "retry_sent": true
+        },
+        {
+          "name": "existing-entry-watch-race",
+          "watching_while_pending": false
+        },
+        {
+          "name": "existing-entry-watch-after-drain",
+          "stored": 10,
+          "watching_after_drain": true,
+          "watch_events_while_pending": 0,
+          "watch_events_after_drain": 1
+        },
+        {
+          "name": "direct-chunk-placement",
+          "mismatches": 0
+        },
+        {
+          "name": "full-relight",
+          "mismatches": 0
+        },
+        {
+          "name": "sealed-oak-room",
+          "lit_interior_cells": 0,
+          "max_sky": 0
+        },
+        {
+          "name": "native-cqr-generation",
+          "cells": 68800
+        },
+        {
+          "name": "native-cqr-vs-full-relight",
+          "sky_differences": 0,
+          "block_differences": 0
+        }
+      ]
+    },
+    "legacy-baseline": {
+      "stage": {
+        "engine": "baseline",
+        "variant": "original",
+        "mode": "audit",
+        "command": "issueaudit loadedship",
+        "template": "normal",
+        "run": "legacy-baseline",
+        "engine_jar": "pulsar-baseline.jar",
+        "sha256": "494B8BE4DD205761CE42B2CFCF7E828FB79BD59AF36DDA2E91E3FB2DE091881C",
+        "created": "2026-10-15T14:02:27.0415763Z"
+      },
+      "cases": [
+        {
+          "name": "native-cqr-generation",
+          "cells": 68800
+        },
+        {
+          "name": "native-cqr-vs-full-relight",
+          "sky_differences": 10928,
+          "block_differences": 6569
+        }
+      ]
+    },
+    "legacy-candidate-r5": {
+      "stage": {
+        "command": "issueaudit loadedship",
+        "template": "normal",
+        "engine": "candidate",
+        "engine_jar": "pulsar-candidate.jar",
+        "sha256": "C44CCB692C605C17BC1788A92809AC2E51A70DA09B0581CC574996C10AFF6919",
+        "mode": "audit",
+        "run": "legacy-candidate-r5",
+        "variant": "original",
+        "created": "2026-10-15T14:54:53.4196576Z"
+      },
+      "cases": [
+        {
+          "name": "native-cqr-generation",
+          "cells": 68800
+        },
+        {
+          "name": "native-cqr-vs-full-relight",
+          "sky_differences": 0,
+          "block_differences": 0
+        }
+      ]
+    }
+  },
+  "independent_native_timing_jvms": 12
+}
