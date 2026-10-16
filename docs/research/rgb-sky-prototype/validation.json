@@ -1,0 +1,4339 @@
+{
+  "sky-postdoc-final": {
+    "cases": [
+      {
+        "name": "sealed",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "red-glass",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "split-red-blue",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "direct-red",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "sky-close",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "sky-open",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "boundary-wall",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "full-relight",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "remove-wall",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "final-blue",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "floating-red",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": "",
+        "absent_physical_sections": 14
+      },
+      {
+        "name": "floating-close",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": "",
+        "absent_physical_sections": 14
+      },
+      {
+        "name": "floating-open",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": "",
+        "absent_physical_sections": 14
+      },
+      {
+        "name": "floating-restored-red",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": "",
+        "absent_physical_sections": 14
+      }
+    ],
+    "valid": true,
+    "cache_valid_main": false,
+    "client-2": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-4": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "split_roof_case": true,
+    "client-6": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-8": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-10": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-12": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-14": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "range_targets": 2,
+    "range_superseded": true,
+    "range_gate_held": true,
+    "client-16": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-18": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-20": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "cache_valid_floating": false,
+    "client-22": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 0,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-24": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 0,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-26": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 0,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-28": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 0,
+      "celeritas_hook": false,
+      "valid": true
+    }
+  },
+  "sky-opt-celeritas": {
+    "cases": [
+      {
+        "name": "sealed",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "red-glass",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "split-red-blue",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "direct-red",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "sky-close",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "sky-open",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "boundary-wall",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "full-relight",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "remove-wall",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "final-blue",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "floating-red",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": "",
+        "absent_physical_sections": 14
+      },
+      {
+        "name": "floating-close",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": "",
+        "absent_physical_sections": 14
+      },
+      {
+        "name": "floating-open",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": "",
+        "absent_physical_sections": 14
+      },
+      {
+        "name": "floating-restored-red",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": "",
+        "absent_physical_sections": 14
+      }
+    ],
+    "valid": true,
+    "cache_valid_main": false,
+    "client-2": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 8,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "client-4": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "split_roof_case": true,
+    "client-6": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "client-8": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "client-10": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 8,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "client-12": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 8,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "client-14": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "range_targets": 2,
+    "range_superseded": true,
+    "range_gate_held": true,
+    "client-16": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "client-18": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "client-20": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "cache_valid_floating": false,
+    "client-22": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 0,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "client-24": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 0,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "client-26": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 0,
+      "celeritas_hook": true,
+      "valid": true
+    },
+    "client-28": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 0,
+      "celeritas_hook": true,
+      "valid": true
+    }
+  },
+  "sky-opt-cache-reload": {
+    "cases": [
+      {
+        "name": "reload-room",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "reload-floating",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": "",
+        "absent_physical_sections": 14
+      }
+    ],
+    "valid": true,
+    "cache_valid_main": true,
+    "client-2": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "cache_valid_floating": true,
+    "client-22": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 0,
+      "celeritas_hook": false,
+      "valid": true
+    }
+  },
+  "sky-opt-cache-migration": {
+    "cases": [
+      {
+        "name": "reload-room",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": ""
+      },
+      {
+        "name": "reload-floating",
+        "cells": 24576,
+        "rgb_mismatches": 0,
+        "canonical_mismatches": 0,
+        "stored_mismatches": 0,
+        "block_mismatches": 0,
+        "first": "",
+        "absent_physical_sections": 14
+      }
+    ],
+    "valid": true,
+    "cache_valid_main": false,
+    "client-2": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 4,
+      "vertices": 8,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "cache_valid_floating": true,
+    "client-22": {
+      "rgb_mismatches": 0,
+      "canonical_mismatches": 0,
+      "stored_mismatches": 0,
+      "block_mismatches": 0,
+      "geometry_matches": true,
+      "colored_vertices": 0,
+      "vertices": 0,
+      "celeritas_hook": false,
+      "valid": true
+    }
+  },
+  "sky-opt-block": {
+    "cases": [
+      {
+        "dirty_count": 0,
+        "rgb_clients": 1,
+        "world_ticks": 59,
+        "world_time": 1135,
+        "capture_snapshots": false,
+        "server_revision_0": 3,
+        "server_revision_1": 3,
+        "server_populated": true,
+        "entry_sent": true,
+        "entry_chunk_same": true,
+        "neighbours_ready": true,
+        "server_snapshot_canonical_mismatches": 0,
+        "server_scalar_mismatches": 0,
+        "name": "mixed",
+        "cells": 5120,
+        "mismatches": 0,
+        "first": ""
+      },
+      {
+        "dirty_count": 0,
+        "rgb_clients": 1,
+        "world_ticks": 99,
+        "world_time": 1175,
+        "capture_snapshots": false,
+        "server_revision_0": 4,
+        "server_revision_1": 4,
+        "server_populated": true,
+        "entry_sent": true,
+        "entry_chunk_same": true,
+        "neighbours_ready": true,
+        "server_snapshot_canonical_mismatches": 0,
+        "server_scalar_mismatches": 0,
+        "name": "remove-red",
+        "cells": 5120,
+        "mismatches": 0,
+        "first": ""
+      },
+      {
+        "dirty_count": 0,
+        "rgb_clients": 1,
+        "world_ticks": 139,
+        "world_time": 1215,
+        "capture_snapshots": false,
+        "server_revision_0": 6,
+        "server_revision_1": 9,
+        "server_populated": true,
+        "entry_sent": true,
+        "entry_chunk_same": true,
+        "neighbours_ready": true,
+        "server_snapshot_canonical_mismatches": 0,
+        "server_scalar_mismatches": 0,
+        "name": "opaque-barrier",
+        "cells": 5120,
+        "mismatches": 0,
+        "first": ""
+      },
+      {
+        "dirty_count": 0,
+        "rgb_clients": 1,
+        "world_ticks": 179,
+        "world_time": 1255,
+        "capture_snapshots": false,
+        "server_revision_0": 6,
+        "server_revision_1": 10,
+        "server_populated": true,
+        "entry_sent": true,
+        "entry_chunk_same": true,
+        "neighbours_ready": true,
+        "server_snapshot_canonical_mismatches": 0,
+        "server_scalar_mismatches": 0,
+        "name": "same-brightness-color-swap",
+        "cells": 5120,
+        "mismatches": 0,
+        "first": ""
+      },
+      {
+        "dirty_count": 0,
+        "rgb_clients": 1,
+        "world_ticks": 219,
+        "world_time": 1295,
+        "capture_snapshots": false,
+        "server_revision_0": 6,
+        "server_revision_1": 10,
+        "server_populated": true,
+        "entry_sent": true,
+        "entry_chunk_same": true,
+        "neighbours_ready": true,
+        "server_snapshot_canonical_mismatches": 0,
+        "server_scalar_mismatches": 0,
+        "name": "full-relight",
+        "cells": 5120,
+        "mismatches": 0,
+        "first": ""
+      },
+      {
+        "dirty_count": 0,
+        "rgb_clients": 1,
+        "world_ticks": 279,
+        "world_time": 1355,
+        "capture_snapshots": false,
+        "server_revision_0": 18,
+        "server_revision_1": 33,
+        "server_populated": true,
+        "entry_sent": true,
+        "entry_chunk_same": true,
+        "neighbours_ready": true,
+        "server_snapshot_canonical_mismatches": 0,
+        "server_scalar_mismatches": 0,
+        "name": "red-glass",
+        "cells": 5120,
+        "mismatches": 0,
+        "first": ""
+      },
+      {
+        "dirty_count": 0,
+        "rgb_clients": 1,
+        "world_ticks": 319,
+        "world_time": 1395,
+        "capture_snapshots": false,
+        "server_revision_0": 23,
+        "server_revision_1": 39,
+        "server_populated": true,
+        "entry_sent": true,
+        "entry_chunk_same": true,
+        "neighbours_ready": true,
+        "server_snapshot_canonical_mismatches": 0,
+        "server_scalar_mismatches": 0,
+        "name": "blue-glass-swap",
+        "cells": 5120,
+        "mismatches": 0,
+        "first": ""
+      },
+      {
+        "dirty_count": 0,
+        "rgb_clients": 1,
+        "world_ticks": 359,
+        "world_time": 1435,
+        "capture_snapshots": false,
+        "server_revision_0": 35,
+        "server_revision_1": 65,
+        "server_populated": true,
+        "entry_sent": true,
+        "entry_chunk_same": true,
+        "neighbours_ready": true,
+        "server_snapshot_canonical_mismatches": 0,
+        "server_scalar_mismatches": 0,
+        "name": "red-glass-pane",
+        "cells": 5120,
+        "mismatches": 0,
+        "first": ""
+      },
+      {
+        "dirty_count": 0,
+        "rgb_clients": 1,
+        "world_ticks": 399,
+        "world_time": 1475,
+        "capture_snapshots": false,
+        "server_revision_0": 37,
+        "server_revision_1": 65,
+        "server_populated": true,
+        "entry_sent": true,
+        "entry_chunk_same": true,
+        "neighbours_ready": true,
+        "server_snapshot_canonical_mismatches": 0,
+        "server_scalar_mismatches": 0,
+        "name": "filtered-full-relight",
+        "cells": 5120,
+        "mismatches": 0,
+        "first": ""
+      },
+      {
+        "dirty_count": 0,
+        "rgb_clients": 1,
+        "world_ticks": 439,
+        "world_time": 1515,
+        "capture_snapshots": false,
+        "server_revision_0": 47,
+        "server_revision_1": 84,
+        "server_populated": true,
+        "entry_sent": true,
+        "entry_chunk_same": true,
+        "neighbours_ready": true,
+        "server_snapshot_canonical_mismatches": 0,
+        "server_scalar_mismatches": 0,
+        "name": "remove-glass",
+        "cells": 5120,
+        "mismatches": 0,
+        "first": ""
+      }
+    ],
+    "valid": true,
+    "snapshot_allocation": {
+      "copy_bytes_per_snapshot": 149768.0128,
+      "copy_ns_per_snapshot": 13608.6,
+      "reuse_bytes_per_snapshot": 1160.0128,
+      "reuse_ns_per_snapshot": 3580.32
+    },
+    "cached_light_valid_0": false,
+    "client-2": {
+      "client_revision_0": 3,
+      "client_revision_1": 3,
+      "blue_block": "minecraft:sea_lantern",
+      "red_block": "minecraft:glowstone",
+      "client_chunk_class": "net.minecraft.world.chunk.Chunk",
+      "client_chunk_loaded": true,
+      "floor": "minecraft:stone[variant=stone]",
+      "player": "BlockPos{x=20017, y=84, z=20037}",
+      "vertices": 8,
+      "mismatches": 0,
+      "snapshot_canonical_mismatches": 0,
+      "scalar_mismatches": 0,
+      "colored_vertices": 4,
+      "vanilla_hook": true,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-4": {
+      "client_revision_0": 4,
+      "client_revision_1": 4,
+      "blue_block": "minecraft:sea_lantern",
+      "red_block": "minecraft:air",
+      "client_chunk_class": "net.minecraft.world.chunk.Chunk",
+      "client_chunk_loaded": true,
+      "floor": "minecraft:stone[variant=stone]",
+      "player": "BlockPos{x=20017, y=84, z=20037}",
+      "vertices": 8,
+      "mismatches": 0,
+      "snapshot_canonical_mismatches": 0,
+      "scalar_mismatches": 0,
+      "colored_vertices": 4,
+      "vanilla_hook": true,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-6": {
+      "client_revision_0": 6,
+      "client_revision_1": 9,
+      "blue_block": "minecraft:stone[variant=stone]",
+      "red_block": "minecraft:air",
+      "client_chunk_class": "net.minecraft.world.chunk.Chunk",
+      "client_chunk_loaded": true,
+      "floor": "minecraft:stone[variant=stone]",
+      "player": "BlockPos{x=20017, y=84, z=20037}",
+      "vertices": 8,
+      "mismatches": 0,
+      "snapshot_canonical_mismatches": 0,
+      "scalar_mismatches": 0,
+      "colored_vertices": 4,
+      "vanilla_hook": true,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-8": {
+      "client_revision_0": 6,
+      "client_revision_1": 10,
+      "blue_block": "minecraft:stone[variant=stone]",
+      "red_block": "minecraft:air",
+      "client_chunk_class": "net.minecraft.world.chunk.Chunk",
+      "client_chunk_loaded": true,
+      "floor": "minecraft:stone[variant=stone]",
+      "player": "BlockPos{x=20017, y=84, z=20037}",
+      "vertices": 8,
+      "mismatches": 0,
+      "snapshot_canonical_mismatches": 0,
+      "scalar_mismatches": 0,
+      "colored_vertices": 4,
+      "vanilla_hook": true,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-10": {
+      "client_revision_0": 6,
+      "client_revision_1": 10,
+      "blue_block": "minecraft:stone[variant=stone]",
+      "red_block": "minecraft:air",
+      "client_chunk_class": "net.minecraft.world.chunk.Chunk",
+      "client_chunk_loaded": true,
+      "floor": "minecraft:stone[variant=stone]",
+      "player": "BlockPos{x=20017, y=84, z=20037}",
+      "vertices": 8,
+      "mismatches": 0,
+      "snapshot_canonical_mismatches": 0,
+      "scalar_mismatches": 0,
+      "colored_vertices": 4,
+      "vanilla_hook": true,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-12": {
+      "client_revision_0": 18,
+      "client_revision_1": 33,
+      "blue_block": "minecraft:stained_glass[color=red]",
+      "red_block": "minecraft:air",
+      "client_chunk_class": "net.minecraft.world.chunk.Chunk",
+      "client_chunk_loaded": true,
+      "floor": "minecraft:stone[variant=stone]",
+      "player": "BlockPos{x=20017, y=84, z=20037}",
+      "vertices": 8,
+      "mismatches": 0,
+      "snapshot_canonical_mismatches": 0,
+      "scalar_mismatches": 0,
+      "colored_vertices": 4,
+      "vanilla_hook": true,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-14": {
+      "client_revision_0": 23,
+      "client_revision_1": 39,
+      "blue_block": "minecraft:stained_glass[color=blue]",
+      "red_block": "minecraft:air",
+      "client_chunk_class": "net.minecraft.world.chunk.Chunk",
+      "client_chunk_loaded": true,
+      "floor": "minecraft:stone[variant=stone]",
+      "player": "BlockPos{x=20017, y=84, z=20037}",
+      "vertices": 8,
+      "mismatches": 0,
+      "snapshot_canonical_mismatches": 0,
+      "scalar_mismatches": 0,
+      "colored_vertices": 4,
+      "vanilla_hook": true,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-16": {
+      "client_revision_0": 35,
+      "client_revision_1": 65,
+      "blue_block": "minecraft:stained_glass_pane[color=red,east=false,north=false,south=false,west=false]",
+      "red_block": "minecraft:air",
+      "client_chunk_class": "net.minecraft.world.chunk.Chunk",
+      "client_chunk_loaded": true,
+      "floor": "minecraft:stone[variant=stone]",
+      "player": "BlockPos{x=20017, y=84, z=20037}",
+      "vertices": 8,
+      "mismatches": 0,
+      "snapshot_canonical_mismatches": 0,
+      "scalar_mismatches": 0,
+      "colored_vertices": 4,
+      "vanilla_hook": true,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-18": {
+      "client_revision_0": 37,
+      "client_revision_1": 65,
+      "blue_block": "minecraft:stained_glass_pane[color=red,east=false,north=false,south=false,west=false]",
+      "red_block": "minecraft:air",
+      "client_chunk_class": "net.minecraft.world.chunk.Chunk",
+      "client_chunk_loaded": true,
+      "floor": "minecraft:stone[variant=stone]",
+      "player": "BlockPos{x=20017, y=84, z=20037}",
+      "vertices": 8,
+      "mismatches": 0,
+      "snapshot_canonical_mismatches": 0,
+      "scalar_mismatches": 0,
+      "colored_vertices": 4,
+      "vanilla_hook": true,
+      "celeritas_hook": false,
+      "valid": true
+    },
+    "client-20": {
+      "client_revision_0": 47,
+      "client_revision_1": 84,
+      "blue_block": "minecraft:air",
+      "red_block": "minecraft:air",
+      "client_chunk_class": "net.minecraft.world.chunk.Chunk",
+      "client_chunk_loaded": true,
+      "floor": "minecraft:stone[variant=stone]",
+      "player": "BlockPos{x=20017, y=84, z=20037}",
+      "vertices": 8,
+      "mismatches": 0,
+      "snapshot_canonical_mismatches": 0,
+      "scalar_mismatches": 0,
+      "colored_vertices": 4,
+      "vanilla_hook": true,
+      "celeritas_hook": false,
+      "valid": true
+    }
+  },
+  "sky-opt-scalar": {
+    "cases": [],
+    "valid": true,
+    "scalar_has_no_rgb_chunk_fields": true
+  },
+  "sky-opt-cqr": {
+    "server": {
+      "cases": [
+        {
+          "name": "world-placement",
+          "mismatches": 0,
+          "sources": [
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            }
+          ]
+        },
+        {
+          "name": "initial-send-race",
+          "context_pending": true,
+          "already_light_ready": true,
+          "sent_while_pending": false
+        },
+        {
+          "name": "initial-send-after-drain",
+          "stored": 10,
+          "retry_sent": true
+        },
+        {
+          "name": "existing-entry-watch-race",
+          "watching_while_pending": false
+        },
+        {
+          "name": "existing-entry-watch-after-drain",
+          "stored": 10,
+          "watching_after_drain": true,
+          "watch_events_while_pending": 0,
+          "watch_events_after_drain": 1
+        },
+        {
+          "name": "direct-chunk-placement",
+          "mismatches": 0,
+          "sources": [
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            }
+          ]
+        },
+        {
+          "name": "full-relight",
+          "mismatches": 0,
+          "sources": [
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aer[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20000,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ignis[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20005,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_aqua[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20010,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_terra[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20015,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_ordo[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20020,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_perditio[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20025,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=0]",
+              "x": 20000,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=1]",
+              "x": 20005,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=2]",
+              "x": 20010,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=1,size=3]",
+              "x": 20015,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=0]",
+              "x": 20020,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=1]",
+              "x": 20025,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=2]",
+              "x": 20030,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=2,size=3]",
+              "x": 20035,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=0]",
+              "x": 20040,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=1]",
+              "x": 20045,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=2]",
+              "x": 20050,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=3,size=3]",
+              "x": 20055,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=0]",
+              "x": 20060,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=1]",
+              "x": 20065,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=2]",
+              "x": 20070,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            },
+            {
+              "state": "thaumcraft:crystal_vitium[gen=4,size=3]",
+              "x": 20075,
+              "y": 65,
+              "z": 20030,
+              "emission": 10,
+              "stored": 10,
+              "packed_static": 1073745920
+            }
+          ]
+        },
+        {
+          "name": "sealed-oak-room",
+          "lit_interior_cells": 0,
+          "max_sky": 0
+        },
+        {
+          "name": "native-cqr-generation",
+          "cells": 68800
+        },
+        {
+          "name": "native-cqr-vs-full-relight",
+          "sky_differences": 0,
+          "block_differences": 0,
+          "examples": []
+        }
+      ],
+      "valid": true,
+      "crystal_states": 112,
+      "corner_ready": true
+    },
+    "corner_client": {
+      "lit_interior_cells": 0,
+      "max_sky": 0,
+      "models": [
+        {
+          "x": 20083,
+          "interior_face_lightmap": [
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            }
+          ]
+        },
+        {
+          "x": 20084,
+          "interior_face_lightmap": [
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            }
+          ]
+        },
+        {
+          "x": 20085,
+          "interior_face_lightmap": [
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            }
+          ]
+        },
+        {
+          "x": 20086,
+          "interior_face_lightmap": [
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            }
+          ]
+        },
+        {
+          "x": 20087,
+          "interior_face_lightmap": [
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            }
+          ]
+        },
+        {
+          "x": 20088,
+          "interior_face_lightmap": [
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            }
+          ]
+        },
+        {
+          "x": 20089,
+          "interior_face_lightmap": [
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            },
+            {
+              "block": 0,
+              "sky": 0
+            }
+          ]
+        }
+      ],
+      "valid": true
+    },
+    "ship_client": [
+      {
+        "phase": 1,
+        "sky_mismatches": 0,
+        "block_mismatches": 0,
+        "examples": [],
+        "client_updates_pending": false
+      },
+      {
+        "phase": 2,
+        "sky_mismatches": 0,
+        "block_mismatches": 0,
+        "examples": [],
+        "client_updates_pending": false
+      }
+    ]
+  },
+  "junit": {
+    "tests": 209,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

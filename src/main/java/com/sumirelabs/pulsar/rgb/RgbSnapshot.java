@@ -2,6 +2,9 @@ package com.sumirelabs.pulsar.rgb;
 
 /** All three channels become visible together through a single volatile chunk reference. */
 public final class RgbSnapshot {
+    private static final byte[] FULL = new byte[2048];
+    static { java.util.Arrays.fill(FULL, (byte)0xFF); }
+    static byte[] saturatedPlane() { return FULL; }
     public final int minSection;
     public final long revision;
     private final byte[][][] data;
@@ -45,7 +48,29 @@ public final class RgbSnapshot {
     }
     private static byte[] retain(byte[] live, byte[] previous) {
         if (java.util.Arrays.equals(live, previous)) return previous;
+        if (isFull(live)) return FULL;
         return live == null ? null : live.clone();
+    }
+    private static boolean isFull(byte[] bytes) {
+        if (bytes == null) return false;
+        if (bytes == FULL) return true;
+        for (byte value : bytes) if (value != (byte)0xFF) return false;
+        return true;
+    }
+    /** Encode immutable planes directly; saturated sky planes need only mask bits. */
+    void writeSection(io.netty.buffer.ByteBuf out, int section) {
+        int present = 0, full = 0;
+        for (int c = 0; c < 4; c++) {
+            byte[] bytes = c == 3 ? canonical[section] : data[c][section];
+            if (bytes != null) { present |= 1 << c; if (isFull(bytes)) full |= 1 << c; }
+        }
+        out.writeByte(present | full << 4);
+        for (int c = 0; c < 4; c++) if ((present & 1 << c) != 0 && (full & 1 << c) == 0)
+            out.writeBytes(c == 3 ? canonical[section] : data[c][section]);
+    }
+    static byte[] readPlane(io.netty.buffer.ByteBuf in, boolean full) {
+        if (full) return FULL;
+        byte[] bytes = new byte[2048]; in.readBytes(bytes); return bytes;
     }
     public int canonical(int x, int y, int z) {
         int s = (y >> 4) - minSection;
@@ -72,6 +97,12 @@ public final class RgbSnapshot {
         return result;
     }
     public byte[] canonicalSection(int s) { return canonical[s] == null ? null : canonical[s].clone(); }
+    public boolean canonicalFull(int s) { return isFull(canonical[s]); }
+    public void copyCanonicalTo(int s, byte[] target) {
+        if (target.length != 2048) throw new IllegalArgumentException("Invalid canonical target");
+        if (canonical[s] == null) java.util.Arrays.fill(target, (byte)0);
+        else System.arraycopy(canonical[s], 0, target, 0, 2048);
+    }
     public boolean sameLightData(RgbSnapshot other) {
         return minSection == other.minSection && java.util.Arrays.deepEquals(data, other.data)
                 && java.util.Arrays.deepEquals(canonical, other.canonical);

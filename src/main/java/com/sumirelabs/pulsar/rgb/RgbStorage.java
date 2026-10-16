@@ -4,6 +4,7 @@ import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 
 /** Mutable engine storage, written only inside the existing block-lane reservation. */
 public final class RgbStorage {
+    private static final byte[] FULL_SKY = RgbSnapshot.saturatedPlane();
     public final SWMRNibbleArray[][] channels = new SWMRNibbleArray[3][];
     public final boolean[][] empty = new boolean[3][];
     public final int minSection;
@@ -15,6 +16,48 @@ public final class RgbStorage {
         }
     }
     public RgbSnapshot snapshot(long revision) { return snapshot(revision, null); }
+    public RgbSnapshot skySnapshot(com.sumirelabs.pulsar.util.WorldHeightContext height, long revision,
+                                   SWMRNibbleArray[] canonical, RgbSnapshot previous) {
+        byte[][][] data = new byte[3][][];
+        for (int c = 0; c < 3; c++) data[c] = resolveSky(height, channels[c]);
+        return RgbSnapshot.capture(minSection, revision, data, resolveSky(height, canonical), previous);
+    }
+    private byte[][] resolveSky(com.sumirelabs.pulsar.util.WorldHeightContext height, SWMRNibbleArray[] sky) {
+        byte[][] result = new byte[channels[0].length][];
+        SWMRNibbleArray above = null;
+        byte[] extrusion = null;
+        boolean resolved = false;
+        // All 256 columns use the same first non-null section above. Resolve
+        // that section once, then reuse its bottom-row extrusion across holes.
+        for (int s = result.length - 1; s >= 0; s--) {
+            SWMRNibbleArray nibble = sky[s];
+            if (nibble != null && !nibble.isNullNibbleVisible()) {
+                above = nibble;
+                resolved = false;
+                if (nibble.isFullVisible()) result[s] = FULL_SKY;
+                else {
+                    byte[] bytes = nibble.getVisibleData();
+                    if (bytes != null) for (byte value : bytes) if (value != 0) { result[s] = bytes; break; }
+                }
+            } else {
+                if (!resolved) { extrusion = extrudeBottom(above); resolved = true; }
+                result[s] = extrusion;
+            }
+        }
+        return result;
+    }
+    private static byte[] extrudeBottom(SWMRNibbleArray above) {
+        if (above == null || above.isFullVisible()) return FULL_SKY;
+        byte[] bytes = above.getVisibleData();
+        if (bytes == null) return null;
+        boolean nonzero = false, full = true;
+        for (int i = 0; i < 128; i++) { nonzero |= bytes[i] != 0; full &= bytes[i] == (byte)0xFF; }
+        if (!nonzero) return null;
+        if (full) return FULL_SKY;
+        byte[] extrusion = new byte[2048];
+        for (int row = 0; row < 16; row++) System.arraycopy(bytes, 0, extrusion, row * 128, 128);
+        return extrusion;
+    }
     public RgbSnapshot snapshot(long revision, SWMRNibbleArray[] canonical) {
         return snapshot(revision, canonical, null);
     }

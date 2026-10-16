@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add experimental RGB skylight with independent scalar gameplay skylight,
+  colored transmission, per-lane synchronization and persistent sky caches.
+- Share saturated immutable light planes and encode full planes without nibble
+  payloads; RGB protocol and cache formats are now version 2.
 - Add RGB block-light filters for stained glass and panes, with a static
   per-state absorption API and independent scalar gameplay brightness.
 - Reuse unchanged immutable RGB snapshot sections to reduce publication

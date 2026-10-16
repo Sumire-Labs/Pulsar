@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class RgbNetwork {
     private static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel("pulsar_rgb");
-    private record Change(Chunk chunk, RgbSnapshot snapshot) {}
+    private record Change(Chunk chunk, RgbSnapshot snapshot, RgbSnapshot sky) {}
     private static final Map<World, ConcurrentHashMap<Long, Change>> DIRTY = new ConcurrentHashMap<>();
     private static final Set<EntityPlayerMP> CLIENTS = Collections.newSetFromMap(new IdentityHashMap<>());
     public static void initialize() {
@@ -37,14 +37,14 @@ public final class RgbNetwork {
     }
     public static void changed(Chunk chunk) {
         DIRTY.computeIfAbsent(chunk.getWorld(), w -> new ConcurrentHashMap<>())
-                .put(CoordinateUtils.getChunkKey(chunk.x, chunk.z), new Change(chunk, ((RgbChunk) chunk).pulsar$getRgbSnapshot()));
+                .put(CoordinateUtils.getChunkKey(chunk.x, chunk.z), new Change(chunk, ((RgbChunk) chunk).pulsar$getRgbSnapshot(), ((RgbChunk) chunk).pulsar$getRgbSkySnapshot()));
     }
     public static void requestColors() { CHANNEL.sendToServer(new RgbHello()); }
     public static final class HelloHandler implements IMessageHandler<RgbHello, IMessage> {
         public IMessage onMessage(RgbHello hello, MessageContext context) {
             EntityPlayerMP player = context.getServerHandler().player;
             player.getServerWorld().addScheduledTask(() -> {
-                if (context.getServerHandler().player != player || hello.version != 1 || !com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
+                if (context.getServerHandler().player != player || hello.version != RgbHello.VERSION || !com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
                         || !player.connection.netManager.isChannelOpen()) return;
                 CLIENTS.removeIf(p -> p != player && p.connection.netManager == player.connection.netManager);
                 CLIENTS.add(player);
@@ -66,9 +66,11 @@ public final class RgbNetwork {
     }
     private static boolean supported(EntityPlayerMP player) { return CLIENTS.contains(player); }
     private static void send(EntityPlayerMP player, Chunk chunk) {
-        RgbSnapshot snapshot = ((RgbChunk) chunk).pulsar$getRgbSnapshot();
-        if (snapshot != null && supported(player)) CHANNEL.sendTo(new RgbPacket(
-                chunk.getWorld().provider.getDimension(), chunk.x, chunk.z, snapshot), player);
+        if (!supported(player)) return;
+        RgbChunk rgb = (RgbChunk) chunk;
+        RgbSnapshot block = rgb.pulsar$getRgbSnapshot(), sky = rgb.pulsar$getRgbSkySnapshot();
+        if (block != null) CHANNEL.sendTo(new RgbPacket(chunk.getWorld().provider.getDimension(), chunk.x, chunk.z, block, false), player);
+        if (sky != null) CHANNEL.sendTo(new RgbPacket(chunk.getWorld().provider.getDimension(), chunk.x, chunk.z, sky, true), player);
     }
     public static void afterChunkPacket(EntityPlayerMP player, int x, int z) {
         // Some mods send from other threads. Preserve vanilla-before-RGB order

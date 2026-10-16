@@ -6,4 +6,8 @@ public interface RgbChunk {
     void pulsar$setRgbStorage(RgbStorage storage);
     RgbSnapshot pulsar$getRgbSnapshot();
     void pulsar$setRgbSnapshot(RgbSnapshot snapshot);
+    RgbStorage pulsar$getRgbSkyStorage();
+    void pulsar$setRgbSkyStorage(RgbStorage storage);
+    RgbSnapshot pulsar$getRgbSkySnapshot();
+    void pulsar$setRgbSkySnapshot(RgbSnapshot snapshot);
 }

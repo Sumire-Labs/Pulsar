@@ -161,6 +161,11 @@ public final class LightDataSerializer {
                 var snapshot = ((com.sumirelabs.pulsar.rgb.RgbChunk) chunk).pulsar$getRgbSnapshot();
                 if (snapshot == null) return;
                 com.sumirelabs.pulsar.rgb.RgbPersistence.save(root, snapshot);
+                if (chunk.getWorld().provider.hasSkyLight()) {
+                    var skySnapshot = ((com.sumirelabs.pulsar.rgb.RgbChunk) chunk).pulsar$getRgbSkySnapshot();
+                    if (skySnapshot == null) return;
+                    com.sumirelabs.pulsar.rgb.RgbPersistence.save(root, skySnapshot, true);
+                }
             }
             event.getData().setTag(TAG_ROOT, root);
         }
@@ -208,10 +213,16 @@ public final class LightDataSerializer {
 
         if (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {
             var storage = com.sumirelabs.pulsar.rgb.RgbPersistence.load(root, heightContext);
-            if (storage == null) return;
+            var skyStorage = event.getChunk().getWorld().provider.hasSkyLight()
+                    ? com.sumirelabs.pulsar.rgb.RgbPersistence.load(root, heightContext, true) : null;
+            if (storage == null || (event.getChunk().getWorld().provider.hasSkyLight() && skyStorage == null)) return;
             var rgb = (com.sumirelabs.pulsar.rgb.RgbChunk) event.getChunk();
             rgb.pulsar$setRgbStorage(storage);
             rgb.pulsar$setRgbSnapshot(storage.snapshot(1, blockNibbles));
+            if (skyStorage != null) {
+                rgb.pulsar$setRgbSkyStorage(skyStorage);
+                rgb.pulsar$setRgbSkySnapshot(skyStorage.skySnapshot(heightContext, 1, skyNibbles, null));
+            }
         }
         final PulsarChunk pc = (PulsarChunk) event.getChunk();
         pc.pulsar$setBlockNibbles(blockNibbles);
