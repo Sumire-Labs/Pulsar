@@ -8,6 +8,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 public interface IProxy {
+    default void receiveRgb(com.sumirelabs.pulsar.rgb.RgbPacket packet, Object connection) {}
+
     default void preInit(FMLPreInitializationEvent event) {
     }
 

@@ -11,6 +11,21 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class ClientProxy extends CommonProxy {
+    @SubscribeEvent public void rgbWorldUnload(net.minecraftforge.event.world.WorldEvent.Unload event) {
+        if (event.getWorld().isRemote) com.sumirelabs.pulsar.rgb.RgbClient.unload(event.getWorld());
+    }
+    @SubscribeEvent public void rgbChannels(net.minecraftforge.fml.common.network.FMLNetworkEvent.CustomPacketRegistrationEvent<?> event) {
+        if (event.getSide() == net.minecraftforge.fml.relauncher.Side.CLIENT && event.getRegistrations().contains("pulsar_rgb"))
+            com.sumirelabs.pulsar.rgb.RgbClient.serverHasRgbChannel = event.getOperation().equals("REGISTER");
+    }
+    @SubscribeEvent public void rgbDisconnected(net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+        com.sumirelabs.pulsar.rgb.RgbClient.serverHasRgbChannel = false;
+    }
+
+    @Override public void receiveRgb(com.sumirelabs.pulsar.rgb.RgbPacket packet, Object connection) {
+        com.sumirelabs.pulsar.rgb.RgbClient.receive(packet, connection);
+    }
+
 
     @Override
     public void preInit(final FMLPreInitializationEvent event) {
@@ -41,5 +56,7 @@ public class ClientProxy extends CommonProxy {
         if (mgr != null) {
             mgr.processClientRenderUpdates();
         }
+        if (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled())
+            com.sumirelabs.pulsar.rgb.RgbClient.tick();
     }
 }

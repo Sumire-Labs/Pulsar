@@ -22,6 +22,14 @@ import java.io.IOException;
  */
 @Config(modid = Reference.MOD_ID, name = "pulsar")
 public class PulsarConfig {
+    public enum LightingMode { SCALAR, RGB }
+    @Config.Comment({"Experimental RGB block light. SCALAR preserves the original engine and memory layout.",
+            "RGB adds server-authoritative color; gameplay brightness and skylight remain scalar.",
+            "Requires Pulsar on both sides for color. Restart Minecraft and the server to apply.",
+            "SCALAR remains the default while this RGB prototype is being validated."})
+    @Config.RequiresMcRestart
+    public static LightingMode lightingMode = LightingMode.SCALAR;
+
 
     @Config.Ignore
     public static final int CURRENT_CONFIG_VERSION = 2;

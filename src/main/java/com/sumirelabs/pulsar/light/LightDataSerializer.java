@@ -157,6 +157,11 @@ public final class LightDataSerializer {
             root.setInteger(TAG_VERSION, LIGHT_VERSION);
             root.setInteger(TAG_CRYSTAL_LIGHT, ThaumcraftCrystalLighting.cacheProfile());
             root.setTag(TAG_SECTIONS, sections);
+            if (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {
+                var snapshot = ((com.sumirelabs.pulsar.rgb.RgbChunk) chunk).pulsar$getRgbSnapshot();
+                if (snapshot == null) return;
+                com.sumirelabs.pulsar.rgb.RgbPersistence.save(root, snapshot);
+            }
             event.getData().setTag(TAG_ROOT, root);
         }
     }
@@ -201,6 +206,13 @@ public final class LightDataSerializer {
             }
         }
 
+        if (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {
+            var storage = com.sumirelabs.pulsar.rgb.RgbPersistence.load(root, heightContext);
+            if (storage == null) return;
+            var rgb = (com.sumirelabs.pulsar.rgb.RgbChunk) event.getChunk();
+            rgb.pulsar$setRgbStorage(storage);
+            rgb.pulsar$setRgbSnapshot(storage.snapshot(1, blockNibbles));
+        }
         final PulsarChunk pc = (PulsarChunk) event.getChunk();
         pc.pulsar$setBlockNibbles(blockNibbles);
         pc.pulsar$setSkyNibbles(skyNibbles);

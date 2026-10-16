@@ -1,0 +1,319 @@
+{
+  "summary": {
+    "baseline": {
+      "block_place": {
+        "median_run_mean_us": 95.07415,
+        "range_us": [
+          87.0215,
+          126.694
+        ],
+        "jvms": 4
+      },
+      "block_remove": {
+        "median_run_mean_us": 91.4236,
+        "range_us": [
+          83.4375,
+          118.5558
+        ],
+        "jvms": 4
+      },
+      "sky_remove": {
+        "median_run_mean_us": 850.0197499999999,
+        "range_us": [
+          700.3937,
+          966.2353
+        ],
+        "jvms": 4
+      },
+      "sky_place": {
+        "median_run_mean_us": 871.11735,
+        "range_us": [
+          739.6803000000001,
+          995.709
+        ],
+        "jvms": 4
+      }
+    },
+    "scalar": {
+      "block_place": {
+        "median_run_mean_us": 86.53115,
+        "range_us": [
+          77.0852,
+          193.6096
+        ],
+        "jvms": 4
+      },
+      "block_remove": {
+        "median_run_mean_us": 82.536,
+        "range_us": [
+          75.1849,
+          160.0764
+        ],
+        "jvms": 4
+      },
+      "sky_remove": {
+        "median_run_mean_us": 776.8642500000001,
+        "range_us": [
+          714.2469,
+          992.5961
+        ],
+        "jvms": 4
+      },
+      "sky_place": {
+        "median_run_mean_us": 820.15605,
+        "range_us": [
+          748.9236,
+          990.0019
+        ],
+        "jvms": 4
+      }
+    },
+    "rgb": {
+      "block_place": {
+        "median_run_mean_us": 350.15695000000005,
+        "range_us": [
+          313.93670000000003,
+          386.3772
+        ],
+        "jvms": 2
+      },
+      "block_remove": {
+        "median_run_mean_us": 331.77914999999996,
+        "range_us": [
+          281.61879999999996,
+          381.9395
+        ],
+        "jvms": 2
+      },
+      "sky_remove": {
+        "median_run_mean_us": 981.094,
+        "range_us": [
+          954.2475,
+          1007.9405
+        ],
+        "jvms": 2
+      },
+      "sky_place": {
+        "median_run_mean_us": 1005.41075,
+        "range_us": [
+          986.0099,
+          1024.8116
+        ],
+        "jvms": 2
+      }
+    }
+  },
+  "runs": [
+    {
+      "run": "timing-baseline-1",
+      "artifact": {
+        "artifact": "baseline.jar",
+        "fast_celeritas": false,
+        "command": "lightbench updates 2000 1000",
+        "mode": "SCALAR",
+        "celeritas": false,
+        "sha256": "C44CCB692C605C17BC1788A92809AC2E51A70DA09B0581CC574996C10AFF6919"
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "means_us": {
+        "sky_remove": 954.1399,
+        "sky_place": 971.1176999999999,
+        "block_place": 100.8029,
+        "block_remove": 98.2909
+      }
+    },
+    {
+      "run": "timing-baseline-2",
+      "artifact": {
+        "artifact": "baseline.jar",
+        "fast_celeritas": false,
+        "command": "lightbench updates 2000 1000",
+        "mode": "SCALAR",
+        "celeritas": false,
+        "sha256": "C44CCB692C605C17BC1788A92809AC2E51A70DA09B0581CC574996C10AFF6919"
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "means_us": {
+        "sky_remove": 966.2353,
+        "sky_place": 995.709,
+        "block_place": 126.694,
+        "block_remove": 118.5558
+      }
+    },
+    {
+      "run": "timing-baseline-3",
+      "artifact": {
+        "artifact": "baseline.jar",
+        "command": "lightbench updates 2000 1000",
+        "mode": "SCALAR",
+        "sha256": "C44CCB692C605C17BC1788A92809AC2E51A70DA09B0581CC574996C10AFF6919",
+        "celeritas": false,
+        "fast_celeritas": false
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "means_us": {
+        "sky_remove": 745.8996,
+        "sky_place": 771.117,
+        "block_place": 89.3454,
+        "block_remove": 83.4375
+      }
+    },
+    {
+      "run": "timing-baseline-4",
+      "artifact": {
+        "artifact": "baseline.jar",
+        "command": "lightbench updates 2000 1000",
+        "mode": "SCALAR",
+        "sha256": "C44CCB692C605C17BC1788A92809AC2E51A70DA09B0581CC574996C10AFF6919",
+        "celeritas": false,
+        "fast_celeritas": false
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "means_us": {
+        "sky_remove": 700.3937,
+        "sky_place": 739.6803000000001,
+        "block_place": 87.0215,
+        "block_remove": 84.55630000000001
+      }
+    },
+    {
+      "run": "timing-rgb-1",
+      "artifact": {
+        "artifact": "candidate.jar",
+        "fast_celeritas": false,
+        "command": "lightbench updates 2000 1000",
+        "mode": "RGB",
+        "celeritas": false,
+        "sha256": "084D598B3FFDAE5C2A572DC7BBC3BD80D8C9588FE62818E49377FB47C1B64EFD"
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "means_us": {
+        "sky_remove": 954.2475,
+        "sky_place": 986.0099,
+        "block_place": 386.3772,
+        "block_remove": 381.9395
+      }
+    },
+    {
+      "run": "timing-rgb-2",
+      "artifact": {
+        "artifact": "candidate.jar",
+        "fast_celeritas": false,
+        "command": "lightbench updates 2000 1000",
+        "mode": "RGB",
+        "celeritas": false,
+        "sha256": "084D598B3FFDAE5C2A572DC7BBC3BD80D8C9588FE62818E49377FB47C1B64EFD"
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "means_us": {
+        "sky_remove": 1007.9405,
+        "sky_place": 1024.8116,
+        "block_place": 313.93670000000003,
+        "block_remove": 281.61879999999996
+      }
+    },
+    {
+      "run": "timing-scalar-1",
+      "artifact": {
+        "artifact": "candidate.jar",
+        "fast_celeritas": false,
+        "command": "lightbench updates 2000 1000",
+        "mode": "SCALAR",
+        "celeritas": false,
+        "sha256": "084D598B3FFDAE5C2A572DC7BBC3BD80D8C9588FE62818E49377FB47C1B64EFD"
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "means_us": {
+        "sky_remove": 992.5961,
+        "sky_place": 990.0019,
+        "block_place": 193.6096,
+        "block_remove": 160.0764
+      }
+    },
+    {
+      "run": "timing-scalar-2",
+      "artifact": {
+        "artifact": "candidate.jar",
+        "fast_celeritas": false,
+        "command": "lightbench updates 2000 1000",
+        "mode": "SCALAR",
+        "celeritas": false,
+        "sha256": "084D598B3FFDAE5C2A572DC7BBC3BD80D8C9588FE62818E49377FB47C1B64EFD"
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "means_us": {
+        "sky_remove": 837.2244000000001,
+        "sky_place": 874.4526999999999,
+        "block_place": 90.75989999999999,
+        "block_remove": 86.8131
+      }
+    },
+    {
+      "run": "timing-scalar-3",
+      "artifact": {
+        "artifact": "candidate.jar",
+        "command": "lightbench updates 2000 1000",
+        "mode": "SCALAR",
+        "sha256": "084D598B3FFDAE5C2A572DC7BBC3BD80D8C9588FE62818E49377FB47C1B64EFD",
+        "celeritas": false,
+        "fast_celeritas": false
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "means_us": {
+        "sky_remove": 716.5041,
+        "sky_place": 765.8594,
+        "block_place": 82.30239999999999,
+        "block_remove": 78.2589
+      }
+    },
+    {
+      "run": "timing-scalar-4",
+      "artifact": {
+        "artifact": "candidate.jar",
+        "command": "lightbench updates 2000 1000",
+        "mode": "SCALAR",
+        "sha256": "084D598B3FFDAE5C2A572DC7BBC3BD80D8C9588FE62818E49377FB47C1B64EFD",
+        "celeritas": false,
+        "fast_celeritas": false
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "means_us": {
+        "sky_remove": 714.2469,
+        "sky_place": 748.9236,
+        "block_place": 77.0852,
+        "block_remove": 75.1849
+      }
+    }
+  ],
+  "statistic": "median of independent JVM run means; no runs or samples removed"
+}

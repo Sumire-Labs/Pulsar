@@ -37,6 +37,7 @@ public class Pulsar {
                 PulsarConfig.enabled,
                 PulsarConfig.features.sendChunksWithoutLight,
                 PulsarConfig.debug.enableDebugStats);
+        com.sumirelabs.pulsar.rgb.RgbNetwork.initialize();
         proxy.preInit(event);
     }
 
@@ -54,8 +55,14 @@ public class Pulsar {
             LOGGER.info("Thaumcraft crystal minimum block light: {} (0 preserves original emission)",
                     ThaumcraftCrystalLighting.cacheProfile());
         }
+        com.sumirelabs.pulsar.api.BlockLightColors.defaults();
         FaceOcclusion.registerDefaults();
         LOGGER.info("{} ready - Pulsar Lighting Engine active.", Reference.MOD_NAME);
+    }
+
+    @Mod.EventHandler
+    public void loadComplete(net.minecraftforge.fml.common.event.FMLLoadCompleteEvent event) {
+        com.sumirelabs.pulsar.api.BlockLightColors.freeze();
     }
 
     @Mod.EventHandler

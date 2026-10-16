@@ -1,5 +1,6 @@
 {
   "required": true,
+  "plugin": "com.sumirelabs.pulsar.core.RgbMixinSelection",
   "package": "com.sumirelabs.pulsar.mixin",
   "compatibilityLevel": "JAVA_25",
   "target": "@env(DEFAULT)",
@@ -10,6 +11,8 @@
     "MixinBlockStateImplementation",
     "MixinBlockStateContainerSamples",
     "MixinChunk",
+    "MixinRgbChunk",
+    "MixinRgbChunkSend",
     "MixinChunkSectionChanges",
     "MixinChunkVanillaLighting",
     "MixinCqrBulkLighting",
@@ -23,6 +26,10 @@
     "MixinWorldEntitySpawner"
   ],
   "client": [
+    "MixinRgbBuffer",
+    "MixinRgbChunkRead",
+    "MixinRgbBlockRenderer",
+    "MixinRgbCeleritasRenderer",
     "MixinBlockModelRendererLight",
     "MixinBlockRenderLight",
     "MixinCeleritasWorldSlice",

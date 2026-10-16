@@ -5,6 +5,19 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Add an opt-in RGB block-light prototype with independent scalar gameplay
+  lighting, shared-pool scheduling, persistent color caches and server-authoritative
+  RGB/canonical block-light synchronization.
+- Add static per-state color registration and Vanilla/Forge/Celeritas terrain
+  rendering. `lightingMode=SCALAR` remains the default; switching modes requires
+  a restart. RGB extensions are excluded from SCALAR chunk and renderer classes.
+- Document native correctness checks and the SCALAR performance comparison in
+  `docs/research/rgb-block-prototype.md`.
+
 ## [0.5.1]
 
 ### Fixed
