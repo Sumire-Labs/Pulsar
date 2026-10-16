@@ -39,7 +39,7 @@ final class RgbChannelEngine extends PulsarEngine {
     }
     private int rgbInfoAt(IBlockState state, int x, int y, int z) {
         int info = super.lightInfoAt(state, x, y, z);
-        int emission = RgbLight.channel(BlockLightColors.emission(state, LightInfo.emission(info)), channel);
+        int emission = BlockLightColors.emission(state, LightInfo.emission(info), channel);
         return info & ~(15 << LightInfo.EMISSION_SHIFT) | emission << LightInfo.EMISSION_SHIFT;
     }
     private int absorption(int info, IBlockState state, int direction) {
@@ -293,7 +293,7 @@ final class RgbChannelEngine extends PulsarEngine {
             if (hasSidedTransparent) {
                 final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
                 final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
-                srcBlockedFaces = LightInfo.faceBits(this.rgbInfoAt(srcState, posX, posY, posZ));
+                srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
             }
 
             for (final AxisDirection propagate : checkDirections) {
@@ -403,7 +403,7 @@ final class RgbChannelEngine extends PulsarEngine {
             if (hasSidedTransparent) {
                 final int srcIdx = (posX >> 4) + 5 * (posZ >> 4) + (5 * 5) * (posY >> 4) + sectionOffset;
                 final IBlockState srcState = this.getBlockStateFast(srcIdx, posX & 15, posY & 15, posZ & 15);
-                srcBlockedFaces = LightInfo.faceBits(this.rgbInfoAt(srcState, posX, posY, posZ));
+                srcBlockedFaces = LightInfo.faceBits(this.lightInfoAt(srcState, posX, posY, posZ));
             }
 
             for (final AxisDirection propagate : checkDirections) {

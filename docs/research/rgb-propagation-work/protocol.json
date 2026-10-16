@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-17",
+  "minecraft": "1.12.2",
+  "cleanroom": "0.6.12-alpha",
+  "java": "Eclipse Adoptium 25.0.4.101",
+  "heap": "8 GiB fixed G1",
+  "compact_headers": true,
+  "cpu": "AMD Ryzen AI MAX+ 395",
+  "logical_processors": 32,
+  "server_workers": 10,
+  "seed": 1,
+  "render_distance": 4,
+  "fps_cap": 260,
+  "timing_gamma": "frozen options; diagnostic helper absent",
+  "lightbench": "1.1.0-bench9",
+  "warmup_pairs": 2000,
+  "measured_pairs": 1000,
+  "scope": "server block-state change through completion barrier; no FPS/network-delivery claim",
+  "order": [
+    "trim-perf-rgb-before-1",
+    "trim-perf-rgb-after-1",
+    "trim-perf-rgb-after-2",
+    "trim-perf-rgb-before-2",
+    "trim-perf-filtered-before-1",
+    "trim-perf-filtered-after-1",
+    "trim-perf-filtered-after-2",
+    "trim-perf-filtered-before-2",
+    "trim-perf-rgb-before-3",
+    "trim-perf-rgb-after-3",
+    "trim-perf-rgb-after-4",
+    "trim-perf-rgb-before-4",
+    "trim-perf-filtered-before-3",
+    "trim-perf-filtered-after-3",
+    "trim-perf-filtered-after-4",
+    "trim-perf-filtered-before-4"
+  ],
+  "baseline_source": "2258d6e",
+  "candidate_mode_default": "SCALAR",
+  "diagnostic_capture_gamma": 1,
+  "diagnostic_palette": "SkyAudit registers GLASS filter (0,15,15); block regression alone registers pure RGB sources",
+  "timing_runs_exclude_builds_tests_and_zip_work": true,
+  "repetitions_per_mode_per_version": 4,
+  "summary": "Median of independent JVM run means; retain every valid run and report ranges.",
+  "input_sha256": {
+    "common-mods/+Fugue-0.24.3.jar": "00dc2de461b8a9bf0d9b684aa0377713bda85ca63da5ec93028c226ed2119efd",
+    "common-mods/-cleanroom-relauncher-1.1.2.jar": "e120adafabb0145eff704633ed5304c356d0e20c1cd4831347a8530d152164b3",
+    "common-mods/-Red-Core-MC-1.8-1.12-0.7.1.jar": "9935912816062ca46a2ecd020d813ee2dde8e6b228daec068b465eb72ea51368",
+    "common-mods/Bubbles-2.4.10.jar": "8a54cb9abafb14ce66bbc61fbfe5846fdeb3a4cf6ca6ff3bbd6bfe7b16f595f2",
+    "common-mods/Fluidlogged-API-v3.3.3-mc1.12.2.jar": "2f9ae6c9e534c8c33fe2c87ea64c06553bd1ec74ce5cac16e793b983ea2b3b3f",
+    "common-mods/four-engine-driver.jar": "d4783c32676a5980c778da20d468bb1457144ca2807a852c58c1280f664043fd",
+    "common-mods/lightbench-1.1.0-bench9.jar": "7fc43f287b46bf9c62ca8a9a8029d989765e836d8a0ec542873320676386b0b9",
+    "common-mods/scalar-3.8.4-1.jar": "a4c2cd912c36cd5a5055153ec950455349eed6daefeb747013b5f675190eb1fd",
+    "common-mods/Thaumcraft-1.12.2-6.1.BETA26.jar": "9425f8643581b27ff8845b087c8bc6fc10425a32942f1a3f0e265ce6b38f7b5f",
+    "common-mods/1.12.2/scala-library-3.8.4.jar": "1b8330de5774c15874173f168b674255caa00c5ef3648ab0b6cb763bb7fd2de7",
+    "common-mods/1.12.2/scala-parser-combinators_3-2.4.0.jar": "50f1b3dcf8f14975702dc6da287797e391fc5d4834e4d3e7e9f9125efdb2de9a",
+    "frozen/options.txt": "1e5756879092599cd9f8597067211913b5441eb6427d9b8713e548e566913fa3",
+    "frozen/config/pulsar.cfg": "f1e84daf1ea3f81006ef6dff43574e4b488f6cc77587c45cfea6aac742d18d92",
+    "frozen/config/relauncher.json": "f4e88bf0f6a150a787be22051f63b58a881c48d57d3b07854f745d3b69e694a0"
+  },
+  "migration_fixture": {
+    "changed": 804,
+    "details": [
+      {
+        "region": "r.1.-1.mca",
+        "sectors": 114
+      },
+      {
+        "region": "r.1.-2.mca",
+        "sectors": 290
+      },
+      {
+        "region": "r.2.-1.mca",
+        "sectors": 65
+      },
+      {
+        "region": "r.2.-2.mca",
+        "sectors": 164
+      },
+      {
+        "region": "r.38.39.mca",
+        "sectors": 22
+      },
+      {
+        "region": "r.39.39.mca",
+        "sectors": 161
+      }
+    ],
+    "method": "v1 metadata; remove RGB sky; preserve color profile, block RGB and canonical light"
+  },
+  "filtered_fixture": "One red stained glass at (20032,255,20032), outside checked air volume and measured hole frontier; forces full color work without changing canonical expected light.",
+  "scalar_followup": {
+    "baseline_commit": "0a291d9",
+    "candidate_commit": "2258d6e",
+    "fresh_jvms_per_artifact": 8,
+    "warmup_pairs": 10000,
+    "measured_pairs": 5000,
+    "order": [
+      "scalar-repeat-before-1",
+      "scalar-repeat-after-1",
+      "scalar-repeat-after-2",
+      "scalar-repeat-before-2",
+      "scalar-repeat-after-3",
+      "scalar-repeat-before-3",
+      "scalar-repeat-before-4",
+      "scalar-repeat-after-4",
+      "scalar-repeat-before-5",
+      "scalar-repeat-after-5",
+      "scalar-repeat-after-6",
+      "scalar-repeat-before-6",
+      "scalar-repeat-after-7",
+      "scalar-repeat-before-7",
+      "scalar-repeat-before-8",
+      "scalar-repeat-after-8"
+    ]
+  },
+  "rgb_long_followup": {
+    "reason": "Unfiltered RGB sky increased by approximately 3% in the short-warmup cohort; repeat with longer warmup before interpretation.",
+    "fresh_jvms_per_artifact": 4,
+    "warmup_pairs": 10000,
+    "measured_pairs": 5000,
+    "order": [
+      "trim-long-rgb-before-1",
+      "trim-long-rgb-after-1",
+      "trim-long-rgb-after-2",
+      "trim-long-rgb-before-2",
+      "trim-long-rgb-after-3",
+      "trim-long-rgb-before-3",
+      "trim-long-rgb-before-4",
+      "trim-long-rgb-after-4"
+    ]
+  }
+}

@@ -1,0 +1,344 @@
+{
+  "unit": "microseconds",
+  "summary": "median of independent JVM run means; four fresh JVMs per variant and fixture",
+  "runs": [
+    {
+      "run": "trim-perf-rgb-before-1",
+      "mode": "rgb",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 766.2888,
+      "sky_place": 799.2361,
+      "block_place": 289.4643,
+      "block_remove": 252.7192
+    },
+    {
+      "run": "trim-perf-rgb-before-2",
+      "mode": "rgb",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 751.6618000000001,
+      "sky_place": 795.9199,
+      "block_place": 306.8196,
+      "block_remove": 262.98690000000005
+    },
+    {
+      "run": "trim-perf-rgb-before-3",
+      "mode": "rgb",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 744.1924,
+      "sky_place": 781.5413000000001,
+      "block_place": 323.8279,
+      "block_remove": 272.7607
+    },
+    {
+      "run": "trim-perf-rgb-before-4",
+      "mode": "rgb",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 814.5465,
+      "sky_place": 835.9873,
+      "block_place": 330.4011,
+      "block_remove": 278.4395
+    },
+    {
+      "run": "trim-perf-rgb-after-1",
+      "mode": "rgb",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 761.811,
+      "sky_place": 813.2846999999999,
+      "block_place": 270.0133,
+      "block_remove": 249.51729999999998
+    },
+    {
+      "run": "trim-perf-rgb-after-2",
+      "mode": "rgb",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 784.6166999999999,
+      "sky_place": 835.3039,
+      "block_place": 287.36159999999995,
+      "block_remove": 257.6293
+    },
+    {
+      "run": "trim-perf-rgb-after-3",
+      "mode": "rgb",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 781.4556,
+      "sky_place": 806.9861,
+      "block_place": 273.3085,
+      "block_remove": 246.08689999999999
+    },
+    {
+      "run": "trim-perf-rgb-after-4",
+      "mode": "rgb",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 970.5472,
+      "sky_place": 1054.6968,
+      "block_place": 294.36859999999996,
+      "block_remove": 264.9922
+    },
+    {
+      "run": "trim-perf-filtered-before-1",
+      "mode": "filtered",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 3335.9532000000004,
+      "sky_place": 3519.6031000000003,
+      "block_place": 304.07079999999996,
+      "block_remove": 282.4897
+    },
+    {
+      "run": "trim-perf-filtered-before-2",
+      "mode": "filtered",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 3285.0167,
+      "sky_place": 3338.9997999999996,
+      "block_place": 318.12309999999997,
+      "block_remove": 289.88509999999997
+    },
+    {
+      "run": "trim-perf-filtered-before-3",
+      "mode": "filtered",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 3196.2673999999997,
+      "sky_place": 3428.0592,
+      "block_place": 305.2661,
+      "block_remove": 287.36879999999996
+    },
+    {
+      "run": "trim-perf-filtered-before-4",
+      "mode": "filtered",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 3176.6427000000003,
+      "sky_place": 3324.6689,
+      "block_place": 321.0204,
+      "block_remove": 287.25579999999997
+    },
+    {
+      "run": "trim-perf-filtered-after-1",
+      "mode": "filtered",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 3058.6829,
+      "sky_place": 3214.8561,
+      "block_place": 273.9656,
+      "block_remove": 264.1246
+    },
+    {
+      "run": "trim-perf-filtered-after-2",
+      "mode": "filtered",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 3169.7676,
+      "sky_place": 3322.744,
+      "block_place": 270.292,
+      "block_remove": 266.0729
+    },
+    {
+      "run": "trim-perf-filtered-after-3",
+      "mode": "filtered",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 3042.3437999999996,
+      "sky_place": 3286.7469,
+      "block_place": 280.3615,
+      "block_remove": 263.4494
+    },
+    {
+      "run": "trim-perf-filtered-after-4",
+      "mode": "filtered",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 3343.7493999999997,
+      "sky_place": 3466.8003,
+      "block_place": 294.3252,
+      "block_remove": 277.4471
+    }
+  ],
+  "groups": [
+    {
+      "mode": "rgb",
+      "version": "before",
+      "phase": "sky_remove",
+      "median": 758.9753000000001,
+      "minimum": 744.1924,
+      "maximum": 814.5465
+    },
+    {
+      "mode": "rgb",
+      "version": "before",
+      "phase": "sky_place",
+      "median": 797.578,
+      "minimum": 781.5413000000001,
+      "maximum": 835.9873
+    },
+    {
+      "mode": "rgb",
+      "version": "before",
+      "phase": "block_place",
+      "median": 315.32375,
+      "minimum": 289.4643,
+      "maximum": 330.4011
+    },
+    {
+      "mode": "rgb",
+      "version": "before",
+      "phase": "block_remove",
+      "median": 267.8738,
+      "minimum": 252.7192,
+      "maximum": 278.4395
+    },
+    {
+      "mode": "rgb",
+      "version": "after",
+      "phase": "sky_remove",
+      "median": 783.0361499999999,
+      "minimum": 761.811,
+      "maximum": 970.5472
+    },
+    {
+      "mode": "rgb",
+      "version": "after",
+      "phase": "sky_place",
+      "median": 824.2943,
+      "minimum": 806.9861,
+      "maximum": 1054.6968
+    },
+    {
+      "mode": "rgb",
+      "version": "after",
+      "phase": "block_place",
+      "median": 280.33504999999997,
+      "minimum": 270.0133,
+      "maximum": 294.36859999999996
+    },
+    {
+      "mode": "rgb",
+      "version": "after",
+      "phase": "block_remove",
+      "median": 253.5733,
+      "minimum": 246.08689999999999,
+      "maximum": 264.9922
+    },
+    {
+      "mode": "filtered",
+      "version": "before",
+      "phase": "sky_remove",
+      "median": 3240.64205,
+      "minimum": 3176.6427000000003,
+      "maximum": 3335.9532000000004
+    },
+    {
+      "mode": "filtered",
+      "version": "before",
+      "phase": "sky_place",
+      "median": 3383.5294999999996,
+      "minimum": 3324.6689,
+      "maximum": 3519.6031000000003
+    },
+    {
+      "mode": "filtered",
+      "version": "before",
+      "phase": "block_place",
+      "median": 311.6946,
+      "minimum": 304.07079999999996,
+      "maximum": 321.0204
+    },
+    {
+      "mode": "filtered",
+      "version": "before",
+      "phase": "block_remove",
+      "median": 287.31229999999994,
+      "minimum": 282.4897,
+      "maximum": 289.88509999999997
+    },
+    {
+      "mode": "filtered",
+      "version": "after",
+      "phase": "sky_remove",
+      "median": 3114.22525,
+      "minimum": 3042.3437999999996,
+      "maximum": 3343.7493999999997
+    },
+    {
+      "mode": "filtered",
+      "version": "after",
+      "phase": "sky_place",
+      "median": 3304.7454500000003,
+      "minimum": 3214.8561,
+      "maximum": 3466.8003
+    },
+    {
+      "mode": "filtered",
+      "version": "after",
+      "phase": "block_place",
+      "median": 277.16355,
+      "minimum": 270.292,
+      "maximum": 294.3252
+    },
+    {
+      "mode": "filtered",
+      "version": "after",
+      "phase": "block_remove",
+      "median": 265.09875,
+      "minimum": 263.4494,
+      "maximum": 277.4471
+    }
+  ]
+}

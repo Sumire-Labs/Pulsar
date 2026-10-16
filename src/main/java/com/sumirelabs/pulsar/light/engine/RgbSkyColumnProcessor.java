@@ -4,6 +4,7 @@ import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.init.Blocks;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 import java.util.Arrays;
@@ -223,14 +224,14 @@ final class RgbSkyColumnProcessor {
             if ((startY & 15) == 15) {
                 this.checkNullSection(worldX >> 4, startY >> 4, worldZ >> 4, extrudeInitialised);
             }
-            final int currentInfo = engine.lightInfoAt(
-                    engine.getBlockState(worldX, startY, worldZ), worldX, startY, worldZ);
+            final IBlockState currentState = engine.getBlockState(worldX, startY, worldZ);
+            final int currentInfo = engine.lightInfoAt(currentState, worldX, startY, worldZ);
 
             // Seed only full-strength direct sky. At water/partial geometry,
             // the preceding 15-valued seed hands propagation to normal BFS.
             // Seeding weakened values here disagreed with BFS through water
             // and could copy non-15 sky unchanged through empty sections.
-            if (engine.filtersDirectSky(engine.getBlockState(worldX, startY, worldZ))
+            if (engine.filtersDirectSky(currentState)
                     || !LightAttenuation.canExtrudeDirectSky(currentSky,
                     LightInfo.opacity(aboveInfo), LightInfo.opacity(currentInfo))) {
                 break;

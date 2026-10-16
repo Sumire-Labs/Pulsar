@@ -6,6 +6,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RgbCodecTest {
+    @Test void laneScalingMatchesPackedScalingForEveryColorAndLightLevel() {
+        for (int color = 0; color < 4096; color++) for (int level = 0; level <= 15; level++) {
+            int packed = RgbLight.scale(color, level);
+            for (int channel = 0; channel < 3; channel++)
+                assertEquals(RgbLight.channel(packed, channel), RgbLight.scaleChannel(color, level, channel));
+        }
+    }
     @Test void whiteSkyRequiresACompleteFilterFreeHaloAndLimitsPublication() {
         int[] reads = {0};
         assertTrue(RgbSkyWhiteRegion.canUseWhite(-10, 20, (x,z) -> { reads[0]++; return false; }));

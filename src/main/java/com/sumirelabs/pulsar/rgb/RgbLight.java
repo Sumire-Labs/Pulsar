@@ -18,4 +18,7 @@ public final class RgbLight {
         return pack((channel(rgb, 0) * level + 7) / 15,
                 (channel(rgb, 1) * level + 7) / 15, (channel(rgb, 2) * level + 7) / 15);
     }
+    public static int scaleChannel(int rgb, int level, int channel) {
+        return (channel(rgb, channel) * level + 7) / 15;
+    }
 }

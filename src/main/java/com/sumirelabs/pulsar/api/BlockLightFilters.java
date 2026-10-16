@@ -25,6 +25,8 @@ public final class BlockLightFilters {
     }
 
     public static int absorption(IBlockState state, int channel, int scalarAbsorption) {
+        // A component filter cannot exceed 15 or open an already opaque face.
+        if (scalarAbsorption >= 15) return scalarAbsorption;
         Map<IBlockState, Integer> filters = frozen;
         Integer filter = filters == null ? null : filters.get(state);
         return filter == null ? scalarAbsorption : Math.max(scalarAbsorption, RgbLight.channel(filter, channel));

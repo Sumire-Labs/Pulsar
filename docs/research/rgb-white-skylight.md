@@ -142,3 +142,11 @@ canonical propagation. It does not implement packed RGB queues or extend terrain
 color rendering to entities, TESRs, particles or shaders. Snapshot sharing and
 lazy storage are allocation improvements; total game heap and FPS require separate
 measurements.
+
+## Follow-up
+
+The subsequent [SCALAR isolation investigation](rgb-propagation-work.md) repeats
+the comparison with eight JVMs per artifact and fivefold warm-up/measurement
+counts. The previous +6.7% median increase did not reproduce; the new
+block-placement median difference was +0.26%. Both reports retain all runs and
+state the remaining uncertainty.

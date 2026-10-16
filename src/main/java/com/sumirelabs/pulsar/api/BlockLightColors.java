@@ -46,6 +46,13 @@ public final class BlockLightColors {
         Integer color = colors == null ? null : colors.get(state);
         return RgbLight.scale(color == null ? 0xFFF : color, scalar);
     }
+    /** Resolve only the component needed by a propagation lane. */
+    public static int emission(IBlockState state, int scalar, int channel) {
+        if (scalar == 0) return 0;
+        Map<IBlockState, Integer> colors = frozen;
+        Integer color = colors == null ? null : colors.get(state);
+        return color == null ? scalar : RgbLight.scaleChannel(color, scalar, channel);
+    }
     public static synchronized void defaults() {
         for (IBlockState s : Blocks.TORCH.getBlockState().getValidStates()) COLORS.putIfAbsent(s, 0xFA6);
         for (IBlockState s : Blocks.GLOWSTONE.getBlockState().getValidStates()) COLORS.putIfAbsent(s, 0xFD9);
