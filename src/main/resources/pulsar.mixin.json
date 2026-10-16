@@ -13,6 +13,7 @@
     "MixinChunk",
     "MixinRgbChunk",
     "MixinRgbFilterPalette",
+    "MixinRgbStateProperties",
     "MixinRgbChunkSend",
     "MixinChunkSectionChanges",
     "MixinChunkVanillaLighting",

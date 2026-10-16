@@ -27,16 +27,16 @@ public final class BlockLightFilters {
     public static int absorption(IBlockState state, int channel, int scalarAbsorption) {
         // A component filter cannot exceed 15 or open an already opaque face.
         if (scalarAbsorption >= 15) return scalarAbsorption;
-        Map<IBlockState, Integer> filters = frozen;
-        Integer filter = filters == null ? null : filters.get(state);
-        return filter == null ? scalarAbsorption : Math.max(scalarAbsorption, RgbLight.channel(filter, channel));
+        int properties = RgbStateProperties.of(state);
+        if ((properties & RgbStateProperties.FILTER_PRESENT) == 0) return scalarAbsorption;
+        int filter = RgbStateProperties.filter(properties);
+        return Math.max(scalarAbsorption, RgbLight.channel(filter, channel));
     }
     public static boolean mayFilterSky(IBlockState state) {
-        Map<IBlockState, Integer> filters = frozen;
-        if (filters == null) return true;
-        Integer filter = filters.get(state);
-        return filter != null && filter != 0;
+        int properties = RgbStateProperties.of(state);
+        return (properties & RgbStateProperties.FILTER_FROZEN) == 0 || RgbStateProperties.filter(properties) != 0;
     }
+    static Map<IBlockState, Integer> frozenFilters() { return frozen; }
 
     public static synchronized void defaults() {
         for (EnumDyeColor dye : EnumDyeColor.values()) {

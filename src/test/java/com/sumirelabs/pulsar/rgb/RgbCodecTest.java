@@ -6,6 +6,18 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RgbCodecTest {
+    @Test void packedStatePropertiesRequireBothFrozenRegistriesWithoutMixingComponents() {
+        for (int color = 0; color < 4096; color++) for (int channel = 0; channel < 3; channel++) {
+            int filter = 15 << ((2 - channel) * 4);
+            for (int frozen = 0; frozen < 4; frozen++) {
+                int value = com.sumirelabs.pulsar.api.RgbStateProperties.pack(color, filter,
+                        (frozen & 1) != 0, (frozen & 2) != 0);
+                assertEquals(color, com.sumirelabs.pulsar.api.RgbStateProperties.color(value));
+                assertEquals(filter, com.sumirelabs.pulsar.api.RgbStateProperties.filter(value));
+                assertEquals(frozen == 3, com.sumirelabs.pulsar.api.RgbStateProperties.cacheable(value));
+            }
+        }
+    }
     @Test void laneScalingMatchesPackedScalingForEveryColorAndLightLevel() {
         for (int color = 0; color < 4096; color++) for (int level = 0; level <= 15; level++) {
             int packed = RgbLight.scale(color, level);

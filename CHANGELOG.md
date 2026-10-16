@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Cache frozen RGB chromaticity and filter metadata per block state in RGB mode;
+  contextual brightness and face/fluid absorption remain resolved as before.
 - Avoid unused RGB emission calculations, opaque-face filter lookups and
   duplicate block-state reads in colored skylight columns.
 - Skip separate RGB sky propagation in verified filter-free neighborhoods,
