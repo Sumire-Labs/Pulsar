@@ -15,7 +15,9 @@ on `feat/rgb-engine`, using coherent feature/performance commits.
 - Vanilla/Forge terrain and fluid rendering plus Celeritas terrain rendering.
 - Filter-free sky shortcut and reduced redundant component calculations.
 - Native references and recorded performance comparisons. Entity/TESR/particle
-  coverage is still incomplete and the engine is not declared complete.
+  paths now have native fixed-function coverage; the full remote/session,
+  current-platform and client-performance matrix is still incomplete. The
+  engine is not declared complete. See [object rendering](rgb-object-rendering.md).
 
 ## Milestones and acceptance criteria
 

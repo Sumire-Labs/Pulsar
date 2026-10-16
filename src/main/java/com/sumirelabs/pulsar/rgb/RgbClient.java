@@ -36,7 +36,7 @@ public final class RgbClient {
             requester = Minecraft.getMinecraft().player;
             requested = false;
         }
-        if (!requested && serverHasRgbChannel && Minecraft.getMinecraft().player != null) {
+        if (!requested && serverHasRgbChannel && Minecraft.getMinecraft().player != null && RgbDrawContext.supported()) {
             requested = true;
             RgbNetwork.requestColors();
         }

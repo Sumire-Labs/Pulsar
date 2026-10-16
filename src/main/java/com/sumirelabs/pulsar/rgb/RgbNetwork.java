@@ -121,7 +121,11 @@ public final class RgbNetwork {
         DIRTY.remove(event.getWorld());
     }
     @SubscribeEvent public void logout(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent event) {
-        if (event.player instanceof EntityPlayerMP player)
-            CLIENTS.removeIf(p -> p.connection.netManager == player.connection.netManager || !p.connection.netManager.isChannelOpen());
+        if (event.player instanceof EntityPlayerMP player) {
+            var connection = player.connection == null ? null : player.connection.netManager;
+            CLIENTS.removeIf(p -> p == player || p.connection == null
+                    || connection != null && p.connection.netManager == connection
+                    || !p.connection.netManager.isChannelOpen());
+        }
     }
 }

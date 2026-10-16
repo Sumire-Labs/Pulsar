@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Extend experimental RGB lighting to entities, regular/Fast TESRs, particles
+  and held items in Vanilla/Forge and Celeritas, preserving material alpha and
+  full-bright effects and restoring render state after exceptions.
+- Retain RGB-aware vertex batches without adding renderer hooks to SCALAR mode.
 - Cache frozen RGB chromaticity and filter metadata per block state in RGB mode;
   contextual brightness and face/fluid absorption remain resolved as before.
 - Avoid unused RGB emission calculations, opaque-face filter lookups and
@@ -31,6 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a restart. RGB extensions are excluded from SCALAR chunk and renderer classes.
 - Document native correctness checks and the SCALAR performance comparison in
   `docs/research/rgb-block-prototype.md`.
+
+### Fixed
+
+- Handle RGB logout with absent or stale connections without removing live peers.
+- Preserve RGB modulation for negative signed lightmap coordinates.
 
 ## [0.5.1]
 
