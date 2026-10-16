@@ -16,6 +16,9 @@ public final class RgbStorage {
     }
     public RgbSnapshot snapshot(long revision) { return snapshot(revision, null); }
     public RgbSnapshot snapshot(long revision, SWMRNibbleArray[] canonical) {
+        return snapshot(revision, canonical, null);
+    }
+    public RgbSnapshot snapshot(long revision, SWMRNibbleArray[] canonical, RgbSnapshot previous) {
         byte[][][] data = new byte[3][channels[0].length][];
         for (int c = 0; c < 3; c++) for (int s = 0; s < data[c].length; s++) {
             SWMRNibbleArray n = channels[c][s];
@@ -32,6 +35,6 @@ public final class RgbStorage {
             byte[] bytes = canonical[i].getVisibleData();
             if (bytes != null) for (byte b : bytes) if (b != 0) { scalar[i] = bytes; break; }
         }
-        return new RgbSnapshot(minSection, revision, data, scalar);
+        return RgbSnapshot.capture(minSection, revision, data, scalar, previous);
     }
 }

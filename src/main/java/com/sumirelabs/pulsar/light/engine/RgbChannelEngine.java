@@ -3,6 +3,7 @@ package com.sumirelabs.pulsar.light.engine;
 import com.sumirelabs.pulsar.compat.FluidLightBridge;
 import com.sumirelabs.pulsar.rgb.*;
 import com.sumirelabs.pulsar.api.BlockLightColors;
+import com.sumirelabs.pulsar.api.BlockLightFilters;
 import java.util.Set;
 import com.sumirelabs.pulsar.light.ContextualLightPalette;
 import com.sumirelabs.pulsar.light.PulsarChunk;
@@ -40,6 +41,9 @@ final class RgbChannelEngine extends PulsarEngine {
         int info = super.lightInfoAt(state, x, y, z);
         int emission = RgbLight.channel(BlockLightColors.emission(state, LightInfo.emission(info)), channel);
         return info & ~(15 << LightInfo.EMISSION_SHIFT) | emission << LightInfo.EMISSION_SHIFT;
+    }
+    private int absorption(int info, IBlockState state, int direction) {
+        return BlockLightFilters.absorption(state, channel, LightInfo.absorption(info, state, direction));
     }
 
     @Override
@@ -148,7 +152,7 @@ final class RgbChannelEngine extends PulsarEngine {
 
             final int neighbourLevel = this.getLightLevel(sectionIndex, localIndex);
 
-            final int absorption = LightInfo.absorption(info, state, direction.ordinal());
+            final int absorption = absorption(info, state, direction.ordinal());
             final int attenuated = neighbourLevel - absorption;
             if (attenuated > level) {
                 level = attenuated;
@@ -340,7 +344,7 @@ final class RgbChannelEngine extends PulsarEngine {
                     continue;
                 }
                 final int destInfo = this.rgbInfoAt(destState, offX, offY, offZ);
-                final int absorption = LightInfo.absorption(destInfo, destState, propagate.oppositeOrdinal);
+                final int absorption = absorption(destInfo, destState, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
                 if (targetLevel <= currentLevel) {
@@ -462,7 +466,7 @@ final class RgbChannelEngine extends PulsarEngine {
                     continue;
                 }
                 final int info = this.rgbInfoAt(state, offX, offY, offZ);
-                final int absorption = LightInfo.absorption(info, state, propagate.oppositeOrdinal);
+                final int absorption = absorption(info, state, propagate.oppositeOrdinal);
 
                 final int targetLevel = propagatedLevel - absorption;
                 final long sFlag = sidedFlag(info);

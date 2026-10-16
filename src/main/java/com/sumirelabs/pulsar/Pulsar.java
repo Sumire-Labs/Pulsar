@@ -56,6 +56,7 @@ public class Pulsar {
                     ThaumcraftCrystalLighting.cacheProfile());
         }
         com.sumirelabs.pulsar.api.BlockLightColors.defaults();
+        com.sumirelabs.pulsar.api.BlockLightFilters.defaults();
         FaceOcclusion.registerDefaults();
         LOGGER.info("{} ready - Pulsar Lighting Engine active.", Reference.MOD_NAME);
     }

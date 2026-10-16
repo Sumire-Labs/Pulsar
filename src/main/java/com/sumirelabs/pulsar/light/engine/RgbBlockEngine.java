@@ -62,6 +62,14 @@ public final class RgbBlockEngine extends ScalarBlockEngine {
     public void publishColors() {
         try { publish(); } finally { touched.clear(); publicationCurrent = null; }
     }
+    @Override
+    protected void onNibbleVisible(int cacheIndex, com.sumirelabs.pulsar.light.SWMRNibbleArray nibble) {
+        super.onNibbleVisible(cacheIndex, nibble);
+        // Filters can leave every RGB component unchanged while gameplay light
+        // changes in a neighboring chunk. That canonical plane must publish too.
+        Chunk chunk = this.chunkCache[cacheIndex % 25];
+        if (chunk != null) touched.add(chunk);
+    }
     private void publish() {
         for (Chunk chunk : touched) synchronized (chunk) {
             if (publicationCurrent != null && !publicationCurrent.test(CoordinateUtils.getChunkKey(chunk.x, chunk.z))) continue;
@@ -69,7 +77,7 @@ public final class RgbBlockEngine extends ScalarBlockEngine {
             RgbChunk rgb = (RgbChunk) chunk;
             RgbSnapshot previous = rgb.pulsar$getRgbSnapshot();
             RgbSnapshot next = rgb.pulsar$getRgbStorage().snapshot(previous == null ? 1 : previous.revision + 1,
-                    ((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$getBlockNibbles());
+                    ((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$getBlockNibbles(), previous);
             if (previous == null || !previous.sameLightData(next)) {
                 rgb.pulsar$setRgbSnapshot(next);
                 RgbNetwork.changed(chunk);

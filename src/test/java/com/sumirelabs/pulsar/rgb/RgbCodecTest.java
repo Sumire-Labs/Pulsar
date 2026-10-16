@@ -6,6 +6,42 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RgbCodecTest {
+    @Test void unchangedSectionsShareImmutablePayloadWithoutSharingWorkerBytes() throws Exception {
+        byte[][][] live = new byte[3][2][];
+        live[0][0] = new byte[2048]; live[0][0][0] = 15;
+        live[1][1] = new byte[2048]; live[1][1][0] = 7;
+        byte[][] canonical = new byte[2][]; canonical[0] = live[0][0];
+        RgbSnapshot first = RgbSnapshot.capture(-1, 1, live, canonical, null);
+        live[0][0][0] = 14;
+        RgbSnapshot next = RgbSnapshot.capture(-1, 2, live, canonical, first);
+        var field = RgbSnapshot.class.getDeclaredField("data"); field.setAccessible(true);
+        byte[][][] a = (byte[][][])field.get(first), b = (byte[][][])field.get(next);
+        assertSame(a[1][1], b[1][1]);
+        assertNotSame(a[0][0], b[0][0]); assertNotSame(live[0][0], b[0][0]);
+        live[0][0][0] = 0; live[1][1][0] = 0;
+        assertEquals(0xF00, first.get(0, -16, 0));
+        assertEquals(0xE00, next.get(0, -16, 0));
+        assertEquals(14, next.canonical(0, -16, 0));
+        assertEquals(0x070, next.get(0, 0, 0));
+        live[1][1] = null;
+        RgbSnapshot cleared = RgbSnapshot.capture(-1, 3, live, canonical, next);
+        assertEquals(0, cleared.get(0, 0, 0));
+    }
+    @Test void snapshotReuseRejectsDifferentHeightLayouts() {
+        byte[][][] live = new byte[3][1][];
+        live[0][0] = new byte[2048]; live[0][0][0] = 15;
+        RgbSnapshot old = RgbSnapshot.capture(0, 1, live, new byte[1][], null);
+        RgbSnapshot next = RgbSnapshot.capture(-1, 2, live, new byte[1][], old);
+        assertEquals(0xF00, next.get(0, -16, 0));
+        assertEquals(0, next.get(0, 0, 0));
+    }
+    @Test void filteredLightIsNotRenormalizedToUnfilteredBrightness() {
+        int filtered = RgbClient.modulate(0xFFFFFFFF, 5, 0, 0, 0, 15);
+        int original = RgbClient.modulate(0xFFFFFFFF, 15, 0, 0, 0, 15);
+        assertTrue((filtered & 255) < (original & 255));
+        assertEquals(0xFF, filtered >>> 24);
+        assertEquals(0xFF123456, RgbClient.modulate(0xFF123456, 15, 15, 15, 0, 15));
+    }
     @Test void canonicalLightIsIndependentAndPartOfPublicationEquality() {
         byte[][][] rgb = new byte[3][1][];
         byte[][] scalar = new byte[1][]; scalar[0] = new byte[2048]; scalar[0][0] = 7;

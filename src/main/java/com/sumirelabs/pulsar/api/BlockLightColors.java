@@ -23,6 +23,7 @@ public final class BlockLightColors {
         COLORS.put(state, RgbLight.normalize(RgbLight.pack(r, g, b)));
     }
     public static synchronized void freeze() {
+        BlockLightFilters.freeze();
         if (frozen == null) frozen = Collections.unmodifiableMap(new IdentityHashMap<>(COLORS));
     }
     public static String profile() {
@@ -31,6 +32,7 @@ public final class BlockLightColors {
             Map<IBlockState, Integer> colors = frozen;
             if (colors == null) throw new IllegalStateException("RGB colors not initialized");
             for (var entry : colors.entrySet()) rows.add(entry.getKey().toString() + "=" + entry.getValue());
+            BlockLightFilters.appendProfile(rows);
             java.util.Collections.sort(rows);
             try {
                 byte[] digest = java.security.MessageDigest.getInstance("SHA-256").digest(String.join("\n", rows).getBytes(java.nio.charset.StandardCharsets.UTF_8));

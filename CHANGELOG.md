@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add RGB block-light filters for stained glass and panes, with a static
+  per-state absorption API and independent scalar gameplay brightness.
+- Reuse unchanged immutable RGB snapshot sections to reduce publication
+  allocation, and synchronize canonical-only changes across filtered regions.
 - Add an opt-in RGB block-light prototype with independent scalar gameplay
   lighting, shared-pool scheduling, persistent color caches and server-authoritative
   RGB/canonical block-light synchronization.

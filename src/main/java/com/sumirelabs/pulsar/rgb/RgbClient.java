@@ -121,7 +121,7 @@ public final class RgbClient {
      */
     public static int tintAbgr(int color, double x, double y, double z) {
         if (!active) return color;
-        int r = 0, g = 0, b = 0, sky = 0;
+        int r = 0, g = 0, b = 0, sky = 0, canonical = 0;
         boolean found = false;
         int bx = (int) Math.floor(x - .5), by = (int) Math.floor(y - .5), bz = (int) Math.floor(z - .5);
         for (int dx = 0; dx < 2; dx++) for (int dy = 0; dy < 2; dy++) for (int dz = 0; dz < 2; dz++) {
@@ -130,6 +130,7 @@ public final class RgbClient {
             if (view == null) continue;
             found = true;
             int rgb = view.rgb.get(xx, yy, zz);
+            canonical = Math.max(canonical, view.rgb.canonical(xx, yy, zz));
             r = Math.max(r, RgbLight.channel(rgb, 0));
             g = Math.max(g, RgbLight.channel(rgb, 1));
             b = Math.max(b, RgbLight.channel(rgb, 2));
@@ -140,10 +141,13 @@ public final class RgbClient {
             }
         }
         if (!found) return color;
-        return modulate(color, r, g, b, sky * skyScale);
+        return modulate(color, r, g, b, sky * skyScale, canonical);
     }
     public static int modulate(int color, int r, int g, int b, float sky) {
-        float ambient = .6f + sky, max = ambient + Math.max(r, Math.max(g, b));
+        return modulate(color, r, g, b, sky, Math.max(r, Math.max(g, b)));
+    }
+    public static int modulate(int color, int r, int g, int b, float sky, int canonical) {
+        float ambient = .6f + sky, max = ambient + Math.max(canonical, Math.max(r, Math.max(g, b)));
         int red = Math.round((color & 255) * (ambient + r) / max);
         int green = Math.round((color >> 8 & 255) * (ambient + g) / max);
         int blue = Math.round((color >> 16 & 255) * (ambient + b) / max);

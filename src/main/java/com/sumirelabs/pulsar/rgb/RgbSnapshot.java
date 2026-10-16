@@ -10,6 +10,9 @@ public final class RgbSnapshot {
         this(minSection, revision, data, project(data));
     }
     public RgbSnapshot(int minSection, long revision, byte[][][] data, byte[][] canonical) {
+        this(minSection, revision, data, canonical, true);
+    }
+    private RgbSnapshot(int minSection, long revision, byte[][][] data, byte[][] canonical, boolean copy) {
         if (data.length != 3 || data[0].length != data[1].length || data[0].length != data[2].length
                 || data[0].length > 4098) throw new IllegalArgumentException("Invalid RGB section count");
         this.minSection = minSection;
@@ -18,14 +21,37 @@ public final class RgbSnapshot {
         this.canonical = new byte[canonical.length][];
         for (int s = 0; s < canonical.length; s++) if (canonical[s] != null) {
             if (canonical[s].length != 2048) throw new IllegalArgumentException("Invalid canonical nibble length");
-            this.canonical[s] = canonical[s].clone();
+            this.canonical[s] = copy ? canonical[s].clone() : canonical[s];
         }
         this.data = new byte[3][data[0].length][];
         for (int c = 0; c < 3; c++) for (int s = 0; s < data[c].length; s++) {
             if (data[c][s] == null) continue;
             if (data[c][s].length != 2048) throw new IllegalArgumentException("Invalid RGB nibble length");
-            this.data[c][s] = data[c][s].clone();
+            this.data[c][s] = copy ? data[c][s].clone() : data[c][s];
         }
+    }
+    /** Reuse only immutable bytes owned by a previous publication. Live worker bytes
+     * are always compared and cloned, since SWMR visible arrays can be reused in place. */
+    static RgbSnapshot capture(int minSection, long revision, byte[][][] live, byte[][] scalar, RgbSnapshot previous) {
+        boolean compatible = previous != null && previous.minSection == minSection
+                && previous.sectionCount() == scalar.length;
+        byte[][][] owned = new byte[3][scalar.length][];
+        byte[][] canonical = new byte[scalar.length][];
+        for (int s = 0; s < scalar.length; s++) {
+            canonical[s] = retain(scalar[s], compatible ? previous.canonical[s] : null);
+            for (int c = 0; c < 3; c++) owned[c][s] = retain(live[c][s], compatible ? previous.data[c][s] : null);
+        }
+        return new RgbSnapshot(minSection, revision, owned, canonical, false);
+    }
+    private static byte[] retain(byte[] live, byte[] previous) {
+        if (java.util.Arrays.equals(live, previous)) return previous;
+        return live == null ? null : live.clone();
+    }
+    public int canonical(int x, int y, int z) {
+        int s = (y >> 4) - minSection;
+        if (s < 0 || s >= canonical.length || canonical[s] == null) return 0;
+        int index = (x & 15) | (z & 15) << 4 | (y & 15) << 8;
+        return (canonical[s][index >> 1] & 255) >> ((index & 1) << 2) & 15;
     }
     private static byte[][] project(byte[][][] data) {
         byte[][] result = new byte[data[0].length][];
