@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Skip separate RGB sky propagation in verified filter-free neighborhoods,
+  lazily materialize color storage and share immutable white-sky payloads.
 - Add experimental RGB skylight with independent scalar gameplay skylight,
   colored transmission, per-lane synchronization and persistent sky caches.
 - Share saturated immutable light planes and encode full planes without nibble

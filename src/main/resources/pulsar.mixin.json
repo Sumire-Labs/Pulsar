@@ -12,6 +12,7 @@
     "MixinBlockStateContainerSamples",
     "MixinChunk",
     "MixinRgbChunk",
+    "MixinRgbFilterPalette",
     "MixinRgbChunkSend",
     "MixinChunkSectionChanges",
     "MixinChunkVanillaLighting",

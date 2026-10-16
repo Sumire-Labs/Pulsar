@@ -16,15 +16,52 @@ import java.util.function.LongPredicate;
 public final class RgbSkyEngine extends ScalarSkyEngine {
     private final Set<Chunk> touched = Collections.newSetFromMap(new IdentityHashMap<>());
     private LongPredicate publicationCurrent;
-    private final RgbSkyChannelEngine[] channels = new RgbSkyChannelEngine[3];
+    private RgbSkyChannelEngine[] channels;
+    private boolean white;
+    private int whiteX, whiteZ;
+    private final RgbSkyWhiteRegion.Lookup filterLookup = this::hasFilters;
     public RgbSkyEngine(World world, WorldHeightContext height) {
         super(world, height);
-        for (int c = 0; c < 3; c++) channels[c] = new RgbSkyChannelEngine(world, height, c, touched);
+    }
+    private void ensureChannels() {
+        if (channels == null) {
+            channels = new RgbSkyChannelEngine[3];
+            for (int c = 0; c < 3; c++) channels[c] = new RgbSkyChannelEngine(world, heightContext, c, touched);
+        }
+    }
+    private boolean hasFilters(int x, int z) {
+        Chunk chunk = ((ExtendedWorld)world).pulsar$getAnyChunkImmediately(x, z);
+        if (chunk == null) return true;
+        for (var section : chunk.getBlockStorageArray()) if (section != null) {
+            Object data = section.getData();
+            if (!(data instanceof RgbFilterPalette palette) || palette.pulsar$mayFilterSky()) return true;
+        }
+        return false;
     }
     public void processColors(ChunkTasks task) {
         touched.clear();
         publicationCurrent = null;
         int x = CoordinateUtils.getChunkX(task.chunkCoordinate), z = CoordinateUtils.getChunkZ(task.chunkCoordinate);
+        if (task.initialLightChunk != null || task.loadInitChunk != null || task.changedSectionSet != null
+                || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
+            Chunk changed = ((ExtendedWorld)world).pulsar$getAnyChunkImmediately(x, z);
+            if (changed != null) for (var section : changed.getBlockStorageArray())
+                if (section != null && section.getData() instanceof RgbFilterPalette palette)
+                    palette.pulsar$invalidateSkyFilterCache();
+        }
+        white = RgbSkyWhiteRegion.canUseWhite(x, z, filterLookup);
+        if (white) {
+            whiteX = x; whiteZ = z;
+            // Removing the last filter can change only RGB, leaving canonical
+            // sky untouched. Explicitly reset every formerly colored neighbor.
+            for (int dz = -1; dz <= 1; dz++) for (int dx = -1; dx <= 1; dx++) {
+                Chunk chunk = ((ExtendedWorld)world).pulsar$getAnyChunkImmediately(x + dx, z + dz);
+                if (chunk != null && (((RgbChunk)chunk).pulsar$getRgbSkyStorage() != null
+                        || ((RgbChunk)chunk).pulsar$getRgbSkySnapshot() == null)) touched.add(chunk);
+            }
+            return;
+        }
+        ensureChannels();
         try {
             for (RgbSkyChannelEngine engine : channels) {
                 if (task.loadInitChunk != null && task.initialLightChunk == null) {
@@ -52,6 +89,8 @@ public final class RgbSkyEngine extends ScalarSkyEngine {
     public void relightColors(Map<Long, Chunk> targets, Map<Long, Chunk> available, LongPredicate current) {
         touched.clear();
         publicationCurrent = current;
+        white = false;
+        ensureChannels();
         try {
             for (RgbSkyChannelEngine engine : channels) {
                 engine.relightChunks(targets, available, current);
@@ -70,14 +109,33 @@ public final class RgbSkyEngine extends ScalarSkyEngine {
         Chunk chunk = this.chunkCache[cacheIndex % 25];
         if (chunk != null) touched.add(chunk);
     }
+    @Override
+    protected void setNibbles(Chunk chunk, com.sumirelabs.pulsar.light.SWMRNibbleArray[] nibbles) {
+        super.setNibbles(chunk, nibbles);
+        touched.add(chunk);
+    }
     private void publish() {
         for (Chunk chunk : touched) synchronized (chunk) {
+            if (white && !RgbSkyWhiteRegion.contains(whiteX, whiteZ, chunk.x, chunk.z)) continue;
             if (publicationCurrent != null && !publicationCurrent.test(CoordinateUtils.getChunkKey(chunk.x, chunk.z))) continue;
             if (((ExtendedWorld) world).pulsar$getAnyChunkImmediately(chunk.x, chunk.z) != chunk) continue;
             RgbChunk rgb = (RgbChunk) chunk;
             RgbSnapshot previous = rgb.pulsar$getRgbSkySnapshot();
-            RgbSnapshot next = rgb.pulsar$getRgbSkyStorage().skySnapshot(heightContext, previous == null ? 1 : previous.revision + 1,
-                    ((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$getSkyNibbles(), previous);
+            long revision = previous == null ? 1 : previous.revision + 1;
+            var canonical = ((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$getSkyNibbles();
+            RgbSnapshot next;
+            if (white) {
+                next = RgbStorage.whiteSkySnapshot(heightContext.getMinLightSection(), revision, canonical, previous);
+                rgb.pulsar$setRgbSkyStorage(null);
+            } else {
+                RgbStorage storage = rgb.pulsar$getRgbSkyStorage();
+                if (storage == null) {
+                    storage = RgbStorage.fromSky(heightContext, canonical,
+                            ((com.sumirelabs.pulsar.light.PulsarChunk)chunk).pulsar$getSkyEmptinessMap());
+                    rgb.pulsar$setRgbSkyStorage(storage);
+                }
+                next = storage.skySnapshot(heightContext, revision, canonical, previous);
+            }
             if (previous == null || !previous.sameLightData(next)) {
                 rgb.pulsar$setRgbSkySnapshot(next);
                 RgbNetwork.changed(chunk);

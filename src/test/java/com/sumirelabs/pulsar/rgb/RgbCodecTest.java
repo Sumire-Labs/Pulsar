@@ -6,6 +6,57 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RgbCodecTest {
+    @Test void whiteSkyRequiresACompleteFilterFreeHaloAndLimitsPublication() {
+        int[] reads = {0};
+        assertTrue(RgbSkyWhiteRegion.canUseWhite(-10, 20, (x,z) -> { reads[0]++; return false; }));
+        assertEquals(25, reads[0]);
+        for (int dz = -2; dz <= 2; dz++) for (int dx = -2; dx <= 2; dx++) {
+            int filterX = -10 + dx, filterZ = 20 + dz;
+            assertFalse(RgbSkyWhiteRegion.canUseWhite(-10, 20, (x,z) -> x == filterX && z == filterZ));
+        }
+        assertTrue(RgbSkyWhiteRegion.canUseWhite(-10, 20, (x,z) -> x == -7));
+        assertTrue(RgbSkyWhiteRegion.contains(-10,20,-11,21));
+        assertFalse(RgbSkyWhiteRegion.contains(-10,20,-12,20));
+        assertFalse(RgbSkyWhiteRegion.contains(Integer.MIN_VALUE,0,Integer.MAX_VALUE,0));
+        assertTrue(RgbFilterPaletteChecks.hasFilters(null, null));
+        assertTrue(new RgbFilterPalette() {}.pulsar$mayFilterSky());
+    }
+    @Test void whitePublicationSharesOnlyOwnedCanonicalBytes() throws Exception {
+        var height = com.sumirelabs.pulsar.util.WorldHeightContext.VANILLA;
+        var canonical = new com.sumirelabs.pulsar.light.SWMRNibbleArray[height.getTotalLightSections()];
+        for (int s = 0; s < canonical.length; s++) canonical[s] = new com.sumirelabs.pulsar.light.SWMRNibbleArray();
+        canonical[2].set(0, 7); canonical[2].updateVisible();
+        RgbSnapshot first = RgbStorage.whiteSkySnapshot(height.getMinLightSection(), 1, canonical, null);
+        var field = RgbSnapshot.class.getDeclaredField("data"); field.setAccessible(true);
+        var scalar = RgbSnapshot.class.getDeclaredField("canonical"); scalar.setAccessible(true);
+        byte[][][] data = (byte[][][])field.get(first);
+        assertSame(data[0][2], data[1][2]); assertSame(data[0][2], data[2][2]);
+        assertSame(data[0][2], ((byte[][])scalar.get(first))[2]);
+        assertNotSame(canonical[2].getVisibleData(), data[0][2]);
+        canonical[2].set(0, 3); canonical[2].updateVisible();
+        assertEquals(0x777, first.get(0, 16, 0));
+        assertEquals(0x333, RgbStorage.whiteSkySnapshot(height.getMinLightSection(),2,canonical,first).get(0,16,0));
+        first.section(0,2)[0] = 0;
+        assertEquals(0x777, first.get(0,16,0));
+    }
+    @Test void coloredMaterializationCopiesWhiteCanonicalStateWithoutAliasing() {
+        var height = com.sumirelabs.pulsar.util.WorldHeightContext.VANILLA;
+        var canonical = new com.sumirelabs.pulsar.light.SWMRNibbleArray[height.getTotalLightSections()];
+        for (int s = 0; s < canonical.length; s++) canonical[s] = new com.sumirelabs.pulsar.light.SWMRNibbleArray(null,true);
+        canonical[3] = new com.sumirelabs.pulsar.light.SWMRNibbleArray();
+        canonical[3].set(0, 7); canonical[3].updateVisible();
+        canonical[4] = new com.sumirelabs.pulsar.light.SWMRNibbleArray(); canonical[4].setFull(); canonical[4].updateVisible();
+        boolean[] empty = new boolean[16]; empty[0] = true;
+        RgbStorage colored = RgbStorage.fromSky(height, canonical, empty);
+        empty[0] = false; assertTrue(colored.empty[0][0]);
+        colored.empty[0][0] = false; assertTrue(colored.empty[1][0]);
+        assertEquals(0x777, colored.skySnapshot(height,1,canonical,null).get(0,16,0));
+        colored.channels[0][3].set(0,0); colored.channels[0][3].updateVisible();
+        assertEquals(7, canonical[3].getVisible(0));
+        assertEquals(7, colored.channels[1][3].getVisible(0));
+        assertEquals(0x077, colored.skySnapshot(height,2,canonical,null).get(0,16,0));
+        assertTrue(colored.channels[0][4].isFullVisible());
+    }
     @Test void optimizedSkyResolutionMatchesExistingExtrusionForRandomSectionStates() {
         var height = com.sumirelabs.pulsar.util.WorldHeightContext.VANILLA;
         var random = new java.util.Random(551391);

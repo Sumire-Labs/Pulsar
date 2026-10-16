@@ -2,7 +2,7 @@ package com.sumirelabs.pulsar.rgb;
 
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 
-/** Mutable engine storage, written only inside the existing block-lane reservation. */
+/** Mutable engine storage, written only inside its lighting-lane reservation. */
 public final class RgbStorage {
     private static final byte[] FULL_SKY = RgbSnapshot.saturatedPlane();
     public final SWMRNibbleArray[][] channels = new SWMRNibbleArray[3][];
@@ -16,14 +16,36 @@ public final class RgbStorage {
         }
     }
     public RgbSnapshot snapshot(long revision) { return snapshot(revision, null); }
+    public static RgbSnapshot whiteSkySnapshot(int minSection, long revision, SWMRNibbleArray[] canonical, RgbSnapshot previous) {
+        byte[][] scalar = resolveSky(canonical);
+        return RgbSnapshot.capture(minSection, revision, new byte[][][]{scalar, scalar, scalar}, scalar, previous);
+    }
+    public static RgbStorage fromSky(com.sumirelabs.pulsar.util.WorldHeightContext height,
+                                     SWMRNibbleArray[] canonical, boolean[] empty) {
+        RgbStorage result = new RgbStorage(height.getMinLightSection(), height.getTotalLightSections());
+        for (int c = 0; c < 3; c++) {
+            result.empty[c] = empty == null ? null : empty.clone();
+            for (int s = 0; s < result.channels[c].length; s++) {
+                SWMRNibbleArray source = canonical[s], copy;
+                if (source == null || source.isNullNibbleVisible()) copy = new SWMRNibbleArray(null, true);
+                else if (source.isFullVisible()) { copy = new SWMRNibbleArray(); copy.setFull(); copy.updateVisible(); }
+                else {
+                    byte[] bytes = source.getVisibleData();
+                    copy = new SWMRNibbleArray(bytes == null ? null : bytes.clone());
+                }
+                result.channels[c][s] = copy;
+            }
+        }
+        return result;
+    }
     public RgbSnapshot skySnapshot(com.sumirelabs.pulsar.util.WorldHeightContext height, long revision,
                                    SWMRNibbleArray[] canonical, RgbSnapshot previous) {
         byte[][][] data = new byte[3][][];
-        for (int c = 0; c < 3; c++) data[c] = resolveSky(height, channels[c]);
-        return RgbSnapshot.capture(minSection, revision, data, resolveSky(height, canonical), previous);
+        for (int c = 0; c < 3; c++) data[c] = resolveSky(channels[c]);
+        return RgbSnapshot.capture(minSection, revision, data, resolveSky(canonical), previous);
     }
-    private byte[][] resolveSky(com.sumirelabs.pulsar.util.WorldHeightContext height, SWMRNibbleArray[] sky) {
-        byte[][] result = new byte[channels[0].length][];
+    private static byte[][] resolveSky(SWMRNibbleArray[] sky) {
+        byte[][] result = new byte[sky.length][];
         SWMRNibbleArray above = null;
         byte[] extrusion = null;
         boolean resolved = false;

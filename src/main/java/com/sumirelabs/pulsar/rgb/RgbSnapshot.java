@@ -42,7 +42,8 @@ public final class RgbSnapshot {
         byte[][] canonical = new byte[scalar.length][];
         for (int s = 0; s < scalar.length; s++) {
             canonical[s] = retain(scalar[s], compatible ? previous.canonical[s] : null);
-            for (int c = 0; c < 3; c++) owned[c][s] = retain(live[c][s], compatible ? previous.data[c][s] : null);
+            for (int c = 0; c < 3; c++) owned[c][s] = live[c][s] == scalar[s] ? canonical[s]
+                    : retain(live[c][s], compatible ? previous.data[c][s] : null);
         }
         return new RgbSnapshot(minSection, revision, owned, canonical, false);
     }

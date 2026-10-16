@@ -29,6 +29,12 @@ public final class BlockLightFilters {
         Integer filter = filters == null ? null : filters.get(state);
         return filter == null ? scalarAbsorption : Math.max(scalarAbsorption, RgbLight.channel(filter, channel));
     }
+    public static boolean mayFilterSky(IBlockState state) {
+        Map<IBlockState, Integer> filters = frozen;
+        if (filters == null) return true;
+        Integer filter = filters.get(state);
+        return filter != null && filter != 0;
+    }
 
     public static synchronized void defaults() {
         for (EnumDyeColor dye : EnumDyeColor.values()) {

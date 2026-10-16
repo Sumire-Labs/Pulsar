@@ -35,7 +35,8 @@ final class RgbSkyChannelEngine extends PulsarEngine {
         var rgb = (com.sumirelabs.pulsar.rgb.RgbChunk) chunk;
         var storage = rgb.pulsar$getRgbSkyStorage();
         if (storage == null) {
-            storage = new com.sumirelabs.pulsar.rgb.RgbStorage(heightContext.getMinLightSection(), heightContext.getTotalLightSections());
+            storage = com.sumirelabs.pulsar.rgb.RgbStorage.fromSky(heightContext,
+                    ((PulsarChunk) chunk).pulsar$getSkyNibbles(), ((PulsarChunk) chunk).pulsar$getSkyEmptinessMap());
             rgb.pulsar$setRgbSkyStorage(storage);
         }
         return storage;
