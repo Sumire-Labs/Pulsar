@@ -5,6 +5,15 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Prevent initial chunk packets from waiting indefinitely with Fluidlogged API.
+  Skip vanilla's redundant random player lighting repair request, which otherwise
+  creates new pending samples before every send attempt. Block/fluid updates and
+  the contextual-light gate used by Thaumcraft crystals remain active.
+
 ## [0.5.1]
 
 ### Fixed
