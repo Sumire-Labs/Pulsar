@@ -20,6 +20,15 @@ It reimplements Starlight-style algorithms for Cleanroom and runs lighting calcu
 - Adds natural lighting to Thaumcraft crystals.
 - Fully compatible with rendering mods such as Celeritas, Actinium, and Nothirium.
 
+### Experimental RGB branch
+
+`feat/rgb-engine` adds opt-in colored block/sky lighting for terrain, entities,
+TESRs, particles and held items. SCALAR remains the default. RGB rendering is
+validated with Vanilla/Forge and Celeritas on Cleanroom 0.6.12-alpha; the
+SCALAR compatibility list does not imply RGB support for other renderers.
+See the [RGB setup and API guide](docs/rgb-lighting.md) and
+[native validation and measurements](docs/research/rgb-render-performance.md).
+
 ## Fixed Bugs
 
 - [MC-92](https://bugs.mojang.com/browse/MC-92)

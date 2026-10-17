@@ -14,10 +14,13 @@ on `feat/rgb-engine`, using coherent feature/performance commits.
   range publication and unload protection.
 - Vanilla/Forge terrain and fluid rendering plus Celeritas terrain rendering.
 - Filter-free sky shortcut and reduced redundant component calculations.
-- Native references and recorded performance comparisons. Entity/TESR/particle
-  paths now have native fixed-function coverage; the full remote/session,
-  current-platform and client-performance matrix is still incomplete. The
-  engine is not declared complete. See [object rendering](rgb-object-rendering.md).
+- Native fixed-function coverage for entities/TESRs/particles, all four remote
+  RGB/SCALAR combinations, dimension travel and reconnects. Client allocation,
+  callback time and SCALAR server latency are measured separately. See the
+  [final native matrix and performance](rgb-render-performance.md).
+- The recorded platform is Cleanroom 0.6.12-alpha with optional Celeritas.
+  Cleanroom 0.7 and custom GLSL integration remain unverified release gates;
+  the experimental engine is not declared universally complete.
 
 ## Milestones and acceptance criteria
 

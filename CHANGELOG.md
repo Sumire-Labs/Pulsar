@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Reuse chunk views within RGB color sampling, reducing repeated map lookups
+  without retaining stale views between samples.
 - Extend experimental RGB lighting to entities, regular/Fast TESRs, particles
   and held items in Vanilla/Forge and Celeritas, preserving material alpha and
   full-bright effects and restoring render state after exceptions.
@@ -38,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Retry lighting-deferred initial chunk sends before fresh server-tick work,
+  retaining readiness checks and cancelling stale or unloaded entries.
 - Handle RGB logout with absent or stale connections without removing live peers.
 - Preserve RGB modulation for negative signed lightmap coordinates.
 

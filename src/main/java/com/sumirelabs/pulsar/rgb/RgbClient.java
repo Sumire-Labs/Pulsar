@@ -132,33 +132,47 @@ public final class RgbClient {
         int r = 0, g = 0, b = 0, sky = 0, canonical = 0, sr = 0, sg = 0, sb = 0;
         boolean found = false;
         int bx = (int) Math.floor(x - .5), by = (int) Math.floor(y - .5), bz = (int) Math.floor(z - .5);
-        for (int dx = 0; dx < 2; dx++) for (int dy = 0; dy < 2; dy++) for (int dz = 0; dz < 2; dz++) {
-            int xx = bx + dx, yy = by + dy, zz = bz + dz;
-            View view = VIEWS.get(CoordinateUtils.getChunkKey(xx >> 4, zz >> 4));
+        long previousKey = 0;
+        View previousView = null;
+        boolean havePrevious = false;
+        // Both Y samples share a chunk; adjacent columns normally share it too.
+        for (int dx = 0; dx < 2; dx++) for (int dz = 0; dz < 2; dz++) {
+            int xx = bx + dx, zz = bz + dz;
+            long key = CoordinateUtils.getChunkKey(xx >> 4, zz >> 4);
+            View view;
+            if (havePrevious && key == previousKey) view = previousView;
+            else {
+                previousKey = key;
+                previousView = view = VIEWS.get(key);
+                havePrevious = true;
+            }
             if (view == null) continue;
             found = true;
-            int rgb = view.rgb == null ? 0 : view.rgb.get(xx, yy, zz);
-            if (view.rgb != null) canonical = Math.max(canonical, view.rgb.canonical(xx, yy, zz));
-            r = Math.max(r, RgbLight.channel(rgb, 0));
-            g = Math.max(g, RgbLight.channel(rgb, 1));
-            b = Math.max(b, RgbLight.channel(rgb, 2));
-            int s = (yy >> 4) - (view.rgb == null ? view.skyRgb.minSection : view.rgb.minSection);
-            int skyColor;
-            if (view.skyRgb != null) {
-                skyColor = view.skyRgb.get(xx, yy, zz);
-                sky = Math.max(sky, view.skyRgb.canonical(xx, yy, zz));
-            } else {
-                int value = 0;
-                if (s >= 0 && s < view.sky.length && view.sky[s] != null) {
-                    int index = (xx & 15) | (zz & 15) << 4 | (yy & 15) << 8;
-                    value = (view.sky[s][index >> 1] & 255) >> ((index & 1) * 4) & 15;
+            for (int dy = 0; dy < 2; dy++) {
+                int yy = by + dy;
+                int rgb = view.rgb == null ? 0 : view.rgb.get(xx, yy, zz);
+                if (view.rgb != null) canonical = Math.max(canonical, view.rgb.canonical(xx, yy, zz));
+                r = Math.max(r, RgbLight.channel(rgb, 0));
+                g = Math.max(g, RgbLight.channel(rgb, 1));
+                b = Math.max(b, RgbLight.channel(rgb, 2));
+                int s = (yy >> 4) - (view.rgb == null ? view.skyRgb.minSection : view.rgb.minSection);
+                int skyColor;
+                if (view.skyRgb != null) {
+                    skyColor = view.skyRgb.get(xx, yy, zz);
+                    sky = Math.max(sky, view.skyRgb.canonical(xx, yy, zz));
+                } else {
+                    int value = 0;
+                    if (s >= 0 && s < view.sky.length && view.sky[s] != null) {
+                        int index = (xx & 15) | (zz & 15) << 4 | (yy & 15) << 8;
+                        value = (view.sky[s][index >> 1] & 255) >> ((index & 1) * 4) & 15;
+                    }
+                    skyColor = value * 0x111;
+                    sky = Math.max(sky, value);
                 }
-                skyColor = value * 0x111;
-                sky = Math.max(sky, value);
+                sr = Math.max(sr, RgbLight.channel(skyColor, 0));
+                sg = Math.max(sg, RgbLight.channel(skyColor, 1));
+                sb = Math.max(sb, RgbLight.channel(skyColor, 2));
             }
-            sr = Math.max(sr, RgbLight.channel(skyColor, 0));
-            sg = Math.max(sg, RgbLight.channel(skyColor, 1));
-            sb = Math.max(sb, RgbLight.channel(skyColor, 2));
         }
         if (!found) return color;
         return modulateSky(color, r, g, b, canonical, sr, sg, sb, sky, skyScale);

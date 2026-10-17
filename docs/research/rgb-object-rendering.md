@@ -1,11 +1,15 @@
 # RGB object rendering
 
+This report records the original rendering milestone. The subsequent
+[session matrix and performance report](rgb-render-performance.md) completes
+the pending measurements below and records the later initial-send repair.
+
 This work extends the existing RGB block/sky fields to entities, TileEntity
 special renderers (TESRs), particles and first-person held items. SCALAR keeps
 its existing render classes: all additions use the RGB-only mixin selection.
 LGPL-3.0 is unchanged. The 15 accepted native runs and 220 JUnit tests are recorded below. Client
-performance and the full remote session matrix are still pending, so the whole
-engine is not declared complete.
+performance and the full remote session matrix were still pending at this
+milestone, so it did not declare the whole engine complete.
 
 ## Rendering model
 
@@ -75,7 +79,7 @@ connections without dereferencing null or removing unrelated live peers. The
 native test inserts both missing and stale clients and verifies that the live
 host remains registered.
 
-The complete remote matrix remains pending because initial login also fails
+At this milestone, the complete remote matrix remained pending because initial login also failed
 in a SCALAR/SCALAR control before RGB negotiation: `SPacketLoginSuccess` is
 encoded in PLAY state despite requiring LOGIN. No generic transport workaround
 is added to Pulsar by this rendering milestone. RGB remains opt-in and SCALAR remains the default while further compatibility
