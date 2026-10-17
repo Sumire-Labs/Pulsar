@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8.7",
+  "compatibilityLevel": "JAVA_25",
+  "package": "com.sumirelabs.pulsar.mixin",
+  "mixins": [
+    "MixinSmoothLightOcclusion",
+    "MixinForgeLightMatrix",
+    "MixinForgeSmoothLight",
+    "MixinCeleritasLightCache",
+    "MixinCeleritasSmoothLight"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

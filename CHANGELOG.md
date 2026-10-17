@@ -5,6 +5,13 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Exclude hidden edge and diagonal light from smooth-lighting corners in Vanilla,
+  Forge and Celeritas, including slab halves and stair shapes (MC-12558, issue #20).
+
 ## [0.5.2]
 
 ### Fixed
