@@ -55,6 +55,7 @@ public final class WorldLightManager {
     private final SnapshotChunkMap loadedChunkMap = new SnapshotChunkMap();
     // Only accessed by server-thread packet/update callbacks, never by workers.
     private final DeferredChunkUpdates<Chunk> deferredChunkUpdates = new DeferredChunkUpdates<>();
+    private InitialChunkSendRetries<PlayerChunkMapEntry,Chunk> deferredInitialChunkSends;
     private final DeferredChunkUpdates<Chunk> deferredRelightRefreshes = new DeferredChunkUpdates<>();
     private final DeferredChunkWatches<PlayerChunkMapEntry, Chunk, EntityPlayerMP> deferredChunkWatches = new DeferredChunkWatches<>();
 
@@ -118,6 +119,7 @@ public final class WorldLightManager {
     public void unregisterChunk(final int cx, final int cz) {
         this.clientRenderUpdates.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.deferredChunkUpdates.remove(CoordinateUtils.getChunkKey(cx,cz));
+        if(this.deferredInitialChunkSends!=null)this.deferredInitialChunkSends.remove(CoordinateUtils.getChunkKey(cx,cz));
         this.deferredRelightRefreshes.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.loadedChunkMap.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.contextualLight.unload(cx, cz);
@@ -314,6 +316,21 @@ public final class WorldLightManager {
         if(chunk==null || !((PulsarChunk)chunk).pulsar$isLightReady()) return false;
         // Propagation from a neighboring task can also write this chunk's nibbles.
         return !this.hasPendingLightWorkNear(cx, cz);
+    }
+
+    public void deferInitialChunkSend(PlayerChunkMapEntry entry,Chunk chunk) {
+        if(this.deferredInitialChunkSends==null)this.deferredInitialChunkSends=new InitialChunkSendRetries<>();
+        this.deferredInitialChunkSends.defer(CoordinateUtils.getChunkKey(chunk.x,chunk.z),entry,chunk);
+    }
+
+    public void retryInitialChunkSends() {
+        if(this.deferredInitialChunkSends==null || this.deferredInitialChunkSends.size()==0
+                || !(this.world instanceof WorldServer server))return;
+        this.deferredInitialChunkSends.drain((entry,chunk)->!entry.isSentToPlayers()
+                        && server.getPlayerChunkMap().getEntry(chunk.x,chunk.z)==entry
+                        && entry.getChunk()==chunk && this.getLoadedChunk(chunk.x,chunk.z)==chunk,
+                (entry,chunk)->chunk.isPopulated() && this.canSendUpdatedChunkLight(chunk.x,chunk.z)
+                        && this.areNeighboursLightReady(chunk.x,chunk.z),PlayerChunkMapEntry::sendToPlayers);
     }
 
     public void deferChunkWatch(PlayerChunkMapEntry entry, Chunk chunk, EntityPlayerMP player) {
@@ -901,6 +918,7 @@ public final class WorldLightManager {
         this.loadedChunkMap.clear();
         this.clientRenderUpdates.clear();
         this.deferredChunkUpdates.clear();
+        if(this.deferredInitialChunkSends!=null)this.deferredInitialChunkSends.clear();
         this.deferredRelightRefreshes.clear();
         this.deferredChunkWatches.clear();
         if (this.skyWorker != null) this.skyWorker.requestStop();

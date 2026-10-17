@@ -18,6 +18,17 @@ public class CommonProxy implements IProxy {
     }
 
     @SubscribeEvent
+    public void onServerTick(final TickEvent.ServerTickEvent event) {
+        if(event.phase!=TickEvent.Phase.START)return;
+        final var server=net.minecraftforge.fml.common.FMLCommonHandler.instance().getMinecraftServerInstance();
+        if(server==null || server.worlds==null)return;
+        for(final var world:server.worlds)if(world instanceof PulsarWorld pulsar) {
+            final WorldLightManager manager=pulsar.pulsar$getLightManager();
+            if(manager!=null)manager.retryInitialChunkSends();
+        }
+    }
+
+    @SubscribeEvent
     public void onWorldTick(final TickEvent.WorldTickEvent event) {
         if (event.world.isRemote || !(event.world instanceof PulsarWorld)) {
             return;
