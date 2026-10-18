@@ -230,6 +230,8 @@ compileTestJava {
 
 test {
     classpath += sourceSets.main.compileClasspath
+    // Switching the optional renderer must invalidate the previous test result.
+    inputs.property('celeritasTestClasspath', project.findProperty('celeritasTestClasspath') ?: '')
     doFirst {
         systemProperty 'pulsar.test.classpath', classpath.asPath
         if (project.hasProperty('celeritasTestClasspath')) {

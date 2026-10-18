@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Sample the exposed side of slab and stair model vertices, including inset treads
+  and risers, in Vanilla, Forge and Celeritas. Verify all 42 vanilla model states
+  through the real baked-quad lighting paths (issue #20).
 - Exclude hidden edge and diagonal light from smooth-lighting corners in Vanilla,
   Forge and Celeritas, including slab halves and stair shapes (MC-12558, issue #20).
 

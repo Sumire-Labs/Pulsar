@@ -27,7 +27,13 @@ public final class CornerLightTweaker implements ITweaker {
         MixinBootstrap.init();
         MixinExtrasBootstrap.init();
         MixinEnvironment.getDefaultEnvironment().setSide(MixinEnvironment.Side.CLIENT);
-        if (!Boolean.getBoolean("issue20.baseline")) {
+        if (Boolean.getBoolean("issue20.celeritas")) {
+            Mixins.addConfiguration("pulsar-surface-celeritas-quads.mixins.json");
+        }
+        if (Boolean.getBoolean("issue20.previous")) {
+            Mixins.addConfiguration("pulsar-previous-corners-test.mixins.json");
+            Mixins.addConfiguration("pulsar-previous-forge-test.mixins.json");
+        } else if (!Boolean.getBoolean("issue20.baseline")) {
             Mixins.addConfiguration("pulsar-smoothlight-test.mixins.json");
         }
     }

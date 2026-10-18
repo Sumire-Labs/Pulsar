@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.mixin;
 
 import com.sumirelabs.pulsar.light.SmoothLightMatrix;
+import com.sumirelabs.pulsar.light.PartialFaceLight;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
@@ -19,6 +20,18 @@ public abstract class MixinForgeSmoothLight extends VertexLighterFlat {
     private void pulsar$keepHiddenLightOffSurface(float[] normal, float[] lightmap, float x, float y, float z, CallbackInfo ci) {
         int axis = Math.abs(normal[0]) > .9999f ? 0 : Math.abs(normal[1]) > .9999f ? 1 : Math.abs(normal[2]) > .9999f ? 2 : -1;
         if (axis < 0) return;
+        if (PartialFaceLight.applies(blockInfo.getState())) {
+            EnumFacing face = axis == 0 ? (normal[0] > 0 ? EnumFacing.EAST : EnumFacing.WEST)
+                    : axis == 1 ? (normal[1] > 0 ? EnumFacing.UP : EnumFacing.DOWN)
+                    : (normal[2] > 0 ? EnumFacing.SOUTH : EnumFacing.NORTH);
+            int original = ((int) (lightmap[0] * 65535 / 2) & 0xffff)
+                    | (((int) (lightmap[1] * 65535 / 2) & 0xffff) << 16);
+            int packed = PartialFaceLight.sample(blockInfo.getWorld(), blockInfo.getState(), blockInfo.getBlockPos(), face,
+                    x - normal[0] * .5f + .5f, y - normal[1] * .5f + .5f, z - normal[2] * .5f + .5f, original);
+            lightmap[0] = (packed & 0xffff) * 2f / 65535;
+            lightmap[1] = (packed >>> 16) * 2f / 65535;
+            return;
+        }
         float depth = axis == 0 ? x : axis == 1 ? y : z;
         // Forge shifts surface vertices half a block along their normal. Leave
         // inset and non-axis-aligned custom quads on its original interpolation.

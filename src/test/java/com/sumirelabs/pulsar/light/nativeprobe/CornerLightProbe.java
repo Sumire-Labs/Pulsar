@@ -75,6 +75,7 @@ public final class CornerLightProbe {
  }
  public static void main(String[] args)throws Exception {
   Bootstrap.register();test=Class.forName("com.sumirelabs.pulsar.light.SmoothLightOcclusionTest");view=Class.forName(test.getName()+"$Fixture");
+  if(Boolean.getBoolean("issue20.previous")) { PartialSurfaceProbe.run(true); return; }
   fixture=test.getDeclaredMethod("fixture",EnumFacing.class,int.class);fixture.setAccessible(true);
   render=test.getDeclaredMethod("render",view,EnumFacing.class);render.setAccessible(true);
   for(int renderer=0;renderer<3;renderer++) {
@@ -104,5 +105,6 @@ public final class CornerLightProbe {
    }
    System.out.println(name+"_MIXIN_PASS cases="+count+" baseline="+baseline);
   }
+  PartialSurfaceProbe.run(baseline);
  }
 }

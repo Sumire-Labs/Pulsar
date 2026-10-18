@@ -25,6 +25,9 @@
   "client": [
     "MixinBlockModelRendererLight",
     "MixinSmoothLightOcclusion",
+    "MixinPartialBlockModelLight",
+    "MixinCeleritasQuadLight",
+    "MixinCeleritasPartialFaceLight",
     "MixinForgeLightMatrix",
     "MixinForgeSmoothLight",
     "MixinCeleritasLightCache",

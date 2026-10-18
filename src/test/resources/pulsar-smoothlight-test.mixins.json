@@ -5,6 +5,9 @@
   "package": "com.sumirelabs.pulsar.mixin",
   "mixins": [
     "MixinSmoothLightOcclusion",
+    "MixinPartialBlockModelLight",
+    "MixinCeleritasQuadLight",
+    "MixinCeleritasPartialFaceLight",
     "MixinForgeLightMatrix",
     "MixinForgeSmoothLight",
     "MixinCeleritasLightCache",
