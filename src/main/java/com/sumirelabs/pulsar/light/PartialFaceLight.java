@@ -8,11 +8,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 
-/** Samples the empty side of an actual slab/stair surface, including inset faces. */
+/** Samples the exposed side of slab/stair surfaces and neighboring cube faces. */
 public final class PartialFaceLight {
     private static final double EPSILON = 0.0001;
     private static final ThreadLocal<PartialFaceLight> LOCAL = ThreadLocal.withInitial(PartialFaceLight::new);
     private final BlockPos.MutableBlockPos scratch = new BlockPos.MutableBlockPos();
+    private final BlockPos.MutableBlockPos neighbor = new BlockPos.MutableBlockPos();
     private final IBlockState[] states = new IBlockState[4];
     private final int[] positions = new int[12];
     private final int[] light = new int[4];
@@ -23,9 +24,18 @@ public final class PartialFaceLight {
         return !state.isFullCube() && (state.getBlock() instanceof BlockSlab || state.getBlock() instanceof BlockStairs);
     }
 
+    /** A cube face against a stair/slab is only partly visible and needs the same sampling. */
+    public static boolean applies(IBlockAccess world, IBlockState state, BlockPos pos, EnumFacing normal) {
+        if (applies(state)) return true;
+        if (!state.isOpaqueCube()) return false;
+        BlockPos.MutableBlockPos neighbor = LOCAL.get().neighbor;
+        neighbor.setPos(pos.getX() + normal.getXOffset(), pos.getY() + normal.getYOffset(), pos.getZ() + normal.getZOffset());
+        return applies(world.getBlockState(neighbor));
+    }
+
     public static int sample(IBlockAccess world, IBlockState rendered, BlockPos origin, EnumFacing normal,
                              float x, float y, float z, int original) {
-        if (!applies(rendered)) return original;
+        // Callers check applies once per face (or per Forge vertex).
         return LOCAL.get().sampleVertex(world, rendered, origin, normal, x, y, z, original);
     }
 
@@ -58,8 +68,8 @@ public final class PartialFaceLight {
                 if (su == ou && sv == ov) seeds |= 1 << node;
             }
         }
-        // Stair templates include faces hidden by another element of the same
-        // model. Their vertices still influence the exposed part of the quad.
+        // Vertices hidden by a stair/slab (including an adjacent block) still
+        // influence the visible part of the quad through interpolation.
         if (seeds == 0) return world.getCombinedLight(origin, rendered.getLightValue(world, origin));
         int reachable = seeds;
         for (int step = 0; step < 3; step++) {

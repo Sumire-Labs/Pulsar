@@ -32,7 +32,7 @@ public abstract class MixinCeleritasPartialFaceLight {
         if (pulsar$surfaceWorld == null || !(view instanceof BakedQuad quad)) return;
         pulsar$surfacePos.setPos(x, y, z);
         IBlockState state = pulsar$surfaceWorld.getBlockState(pulsar$surfacePos);
-        if (!PartialFaceLight.applies(state)) return;
+        if (!PartialFaceLight.applies(pulsar$surfaceWorld, state, pulsar$surfacePos, quad.getFace())) return;
         state = state.getActualState(pulsar$surfaceWorld, pulsar$surfacePos);
         int[] lights = ((MixinCeleritasQuadLight) output).pulsar$surfaceLight();
         int[] vertices = quad.getVertexData();

@@ -19,7 +19,7 @@ public abstract class MixinPartialBlockModelLight {
     private void pulsar$lightActualSurface(Args args, @Local(argsOnly = true) IBlockAccess world,
                                            @Local(argsOnly = true) IBlockState state,
                                            @Local(argsOnly = true) BlockPos pos, @Local BakedQuad quad) {
-        if (!PartialFaceLight.applies(state)) return;
+        if (!PartialFaceLight.applies(world, state, pos, quad.getFace())) return;
         int[] vertices = quad.getVertexData();
         int stride = quad.getFormat().getIntegerSize();
         for (int vertex = 0; vertex < 4; vertex++) {

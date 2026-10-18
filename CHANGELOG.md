@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Prevent skylight from brightening wall faces partly hidden by adjacent stairs
+  or slabs. Verify the reported sealed-room stair placement in the actual game
+  and the Vanilla, Forge and Celeritas lighting paths (issue #20).
 - Sample the exposed side of slab and stair model vertices, including inset treads
   and risers, in Vanilla, Forge and Celeritas. Verify all 42 vanilla model states
   through the real baked-quad lighting paths (issue #20).

@@ -18,18 +18,7 @@ class SmoothLightMixinTest {
     @TempDir Path directory;
 
     @Test void nativeRenderersExcludeHiddenLightAndRetainOpenGradients() throws Exception {
-        Path config = directory.resolve("mixins.jar");
-        try (var jar = new JarOutputStream(Files.newOutputStream(config))) {
-            for (String resource : List.of("pulsar-smoothlight-test.mixins.json", "pulsar-surface-celeritas-quads.mixins.json",
-                    "pulsar-previous-corners-test.mixins.json", "pulsar-previous-forge-test.mixins.json")) {
-                try (var source = getClass().getResourceAsStream("/" + resource)) {
-                    assertNotNull(source);
-                    jar.putNextEntry(new JarEntry(resource));
-                    source.transferTo(jar);
-                    jar.closeEntry();
-                }
-            }
-        }
+        Path config = configurations();
         String baseline = run(config, true, false);
         String previous = run(config, true, true);
         String candidate = run(config, false, false);
@@ -52,7 +41,37 @@ class SmoothLightMixinTest {
         }
     }
 
+    @Test void stairInCubeWallDoesNotBrightenTheAdjacentWallSides() throws Exception {
+        Path config = configurations();
+        String previous = run(config, false, false, true, true);
+        String candidate = run(config, false, false, true, false);
+        assertTrue(previous.contains("STAIR_WALL_PASS rooms=16 legacy=true"), previous);
+        assertTrue(candidate.contains("STAIR_WALL_PASS rooms=16 legacy=false"), candidate);
+        candidate.lines().filter(line -> line.startsWith("STAIR_WALL")).forEach(System.out::println);
+    }
+
+    private Path configurations() throws Exception {
+        Path config = directory.resolve("mixins.jar");
+        try (var jar = new JarOutputStream(Files.newOutputStream(config))) {
+            for (String resource : List.of("pulsar-smoothlight-test.mixins.json", "pulsar-surface-celeritas-quads.mixins.json",
+                    "pulsar-previous-corners-test.mixins.json", "pulsar-previous-forge-test.mixins.json",
+                    "pulsar-stair-wall-core.mixins.json", "pulsar-stair-wall-legacy.mixins.json")) {
+                try (var source = getClass().getResourceAsStream("/" + resource)) {
+                    assertNotNull(source);
+                    jar.putNextEntry(new JarEntry(resource));
+                    source.transferTo(jar);
+                    jar.closeEntry();
+                }
+            }
+        }
+        return config;
+    }
+
     private String run(Path config, boolean baseline, boolean previous) throws Exception {
+        return run(config, baseline, previous, false, false);
+    }
+
+    private String run(Path config, boolean baseline, boolean previous, boolean wall, boolean wallLegacy) throws Exception {
         String classpath = System.getProperty("pulsar.test.classpath");
         assertNotNull(classpath, "Run through Gradle test so the child gets the complete runtime classpath");
         String celeritas = System.getProperty("pulsar.test.celeritasClasspath", "");
@@ -61,6 +80,7 @@ class SmoothLightMixinTest {
                 Path.of(System.getProperty("java.home"), "bin", "java").toString(),
                 "-Dfoundation.loadsall=true", "-Dissue20.baseline=" + baseline,
                 "-Dissue20.previous=" + previous,
+                "-Dissue20.wall=" + wall, "-Dissue20.wallLegacy=" + wallLegacy,
                 "-Dissue20.celeritas=" + !celeritas.isEmpty()));
         // Windows Unix-domain sockets cannot connect through some DOS-short temp paths.
         command.add("-Djdk.net.unixdomain.tmpdir=" + directory.toAbsolutePath());
@@ -68,7 +88,8 @@ class SmoothLightMixinTest {
                 "top.outlands.foundation.boot.Foundation", "--gameDir", directory.toString(),
                 "--tweakClass", "com.sumirelabs.pulsar.light.nativeprobe.CornerLightTweaker",
                 "--tweakClass", "org.spongepowered.asm.launch.MixinTweaker"));
-        Path log = directory.resolve(previous ? "previous.log" : baseline ? "baseline.log" : "candidate.log");
+        Path log = directory.resolve(wall ? (wallLegacy ? "wall-previous.log" : "wall-candidate.log")
+                : previous ? "previous.log" : baseline ? "baseline.log" : "candidate.log");
         Process process = new ProcessBuilder(command).directory(directory.toFile())
                 .redirectErrorStream(true).redirectOutput(log.toFile()).start();
         if (!process.waitFor(60, TimeUnit.SECONDS)) {
