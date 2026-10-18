@@ -86,17 +86,6 @@ public final class RgbNetwork {
         };
         if (world.isCallingFromMinecraftThread()) action.run(); else world.addScheduledTask(action);
     }
-    @SubscribeEvent public void beforeServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.START || !com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) return;
-        var server = net.minecraftforge.fml.common.FMLCommonHandler.instance().getMinecraftServerInstance();
-        if (server == null || server.worlds == null) return;
-        // RGB tasks can outlive the previous world's tick tail. Retry before
-        // the next tick adds more work; scalar-only worlds retain their old path.
-        for (WorldServer world : server.worlds) if (world instanceof PulsarWorld pulsar) {
-            WorldLightManager manager = pulsar.pulsar$getLightManager();
-            if (manager != null) manager.processDeferredChunkUpdates();
-        }
-    }
     @SubscribeEvent public void tick(TickEvent.WorldTickEvent event) {
         if (event.phase != TickEvent.Phase.END || !(event.world instanceof WorldServer world)) return;
         Map<Long, Change> dirty = DIRTY.get(world);

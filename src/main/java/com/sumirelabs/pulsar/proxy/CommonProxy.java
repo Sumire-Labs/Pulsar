@@ -24,7 +24,10 @@ public class CommonProxy implements IProxy {
         if(server==null || server.worlds==null)return;
         for(final var world:server.worlds)if(world instanceof PulsarWorld pulsar) {
             final WorldLightManager manager=pulsar.pulsar$getLightManager();
-            if(manager!=null)manager.retryInitialChunkSends();
+            if(manager!=null) {
+                manager.retryInitialChunkSends();
+                manager.processDeferredChunkUpdates();
+            }
         }
     }
 

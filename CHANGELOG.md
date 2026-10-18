@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Retry completed deferred chunk updates before fresh server-tick work in both
+  SCALAR and RGB, preventing large edits from remaining unsent to clients.
 - Retry lighting-deferred initial chunk sends before fresh server-tick work,
   retaining readiness checks and cancelling stale or unloaded entries.
 - Handle RGB logout with absent or stale connections without removing live peers.

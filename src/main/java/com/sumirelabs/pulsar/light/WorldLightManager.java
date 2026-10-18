@@ -357,6 +357,8 @@ public final class WorldLightManager {
     /** PlayerChunkMap clears its changed-entry set after update(), so it cannot own retries. */
     public void processDeferredChunkUpdates() {
         if(!(this.world instanceof WorldServer serverWorld)) return;
+        if(this.deferredChunkWatches.isEmpty() && this.deferredChunkUpdates.size()==0
+                && this.deferredRelightRefreshes.size()==0) return;
         this.deferredChunkWatches.drain((entry, chunk) -> entry.getChunk() == chunk
                         && this.getLoadedChunk(chunk.x, chunk.z) == chunk
                         && serverWorld.getPlayerChunkMap().getEntry(chunk.x, chunk.z) == entry,
