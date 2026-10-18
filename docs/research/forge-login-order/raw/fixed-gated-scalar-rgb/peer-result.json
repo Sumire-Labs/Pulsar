@@ -1,0 +1,49 @@
+{
+  "valid": true,
+  "rgb_client_config": true,
+  "rgb_channel_active": false,
+  "expected_rgb": false,
+  "canonical_source": 15,
+  "canonical_authority": false,
+  "test_only_login_state_workaround": false,
+  "sample_tint": "ffffffff",
+  "rgb_buffer_fields": true,
+  "connection_attempts": 2,
+  "connected_remote": true,
+  "test_only_initial_send_retry": false,
+  "world_transitions": [
+    {
+      "phase": 0,
+      "dimension": 0,
+      "tint": "ffffffff",
+      "canonical_source": 15,
+      "canonical_authority": false,
+      "active": false
+    },
+    {
+      "phase": 1,
+      "dimension": -1,
+      "tint": "ffffffff",
+      "canonical_source": 15,
+      "canonical_authority": false,
+      "active": false
+    },
+    {
+      "phase": 2,
+      "dimension": 0,
+      "tint": "ffffffff",
+      "canonical_source": 15,
+      "canonical_authority": false,
+      "active": false
+    },
+    {
+      "phase": 3,
+      "dimension": 0,
+      "tint": "ffffffff",
+      "canonical_source": 15,
+      "canonical_authority": false,
+      "active": false
+    }
+  ],
+  "rejoin_new_connection": true
+}

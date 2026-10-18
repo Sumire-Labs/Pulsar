@@ -15,13 +15,17 @@ RGB_MAX projects the brightest component and requires compatible clients.
 SCALAR retains its engine classes and excludes RGB chunk/state/render fields.
 LGPL-3.0 is unchanged.
 
-Acceptance includes 260 unit tests, 43 native runs across recorded stages, four
+The original acceptance includes 260 unit tests, 43 native runs across recorded stages, four
 unassisted two-JVM mode combinations, config/cache transitions, current Cleanroom
 0.7.7 checks, CQR/Thaumcraft/Fluidlogged regressions, the initial 28-JVM experiment
 and the 16-JVM server retest after addressing the observed regression. Client
 measurements retain their original artifact attribution and bytecode proof.
 
-Custom GLSL, arbitrary replacement renderers and every third-party mod are
-separate integrations. The legacy Forge pre-negotiation login race is disclosed
-with failed attempts and ordinary retries; no transport patch is shipped.
+Versioned Demonica/Actinium shader support is documented in the
+[shader validation record](rgb-shaders/README.md). Arbitrary replacement
+renderers and other third-party integrations still require separate validation.
+The original acceptance retains failed Forge pre-negotiation login attempts;
+a subsequent [login-order correction](forge-login-order/README.md) orders the
+initial PLAY transition behind queued LOGIN writes. Historical evidence keeps
+its original artifact attribution.
 This record does not authorize a release or a merge into main.

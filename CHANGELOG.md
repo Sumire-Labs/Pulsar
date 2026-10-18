@@ -44,6 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Order Forge's initial PLAY transition after queued LOGIN packet writes,
+  preventing intermittent login-success encoding failures in RGB and SCALAR.
+
 - Retry completed deferred chunk updates before fresh server-tick work in both
   SCALAR and RGB, preventing large edits from remaining unsent to clients.
 - Retry lighting-deferred initial chunk sends before fresh server-tick work,

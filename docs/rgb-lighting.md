@@ -187,3 +187,17 @@ creates no RGB shader atlas. No GPL/AGPL loader implementation or shaderpack
 assets are distributed with Pulsar; the Pulsar license remains LGPL-3.0.
 
 See the [shader compatibility protocol and native evidence](research/rgb-shaders/README.md).
+
+
+## Forge login ordering
+
+A common fix, enabled in both RGB and SCALAR, orders Forge's initial server
+PLAY transition on the connection's Netty event loop. Previously, Forge could
+switch the protocol while `SPacketLoginSuccess` was still queued for encoding,
+causing an intermittent "Can't serialize unregistered packet" disconnect.
+
+Only that channel-state operation is ordered. Player/world initialization stays
+on its original thread, and packet IDs, encoding, authentication and compression
+are not rewritten. No waiting or retry loop is added to the production path.
+The old failed connections in the original RGB completion evidence predate this
+fix. See the [controlled reproduction and validation](research/forge-login-order/README.md).

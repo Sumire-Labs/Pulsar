@@ -1,0 +1,4 @@
+{
+  "Lnet/minecraft/network/NetworkManager;setConnectionState(Lnet/minecraft/network/EnumConnectionState;)V": "Lnet/minecraft/network/NetworkManager;func_150723_a(Lnet/minecraft/network/EnumConnectionState;)V",
+  "serverInitiateHandshake": "Lnet/minecraftforge/fml/common/network/handshake/NetworkDispatcher;serverInitiateHandshake()I"
+}

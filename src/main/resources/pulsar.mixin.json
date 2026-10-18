@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_25",
   "target": "@env(DEFAULT)",
   "mixins": [
+    "MixinForgeLoginProtocol",
     "MixinBlockFaceLight",
     "MixinBlockSlabFaceLight",
     "MixinBlockStairsFaceLight",

@@ -6,3 +6,8 @@
 /docs/research/rgb-shaders/**/*.json text eol=lf
 /docs/research/rgb-shaders/**/*.md text eol=lf
 /docs/research/rgb-shaders/SHA256SUMS text eol=lf
+
+/docs/research/forge-login-order/** -text
+/docs/research/forge-login-order/**/*.json text eol=lf
+/docs/research/forge-login-order/**/*.md text eol=lf
+/docs/research/forge-login-order/SHA256SUMS text eol=lf

@@ -112,6 +112,7 @@ dependencies {
         // by the 1.12.2 runtime; Unimined does not expose them on testRuntimeClasspath.
         testRuntimeOnly 'com.google.guava:guava:21.0'
         testRuntimeOnly 'it.unimi.dsi:fastutil:7.1.0'
+        testRuntimeOnly 'io.netty:netty-all:4.1.9.Final'
     }
 }
 
