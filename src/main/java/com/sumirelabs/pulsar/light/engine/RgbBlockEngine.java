@@ -10,23 +10,32 @@ import net.minecraft.world.chunk.Chunk;
 import java.util.*;
 import java.util.function.LongPredicate;
 
-/** Prototype RGB block lane: three existing BFS propagators plus independent gameplay light.
+/** Packed RGB block lane with selectable independent or RGB-maximum gameplay light.
  * All components execute under one scheduler reservation; snapshots publish only after all finish.
  */
 public final class RgbBlockEngine extends ScalarBlockEngine {
     private final Set<Chunk> touched = Collections.newSetFromMap(new IdentityHashMap<>());
     private LongPredicate publicationCurrent;
-    private final RgbChannelEngine[] channels = new RgbChannelEngine[3];
+    private int colorPositions, colorIncrease, colorDecrease;
+    public int colorPositions(){return colorPositions;}
+    public int colorIncrease(){return colorIncrease;}
+    public int colorDecrease(){return colorDecrease;}
+    private final PulsarEngine[] channels;
     public RgbBlockEngine(World world, WorldHeightContext height) {
         super(world, height);
-        for (int c = 0; c < 3; c++) channels[c] = new RgbChannelEngine(world, height, c, touched);
+        if (Boolean.parseBoolean(System.getProperty("pulsar.rgb.packed", "true"))) channels = new PulsarEngine[]{new RgbPackedBlockChannelEngine(world, height, touched)};
+        else {
+            channels = new PulsarEngine[3];
+            for (int c = 0; c < 3; c++) channels[c] = new RgbChannelEngine(world, height, c, touched);
+        }
     }
     public void processColors(ChunkTasks task) {
         touched.clear();
+        colorPositions=colorIncrease=colorDecrease=0;
         publicationCurrent = null;
         int x = CoordinateUtils.getChunkX(task.chunkCoordinate), z = CoordinateUtils.getChunkZ(task.chunkCoordinate);
         try {
-            for (RgbChannelEngine engine : channels) {
+            for (PulsarEngine engine : channels) {
                 if (task.loadInitChunk != null && task.initialLightChunk == null) {
                     engine.loadInChunk(task.loadInitChunk, task.loadInitEmptySections);
                     check(engine);
@@ -44,21 +53,30 @@ public final class RgbBlockEngine extends ScalarBlockEngine {
                 }
             }
         } catch (Throwable error) { touched.clear(); throw error; }
+        finally { finishPrivatePlanes(); }
     }
     public static final class QueueOverflow extends RuntimeException {}
-    private static void check(PulsarEngine engine) {
+    private void check(PulsarEngine engine) {
         if (engine.wasQueueOverflowed()) throw new QueueOverflow();
+        colorPositions+=engine.lastPositionsProcessed; colorIncrease+=engine.lastBfsIncreaseTotal; colorDecrease+=engine.lastBfsDecreaseTotal;
+        engine.lastPositionsProcessed=engine.lastBfsIncreaseTotal=engine.lastBfsDecreaseTotal=0;
     }
     public void relightColors(Map<Long, Chunk> targets, Map<Long, Chunk> available, LongPredicate current) {
         touched.clear();
+        colorPositions=colorIncrease=colorDecrease=0;
         publicationCurrent = current;
         try {
-            for (RgbChannelEngine engine : channels) {
+            for (PulsarEngine engine : channels) {
                 engine.relightChunks(targets, available, current);
                 check(engine);
             }
         } catch (Throwable error) { touched.clear(); throw error; }
+        finally { finishPrivatePlanes(); }
     }
+    private void finishPrivatePlanes() {
+        for (PulsarEngine engine : channels) if (engine instanceof PackedRgbOwner packed) packed.finishRgbTask();
+    }
+    public boolean requiresScalarLighting(){return !RgbSettings.projectsGameplayLight();}
     public void publishColors() {
         try { publish(); } finally { touched.clear(); publicationCurrent = null; }
     }
@@ -76,11 +94,15 @@ public final class RgbBlockEngine extends ScalarBlockEngine {
             if (((ExtendedWorld) world).pulsar$getAnyChunkImmediately(chunk.x, chunk.z) != chunk) continue;
             RgbChunk rgb = (RgbChunk) chunk;
             RgbSnapshot previous = rgb.pulsar$getRgbSnapshot();
-            RgbSnapshot next = rgb.pulsar$getRgbStorage().snapshot(previous == null ? 1 : previous.revision + 1,
+            RgbStorage storage = rgb.pulsar$getRgbStorage();
+            RgbSnapshot next = RgbSettings.projectsGameplayLight()
+                    ? storage.maximumSnapshot(previous == null ? 1 : previous.revision + 1, false, previous)
+                    : storage.snapshot(previous == null ? 1 : previous.revision + 1,
                     ((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$getBlockNibbles(), previous);
+            if (RgbSettings.projectsGameplayLight()) RgbCanonicalLight.install(chunk, next, false, storage.empty[0], heightContext);
             if (previous == null || !previous.sameLightData(next)) {
                 rgb.pulsar$setRgbSnapshot(next);
-                RgbNetwork.changed(chunk);
+                RgbNetwork.changed(chunk, previous == null || !previous.sameCanonical(next));
             }
         }
     }

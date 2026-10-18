@@ -9,34 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Reuse chunk views within RGB color sampling, reducing repeated map lookups
-  without retaining stale views between samples.
-- Extend experimental RGB lighting to entities, regular/Fast TESRs, particles
-  and held items in Vanilla/Forge and Celeritas, preserving material alpha and
-  full-bright effects and restoring render state after exceptions.
-- Retain RGB-aware vertex batches without adding renderer hooks to SCALAR mode.
-- Cache frozen RGB chromaticity and filter metadata per block state in RGB mode;
-  contextual brightness and face/fluid absorption remain resolved as before.
-- Avoid unused RGB emission calculations, opaque-face filter lookups and
-  duplicate block-state reads in colored skylight columns.
-- Skip separate RGB sky propagation in verified filter-free neighborhoods,
-  lazily materialize color storage and share immutable white-sky payloads.
-- Add experimental RGB skylight with independent scalar gameplay skylight,
-  colored transmission, per-lane synchronization and persistent sky caches.
-- Share saturated immutable light planes and encode full planes without nibble
-  payloads; RGB protocol and cache formats are now version 2.
-- Add RGB block-light filters for stained glass and panes, with a static
-  per-state absorption API and independent scalar gameplay brightness.
-- Reuse unchanged immutable RGB snapshot sections to reduce publication
-  allocation, and synchronize canonical-only changes across filtered regions.
-- Add an opt-in RGB block-light prototype with independent scalar gameplay
-  lighting, shared-pool scheduling, persistent color caches and server-authoritative
-  RGB/canonical block-light synchronization.
-- Add static per-state color registration and Vanilla/Forge/Celeritas terrain
-  rendering. `lightingMode=SCALAR` remains the default; switching modes requires
-  a restart. RGB extensions are excluded from SCALAR chunk and renderer classes.
-- Document native correctness checks and the SCALAR performance comparison in
-  `docs/research/rgb-block-prototype.md`.
+- Add server-authoritative RGB block and sky lighting with packed propagation,
+  per-component filters, immutable snapshots and persistent color caches.
+- Color terrain, fluids, entities, normal/Fast TESRs, particles and held items in
+  Vanilla/Forge and Celeritas, preserving alpha, full-bright effects and render state.
+- Add static and positional RGB emission/transmittance APIs. Sample positional
+  callbacks on the world thread, including color-only changes each tick.
+- Add validated state/property and legacy metadata overrides in
+  `pulsar-colors.cfg` and `pulsar-filters.cfg`, with cache-profile invalidation.
+- Add SuperNova's additive, squared-weight, linear-weight, OkLab and vivid blends
+  with runtime terrain refresh; retain LEGACY for the earlier appearance.
+- Add RGB_MAX gameplay light derived from the brightest color component and an
+  independent VANILLA option. Compatible SCALAR clients receive authoritative
+  canonical light without RGB render buffers.
+- Retain SCALAR without RGB chunk/state/buffer fields or renderer hooks.
+
+### Changed
+
+- Default new or regenerated configurations to RGB, squared-weight blending and
+  RGB_MAX gameplay light. Retain valid explicit SCALAR configurations. Engine
+  and gameplay policy changes require a restart.
+- Share RGB queues and reuse bounded worker scratch, frozen state metadata,
+  immutable snapshot sections and sampler chunk views.
+- Skip redundant RGB sky work in verified filter-free neighborhoods, preserving
+  contextual, sided and Fluidlogged behavior.
+- RGB_MAX servers require compatible Pulsar clients; unsupported clients receive
+  an explanatory disconnect after a capability-handshake grace period. SCALAR
+  servers retain ordinary client compatibility.
 
 ### Fixed
 

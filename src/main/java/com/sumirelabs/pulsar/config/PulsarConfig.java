@@ -23,12 +23,28 @@ import java.io.IOException;
 @Config(modid = Reference.MOD_ID, name = "pulsar")
 public class PulsarConfig {
     public enum LightingMode { SCALAR, RGB }
-    @Config.Comment({"Experimental RGB block and sky light. SCALAR preserves the original engine and memory layout.",
-            "RGB adds server-authoritative color; gameplay block and sky brightness remain scalar.",
+    @Config.Comment({"RGB block and sky light. SCALAR preserves the original engine and memory layout.",
+            "RGB adds server-authoritative color; rgbGameplayLight selects gameplay brightness behavior.",
             "Requires Pulsar on both sides for color. Restart Minecraft and the server to apply.",
-            "SCALAR remains the default while this RGB prototype is being validated."})
+            "RGB is the default; existing explicit SCALAR settings are retained."})
     @Config.RequiresMcRestart
-    public static LightingMode lightingMode = LightingMode.SCALAR;
+    public static LightingMode lightingMode = LightingMode.RGB;
+
+    @Config.Comment({"Client RGB blend: ADDITIVE, SQUARED_WEIGHT, LINEAR_WEIGHT, OKLAB or VIVID.",
+            "LEGACY retains the original prototype appearance for comparisons.",
+            "Applies in-game without a restart; existing terrain is rebuilt when the mode changes.",
+            "Ignored in SCALAR mode. This client blend setting does not change gameplay brightness."})
+    public static volatile com.sumirelabs.pulsar.rgb.RgbTintBlendMode rgbBlendMode =
+            com.sumirelabs.pulsar.rgb.RgbTintBlendMode.SQUARED_WEIGHT;
+
+    @Config.Comment({"Server RGB gameplay brightness policy; ignored in SCALAR mode.",
+            "RGB_MAX derives block/sky brightness from the brightest RGB component, like SuperNova.",
+            "It avoids an additional scalar propagation pass; color absorption also affects spawning.",
+            "VANILLA keeps a separate scalar propagation pass to retain the existing gameplay brightness.",
+            "RGB_MAX requires compatible Pulsar clients for authoritative lighting. Restart to apply."})
+    @Config.RequiresMcRestart
+    public static com.sumirelabs.pulsar.rgb.RgbSettings.GameplayLight rgbGameplayLight =
+            com.sumirelabs.pulsar.rgb.RgbSettings.GameplayLight.RGB_MAX;
 
 
     @Config.Ignore

@@ -231,7 +231,7 @@ final class RgbSkyColumnProcessor {
             // the preceding 15-valued seed hands propagation to normal BFS.
             // Seeding weakened values here disagreed with BFS through water
             // and could copy non-15 sky unchanged through empty sections.
-            if (engine.filtersDirectSky(currentState)
+            if (engine.filtersDirectSky(currentState, worldX, startY, worldZ)
                     || !LightAttenuation.canExtrudeDirectSky(currentSky,
                     LightInfo.opacity(aboveInfo), LightInfo.opacity(currentInfo))) {
                 break;

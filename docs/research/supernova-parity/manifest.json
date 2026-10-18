@@ -1,0 +1,17 @@
+{
+  "algorithm": "SHA-256",
+  "files": {
+    "initial-performance.json": "0944c4f3f2c9af2622c9b0af30a7f3e0c9f001addd6d28e4e9bf4bf8ee9eef8d",
+    "initial-source-freeze.json": "113bbbcc7c13a3ef3c51d540a03eb5f45b59e55f22c797dde2eda7dc68e72a54",
+    "native-evidence.zip": "68489e690557983862b8ed6e882368f37c01a94a1a528ef1f81f930aad3d6216",
+    "performance-raw.zip": "cd53dc03a2267ff0596cab96dd90a63bb6801c8bd10691c361699036fcf2f4b5",
+    "performance.json": "ae4fbac322a5a745005109b22c1ec1651a8382af6359dbc8f1ae02716ae35ee3",
+    "profile.json": "09270c922dc522b9312b55682704872ee81c50ce218ffcad03a35e8ff6c43eff",
+    "protocol.json": "9f97e03c5fd0d3dc1260826f94a0632ffeb21197c8ceeab96dfd3249de3bb0bd",
+    "README.md": "ff2bace8099ad87f0beacbc206126bca60c7bb6ca8376ca806565c6fab18e01c",
+    "renderer-bytecode-proof.json": "8e1214ce2b1a9895a0553ba9675e3a34fbaa23ed327784a0ac778f4ca09a088b",
+    "server-performance.png": "9a0c5ff39f81f976efaeedef4400d4fe7cd87ca50898278605e11f15fed2ca9a",
+    "source-freeze.json": "78c91f6b4af16546a653ec71ada5ee9f522ad698f7a975d0e781d1fc6a742710",
+    "validation.json": "47f8f2d51d76dfc837d9e2f85f77f9d465c13cf67848d96982a007b1d54c7ed3"
+  }
+}

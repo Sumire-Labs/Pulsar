@@ -41,8 +41,9 @@ public final class RgbClient {
             RgbNetwork.requestColors();
         }
         float nextSky = Math.max(0, 15 - world.getSkylightSubtracted()) / 15f;
-        if (skyScale != nextSky) {
+        if (skyScale != nextSky || RgbTintBlendMode.current != PulsarConfig.rgbBlendMode) {
             skyScale = nextSky;
+            RgbTintBlendMode.current = PulsarConfig.rgbBlendMode;
             var height = WorldUtil.getHeightContext(world);
             for (View view : VIEWS.values()) world.markBlockRangeForRenderUpdate(view.chunk.x << 4, height.getMinBlockY(), view.chunk.z << 4,
                     (view.chunk.x << 4) + 15, height.getMaxBlockY(), (view.chunk.z << 4) + 15);
@@ -175,7 +176,7 @@ public final class RgbClient {
             }
         }
         if (!found) return color;
-        return modulateSky(color, r, g, b, canonical, sr, sg, sb, sky, skyScale);
+        return RgbTintBlendMode.current.tintAbgr(color, r, g, b, canonical, sr, sg, sb, sky, skyScale);
     }
     public static int modulate(int color, int r, int g, int b, float sky) {
         return modulate(color, r, g, b, sky, Math.max(r, Math.max(g, b)));

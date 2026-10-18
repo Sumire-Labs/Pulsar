@@ -31,6 +31,7 @@ public class Pulsar {
     public void preInit(FMLPreInitializationEvent event) {
         LOGGER.info("{} {} preInit - loading config", Reference.MOD_NAME, Reference.VERSION);
         PulsarConfig.initialize();
+        com.sumirelabs.pulsar.rgb.RgbSettings.initialize();
         LOGGER.info(
                 "{} config: enabled={}, sendChunksWithoutLight={}, debugStats={}",
                 Reference.MOD_NAME,
@@ -38,6 +39,7 @@ public class Pulsar {
                 PulsarConfig.features.sendChunksWithoutLight,
                 PulsarConfig.debug.enableDebugStats);
         com.sumirelabs.pulsar.rgb.RgbNetwork.initialize();
+        com.sumirelabs.pulsar.rgb.CanonicalLightNetwork.initialize();
         proxy.preInit(event);
     }
 
@@ -63,6 +65,13 @@ public class Pulsar {
 
     @Mod.EventHandler
     public void loadComplete(net.minecraftforge.fml.common.event.FMLLoadCompleteEvent event) {
+        if (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {
+            com.sumirelabs.pulsar.api.BlockLightColors.interfaceDefaults();
+            com.sumirelabs.pulsar.api.BlockLightFilters.interfaceDefaults();
+            var home = net.minecraft.launchwrapper.Launch.minecraftHome;
+            com.sumirelabs.pulsar.config.RgbPaletteConfig.load(
+                    (home == null ? java.nio.file.Path.of(".") : home.toPath()).resolve("config"));
+        }
         com.sumirelabs.pulsar.api.BlockLightColors.freeze();
     }
 

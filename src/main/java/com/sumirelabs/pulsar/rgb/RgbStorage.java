@@ -16,6 +16,18 @@ public final class RgbStorage {
         }
     }
     public RgbSnapshot snapshot(long revision) { return snapshot(revision, null); }
+    public RgbSnapshot maximumSnapshot(long revision, boolean sky, RgbSnapshot previous) {
+        byte[][][] data = new byte[3][channels[0].length][];
+        for (int c = 0; c < 3; c++) {
+            if (sky) data[c] = resolveSky(channels[c]);
+            else for (int s = 0; s < data[c].length; s++) {
+                SWMRNibbleArray nibble = channels[c][s];
+                byte[] bytes = nibble == null ? null : nibble.getVisibleData();
+                if (bytes != null) for (byte value : bytes) if (value != 0) { data[c][s] = bytes; break; }
+            }
+        }
+        return RgbSnapshot.captureMax(minSection, revision, data, previous);
+    }
     public static RgbSnapshot whiteSkySnapshot(int minSection, long revision, SWMRNibbleArray[] canonical, RgbSnapshot previous) {
         byte[][] scalar = resolveSky(canonical);
         return RgbSnapshot.capture(minSection, revision, new byte[][][]{scalar, scalar, scalar}, scalar, previous);

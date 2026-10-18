@@ -41,11 +41,17 @@ final class RgbSkyChannelEngine extends PulsarEngine {
         }
         return storage;
     }
-    private int absorption(int info, IBlockState state, int direction) {
-        return com.sumirelabs.pulsar.api.BlockLightFilters.absorption(state, channel, LightInfo.absorption(info, state, direction));
+    private int absorption(int info, IBlockState state, int direction, int x, int y, int z) {
+        int scalar = LightInfo.absorption(info, state, direction);
+        if (scalar >= 15) return scalar;
+        return com.sumirelabs.pulsar.rgb.RgbLightAccess.absorption(world, state, colorFluid(x, y, z), x, y, z, channel, scalar);
     }
-    boolean filtersDirectSky(IBlockState state) {
-        return com.sumirelabs.pulsar.api.BlockLightFilters.absorption(state, channel, 0) != 0;
+    boolean filtersDirectSky(IBlockState state, int x, int y, int z) {
+        return com.sumirelabs.pulsar.rgb.RgbLightAccess.absorption(world, state, colorFluid(x, y, z), x, y, z, channel, 0) != 0;
+    }
+    private IBlockState colorFluid(int x, int y, int z) {
+        return com.sumirelabs.pulsar.compat.FluidLightBridge.rgbState(
+                this.fluidCapCache[(x >> 4) + 5 * (z >> 4) + this.chunkIndexOffset], x, y, z);
     }
 
     @Override
@@ -180,7 +186,7 @@ final class RgbSkyChannelEngine extends PulsarEngine {
 
             final int neighbourLevel = this.getLightLevel(sectionIndex, localIndex);
 
-            final int absorption = absorption(info, state, direction.ordinal());
+            final int absorption = absorption(info, state, direction.ordinal(), worldX, worldY, worldZ);
             final int attenuated = neighbourLevel - absorption;
             if (attenuated > level) {
                 level = attenuated;
@@ -349,7 +355,7 @@ final class RgbSkyChannelEngine extends PulsarEngine {
                 final IBlockState destState = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
                 final boolean air = this.isPlainAir(destState, sectionIndex);
                 final int destInfo = air ? 0 : this.lightInfoAt(destState, offX, offY, offZ);
-                final int absorption = air ? 1 : absorption(destInfo, destState, propagate.oppositeOrdinal);
+                final int absorption = air ? 1 : absorption(destInfo, destState, propagate.oppositeOrdinal, offX, offY, offZ);
 
                 final int targetLevel = propagatedLevel - absorption;
                 if (targetLevel <= currentLevel) {
@@ -456,7 +462,7 @@ final class RgbSkyChannelEngine extends PulsarEngine {
                 final IBlockState state = this.getBlockStateFast(sectionIndex, offX & 15, offY & 15, offZ & 15);
                 final boolean air = this.isPlainAir(state, sectionIndex);
                 final int info = air ? 0 : this.lightInfoAt(state, offX, offY, offZ);
-                final int absorption = air ? 1 : absorption(info, state, propagate.oppositeOrdinal);
+                final int absorption = air ? 1 : absorption(info, state, propagate.oppositeOrdinal, offX, offY, offZ);
 
                 final int targetLevel = propagatedLevel - absorption;
                 final long sFlag = sidedFlag(info);

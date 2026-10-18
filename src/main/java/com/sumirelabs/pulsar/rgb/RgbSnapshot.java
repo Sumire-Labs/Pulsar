@@ -9,13 +9,18 @@ public final class RgbSnapshot {
     public final long revision;
     private final byte[][][] data;
     private final byte[][] canonical;
+    private final boolean maxProjection;
     public RgbSnapshot(int minSection, long revision, byte[][][] data) {
-        this(minSection, revision, data, project(data));
+        this(minSection, revision, data, project(data), true, true);
     }
     public RgbSnapshot(int minSection, long revision, byte[][][] data, byte[][] canonical) {
         this(minSection, revision, data, canonical, true);
     }
     private RgbSnapshot(int minSection, long revision, byte[][][] data, byte[][] canonical, boolean copy) {
+        this(minSection, revision, data, canonical, copy, false);
+    }
+    private RgbSnapshot(int minSection, long revision, byte[][][] data, byte[][] canonical, boolean copy, boolean maxProjection) {
+        this.maxProjection = maxProjection;
         if (data.length != 3 || data[0].length != data[1].length || data[0].length != data[2].length
                 || data[0].length > 4098) throw new IllegalArgumentException("Invalid RGB section count");
         this.minSection = minSection;
@@ -46,6 +51,40 @@ public final class RgbSnapshot {
                     : retain(live[c][s], compatible ? previous.data[c][s] : null);
         }
         return new RgbSnapshot(minSection, revision, owned, canonical, false);
+    }
+    /** Build canonical light from RGB, without another propagation pass. Retain only owned immutable bytes. */
+    static RgbSnapshot captureMax(int minSection, long revision, byte[][][] live, RgbSnapshot previous) {
+        int count = live[0].length;
+        boolean compatible = previous != null && previous.minSection == minSection && previous.sectionCount() == count;
+        byte[][][] owned = new byte[3][count][];
+        byte[][] canonical = new byte[count][];
+        for (int s = 0; s < count; s++) {
+            boolean unchanged = compatible && previous.maxProjection;
+            for (int c = 0; c < 3; c++) {
+                owned[c][s] = compatible && java.util.Arrays.equals(live[c][s], previous.canonical[s])
+                        ? previous.canonical[s] : retain(live[c][s], compatible ? previous.data[c][s] : null);
+                unchanged &= compatible && owned[c][s] == previous.data[c][s];
+            }
+            if (unchanged) canonical[s] = previous.canonical[s];
+            else {
+                byte[] r = owned[0][s], g = owned[1][s], b = owned[2][s];
+                if (r == FULL || g == FULL || b == FULL) canonical[s] = FULL;
+                else if (r == g && g == b) canonical[s] = r;
+                else if (g == null && b == null) canonical[s] = r;
+                else if (r == null && b == null) canonical[s] = g;
+                else if (r == null && g == null) canonical[s] = b;
+                else {
+                    byte[] projected = new byte[2048];
+                    for (int i = 0; i < projected.length; i++) {
+                        int rv = r == null ? 0 : r[i] & 255, gv = g == null ? 0 : g[i] & 255, bv = b == null ? 0 : b[i] & 255;
+                        projected[i] = (byte)(Math.max(rv & 15, Math.max(gv & 15, bv & 15))
+                                | Math.max(rv & 240, Math.max(gv & 240, bv & 240)));
+                    }
+                    canonical[s] = retain(projected, compatible ? previous.canonical[s] : null);
+                }
+            }
+        }
+        return new RgbSnapshot(minSection, revision, owned, canonical, false, true);
     }
     private static byte[] retain(byte[] live, byte[] previous) {
         if (java.util.Arrays.equals(live, previous)) return previous;
@@ -107,6 +146,9 @@ public final class RgbSnapshot {
     public boolean sameLightData(RgbSnapshot other) {
         return minSection == other.minSection && java.util.Arrays.deepEquals(data, other.data)
                 && java.util.Arrays.deepEquals(canonical, other.canonical);
+    }
+    public boolean sameCanonical(RgbSnapshot other) {
+        return other != null && minSection == other.minSection && java.util.Arrays.deepEquals(canonical, other.canonical);
     }
     public int sectionCount() { return data[0].length; }
     public byte[] section(int c, int s) { return data[c][s] == null ? null : data[c][s].clone(); }

@@ -32,19 +32,24 @@ public abstract class MixinRgbFilterPalette implements RgbFilterPalette {
     }
     public void pulsar$invalidateSkyFilterCache() { pulsar$filterCache = null; }
     public boolean pulsar$mayFilterSky() {
-        if (((Object)this).getClass() != BlockStateContainer.class) return true;
+        return (pulsar$rgbPaletteFlags() & RgbFilterPaletteChecks.FILTER) != 0;
+    }
+    public boolean pulsar$mayEmitAbsoluteRgb() { return (pulsar$rgbPaletteFlags() & RgbFilterPaletteChecks.ABSOLUTE_EMISSION) != 0; }
+    public boolean pulsar$mayHaveDynamicRgb() { return (pulsar$rgbPaletteFlags() & RgbFilterPaletteChecks.DYNAMIC) != 0; }
+    @Unique private int pulsar$rgbPaletteFlags() {
+        if (((Object)this).getClass() != BlockStateContainer.class) return RgbFilterPaletteChecks.ALL;
         long revision = pulsar$filterRevision;
-        if ((revision & 1) != 0) return true;
+        if ((revision & 1) != 0) return RgbFilterPaletteChecks.ALL;
         IBlockStatePalette palette = this.palette;
         BitArray storage = this.storage;
         Cache cached = pulsar$filterCache;
         if (cached != null && cached.revision() == revision && cached.palette() == palette && cached.storage() == storage)
-            return pulsar$filterRevision == revision ? cached.filtered() : true;
-        boolean filtered;
-        try { filtered = RgbFilterPaletteChecks.hasFilters(palette, storage); }
-        catch (IndexOutOfBoundsException resizing) { return true; }
-        if (pulsar$filterRevision != revision) return true;
-        pulsar$filterCache = new Cache(revision, palette, storage, filtered);
-        return filtered;
+            return pulsar$filterRevision == revision ? cached.flags() : RgbFilterPaletteChecks.ALL;
+        int flags;
+        try { flags = RgbFilterPaletteChecks.flags(palette, storage); }
+        catch (IndexOutOfBoundsException resizing) { return RgbFilterPaletteChecks.ALL; }
+        if (pulsar$filterRevision != revision) return RgbFilterPaletteChecks.ALL;
+        pulsar$filterCache = new Cache(revision, palette, storage, flags);
+        return flags;
     }
 }

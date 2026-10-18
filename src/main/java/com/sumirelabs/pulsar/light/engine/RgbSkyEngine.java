@@ -10,13 +10,17 @@ import net.minecraft.world.chunk.Chunk;
 import java.util.*;
 import java.util.function.LongPredicate;
 
-/** Prototype RGB sky lane: three existing BFS propagators plus independent gameplay skylight.
+/** Packed RGB sky lane with a filter-free white shortcut and selectable gameplay light.
  * All components execute under one scheduler reservation; snapshots publish only after all finish.
  */
 public final class RgbSkyEngine extends ScalarSkyEngine {
     private final Set<Chunk> touched = Collections.newSetFromMap(new IdentityHashMap<>());
     private LongPredicate publicationCurrent;
-    private RgbSkyChannelEngine[] channels;
+    private int colorPositions, colorIncrease, colorDecrease;
+    public int colorPositions(){return colorPositions;}
+    public int colorIncrease(){return colorIncrease;}
+    public int colorDecrease(){return colorDecrease;}
+    private PulsarEngine[] channels;
     private boolean white;
     private int whiteX, whiteZ;
     private final RgbSkyWhiteRegion.Lookup filterLookup = this::hasFilters;
@@ -25,8 +29,11 @@ public final class RgbSkyEngine extends ScalarSkyEngine {
     }
     private void ensureChannels() {
         if (channels == null) {
-            channels = new RgbSkyChannelEngine[3];
-            for (int c = 0; c < 3; c++) channels[c] = new RgbSkyChannelEngine(world, heightContext, c, touched);
+            if (Boolean.parseBoolean(System.getProperty("pulsar.rgb.packed", "true"))) channels = new PulsarEngine[]{new RgbPackedSkyChannelEngine(world, heightContext, touched)};
+            else {
+                channels = new PulsarEngine[3];
+                for (int c = 0; c < 3; c++) channels[c] = new RgbSkyChannelEngine(world, heightContext, c, touched);
+            }
         }
     }
     private boolean hasFilters(int x, int z) {
@@ -40,6 +47,7 @@ public final class RgbSkyEngine extends ScalarSkyEngine {
     }
     public void processColors(ChunkTasks task) {
         touched.clear();
+        colorPositions=colorIncrease=colorDecrease=0;
         publicationCurrent = null;
         int x = CoordinateUtils.getChunkX(task.chunkCoordinate), z = CoordinateUtils.getChunkZ(task.chunkCoordinate);
         if (task.initialLightChunk != null || task.loadInitChunk != null || task.changedSectionSet != null
@@ -63,7 +71,7 @@ public final class RgbSkyEngine extends ScalarSkyEngine {
         }
         ensureChannels();
         try {
-            for (RgbSkyChannelEngine engine : channels) {
+            for (PulsarEngine engine : channels) {
                 if (task.loadInitChunk != null && task.initialLightChunk == null) {
                     engine.loadInChunk(task.loadInitChunk, task.loadInitEmptySections);
                     check(engine);
@@ -81,23 +89,32 @@ public final class RgbSkyEngine extends ScalarSkyEngine {
                 }
             }
         } catch (Throwable error) { touched.clear(); throw error; }
+        finally { finishPrivatePlanes(); }
     }
     public static final class QueueOverflow extends RuntimeException {}
-    private static void check(PulsarEngine engine) {
+    private void check(PulsarEngine engine) {
         if (engine.wasQueueOverflowed()) throw new QueueOverflow();
+        colorPositions+=engine.lastPositionsProcessed; colorIncrease+=engine.lastBfsIncreaseTotal; colorDecrease+=engine.lastBfsDecreaseTotal;
+        engine.lastPositionsProcessed=engine.lastBfsIncreaseTotal=engine.lastBfsDecreaseTotal=0;
     }
     public void relightColors(Map<Long, Chunk> targets, Map<Long, Chunk> available, LongPredicate current) {
         touched.clear();
+        colorPositions=colorIncrease=colorDecrease=0;
         publicationCurrent = current;
         white = false;
         ensureChannels();
         try {
-            for (RgbSkyChannelEngine engine : channels) {
+            for (PulsarEngine engine : channels) {
                 engine.relightChunks(targets, available, current);
                 check(engine);
             }
         } catch (Throwable error) { touched.clear(); throw error; }
+        finally { finishPrivatePlanes(); }
     }
+    private void finishPrivatePlanes() {
+        for (PulsarEngine engine : channels) if (engine instanceof PackedRgbOwner packed) packed.finishRgbTask();
+    }
+    public boolean requiresScalarLighting(){return !RgbSettings.projectsGameplayLight() || white;}
     public void publishColors() {
         try { publish(); } finally { touched.clear(); publicationCurrent = null; }
     }
@@ -134,11 +151,13 @@ public final class RgbSkyEngine extends ScalarSkyEngine {
                             ((com.sumirelabs.pulsar.light.PulsarChunk)chunk).pulsar$getSkyEmptinessMap());
                     rgb.pulsar$setRgbSkyStorage(storage);
                 }
-                next = storage.skySnapshot(heightContext, revision, canonical, previous);
+                next = RgbSettings.projectsGameplayLight() ? storage.maximumSnapshot(revision, true, previous)
+                        : storage.skySnapshot(heightContext, revision, canonical, previous);
+                if (RgbSettings.projectsGameplayLight()) RgbCanonicalLight.install(chunk, next, true, storage.empty[0], heightContext);
             }
             if (previous == null || !previous.sameLightData(next)) {
                 rgb.pulsar$setRgbSkySnapshot(next);
-                RgbNetwork.changed(chunk);
+                RgbNetwork.changed(chunk, previous == null || !previous.sameCanonical(next));
             }
         }
     }

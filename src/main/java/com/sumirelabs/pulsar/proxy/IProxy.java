@@ -9,6 +9,8 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 public interface IProxy {
     default void receiveRgb(com.sumirelabs.pulsar.rgb.RgbPacket packet, Object connection) {}
+    default void receiveCanonicalAuthority(boolean enabled, Object connection) {}
+    default boolean authoritativeClientLight(World world) { return false; }
 
     default void preInit(FMLPreInitializationEvent event) {
     }

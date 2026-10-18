@@ -23,6 +23,7 @@ final class RgbChannelEngine extends PulsarEngine {
 
     private final int channel;
     private final Set<Chunk> touched;
+    private final net.minecraft.util.math.BlockPos.MutableBlockPos rgbSamplePos = new net.minecraft.util.math.BlockPos.MutableBlockPos();
     RgbChannelEngine(final World world, final WorldHeightContext heightContext, int channel, Set<Chunk> touched) {
         super(false, world, heightContext);
         this.channel = channel;
@@ -39,11 +40,16 @@ final class RgbChannelEngine extends PulsarEngine {
     }
     private int rgbInfoAt(IBlockState state, int x, int y, int z) {
         int info = super.lightInfoAt(state, x, y, z);
-        int emission = BlockLightColors.emission(state, LightInfo.emission(info), channel);
+        int emission = RgbLightAccess.emission(world, state, colorFluid(x, y, z), x, y, z, channel, rgbSamplePos);
         return info & ~(15 << LightInfo.EMISSION_SHIFT) | emission << LightInfo.EMISSION_SHIFT;
     }
-    private int absorption(int info, IBlockState state, int direction) {
-        return BlockLightFilters.absorption(state, channel, LightInfo.absorption(info, state, direction));
+    private int absorption(int info, IBlockState state, int direction, int x, int y, int z) {
+        int scalar = LightInfo.absorption(info, state, direction);
+        if (scalar >= 15) return scalar;
+        return RgbLightAccess.absorption(world, state, colorFluid(x, y, z), x, y, z, channel, scalar);
+    }
+    private IBlockState colorFluid(int x, int y, int z) {
+        return FluidLightBridge.rgbState(this.fluidCapCache[(x >> 4) + 5 * (z >> 4) + this.chunkIndexOffset], x, y, z);
     }
 
     @Override
@@ -152,7 +158,7 @@ final class RgbChannelEngine extends PulsarEngine {
 
             final int neighbourLevel = this.getLightLevel(sectionIndex, localIndex);
 
-            final int absorption = absorption(info, state, direction.ordinal());
+            final int absorption = absorption(info, state, direction.ordinal(), worldX, worldY, worldZ);
             final int attenuated = neighbourLevel - absorption;
             if (attenuated > level) {
                 level = attenuated;
@@ -205,13 +211,14 @@ final class RgbChannelEngine extends PulsarEngine {
             final int storageIndex = this.heightContext.getStorageIndex(sectionY);
             final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < sections.length
                     ? sections[storageIndex] : null;
-            if (section == null || section.isEmpty()) {
+            boolean absolute = section != null && (!(section.getData() instanceof RgbFilterPalette palette) || palette.pulsar$mayEmitAbsoluteRgb());
+            if (section == null || section.isEmpty() && !absolute) {
                 continue;
             }
             // Local palettes can rule out all emitters with a bounded state scan.
             // Unknown containers and Fluidlogged remain on the full cell scan.
             final Object blockData = section.getData();
-            if (!mayHaveFluidStates && blockData instanceof ContextualLightPalette
+            if (!mayHaveFluidStates && !absolute && blockData instanceof ContextualLightPalette
                     && ((((ContextualLightPalette) blockData).pulsar$lightPaletteFlags()
                     & ContextualLightPalette.MAY_EMIT) == 0)) {
                 continue;
@@ -344,7 +351,7 @@ final class RgbChannelEngine extends PulsarEngine {
                     continue;
                 }
                 final int destInfo = this.rgbInfoAt(destState, offX, offY, offZ);
-                final int absorption = absorption(destInfo, destState, propagate.oppositeOrdinal);
+                final int absorption = absorption(destInfo, destState, propagate.oppositeOrdinal, offX, offY, offZ);
 
                 final int targetLevel = propagatedLevel - absorption;
                 if (targetLevel <= currentLevel) {
@@ -466,7 +473,7 @@ final class RgbChannelEngine extends PulsarEngine {
                     continue;
                 }
                 final int info = this.rgbInfoAt(state, offX, offY, offZ);
-                final int absorption = absorption(info, state, propagate.oppositeOrdinal);
+                final int absorption = absorption(info, state, propagate.oppositeOrdinal, offX, offY, offZ);
 
                 final int targetLevel = propagatedLevel - absorption;
                 final long sFlag = sidedFlag(info);

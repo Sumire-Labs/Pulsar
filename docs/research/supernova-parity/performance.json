@@ -1,0 +1,976 @@
+{
+  "server_records": [
+    {
+      "run": "parity-final2-scalar-server-before-1",
+      "mode": "scalar",
+      "variant": "before",
+      "index": 1,
+      "phases": {
+        "sky_remove": {
+          "minimum": 588500,
+          "average": 706037.1666666666,
+          "p50": 629200,
+          "p95": 1039600,
+          "p99": 1408200,
+          "maximum": 8251700
+        },
+        "sky_place": {
+          "minimum": 627700,
+          "average": 734579.0333333333,
+          "p50": 665100,
+          "p95": 1067200,
+          "p99": 1413400,
+          "maximum": 1881800
+        },
+        "block_place": {
+          "minimum": 57700,
+          "average": 82189.66666666667,
+          "p50": 65600,
+          "p95": 176800,
+          "p99": 243500,
+          "maximum": 436600
+        },
+        "block_remove": {
+          "minimum": 63300,
+          "average": 78148.23333333334,
+          "p50": 69600,
+          "p95": 107600,
+          "p99": 169400,
+          "maximum": 406000
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-scalar-server-before-2",
+      "mode": "scalar",
+      "variant": "before",
+      "index": 2,
+      "phases": {
+        "sky_remove": {
+          "minimum": 589300,
+          "average": 713941.8666666667,
+          "p50": 628500,
+          "p95": 1141600,
+          "p99": 1428400,
+          "maximum": 2495000
+        },
+        "sky_place": {
+          "minimum": 626200,
+          "average": 747215.7333333333,
+          "p50": 665200,
+          "p95": 1148700,
+          "p99": 1512500,
+          "maximum": 4763300
+        },
+        "block_place": {
+          "minimum": 57700,
+          "average": 81293.26666666666,
+          "p50": 65500,
+          "p95": 174600,
+          "p99": 243600,
+          "maximum": 482300
+        },
+        "block_remove": {
+          "minimum": 63500,
+          "average": 78639.7,
+          "p50": 70600,
+          "p95": 110200,
+          "p99": 171000,
+          "maximum": 396900
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-scalar-server-before-3",
+      "mode": "scalar",
+      "variant": "before",
+      "index": 3,
+      "phases": {
+        "sky_remove": {
+          "minimum": 585000,
+          "average": 862920.5,
+          "p50": 835900,
+          "p95": 1266400,
+          "p99": 1608900,
+          "maximum": 8170800
+        },
+        "sky_place": {
+          "minimum": 630500,
+          "average": 899261.9,
+          "p50": 865700,
+          "p95": 1282900,
+          "p99": 1652200,
+          "maximum": 5707700
+        },
+        "block_place": {
+          "minimum": 58400,
+          "average": 108985.16666666667,
+          "p50": 92100,
+          "p95": 251400,
+          "p99": 311100,
+          "maximum": 1013000
+        },
+        "block_remove": {
+          "minimum": 64400,
+          "average": 100465.76666666666,
+          "p50": 95600,
+          "p95": 143000,
+          "p99": 242700,
+          "maximum": 2184100
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-scalar-server-before-4",
+      "mode": "scalar",
+      "variant": "before",
+      "index": 4,
+      "phases": {
+        "sky_remove": {
+          "minimum": 615700,
+          "average": 1055698.0333333334,
+          "p50": 965100,
+          "p95": 1570300,
+          "p99": 2889200,
+          "maximum": 8316900
+        },
+        "sky_place": {
+          "minimum": 653600,
+          "average": 1094311.5666666667,
+          "p50": 991800,
+          "p95": 1550900,
+          "p99": 2872200,
+          "maximum": 16718300
+        },
+        "block_place": {
+          "minimum": 59000,
+          "average": 103847.93333333333,
+          "p50": 90200,
+          "p95": 237700,
+          "p99": 285500,
+          "maximum": 856300
+        },
+        "block_remove": {
+          "minimum": 64700,
+          "average": 98215.8,
+          "p50": 93800,
+          "p95": 139600,
+          "p99": 235300,
+          "maximum": 860300
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-scalar-server-bytes-1",
+      "mode": "scalar",
+      "variant": "bytes",
+      "index": 1,
+      "phases": {
+        "sky_remove": {
+          "minimum": 581700,
+          "average": 699667.8666666667,
+          "p50": 623400,
+          "p95": 1051500,
+          "p99": 1464300,
+          "maximum": 1907200
+        },
+        "sky_place": {
+          "minimum": 621700,
+          "average": 742851.4,
+          "p50": 667600,
+          "p95": 1144500,
+          "p99": 1551700,
+          "maximum": 2080100
+        },
+        "block_place": {
+          "minimum": 58200,
+          "average": 93151.66666666667,
+          "p50": 83000,
+          "p95": 202700,
+          "p99": 265900,
+          "maximum": 406200
+        },
+        "block_remove": {
+          "minimum": 63800,
+          "average": 86767.5,
+          "p50": 84800,
+          "p95": 116100,
+          "p99": 160400,
+          "maximum": 365000
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-scalar-server-bytes-2",
+      "mode": "scalar",
+      "variant": "bytes",
+      "index": 2,
+      "phases": {
+        "sky_remove": {
+          "minimum": 578900,
+          "average": 657874.7,
+          "p50": 613500,
+          "p95": 855300,
+          "p99": 1050900,
+          "maximum": 1960600
+        },
+        "sky_place": {
+          "minimum": 623900,
+          "average": 701250.7,
+          "p50": 659400,
+          "p95": 885100,
+          "p99": 1119400,
+          "maximum": 1694900
+        },
+        "block_place": {
+          "minimum": 57900,
+          "average": 78687.7,
+          "p50": 65000,
+          "p95": 175500,
+          "p99": 242000,
+          "maximum": 300700
+        },
+        "block_remove": {
+          "minimum": 63700,
+          "average": 75524.23333333334,
+          "p50": 70100,
+          "p95": 98300,
+          "p99": 121000,
+          "maximum": 273700
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-scalar-server-bytes-3",
+      "mode": "scalar",
+      "variant": "bytes",
+      "index": 3,
+      "phases": {
+        "sky_remove": {
+          "minimum": 587600,
+          "average": 716716.8333333334,
+          "p50": 632400,
+          "p95": 1130900,
+          "p99": 1516000,
+          "maximum": 4670000
+        },
+        "sky_place": {
+          "minimum": 625600,
+          "average": 759057.3666666667,
+          "p50": 669500,
+          "p95": 1197100,
+          "p99": 1577900,
+          "maximum": 10680400
+        },
+        "block_place": {
+          "minimum": 57700,
+          "average": 77811.1,
+          "p50": 63900,
+          "p95": 175200,
+          "p99": 234700,
+          "maximum": 459800
+        },
+        "block_remove": {
+          "minimum": 63800,
+          "average": 74219.9,
+          "p50": 69500,
+          "p95": 98400,
+          "p99": 114100,
+          "maximum": 375500
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-scalar-server-bytes-4",
+      "mode": "scalar",
+      "variant": "bytes",
+      "index": 4,
+      "phases": {
+        "sky_remove": {
+          "minimum": 601100,
+          "average": 889692.8333333334,
+          "p50": 846300,
+          "p95": 1268000,
+          "p99": 1798600,
+          "maximum": 16502100
+        },
+        "sky_place": {
+          "minimum": 635500,
+          "average": 924426.9666666667,
+          "p50": 886200,
+          "p95": 1305100,
+          "p99": 1821300,
+          "maximum": 13546400
+        },
+        "block_place": {
+          "minimum": 58300,
+          "average": 104068.0,
+          "p50": 86200,
+          "p95": 245200,
+          "p99": 313800,
+          "maximum": 4692100
+        },
+        "block_remove": {
+          "minimum": 64600,
+          "average": 94088.16666666667,
+          "p50": 90100,
+          "p95": 136900,
+          "p99": 211300,
+          "maximum": 530600
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-max-rgb-server-reference-1",
+      "mode": "rgb",
+      "variant": "reference",
+      "index": 1,
+      "phases": {
+        "sky_remove": {
+          "minimum": 2394900,
+          "average": 3461229.8333333335,
+          "p50": 3247500,
+          "p95": 4505400,
+          "p99": 8122700,
+          "maximum": 128543800
+        },
+        "sky_place": {
+          "minimum": 2630200,
+          "average": 3769905.6666666665,
+          "p50": 3587400,
+          "p95": 4895300,
+          "p99": 8320500,
+          "maximum": 47445100
+        },
+        "block_place": {
+          "minimum": 169400,
+          "average": 283146.5333333333,
+          "p50": 242700,
+          "p95": 642800,
+          "p99": 795100,
+          "maximum": 6475700
+        },
+        "block_remove": {
+          "minimum": 164400,
+          "average": 237773.06666666668,
+          "p50": 225800,
+          "p95": 340100,
+          "p99": 521300,
+          "maximum": 3303700
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-max-rgb-server-reference-2",
+      "mode": "rgb",
+      "variant": "reference",
+      "index": 2,
+      "phases": {
+        "sky_remove": {
+          "minimum": 2419100,
+          "average": 2642042.8333333335,
+          "p50": 2519900,
+          "p95": 3220500,
+          "p99": 3670400,
+          "maximum": 7064500
+        },
+        "sky_place": {
+          "minimum": 2579000,
+          "average": 2833151.6,
+          "p50": 2703300,
+          "p95": 3442600,
+          "p99": 3983700,
+          "maximum": 8125500
+        },
+        "block_place": {
+          "minimum": 171600,
+          "average": 227756.6,
+          "p50": 191100,
+          "p95": 498700,
+          "p99": 626200,
+          "maximum": 3437500
+        },
+        "block_remove": {
+          "minimum": 163400,
+          "average": 191423.4,
+          "p50": 177800,
+          "p95": 241500,
+          "p99": 304400,
+          "maximum": 707500
+        }
+      },
+      "gc": {
+        "collection_count_delta": 1,
+        "collection_time_millis_delta": 3
+      }
+    },
+    {
+      "run": "parity-final2-max-rgb-server-reference-3",
+      "mode": "rgb",
+      "variant": "reference",
+      "index": 3,
+      "phases": {
+        "sky_remove": {
+          "minimum": 2309700,
+          "average": 2658666.1666666665,
+          "p50": 2460000,
+          "p95": 3502300,
+          "p99": 4988100,
+          "maximum": 7822200
+        },
+        "sky_place": {
+          "minimum": 2545800,
+          "average": 2886513.2,
+          "p50": 2680700,
+          "p95": 3779300,
+          "p99": 5019200,
+          "maximum": 9782500
+        },
+        "block_place": {
+          "minimum": 171300,
+          "average": 245105.96666666667,
+          "p50": 196800,
+          "p95": 531600,
+          "p99": 706000,
+          "maximum": 1813700
+        },
+        "block_remove": {
+          "minimum": 170700,
+          "average": 207336.73333333334,
+          "p50": 189600,
+          "p95": 277200,
+          "p99": 418500,
+          "maximum": 750700
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-max-rgb-server-reference-4",
+      "mode": "rgb",
+      "variant": "reference",
+      "index": 4,
+      "phases": {
+        "sky_remove": {
+          "minimum": 2338800,
+          "average": 2818839.033333333,
+          "p50": 2555000,
+          "p95": 4192000,
+          "p99": 4937000,
+          "maximum": 8409300
+        },
+        "sky_place": {
+          "minimum": 2634100,
+          "average": 3154802.7,
+          "p50": 2873100,
+          "p95": 4558300,
+          "p99": 6670200,
+          "maximum": 9993600
+        },
+        "block_place": {
+          "minimum": 168800,
+          "average": 227348.13333333333,
+          "p50": 189300,
+          "p95": 504100,
+          "p99": 617200,
+          "maximum": 944700
+        },
+        "block_remove": {
+          "minimum": 163900,
+          "average": 192273.1,
+          "p50": 178300,
+          "p95": 252500,
+          "p99": 358200,
+          "maximum": 694500
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-max-rgb-server-packed-1",
+      "mode": "rgb",
+      "variant": "packed",
+      "index": 1,
+      "phases": {
+        "sky_remove": {
+          "minimum": 2393600,
+          "average": 3768977.7333333334,
+          "p50": 3587300,
+          "p95": 4897700,
+          "p99": 8441900,
+          "maximum": 28453800
+        },
+        "sky_place": {
+          "minimum": 2597600,
+          "average": 4192388.0,
+          "p50": 3857000,
+          "p95": 5213700,
+          "p99": 9793200,
+          "maximum": 429330300
+        },
+        "block_place": {
+          "minimum": 131300,
+          "average": 225681.23333333334,
+          "p50": 195700,
+          "p95": 455000,
+          "p99": 581600,
+          "maximum": 7889900
+        },
+        "block_remove": {
+          "minimum": 134700,
+          "average": 211372.63333333333,
+          "p50": 195700,
+          "p95": 292700,
+          "p99": 473600,
+          "maximum": 10800600
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-max-rgb-server-packed-2",
+      "mode": "rgb",
+      "variant": "packed",
+      "index": 2,
+      "phases": {
+        "sky_remove": {
+          "minimum": 2325100,
+          "average": 2682968.8333333335,
+          "p50": 2446900,
+          "p95": 4001800,
+          "p99": 6056200,
+          "maximum": 7852400
+        },
+        "sky_place": {
+          "minimum": 2546100,
+          "average": 2967626.933333333,
+          "p50": 2698600,
+          "p95": 4431400,
+          "p99": 6673400,
+          "maximum": 8892500
+        },
+        "block_place": {
+          "minimum": 131100,
+          "average": 174071.96666666667,
+          "p50": 148700,
+          "p95": 344700,
+          "p99": 425700,
+          "maximum": 977600
+        },
+        "block_remove": {
+          "minimum": 132600,
+          "average": 159286.76666666666,
+          "p50": 147100,
+          "p95": 208900,
+          "p99": 316100,
+          "maximum": 696400
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-max-rgb-server-packed-3",
+      "mode": "rgb",
+      "variant": "packed",
+      "index": 3,
+      "phases": {
+        "sky_remove": {
+          "minimum": 2602400,
+          "average": 2955263.7,
+          "p50": 2795100,
+          "p95": 3632300,
+          "p99": 4599000,
+          "maximum": 9614400
+        },
+        "sky_place": {
+          "minimum": 2588100,
+          "average": 3015768.6333333333,
+          "p50": 2848700,
+          "p95": 3846700,
+          "p99": 4641400,
+          "maximum": 10131900
+        },
+        "block_place": {
+          "minimum": 129400,
+          "average": 170397.5,
+          "p50": 150100,
+          "p95": 338800,
+          "p99": 431500,
+          "maximum": 583800
+        },
+        "block_remove": {
+          "minimum": 132500,
+          "average": 158273.56666666668,
+          "p50": 149200,
+          "p95": 200800,
+          "p99": 228800,
+          "maximum": 452200
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    },
+    {
+      "run": "parity-final2-max-rgb-server-packed-4",
+      "mode": "rgb",
+      "variant": "packed",
+      "index": 4,
+      "phases": {
+        "sky_remove": {
+          "minimum": 2435100,
+          "average": 2677526.4,
+          "p50": 2554700,
+          "p95": 3191100,
+          "p99": 4360300,
+          "maximum": 7946500
+        },
+        "sky_place": {
+          "minimum": 2528500,
+          "average": 2782769.033333333,
+          "p50": 2645700,
+          "p95": 3359400,
+          "p99": 4586200,
+          "maximum": 8195500
+        },
+        "block_place": {
+          "minimum": 128600,
+          "average": 167952.76666666666,
+          "p50": 147600,
+          "p95": 331600,
+          "p99": 405700,
+          "maximum": 552700
+        },
+        "block_remove": {
+          "minimum": 132400,
+          "average": 158573.4,
+          "p50": 148300,
+          "p95": 206700,
+          "p99": 270500,
+          "maximum": 646000
+        }
+      },
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      }
+    }
+  ],
+  "server_comparisons": {
+    "scalar": {
+      "block_place": {
+        "paired_geometric_change_percent": -5.87504107292607,
+        "t95_interval_percent": [
+          -31.126499754719728,
+          28.63449456571613
+        ],
+        "pairs": 4,
+        "before_median_of_means": 93.0188,
+        "after_median_of_means": 85.91968333333332,
+        "statistical_unit": "independent JVM mean"
+      },
+      "block_remove": {
+        "paired_geometric_change_percent": -6.795994510479647,
+        "t95_interval_percent": [
+          -28.840465123786313,
+          22.077619737145252
+        ],
+        "pairs": 4,
+        "before_median_of_means": 88.42775,
+        "after_median_of_means": 81.14586666666668,
+        "statistical_unit": "independent JVM mean"
+      },
+      "sky_remove": {
+        "paired_geometric_change_percent": -10.586010154549783,
+        "t95_interval_percent": [
+          -21.587085082880193,
+          1.9584795251217586
+        ],
+        "pairs": 4,
+        "before_median_of_means": 788.4311833333334,
+        "after_median_of_means": 708.19235,
+        "statistical_unit": "independent JVM mean"
+      },
+      "sky_place": {
+        "paired_geometric_change_percent": -9.300961114381442,
+        "t95_interval_percent": [
+          -21.150802070431617,
+          4.32973157346583
+        ],
+        "pairs": 4,
+        "before_median_of_means": 823.2388166666667,
+        "after_median_of_means": 750.9543833333333,
+        "statistical_unit": "independent JVM mean"
+      }
+    },
+    "rgb": {
+      "block_place": {
+        "paired_geometric_change_percent": -25.211160915890048,
+        "t95_interval_percent": [
+          -31.779414189839272,
+          -18.010518597513727
+        ],
+        "pairs": 4,
+        "before_median_of_means": 236.43128333333334,
+        "after_median_of_means": 172.23473333333334,
+        "statistical_unit": "independent JVM mean"
+      },
+      "block_remove": {
+        "paired_geometric_change_percent": -17.390750009954772,
+        "t95_interval_percent": [
+          -25.196438899984535,
+          -8.770544028065297
+        ],
+        "pairs": 4,
+        "before_median_of_means": 199.80491666666666,
+        "after_median_of_means": 158.93008333333333,
+        "statistical_unit": "independent JVM mean"
+      },
+      "sky_remove": {
+        "paired_geometric_change_percent": 3.948016225820376,
+        "t95_interval_percent": [
+          -7.226682232137874,
+          16.468725461777908
+        ],
+        "pairs": 4,
+        "before_median_of_means": 2738.7526,
+        "after_median_of_means": 2819.116266666667,
+        "statistical_unit": "independent JVM mean"
+      },
+      "sky_place": {
+        "paired_geometric_change_percent": 1.788795802805858,
+        "t95_interval_percent": [
+          -13.14822097627697,
+          19.294723348790292
+        ],
+        "pairs": 4,
+        "before_median_of_means": 3020.6579500000003,
+        "after_median_of_means": 2991.697783333333,
+        "statistical_unit": "independent JVM mean"
+      }
+    }
+  },
+  "client_records": [
+    {
+      "run": "parity-perf-scalar-client-before-1",
+      "mode": "scalar",
+      "variant": "before",
+      "index": 1,
+      "mean_ms": 0.51905275,
+      "p95_ms": 0.7649,
+      "allocated_bytes_per_frame": 91016.1,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    },
+    {
+      "run": "parity-perf-scalar-client-before-2",
+      "mode": "scalar",
+      "variant": "before",
+      "index": 2,
+      "mean_ms": 0.6399329166666666,
+      "p95_ms": 0.9003,
+      "allocated_bytes_per_frame": 91016,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    },
+    {
+      "run": "parity-perf-scalar-client-before-3",
+      "mode": "scalar",
+      "variant": "before",
+      "index": 3,
+      "mean_ms": 0.6136975833333334,
+      "p95_ms": 0.8725,
+      "allocated_bytes_per_frame": 91788.3,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    },
+    {
+      "run": "parity-perf-scalar-client-before-4",
+      "mode": "scalar",
+      "variant": "before",
+      "index": 4,
+      "mean_ms": 0.61999225,
+      "p95_ms": 0.8527,
+      "allocated_bytes_per_frame": 90952,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    },
+    {
+      "run": "parity-perf-scalar-client-final-1",
+      "mode": "scalar",
+      "variant": "final",
+      "index": 1,
+      "mean_ms": 0.5272688333333334,
+      "p95_ms": 0.7063,
+      "allocated_bytes_per_frame": 90952.1,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    },
+    {
+      "run": "parity-perf-scalar-client-final-2",
+      "mode": "scalar",
+      "variant": "final",
+      "index": 2,
+      "mean_ms": 0.5108630833333333,
+      "p95_ms": 0.7454,
+      "allocated_bytes_per_frame": 90952,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    },
+    {
+      "run": "parity-perf-scalar-client-final-3",
+      "mode": "scalar",
+      "variant": "final",
+      "index": 3,
+      "mean_ms": 0.6011755833333333,
+      "p95_ms": 0.8466,
+      "allocated_bytes_per_frame": 90888,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    },
+    {
+      "run": "parity-perf-scalar-client-final-4",
+      "mode": "scalar",
+      "variant": "final",
+      "index": 4,
+      "mean_ms": 0.599494,
+      "p95_ms": 0.8464,
+      "allocated_bytes_per_frame": 90952,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    },
+    {
+      "run": "parity-packed-perf-max-rgb-client-final-1",
+      "mode": "rgb",
+      "variant": "final",
+      "index": 1,
+      "mean_ms": 0.7602545833333334,
+      "p95_ms": 0.9732,
+      "allocated_bytes_per_frame": 114552,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    },
+    {
+      "run": "parity-packed-perf-max-rgb-client-final-2",
+      "mode": "rgb",
+      "variant": "final",
+      "index": 2,
+      "mean_ms": 2.1637585,
+      "p95_ms": 4.4966,
+      "allocated_bytes_per_frame": 109399.52,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    },
+    {
+      "run": "parity-packed-perf-max-rgb-client-final-3",
+      "mode": "rgb",
+      "variant": "final",
+      "index": 3,
+      "mean_ms": 0.87190725,
+      "p95_ms": 1.2427,
+      "allocated_bytes_per_frame": 111202.74666666667,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    },
+    {
+      "run": "parity-packed-perf-max-rgb-client-final-4",
+      "mode": "rgb",
+      "variant": "final",
+      "index": 4,
+      "mean_ms": 0.7684705,
+      "p95_ms": 0.9838,
+      "allocated_bytes_per_frame": 113015.92,
+      "gc_collections": 0,
+      "entities": "E: 64/65, B: 0",
+      "particles": "1024"
+    }
+  ],
+  "scalar_client_comparisons": {
+    "mean_ms": {
+      "paired_geometric_change_percent": -6.382067896774283,
+      "t95_interval_percent": [
+        -21.194185494244916,
+        11.21409335403968
+      ],
+      "pairs": 4,
+      "before_median_of_means": 0.6168449166666667,
+      "after_median_of_means": 0.5633814166666666,
+      "statistical_unit": "independent JVM mean"
+    },
+    "allocated_bytes_per_frame": {
+      "paired_geometric_change_percent": -0.28119638285110277,
+      "t95_interval_percent": [
+        -1.0250769002516633,
+        0.4682750277458127
+      ],
+      "pairs": 4,
+      "before_median_of_means": 91016.05,
+      "after_median_of_means": 90952.0,
+      "statistical_unit": "independent JVM mean"
+    }
+  },
+  "server_time_unit": "microseconds to verified completion; includes async wait",
+  "client_interval": "FML RenderTick START-to-END; not full-frame FPS",
+  "allocation": "Java render-thread allocation; not retained memory",
+  "rgb_client_comparison": "Four final RGB JVMs reported descriptively; RGB and SCALAR have different rendering work."
+}

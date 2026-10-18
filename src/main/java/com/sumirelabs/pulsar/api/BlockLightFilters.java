@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-/** Static minimum absorption per RGB component, independent of gameplay light.
+/** Static minimum absorption per RGB component; RGB_MAX also uses this for gameplay light.
  * Register during initialization. Values 0..15 are combined with the existing
  * contextual, fluid and face absorption using max; filters never open an opaque face.
  * Zero means no additional absorption, and 15 stops that component completely.
@@ -34,9 +34,17 @@ public final class BlockLightFilters {
     }
     public static boolean mayFilterSky(IBlockState state) {
         int properties = RgbStateProperties.of(state);
-        return (properties & RgbStateProperties.FILTER_FROZEN) == 0 || RgbStateProperties.filter(properties) != 0;
+        return (properties & RgbStateProperties.FILTER_FROZEN) == 0
+                || (properties & RgbStateProperties.DYNAMIC_FILTER) != 0 || RgbStateProperties.filter(properties) != 0;
     }
     static Map<IBlockState, Integer> frozenFilters() { return frozen; }
+    public static synchronized void interfaceDefaults() {
+        if (frozen != null) throw new IllegalStateException("RGB filters already frozen");
+        for (IBlockState state : net.minecraft.block.Block.BLOCK_STATE_IDS)
+            if (state.getBlock() instanceof ColoredTranslucency source
+                    && !(source instanceof PositionalColoredTranslucency))
+                FILTERS.putIfAbsent(state, 0xFFF ^ BlockLightColors.checkedColor(source.getColoredTransmittance(state)));
+    }
 
     public static synchronized void defaults() {
         for (EnumDyeColor dye : EnumDyeColor.values()) {

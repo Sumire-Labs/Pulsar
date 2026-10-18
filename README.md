@@ -18,16 +18,21 @@ It reimplements Starlight-style algorithms for Cleanroom and runs lighting calcu
 - Keeps Vanilla's block-light and sky-light data synchronized, so removing Pulsar does not corrupt your world.
 - Includes various lighting bug fixes and quality-of-life improvements.
 - Adds natural lighting to Thaumcraft crystals.
-- Fully compatible with rendering mods such as Celeritas, Actinium, and Nothirium.
+- SCALAR integrates with Celeritas, Actinium, and Nothirium; RGB rendering is validated with Vanilla/Forge and Celeritas.
 
-### Experimental RGB branch
+### RGB lighting branch
 
-`feat/rgb-engine` adds opt-in colored block/sky lighting for terrain, entities,
-TESRs, particles and held items. SCALAR remains the default. RGB rendering is
-validated with Vanilla/Forge and Celeritas on Cleanroom 0.6.12-alpha; the
-SCALAR compatibility list does not imply RGB support for other renderers.
-See the [RGB setup and API guide](docs/rgb-lighting.md) and
-[native validation and measurements](docs/research/rgb-render-performance.md).
+`feat/rgb-engine` adds SuperNova-style packed colored block/sky lighting for
+terrain, fluids, entities, normal/Fast TESRs, particles and held items. New
+configurations select RGB, squared-weight blending and RGB_MAX gameplay light;
+valid explicit SCALAR settings are retained. RGB_MAX requires compatible Pulsar
+clients. The optional VANILLA policy keeps independent gameplay brightness.
+
+Vanilla/Forge and Celeritas rendering are validated on Cleanroom 0.6.12-alpha
+and 0.7.7-alpha; other renderer integrations require separate validation.
+See the [RGB setup and API guide](docs/rgb-lighting.md),
+[SuperNova implementation comparison](docs/research/supernova-parity.md) and
+[native validation and measurements](docs/research/supernova-parity/README.md).
 
 ## Fixed Bugs
 

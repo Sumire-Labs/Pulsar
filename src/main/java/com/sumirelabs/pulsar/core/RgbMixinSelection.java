@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 /** Reads the restart-only switch before mixin application. SCALAR gets no RGB chunk fields or renderer hooks. */
 public final class RgbMixinSelection implements IMixinConfigPlugin {
-    private boolean rgb;
+    private boolean rgb = true;
     private static boolean enabled;
     public static boolean rgbEnabled() { return enabled; }
     public void onLoad(String mixinPackage) {
@@ -23,8 +23,10 @@ public final class RgbMixinSelection implements IMixinConfigPlugin {
         } catch (Exception e) { throw new IllegalStateException("Cannot read Pulsar RGB mode", e); }
     }
     public static boolean selectsRgb(String config) {
-        return Pattern.compile("(?m)^\\s*I:configVersion=2\\s*$").matcher(config).find()
-                && Pattern.compile("(?m)^\\s*S:lightingMode=RGB\\s*$").matcher(config).find();
+        // Missing/old versions are regenerated before Forge reads settings. Match
+        // that new-file default here, before any RGB mixins can be selected.
+        if (!Pattern.compile("(?m)^\\s*I:configVersion=2\\s*$").matcher(config).find()) return true;
+        return !Pattern.compile("(?m)^\\s*S:lightingMode=SCALAR\\s*$").matcher(config).find();
     }
     public boolean shouldApplyMixin(String target, String mixin) { return !mixin.substring(mixin.lastIndexOf('.') + 1).startsWith("MixinRgb") || rgb; }
     public String getRefMapperConfig() { return null; }

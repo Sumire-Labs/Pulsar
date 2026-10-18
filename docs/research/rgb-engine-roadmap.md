@@ -1,54 +1,27 @@
-# RGB engine completion plan
+# RGB engine completion record
 
-The first complete RGB target includes terrain, entities, TileEntity special
-renderers (TESRs) and particles with Vanilla and Celeritas rendering. SCALAR
-remains available with its existing update paths; LGPL-3.0 is retained. Work is
-on `feat/rgb-engine`, using coherent feature/performance commits.
+The SuperNova-style adaptation is implemented and validated for the scoped
+Vanilla/Forge and Celeritas targets. The [source comparison](supernova-parity.md)
+and [native/performance evidence](supernova-parity/README.md) are authoritative.
 
-## Established baseline
+Completed work includes packed RGB block/sky queues, immutable publication and
+persistent caches, static/positional emission and transmittance APIs, validated
+user palettes, five SuperNova blends, runtime terrain refresh, and terrain,
+fluid, entity, normal/Fast TESR, particle and held-item rendering.
 
-- Authoritative RGB block and sky fields, independent scalar gameplay light.
-- Static source chromaticity and colored transmission, contextual scalar
-  emission/opacity, sided blocks and Fluidlogged integration.
-- Immutable snapshots, chunk synchronization, cache migration, generation-safe
-  range publication and unload protection.
-- Vanilla/Forge terrain and fluid rendering plus Celeritas terrain rendering.
-- Filter-free sky shortcut and reduced redundant component calculations.
-- Native fixed-function coverage for entities/TESRs/particles, all four remote
-  RGB/SCALAR combinations, dimension travel and reconnects. Client allocation,
-  callback time and SCALAR server latency are measured separately. See the
-  [final native matrix and performance](rgb-render-performance.md).
-- The recorded platform is Cleanroom 0.6.12-alpha with optional Celeritas.
-  Cleanroom 0.7 and custom GLSL integration remain unverified release gates;
-  the experimental engine is not declared universally complete.
+RGB/SQUARED_WEIGHT/RGB_MAX are the new-configuration defaults. Valid explicit
+SCALAR settings are retained. VANILLA preserves independent gameplay light;
+RGB_MAX projects the brightest component and requires compatible clients.
+SCALAR retains its engine classes and excludes RGB chunk/state/render fields.
+LGPL-3.0 is unchanged.
 
-## Milestones and acceptance criteria
+Acceptance includes 260 unit tests, 43 native runs across recorded stages, four
+unassisted two-JVM mode combinations, config/cache transitions, current Cleanroom
+0.7.7 checks, CQR/Thaumcraft/Fluidlogged regressions, the initial 28-JVM experiment
+and the 16-JVM server retest after addressing the observed regression. Client
+measurements retain their original artifact attribution and bytecode proof.
 
-1. **Static RGB metadata**: one RGB-only packed per-state cache, published only
-   after both registries freeze. Pre-freeze calls must not poison it; unknown
-   states retain the lookup fallback. Contextual light and sided/fluid opacity
-   must never enter this static cache. SCALAR must gain no field or mutation hook.
-2. **Dynamic render paths**: apply the current RGB light model to entity models,
-   TESRs and particle vertices. Handle nested renders and restore color on normal
-   return and exceptions. Preserve vertex alpha, custom base colors, full-bright
-   effects and rendering outside a world. Terrain must not be tinted twice.
-3. **Native rendering matrix**: living entities, dropped items, block/item entity
-   models, signs/chests and representative custom TESRs, ordinary/full-bright
-   particles, GUI/hand state isolation and renderer exceptions. Verify real GL
-   and vertex-buffer results in Vanilla and Celeritas, including colored sky.
-4. **Session and compatibility matrix**: rejoin, dimension/world changes, full
-   chunk replacement, dense edits and unloads; RGB and SCALAR client/server
-   combinations. Repeat the existing Thaumcraft/CQR/Fluidlogged checks.
-5. **Performance and usability**: measure server update latency and the added
-   client rendering work separately. Retain all runs, report variance and avoid
-   FPS/heap claims from server timings. Document color/filter registration,
-   restart-only mode selection, supported render paths and remaining limits.
-6. **Release readiness**: complete the matrix and review public documentation
-   before selecting RGB as the release default. Registry/protocol/cache changes
-   require explicit migration decisions. A milestone passing does not mark the
-   whole engine complete while later acceptance criteria remain unchecked.
-
-Packed RGB queues/shared traversal are a possible later performance step. The
-current three color propagators remain the reference implementation until an
-alternative passes independent decrease/increase, filter, face, fluid, boundary,
-initialization and range-relight tests and demonstrates an actual benefit.
+Custom GLSL, arbitrary replacement renderers and every third-party mod are
+separate integrations. The legacy Forge pre-negotiation login race is disclosed
+with failed attempts and ordinary retries; no transport patch is shipped.
+This record does not authorize a release or a merge into main.
