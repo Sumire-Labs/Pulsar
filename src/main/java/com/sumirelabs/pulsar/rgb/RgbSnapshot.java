@@ -10,6 +10,41 @@ public final class RgbSnapshot {
     private final byte[][][] data;
     private final byte[][] canonical;
     private final boolean maxProjection;
+
+    /** Read-only section views retain only their own immutable planes, not older whole-chunk snapshots. */
+    ShaderSection shaderSection(int sectionY, ShaderSection previous) {
+        int section = sectionY - minSection;
+        if (section < 0 || section >= canonical.length) return ShaderSection.ZERO;
+        byte[] r = data[0][section], g = data[1][section], b = data[2][section], c = canonical[section];
+        if (previous != null && previous.r == r && previous.g == g && previous.b == b && previous.canonical == c) return previous;
+        return new ShaderSection(r, g, b, c);
+    }
+    static final class ShaderSection {
+        static final ShaderSection ZERO = new ShaderSection(null, null, null, null);
+        private final byte[] r, g, b, canonical;
+        private final int constant;
+        private ShaderSection(byte[] r, byte[] g, byte[] b, byte[] canonical) {
+            this.r = r; this.g = g; this.b = b; this.canonical = canonical;
+            int rr = uniform(r), gg = uniform(g), bb = uniform(b), cc = uniform(canonical);
+            constant = (rr | gg | bb | cc) < 0 ? -1 : rr << 8 | gg << 4 | bb | cc << 12;
+        }
+        static ShaderSection white(byte[] owned) { return owned == null ? ZERO : new ShaderSection(owned, owned, owned, owned); }
+        private static int uniform(byte[] values) {
+            if (values == null) return 0;
+            int first = values[0] & 255;
+            if ((first & 15) != first >>> 4) return -1;
+            for (byte value : values) if ((value & 255) != first) return -1;
+            return first & 15;
+        }
+        private static int read(byte[] values, int at, int shift) { return values == null ? 0 : values[at] >>> shift & 15; }
+        int cell(int local) {
+            if (constant >= 0) return constant;
+            int at = local >>> 1, shift = (local & 1) * 4;
+            return read(r, at, shift) << 8 | read(g, at, shift) << 4 | read(b, at, shift) | read(canonical, at, shift) << 12;
+        }
+        int constant() { return constant; }
+    }
+
     public RgbSnapshot(int minSection, long revision, byte[][][] data) {
         this(minSection, revision, data, project(data), true, true);
     }

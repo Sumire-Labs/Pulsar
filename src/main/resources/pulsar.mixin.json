@@ -28,6 +28,9 @@
     "MixinWorldEntitySpawner"
   ],
   "client": [
+    "MixinRgbShaderSamplers",
+    "MixinRgbShaderUniforms",
+    "MixinRgbShaderSources",
     "MixinRgbBuffer",
     "MixinRgbChunkRead",
     "MixinRgbBlockRenderer",

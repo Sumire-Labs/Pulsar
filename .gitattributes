@@ -1,3 +1,8 @@
 # Evidence hashes must survive Windows checkouts unchanged.
 /docs/research/supernova-parity/*.json text eol=lf
 /docs/research/supernova-parity/*.md text eol=lf
+/docs/research/rgb-shaders/** -text
+
+/docs/research/rgb-shaders/**/*.json text eol=lf
+/docs/research/rgb-shaders/**/*.md text eol=lf
+/docs/research/rgb-shaders/SHA256SUMS text eol=lf

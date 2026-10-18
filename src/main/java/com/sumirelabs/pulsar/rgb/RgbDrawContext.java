@@ -15,6 +15,7 @@ public final class RgbDrawContext {
     private static final Object UNLIT = new Object();
     private static int textureUnits=-1;
     public static boolean supported(){
+        if (RgbShaderRuntime.present()) return true;
         if(textureUnits<0){textureUnits=GL11.glGetInteger(org.lwjgl.opengl.GL13.GL_MAX_TEXTURE_UNITS);
             if(textureUnits<4)com.sumirelabs.pulsar.Pulsar.LOGGER.warn("RGB object rendering needs four fixed-function texture units; using scalar client lighting on this GPU.");}
         return textureUnits>=4;
@@ -27,6 +28,7 @@ public final class RgbDrawContext {
     public static int enter(Object owner,double x,double y,double z) { return enter(owner,x,y,z,true); }
     public static int enterVertices(Object owner,double x,double y,double z) { return enter(owner,x,y,z,false); }
     private static int enter(Object owner,double x,double y,double z,boolean uniform) {
+        if (RgbShaderRuntime.active()) return 0;
         if (!available()) return 0;
         return enterTint(owner,RgbClient.tintAbgr(0xFFFFFFFF,x,y,z),uniform);
     }
@@ -59,7 +61,7 @@ public final class RgbDrawContext {
     public static void coordinates(int unit,float u,float v) {
         if(unit!=OpenGlHelper.lightmapTexUnit)return;
         Context context=CONTEXT.get();var state=context.state;
-        if(state.active() && GL11.glGetInteger(GL11.GL_LIST_INDEX)!=0)return;
+        if(state.active() && RgbLegacyTexture.recording())return;
         boolean old=state.fullBright;
         state.lightCoordinates(u,v);
         if(old!=state.fullBright && context.texture!=null && context.texture.inSession())context.texture.update(state);

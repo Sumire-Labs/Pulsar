@@ -1,0 +1,106 @@
+{
+  "shader-baseline-actinium-1": {
+    "completed": false,
+    "note": "No completed report; see retained local logs. Diagnostic5 was stopped because pure-primary sky expectations used unmodified dye filters."
+  },
+  "shader-baseline-actinium-2": {
+    "completed": false,
+    "note": "No completed report; see retained local logs. Diagnostic5 was stopped because pure-primary sky expectations used unmodified dye filters."
+  },
+  "shader-baseline-actinium-3": {
+    "completed": false,
+    "note": "No completed report; see retained local logs. Diagnostic5 was stopped because pure-primary sky expectations used unmodified dye filters."
+  },
+  "shader-baseline-actinium-4": {
+    "completed": false,
+    "note": "No completed report; see retained local logs. Diagnostic5 was stopped because pure-primary sky expectations used unmodified dye filters."
+  },
+  "shader-baseline-actinium06-1": {
+    "completed": true,
+    "all_compiled": true,
+    "all_colored": null,
+    "failure": null
+  },
+  "shader-baseline-demonica-1": {
+    "completed": false,
+    "note": "No completed report; see retained local logs. Diagnostic5 was stopped because pure-primary sky expectations used unmodified dye filters."
+  },
+  "shader-baseline-demonica-2": {
+    "completed": true,
+    "all_compiled": true,
+    "all_colored": null,
+    "failure": null
+  },
+  "shader-diagnostic-actinium-2": {
+    "completed": true,
+    "all_compiled": true,
+    "all_colored": true,
+    "failure": null
+  },
+  "shader-diagnostic-actinium-3": {
+    "completed": true,
+    "all_compiled": true,
+    "all_colored": true,
+    "failure": null
+  },
+  "shader-diagnostic-actinium-4": {
+    "completed": false,
+    "all_compiled": false,
+    "all_colored": false,
+    "failure": "java.lang.IllegalStateException: Diagnostic shadow target absent"
+  },
+  "shader-diagnostic-actinium-5": {
+    "completed": false,
+    "note": "No completed report; see retained local logs. Diagnostic5 was stopped because pure-primary sky expectations used unmodified dye filters."
+  },
+  "shader-diagnostic-demonica-1": {
+    "completed": false,
+    "all_compiled": false,
+    "all_colored": false,
+    "failure": "java.lang.NoSuchFieldException: renderTargets"
+  },
+  "shader-diagnostic-demonica-2": {
+    "completed": true,
+    "all_compiled": true,
+    "all_colored": true,
+    "failure": null
+  },
+  "shader-diagnostic-demonica-3": {
+    "completed": true,
+    "all_compiled": true,
+    "all_colored": true,
+    "failure": null
+  },
+  "shader-diagnostic-demonica-4": {
+    "completed": false,
+    "all_compiled": false,
+    "all_colored": false,
+    "failure": "java.lang.IllegalStateException: Diagnostic shadow target absent"
+  },
+  "shader-diagnostic-demonica-5": {
+    "completed": false,
+    "note": "No completed report; see retained local logs. Diagnostic5 was stopped because pure-primary sky expectations used unmodified dye filters."
+  },
+  "shader-rgb-actinium-matrix-1": {
+    "completed": false,
+    "note": "No completed report; see retained local logs. Diagnostic5 was stopped because pure-primary sky expectations used unmodified dye filters."
+  },
+  "shader-rgb-actinium-matrix-2": {
+    "completed": true,
+    "all_compiled": true,
+    "all_colored": true,
+    "failure": null
+  },
+  "shader-rgb-demonica-matrix-1": {
+    "completed": true,
+    "all_compiled": true,
+    "all_colored": true,
+    "failure": null
+  },
+  "shader-rgb-demonica-reimagined-1": {
+    "completed": true,
+    "all_compiled": true,
+    "all_colored": true,
+    "failure": null
+  }
+}

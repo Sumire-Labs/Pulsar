@@ -1,0 +1,101 @@
+[
+  {
+    "slug": "complementary-reimagined",
+    "version_id": "Bqen1mJX",
+    "version": "r5.9.3",
+    "date": "2026-09-15T06:35:41.918796Z",
+    "listed_1_12_2": true,
+    "filename": "ComplementaryReimagined_r5.9.3.zip",
+    "url": "https://cdn.modrinth.com/data/HVnmMxH1/versions/Bqen1mJX/ComplementaryReimagined_r5.9.3.zip",
+    "hashes": {
+      "sha1": "838139b54cddb56b2e83cd260d8efd960ac536d6",
+      "sha512": "45304b1d7862afdb2177b7e6226fc9c6737911d17a4ad46cc9c519ca4deb935f05072cd337cd8b19a15bb8062b57b54eceec7bdee4cd572d94858e2946d37d85"
+    },
+    "sha256": "fed6c879e732cf7fc7bc6570ebb1def43235aa7e96f62859fbdbdbfa0b484b38"
+  },
+  {
+    "slug": "complementary-unbound",
+    "version_id": "B1kyfoUZ",
+    "version": "r5.9.3",
+    "date": "2026-09-15T06:36:17.528689Z",
+    "listed_1_12_2": true,
+    "filename": "ComplementaryUnbound_r5.9.3.zip",
+    "url": "https://cdn.modrinth.com/data/R6NEzAwj/versions/B1kyfoUZ/ComplementaryUnbound_r5.9.3.zip",
+    "hashes": {
+      "sha1": "2ee08300e1d6f039e63eae8484dddf57b3aaaf67",
+      "sha512": "a085d1d8cda67cd17a2b414eeba48bbd809da069f269bab46246235ec8fe714a275013c70d0504527b0987d810deddddba4564332414ab3b3bd7435932ff808c"
+    },
+    "sha256": "98ac741dee294d2a3c82d153349148c3bb7fb688c30eb3b49c3b9ac37e968c5a"
+  },
+  {
+    "slug": "bsl-shaders",
+    "version_id": "Y68yiql9",
+    "version": "10.1.8",
+    "date": "2026-09-21T12:25:21.321877Z",
+    "listed_1_12_2": true,
+    "filename": "BSL_v10.1.8.zip",
+    "url": "https://cdn.modrinth.com/data/Q1vvjJYV/versions/Y68yiql9/BSL_v10.1.8.zip",
+    "hashes": {
+      "sha512": "94a3c25d6820868db624e11347873e6b572e7cd571967d9ac6f4690ca5d37ca302a7645d85eec800e0654541e3825fba14d37b5a25d3996aaf038178552be26f",
+      "sha1": "e89818c8827d0131c102fb480c3c3446624db0df"
+    },
+    "sha256": "36b0a50ff7918bf10e9422c401d93779f9d0088a26acea975b435243f96930b5"
+  },
+  {
+    "slug": "photon-shader",
+    "version_id": "gUv7fBPN",
+    "version": "v1.3b",
+    "date": "2026-04-14T20:47:01.327987Z",
+    "listed_1_12_2": false,
+    "filename": "photon_v1.3b.zip",
+    "url": "https://cdn.modrinth.com/data/lLqFfGNs/versions/gUv7fBPN/photon_v1.3b.zip",
+    "hashes": {
+      "sha1": "d975d25c9686de5f10e8b86c8518613cdf3f040a",
+      "sha512": "40bcbac9c656f2965f543e4b35cd0698723b2db8b67662f1b53c14223cfbef7d60d7fbf0176f73fcadd0d1e19ba60d951ed77e9eece8c8df7dca4d2be6315309"
+    },
+    "sha256": "120897768eaa8cb1f14a3e98f88dff009ae3204ee3b96904a4fe8586edfc1ead"
+  },
+  {
+    "slug": "solas-shader",
+    "version_id": "XE9yh7pS",
+    "version": "3.8",
+    "date": "2026-10-14T22:24:17.963697Z",
+    "listed_1_12_2": true,
+    "filename": "Solas Shader V3.8.zip",
+    "url": "https://cdn.modrinth.com/data/EpQFjzrQ/versions/XE9yh7pS/Solas%20Shader%20V3.8.zip",
+    "hashes": {
+      "sha1": "e2a5ded8e3061fa1bbf12e828a9992044c88fa62",
+      "sha512": "7ba384962859ec6a65659aeefd31c2f0e741b8f2983bc3636529a957bbee9d16eebe9201c88029e651fd26c1e59f0028e7b28e25995f0ebbcff66d728791c399"
+    },
+    "sha256": "492f96583ba1061d67cb8337a6b37b7b8669533bb08fe0bfc22938d56670b8b9"
+  },
+  {
+    "slug": "pastel-shaders",
+    "version_id": "w3Pxx3b4",
+    "version": "1.200",
+    "date": "2024-06-13T18:19:42.955275Z",
+    "listed_1_12_2": true,
+    "filename": "Pastel-Shaders-Universal-v1.200.zip",
+    "url": "https://cdn.modrinth.com/data/BkTdFBUU/versions/w3Pxx3b4/Pastel-Shaders-Universal-v1.200.zip",
+    "hashes": {
+      "sha512": "fd5b4970ee6d1582fb616af494fa413f09bd315f945c650b1b8c1a0af5c83e5e961a6e8a5bcbc941c34a6b83eab965f119cb03dcf2ee968b45b79c5c5ffb6f05",
+      "sha1": "d9492996359ddaad54707f21671a6c47b7189f07"
+    },
+    "sha256": "72d100aa877177247a6afce644f05c87fd76b341ae78ca549ab0cfec8e86aad1"
+  },
+  {
+    "slug": "tea-shaders",
+    "version": "V2.0.0_Dev10",
+    "filename": "Tea_V2.0.0_Dev10.zip",
+    "url": "https://www.curseforge.com/minecraft/shaders/beyondbelief-vanilla-reborn",
+    "sha256": "7039286212f624bbf468fe7bd5a269426e0e8b614fa334a6ec4f75018db0b655",
+    "source": "existing local copy; matches current official file name"
+  },
+  {
+    "filename": "PulsarDiagnostic.zip",
+    "name": "Original Pulsar diagnostic",
+    "version": "1",
+    "license": "LGPL-3.0-only",
+    "sha256": "f9fd89b54c1dd58678f281c6feb17606af161ffe3ef33161b2ea03745af638cc"
+  }
+]

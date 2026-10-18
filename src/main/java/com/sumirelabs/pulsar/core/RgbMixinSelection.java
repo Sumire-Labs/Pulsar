@@ -28,7 +28,10 @@ public final class RgbMixinSelection implements IMixinConfigPlugin {
         if (!Pattern.compile("(?m)^\\s*I:configVersion=2\\s*$").matcher(config).find()) return true;
         return !Pattern.compile("(?m)^\\s*S:lightingMode=SCALAR\\s*$").matcher(config).find();
     }
-    public boolean shouldApplyMixin(String target, String mixin) { return !mixin.substring(mixin.lastIndexOf('.') + 1).startsWith("MixinRgb") || rgb; }
+    public boolean shouldApplyMixin(String target, String mixin) {
+        String name = mixin.substring(mixin.lastIndexOf('.') + 1);
+        return !name.startsWith("MixinRgb") || rgb;
+    }
     public String getRefMapperConfig() { return null; }
     public void acceptTargets(Set<String> mine, Set<String> others) {}
     public List<String> getMixins() { return null; }

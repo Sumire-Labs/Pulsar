@@ -37,6 +37,7 @@ public final class RgbVertexTint {
         apply(buffer,(RgbDynamicVertices)buffer,start,generation,state);
     }
     public static void apply(BufferBuilder buffer,RgbDynamicVertices tags,int start,long generation,RgbDrawState state) {
+        if (RgbShaderRuntime.active()) return;
         if(!state.active() || !buffer.getVertexFormat().hasColor())return;
         int end=buffer.getVertexCount();if(generation!=tags.pulsar$rgbGeneration())start=0;
         start=Math.max(0,Math.min(start,end));

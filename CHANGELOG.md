@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add optional RGB shader lighting for tested Demonica/Actinium loaders and
+  Complementary, BSL, Photon, Solas, Pastel and Tea packs, with a bounded sparse
+  GPU light field and shader-owned material rendering.
+- Support GLSM emulated texture-combiner state when returning to normal rendering.
+
 - Add server-authoritative RGB block and sky lighting with packed propagation,
   per-component filters, immutable snapshots and persistent color caches.
 - Color terrain, fluids, entities, normal/Fast TESRs, particles and held items in

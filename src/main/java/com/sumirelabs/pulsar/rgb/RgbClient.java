@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /** Main-thread installs; mesh workers only read immutable copies, never live World data. */
 public final class RgbClient {
-    private record View(Chunk chunk, RgbSnapshot rgb, RgbSnapshot skyRgb, byte[][] sky) {}
+    record View(Chunk chunk, RgbSnapshot rgb, RgbSnapshot skyRgb, byte[][] sky) {}
     private static final ConcurrentHashMap<Long, View> VIEWS = new ConcurrentHashMap<>();
     private static World owner;
     public static volatile boolean serverHasRgbChannel;
@@ -25,8 +25,10 @@ public final class RgbClient {
     private RgbClient() {}
     public static boolean active() { return active; }
     public static boolean skyActive() { return skyActive; }
+    static float shaderSkyScale() { return skyScale; }
+    static void visitShaderViews(java.util.function.BiConsumer<Long, View> visitor) { VIEWS.forEach(visitor); }
     public static void unload(World world) {
-        if (owner == world) { VIEWS.clear(); REFRESH.clear(); owner = null; active = false; skyActive = false; requested = false; requester = null; }
+        if (owner == world) { VIEWS.clear(); REFRESH.clear(); owner = null; active = false; skyActive = false; requested = false; requester = null; RgbShaderRuntime.clear(); }
     }
     public static void tick() {
         World world = Minecraft.getMinecraft().world;
@@ -51,6 +53,11 @@ public final class RgbClient {
         for (var entry : REFRESH.entrySet()) if (REFRESH.remove(entry.getKey(), entry.getValue())
                 && world.getChunkProvider().getLoadedChunk(entry.getValue().x, entry.getValue().z) == entry.getValue()) refresh(entry.getValue());
         VIEWS.entrySet().removeIf(e -> world.getChunkProvider().getLoadedChunk(e.getValue().chunk.x, e.getValue().chunk.z) != e.getValue().chunk);
+        boolean shaderBefore = RgbShaderRuntime.active();
+        RgbShaderRuntime.tick(world);
+        // Meshes contain either original material colors or legacy pre-tinted colors.
+        // Drop the previous representation when switching ownership; never shade it twice.
+        if (shaderBefore != RgbShaderRuntime.active()) Minecraft.getMinecraft().renderGlobal.loadRenderers();
     }
     public static void receive(RgbPacket packet, Object connection) {
         Minecraft mc = Minecraft.getMinecraft();

@@ -15,6 +15,7 @@ import java.nio.ByteOrder;
 public abstract class MixinRgbBlockRenderer {
     @WrapMethod(method="renderBlock")
     private boolean pulsar$terrainDraw(IBlockState state,BlockPos pos,IBlockAccess world,BufferBuilder buffer,Operation<Boolean> original) {
+        if (RgbShaderRuntime.active()) return original.call(state,pos,world,buffer);
         if(!RgbClient.active() && !RgbClient.skyActive())return original.call(state,pos,world,buffer);
         int start=buffer.getVertexCount(),token=RgbDrawContext.suppressVertices();
         long generation=((RgbDynamicVertices)buffer).pulsar$rgbGeneration();

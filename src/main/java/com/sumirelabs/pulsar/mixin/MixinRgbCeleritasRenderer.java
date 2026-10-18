@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.mixin;
 
 import com.sumirelabs.pulsar.rgb.RgbClient;
+import com.sumirelabs.pulsar.rgb.RgbShaderRuntime;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
@@ -8,14 +9,15 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Optional Celeritas 2.4 vintage mesh path; preserves its light/AO and material pipeline. */
+/** Optional vintage mesh paths; shader-owned passes keep their original material colors. */
 @Pseudo
-@Mixin(targets = "org.taumc.celeritas.impl.render.terrain.compile.pipeline.VintageBlockRenderer", remap = false)
+@Mixin(targets = {"org.taumc.celeritas.impl.render.terrain.compile.pipeline.VintageBlockRenderer",
+        "com.dhj.actinium.render.terrain.compile.pipeline.VintageBlockRenderer"}, remap = false)
 public abstract class MixinRgbCeleritasRenderer {
     @Inject(method = "getVertexColors", at = @At("RETURN"), require = 0, remap = false)
     private void pulsar$colorVertices(BlockPos pos, @Coerce Object provider, @Coerce Object quad,
                                       CallbackInfoReturnable<int[]> cir) {
-        if (!RgbClient.active() || !(quad instanceof BakedQuad baked)) return;
+        if (RgbShaderRuntime.active() || !RgbClient.active() || !(quad instanceof BakedQuad baked)) return;
         RgbClient.celeritasRendered = true;
         int[] vertices = baked.getVertexData(), colors = cir.getReturnValue();
         int stride = baked.getFormat().getIntegerSize();

@@ -1,0 +1,116 @@
+{
+  "completed": true,
+  "cases": [
+    {
+      "pack": "PulsarDiagnostic.zip",
+      "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+      "rgb_mode": true,
+      "scalar_chunk_clean": true,
+      "source_callbacks": 166,
+      "rgb_active": true,
+      "canonical_source": 15,
+      "compiled_pipeline": true,
+      "draw_error_red": 0,
+      "red_image": {
+        "red": 212.1003162006324,
+        "green": 0.0,
+        "blue": 0.0,
+        "red_blue_score": 0.9999997076849908,
+        "capture_error": 0
+      },
+      "patched_programs": 47,
+      "sampler_programs": 51,
+      "field_ready": true,
+      "normal_tesr_draws": 55824,
+      "fast_tesr_draws": 55824,
+      "particle_draws": 38320,
+      "draw_error_blue": 0,
+      "blue_image": {
+        "red": 0.0,
+        "green": 0.0,
+        "blue": 203.32165664331328,
+        "red_blue_score": -0.999999695063939,
+        "capture_error": 0
+      },
+      "material_red": [
+        4908224444017932289,
+        -15900599140777983,
+        -8734946513843210751
+      ],
+      "material_blue": [
+        4908224444017932289,
+        -15900599140777983,
+        -8734946513843210751
+      ],
+      "normal_specular_alpha_unchanged": true,
+      "color_only_score_change": 1.9999994027489298,
+      "uploaded_sections": 137,
+      "valid": true,
+      "sky_red": {
+        "red": 23.612933225866453,
+        "green": 0.0,
+        "blue": 0.0,
+        "red_blue_score": 0.9999973743219186,
+        "capture_error": 0
+      },
+      "sky_blue": {
+        "red": 0.0,
+        "green": 0.0,
+        "blue": 22.550685101370203,
+        "red_blue_score": -0.9999972506399135,
+        "capture_error": 0
+      },
+      "sky_filter_changed": true,
+      "initial_classic": {
+        "red": 69.0492280984562,
+        "green": 40.07012214024428,
+        "blue": 27.30987661975324,
+        "red_blue_score": 0.43316430496655145,
+        "capture_error": 0
+      },
+      "classic_vanilla_hook": true,
+      "classic_wall_tint": "ffffb9b9",
+      "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+      "disabled_bridge": true,
+      "classic_terrain_hook": true,
+      "classic_tint": "ffff8080",
+      "disabled_draw_error": 0,
+      "disabled_image": {
+        "red": 51.873023746047494,
+        "green": 40.597867195734395,
+        "blue": 37.49184698369397,
+        "red_blue_score": 0.1609263983426844,
+        "capture_error": 0
+      },
+      "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+      "reenabled_bridge": true,
+      "reenabled_draw_error": 0,
+      "reenabled_image": {
+        "red": 0.0,
+        "green": 0.0,
+        "blue": 203.32165664331328,
+        "red_blue_score": -0.999999695063939,
+        "capture_error": 0
+      },
+      "nether_image": {
+        "red": 22.810961621923244,
+        "green": 224.96093992187986,
+        "blue": 21.823919647839297,
+        "red_blue_score": 0.02211366032473188,
+        "capture_error": 0
+      },
+      "nether_dimension": -1,
+      "dimension_field_reset": true,
+      "returned_image": {
+        "red": 0.0,
+        "green": 0.0,
+        "blue": 195.16275032550064,
+        "red_blue_score": -0.9999996823158918,
+        "capture_error": 0
+      },
+      "returned_dimension": 0
+    }
+  ],
+  "all_colored": true,
+  "all_compiled": true
+}

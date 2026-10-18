@@ -120,16 +120,18 @@ contextual scalar brightness/opacity retains its world-thread sampling path.
 
 ## Rendering and validation limits
 
-Rendering modulates the existing scalar lightmap/AO rather than replacing it
-with shader-level RGB lightmaps. Material alpha, full-bright effects and nested
+Without a shaderpack, rendering modulates the existing scalar lightmap/AO.
+With a supported Iris-family loader and pack, a GPU light field supplies RGB
+lighting to the pack's lighting terms. Material alpha, full-bright effects and nested
 renderer state are preserved in the accepted native tests. Object rendering
 requires four fixed-function texture units; unsupported hardware uses scalar
 client lighting and logs the fallback.
 
 Native rendering coverage includes Cleanroom 0.6.12-alpha and 0.7.7-alpha,
-Java 25 and Celeritas 2.4.0-dev. Custom GLSL programs,
-renderers that take over the reserved texture unit, and cached lists embedding
-mixed lightmap behavior require separate integration.
+Java 25 and Celeritas 2.4.0-dev. Renderers that take over the reserved texture
+unit and cached lists embedding mixed lightmap behavior require separate integration.
+GLSM loaders use their emulated texture-combiner state rather than removed
+fixed-function OpenGL queries.
 
 SCALAR excludes the RGB chunk/state/buffer fields and renderer hooks at startup.
 RGB uses packed propagation with a shared traversal and transfers color
@@ -142,3 +144,46 @@ be interpreted using their recorded protocols.
 See [current measurements and native evidence](research/supernova-parity/README.md),
 [RGB sky implementation](research/rgb-sky-prototype.md) and the
 [completion plan](research/rgb-engine-roadmap.md).
+
+
+## Demonica and Actinium shaderpacks
+
+RGB has an optional, independently written bridge to the Iris-family APIs used
+by Demonica and Actinium. It uploads immutable server light publications to two
+integer textures and changes lighting terms after the loader transforms GLSL.
+Terrain and object material colors are left untouched while the shader pipeline
+owns lighting. Disabling or enabling a pack rebuilds terrain in the appropriate
+representation. This is separate from SuperNova/Angelica's integration.
+
+Validated loader versions are Demonica 0.8.2 with its bundled Celeritas on
+Cleanroom 0.7.7-alpha, and Actinium alpha-0.0.12 on Cleanroom 0.6.12-alpha.
+The tested Actinium release fails on Cleanroom 0.7.7 before the RGB shader bridge
+runs; this integration does not repair the loader's platform incompatibility.
+
+The pack adapters target Complementary Reimagined/Unbound r5.9.3, BSL 10.1.8,
+Photon v1.3b, Solas 3.8, Pastel Universal 1.200 and Tea V2.0.0 Dev10. Later pack
+or loader versions can change internal contracts and need validation. Photon is
+not officially listed for Minecraft 1.12.2. This is not universal OptiFine or
+arbitrary GLSL support. Unknown lighting layouts keep the pack's original terms;
+simple lightmap programs have a fallback adapter, except with intermediate
+geometry/tessellation stages that need their own position-varying contract.
+
+Pack-specific tone mapping, shadows, emission, handheld light and PBR remain
+under the pack's control. Named-term adapters preserve the pack's brightness
+curve and apply the authoritative RGB hue/attenuation; the no-shader blend-mode
+options do not replace each pack's mixing model. Full-bright bypasses already
+implemented by a pack stay under that pack's control.
+
+Only visible-area chunks are tracked, with owner coordinates preventing ring
+aliasing. Uniform sections need no voxel texture rows. Nonuniform section data
+is capped at 4,096 sections (64 MiB GPU data storage); the index texture and CPU
+metadata are additional. Upload traversal has a 2 ms soft budget per client tick,
+which is not a guarantee on GPU allocation/driver latency. A missing or
+budget-exceeded section uses the pack's original lighting until uploaded.
+Storage grows lazily and texture names are reused across world/pack switches.
+Two texture samplers are allocated through the loader, without commandeering
+existing pack samplers. SCALAR excludes all RGB shader mixins at startup and
+creates no RGB shader atlas. No GPL/AGPL loader implementation or shaderpack
+assets are distributed with Pulsar; the Pulsar license remains LGPL-3.0.
+
+See the [shader compatibility protocol and native evidence](research/rgb-shaders/README.md).

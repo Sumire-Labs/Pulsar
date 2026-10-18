@@ -1,0 +1,1915 @@
+{
+  "demonica": {
+    "run": "shader-rgb-demonica-final-1",
+    "cases": [
+      {
+        "pack": "ComplementaryReimagined_r5.9.3.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 0,
+        "red_image": {
+          "red": 73.86806373612747,
+          "green": 11.495318990637982,
+          "blue": 11.92231384462769,
+          "red_blue_score": 0.7220588936731145,
+          "capture_error": 0
+        },
+        "patched_programs": 57,
+        "sampler_programs": 36,
+        "field_ready": true,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 9.711451422902845,
+          "green": 10.088474176948354,
+          "blue": 64.64027528055055,
+          "red_blue_score": -0.7387693667550574,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.460828260428172,
+        "uploaded_sections": 71,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 0,
+        "disabled_image": {
+          "red": 51.21538843077686,
+          "green": 39.96732593465187,
+          "blue": 36.7995535991072,
+          "red_blue_score": 0.16378837893087742,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 9.702089404178809,
+          "green": 10.053258106516212,
+          "blue": 64.55558311116623,
+          "red_blue_score": -0.7386906436737656,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "ComplementaryUnbound_r5.9.3.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 0,
+        "red_image": {
+          "red": 73.81344162688325,
+          "green": 11.466054932109865,
+          "blue": 11.92237584475169,
+          "red_blue_score": 0.72188057279471,
+          "capture_error": 0
+        },
+        "patched_programs": 57,
+        "sampler_programs": 36,
+        "field_ready": true,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 9.679211358422716,
+          "green": 10.073160146320292,
+          "blue": 64.55700911401823,
+          "red_blue_score": -0.7392314906915816,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.4611120634862915,
+        "uploaded_sections": 154,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 0,
+        "disabled_image": {
+          "red": 52.30268460536921,
+          "green": 40.840659681319366,
+          "blue": 37.78678157356315,
+          "red_blue_score": 0.1611275286396789,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 9.692727385454772,
+          "green": 10.089094178188356,
+          "blue": 64.58720317440635,
+          "red_blue_score": -0.7390210189455971,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "BSL_v10.1.8.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 0,
+        "red_image": {
+          "red": 110.55725711451423,
+          "green": 25.894537789075578,
+          "blue": 24.525451050902102,
+          "red_blue_score": 0.6368821572002294,
+          "capture_error": 0
+        },
+        "patched_programs": 54,
+        "sampler_programs": 40,
+        "field_ready": true,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 25.83997767995536,
+          "green": 25.576291152582304,
+          "blue": 104.33436666873334,
+          "red_blue_score": -0.6029940230988725,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.239876180299102,
+        "uploaded_sections": 237,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 0,
+        "disabled_image": {
+          "red": 52.906131812263624,
+          "green": 41.23733647467295,
+          "blue": 38.05759811519623,
+          "red_blue_score": 0.16323564994836948,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 25.840659681319362,
+          "green": 25.579205158410318,
+          "blue": 104.34503069006138,
+          "red_blue_score": -0.6030181458314879,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "photon_v1.3b.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 0,
+        "red_image": {
+          "red": 165.3235786471573,
+          "green": 7.405790811581623,
+          "blue": 37.23020646041292,
+          "red_blue_score": 0.6323917023340437,
+          "capture_error": 0
+        },
+        "patched_programs": 24,
+        "sampler_programs": 16,
+        "field_ready": true,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 28.678281356562714,
+          "green": 41.32066464132928,
+          "blue": 134.06764213528427,
+          "red_blue_score": -0.647569649476367,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.2799613518104107,
+        "uploaded_sections": 320,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 1282,
+        "disabled_image": {
+          "red": 52.48329096658193,
+          "green": 41.174406348812695,
+          "blue": 37.9496558993118,
+          "red_blue_score": 0.16071161680357934,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 28.688573377146753,
+          "green": 41.32754665509331,
+          "blue": 134.07743815487632,
+          "red_blue_score": -0.6474866812887439,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "Solas Shader V3.8.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 1282,
+        "red_image": {
+          "red": 148.28879657759316,
+          "green": 2.8748837497674997,
+          "blue": 3.865459730919462,
+          "red_blue_score": 0.9491898649482885,
+          "capture_error": 0
+        },
+        "patched_programs": 47,
+        "sampler_programs": 44,
+        "field_ready": true,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 2.334738669477339,
+          "green": 2.8694277388554776,
+          "blue": 142.48068696137392,
+          "red_blue_score": -0.9677552490036301,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.9169451139519187,
+        "uploaded_sections": 403,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 1282,
+        "disabled_image": {
+          "red": 51.87308574617149,
+          "green": 40.61200322400645,
+          "blue": 37.491908983817964,
+          "red_blue_score": 0.16092617504608467,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 2.333498666997334,
+          "green": 2.8698617397234796,
+          "blue": 142.46841093682187,
+          "red_blue_score": -0.9677693661044628,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "Pastel-Shaders-Universal-v1.200.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 1282,
+        "red_image": {
+          "red": 183.60983321966643,
+          "green": 48.68720937441875,
+          "blue": 49.66922933845868,
+          "red_blue_score": 0.5741645513067037,
+          "capture_error": 0
+        },
+        "patched_programs": 42,
+        "sampler_programs": 40,
+        "field_ready": true,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 37.07700415400831,
+          "green": 40.71498542997086,
+          "blue": 178.29295058590117,
+          "red_blue_score": -0.6556899078591347,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.2298544591658385,
+        "uploaded_sections": 486,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 0,
+        "disabled_image": {
+          "red": 51.63940727881456,
+          "green": 40.59792919585839,
+          "blue": 37.465496930993865,
+          "red_blue_score": 0.15906981339768184,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 37.078554157108314,
+          "green": 40.71647343294686,
+          "blue": 178.2999565999132,
+          "red_blue_score": -0.6556891924529649,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "Tea_V2.0.0_Dev10.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 0,
+        "red_image": {
+          "red": 71.43028086056172,
+          "green": 15.616529233058467,
+          "blue": 20.93812387624775,
+          "red_blue_score": 0.5466384662215543,
+          "capture_error": 0
+        },
+        "patched_programs": 50,
+        "sampler_programs": 45,
+        "field_ready": true,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 8.36511873023746,
+          "green": 16.66420732841466,
+          "blue": 54.843077686155375,
+          "red_blue_score": -0.7353146585632367,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.281953124784791,
+        "uploaded_sections": 569,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 0,
+        "disabled_image": {
+          "red": 52.32010664021328,
+          "green": 40.91487382974766,
+          "blue": 37.81567363134726,
+          "red_blue_score": 0.16091748458007665,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 8.365924731849464,
+          "green": 16.666687333374668,
+          "blue": 54.78256556513113,
+          "red_blue_score": -0.7350388749198594,
+          "capture_error": 0
+        }
+      }
+    ]
+  },
+  "actinium": {
+    "run": "shader-rgb-actinium-final-1",
+    "cases": [
+      {
+        "pack": "ComplementaryReimagined_r5.9.3.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 0,
+        "red_image": {
+          "red": 75.35960071920144,
+          "green": 11.583483166966333,
+          "blue": 12.094736189472378,
+          "red_blue_score": 0.7234040290609633,
+          "capture_error": 0
+        },
+        "patched_programs": 57,
+        "sampler_programs": 34,
+        "field_ready": true,
+        "normal_tesr_draws": 5538,
+        "fast_tesr_draws": 0,
+        "particle_draws": 3858,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 10.13485026970054,
+          "green": 10.318804637609276,
+          "blue": 65.85312170624341,
+          "red_blue_score": -0.7332505990889442,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.4566546281499075,
+        "uploaded_sections": 71,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 0,
+        "disabled_image": {
+          "red": 52.32004464008928,
+          "green": 41.173228346456696,
+          "blue": 37.81561163122326,
+          "red_blue_score": 0.1609177059552249,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 10.13243226486453,
+          "green": 10.316076632153264,
+          "blue": 65.81492962985926,
+          "red_blue_score": -0.733171640450759,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "ComplementaryUnbound_r5.9.3.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 0,
+        "red_image": {
+          "red": 75.39611879223759,
+          "green": 11.579391158782318,
+          "blue": 12.093868187736376,
+          "red_blue_score": 0.7235365775015289,
+          "capture_error": 0
+        },
+        "patched_programs": 57,
+        "sampler_programs": 34,
+        "field_ready": true,
+        "normal_tesr_draws": 5268,
+        "fast_tesr_draws": 0,
+        "particle_draws": 3605,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 10.135966271932544,
+          "green": 10.31967263934528,
+          "blue": 65.85789571579143,
+          "red_blue_score": -0.7332419030338434,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.4567784805353723,
+        "uploaded_sections": 154,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 0,
+        "disabled_image": {
+          "red": 51.21538843077686,
+          "green": 39.96782193564387,
+          "blue": 36.8007936015872,
+          "red_blue_score": 0.16377198308836063,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 10.13280426560853,
+          "green": 10.317812635625272,
+          "blue": 65.81021762043524,
+          "red_blue_score": -0.7331465948667876,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "BSL_v10.1.8.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 0,
+        "red_image": {
+          "red": 110.59216318432637,
+          "green": 25.901295802591605,
+          "blue": 24.542191084382168,
+          "red_blue_score": 0.6367731809249751,
+          "capture_error": 0
+        },
+        "patched_programs": 53,
+        "sampler_programs": 34,
+        "field_ready": true,
+        "normal_tesr_draws": 10252,
+        "fast_tesr_draws": 0,
+        "particle_draws": 3525,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 25.851695703391407,
+          "green": 25.583173166346334,
+          "blue": 104.36753673507347,
+          "red_blue_score": -0.6029509019395736,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.2397240828645488,
+        "uploaded_sections": 237,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 0,
+        "disabled_image": {
+          "red": 52.303614607229214,
+          "green": 40.84059768119536,
+          "blue": 37.78876557753116,
+          "red_blue_score": 0.16111061791300124,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 25.850579701159404,
+          "green": 25.585467170934344,
+          "blue": 104.38068076136152,
+          "red_blue_score": -0.6030047117330579,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "photon_v1.3b.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 0,
+        "red_image": {
+          "red": 174.96174592349183,
+          "green": 11.06001612003224,
+          "blue": 40.68051336102672,
+          "red_blue_score": 0.6227035201741183,
+          "capture_error": 0
+        },
+        "patched_programs": 19,
+        "sampler_programs": 10,
+        "field_ready": true,
+        "normal_tesr_draws": 4148,
+        "fast_tesr_draws": 0,
+        "particle_draws": 2831,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 32.81592163184327,
+          "green": 45.31663463326927,
+          "blue": 141.36270072540145,
+          "red_blue_score": -0.6231920943371511,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.2458956145112694,
+        "uploaded_sections": 320,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 1282,
+        "disabled_image": {
+          "red": 53.208754417508835,
+          "green": 41.70735941471883,
+          "blue": 38.36511873023746,
+          "red_blue_score": 0.162094548664993,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 32.83235166470333,
+          "green": 45.33052266104532,
+          "blue": 141.34385268770538,
+          "red_blue_score": -0.6229982034600213,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "Solas Shader V3.8.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 1282,
+        "red_image": {
+          "red": 149.2739165478331,
+          "green": 2.8750077500155,
+          "blue": 3.8621117242234484,
+          "red_blue_score": 0.9495593400951929,
+          "capture_error": 0
+        },
+        "patched_programs": 46,
+        "sampler_programs": 38,
+        "field_ready": true,
+        "normal_tesr_draws": 2944,
+        "fast_tesr_draws": 0,
+        "particle_draws": 2025,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 2.332196664393329,
+          "green": 2.870543741087482,
+          "blue": 143.75739351478703,
+          "red_blue_score": -0.9680712818510534,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.9176306219462464,
+        "uploaded_sections": 403,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 1282,
+        "disabled_image": {
+          "red": 52.483228966457936,
+          "green": 41.174406348812695,
+          "blue": 37.949593899187796,
+          "red_blue_score": 0.16071183716899584,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 2.3354206708413416,
+          "green": 2.8758137516275033,
+          "blue": 143.76415152830305,
+          "red_blue_score": -0.9680293289753489,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "Pastel-Shaders-Universal-v1.200.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 1282,
+        "red_image": {
+          "red": 178.49358298716598,
+          "green": 46.712753425506854,
+          "blue": 47.63760927521855,
+          "red_blue_score": 0.5786726568988155,
+          "capture_error": 0
+        },
+        "patched_programs": 41,
+        "sampler_programs": 34,
+        "field_ready": true,
+        "normal_tesr_draws": 11872,
+        "fast_tesr_draws": 0,
+        "particle_draws": 4069,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 35.51323702647405,
+          "green": 39.021638043276084,
+          "blue": 173.14148428296858,
+          "red_blue_score": -0.6595978538019185,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.2382705107007341,
+        "uploaded_sections": 486,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 0,
+        "disabled_image": {
+          "red": 51.873023746047494,
+          "green": 40.597867195734395,
+          "blue": 37.49184698369397,
+          "red_blue_score": 0.1609263983426844,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 35.50244900489801,
+          "green": 39.008308016616034,
+          "blue": 173.1271002542005,
+          "red_blue_score": -0.6596602007674918,
+          "capture_error": 0
+        }
+      },
+      {
+        "pack": "Tea_V2.0.0_Dev10.zip",
+        "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "rgb_mode": true,
+        "rgb_active": true,
+        "canonical_source": 15,
+        "compiled_pipeline": true,
+        "draw_error_red": 0,
+        "red_image": {
+          "red": 72.12815425630852,
+          "green": 15.544237088474176,
+          "blue": 20.843263686527372,
+          "red_blue_score": 0.5516195999165076,
+          "capture_error": 0
+        },
+        "patched_programs": 49,
+        "sampler_programs": 39,
+        "field_ready": true,
+        "normal_tesr_draws": 18696,
+        "fast_tesr_draws": 0,
+        "particle_draws": 12816,
+        "draw_error_blue": 0,
+        "blue_image": {
+          "red": 8.277884555769111,
+          "green": 16.48453096906194,
+          "blue": 52.985491970983944,
+          "red_blue_score": -0.729760008420047,
+          "capture_error": 0
+        },
+        "color_only_score_change": 1.2813796083365545,
+        "uploaded_sections": 569,
+        "valid": true,
+        "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+        "disabled_bridge": true,
+        "disabled_draw_error": 0,
+        "disabled_image": {
+          "red": 52.905697811395626,
+          "green": 41.19052638105276,
+          "blue": 38.05524211048422,
+          "red_blue_score": 0.16326178677808753,
+          "capture_error": 0
+        },
+        "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+        "reenabled_bridge": true,
+        "reenabled_draw_error": 0,
+        "reenabled_image": {
+          "red": 8.31508463016926,
+          "green": 16.545105090210182,
+          "blue": 53.636927273854546,
+          "red_blue_score": -0.7315629612950036,
+          "capture_error": 0
+        }
+      }
+    ]
+  },
+  "diagnostic_demonica": {
+    "run": "shader-diagnostic-demonica-6",
+    "report": {
+      "completed": true,
+      "cases": [
+        {
+          "pack": "PulsarDiagnostic.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": true,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 167,
+          "rgb_active": true,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 212.1003162006324,
+            "green": 0.0,
+            "blue": 0.0,
+            "red_blue_score": 0.9999997076849908,
+            "capture_error": 0
+          },
+          "patched_programs": 48,
+          "sampler_programs": 57,
+          "field_ready": true,
+          "normal_tesr_draws": 46038,
+          "fast_tesr_draws": 46038,
+          "particle_draws": 31726,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 0.0,
+            "green": 0.0,
+            "blue": 203.32165664331328,
+            "red_blue_score": -0.999999695063939,
+            "capture_error": 0
+          },
+          "material_red": [
+            4908224444017932289,
+            -15900599140777983,
+            5390040682188125697
+          ],
+          "material_blue": [
+            4908224444017932289,
+            -15900599140777983,
+            5390040682188125697
+          ],
+          "normal_specular_alpha_unchanged": true,
+          "color_only_score_change": 1.9999994027489298,
+          "uploaded_sections": 208,
+          "valid": true,
+          "sky_red": {
+            "red": 23.612933225866453,
+            "green": 0.0,
+            "blue": 0.0,
+            "red_blue_score": 0.9999973743219186,
+            "capture_error": 0
+          },
+          "sky_blue": {
+            "red": 0.0,
+            "green": 0.0,
+            "blue": 22.550685101370203,
+            "red_blue_score": -0.9999972506399135,
+            "capture_error": 0
+          },
+          "sky_filter_changed": true,
+          "initial_classic": {
+            "red": 69.56289912579825,
+            "green": 40.454212908425816,
+            "blue": 27.796267592535184,
+            "red_blue_score": 0.428995094589784,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": true,
+          "classic_wall_tint": "ffffb9b9",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffff8080",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 51.55304110608221,
+            "green": 40.28743257486515,
+            "blue": 37.332878665757335,
+            "red_blue_score": 0.1599820596773811,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": true,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 0.0,
+            "green": 0.0,
+            "blue": 203.32165664331328,
+            "red_blue_score": -0.999999695063939,
+            "capture_error": 0
+          },
+          "nether_image": {
+            "red": 19.57815115630231,
+            "green": 193.22003844007688,
+            "blue": 18.80277760555521,
+            "red_blue_score": 0.020202020202020204,
+            "capture_error": 0
+          },
+          "nether_dimension": -1,
+          "dimension_field_reset": true,
+          "returned_image": {
+            "red": 0.0,
+            "green": 0.0,
+            "blue": 168.68299336598673,
+            "red_blue_score": -0.9999996324460458,
+            "capture_error": 0
+          },
+          "returned_dimension": 0
+        }
+      ],
+      "all_colored": true,
+      "all_compiled": true
+    }
+  },
+  "diagnostic_actinium": {
+    "run": "shader-diagnostic-actinium-6",
+    "report": {
+      "completed": true,
+      "cases": [
+        {
+          "pack": "PulsarDiagnostic.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": true,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 166,
+          "rgb_active": true,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 212.1003162006324,
+            "green": 0.0,
+            "blue": 0.0,
+            "red_blue_score": 0.9999997076849908,
+            "capture_error": 0
+          },
+          "patched_programs": 47,
+          "sampler_programs": 51,
+          "field_ready": true,
+          "normal_tesr_draws": 55824,
+          "fast_tesr_draws": 55824,
+          "particle_draws": 38320,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 0.0,
+            "green": 0.0,
+            "blue": 203.32165664331328,
+            "red_blue_score": -0.999999695063939,
+            "capture_error": 0
+          },
+          "material_red": [
+            4908224444017932289,
+            -15900599140777983,
+            -8734946513843210751
+          ],
+          "material_blue": [
+            4908224444017932289,
+            -15900599140777983,
+            -8734946513843210751
+          ],
+          "normal_specular_alpha_unchanged": true,
+          "color_only_score_change": 1.9999994027489298,
+          "uploaded_sections": 137,
+          "valid": true,
+          "sky_red": {
+            "red": 23.612933225866453,
+            "green": 0.0,
+            "blue": 0.0,
+            "red_blue_score": 0.9999973743219186,
+            "capture_error": 0
+          },
+          "sky_blue": {
+            "red": 0.0,
+            "green": 0.0,
+            "blue": 22.550685101370203,
+            "red_blue_score": -0.9999972506399135,
+            "capture_error": 0
+          },
+          "sky_filter_changed": true,
+          "initial_classic": {
+            "red": 69.0492280984562,
+            "green": 40.07012214024428,
+            "blue": 27.30987661975324,
+            "red_blue_score": 0.43316430496655145,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": true,
+          "classic_wall_tint": "ffffb9b9",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": true,
+          "classic_tint": "ffff8080",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 51.873023746047494,
+            "green": 40.597867195734395,
+            "blue": 37.49184698369397,
+            "red_blue_score": 0.1609263983426844,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": true,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 0.0,
+            "green": 0.0,
+            "blue": 203.32165664331328,
+            "red_blue_score": -0.999999695063939,
+            "capture_error": 0
+          },
+          "nether_image": {
+            "red": 22.810961621923244,
+            "green": 224.96093992187986,
+            "blue": 21.823919647839297,
+            "red_blue_score": 0.02211366032473188,
+            "capture_error": 0
+          },
+          "nether_dimension": -1,
+          "dimension_field_reset": true,
+          "returned_image": {
+            "red": 0.0,
+            "green": 0.0,
+            "blue": 195.16275032550064,
+            "red_blue_score": -0.9999996823158918,
+            "capture_error": 0
+          },
+          "returned_dimension": 0
+        }
+      ],
+      "all_colored": true,
+      "all_compiled": true
+    }
+  },
+  "scalar_demonica": {
+    "run": "shader-scalar-demonica-final-1",
+    "report": {
+      "completed": true,
+      "cases": [
+        {
+          "pack": "ComplementaryReimagined_r5.9.3.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 81.63984127968256,
+            "green": 62.50778101556203,
+            "blue": 52.112034224068445,
+            "red_blue_score": 0.2207654528724763,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 1608,
+          "fast_tesr_draws": 1608,
+          "particle_draws": 2244,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 81.63940727881456,
+            "green": 62.50629301258603,
+            "blue": 52.110484220968445,
+            "red_blue_score": 0.22077707158131196,
+            "capture_error": 0
+          },
+          "color_only_score_change": -1.1618708835675617e-05,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 71.25984251968504,
+            "green": 55.67933535867072,
+            "blue": 38.05759811519623,
+            "red_blue_score": 0.3037230416372218,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 69.8492776985554,
+            "green": 54.80978361956724,
+            "blue": 37.491908983817964,
+            "red_blue_score": 0.30144393801908037,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 81.63258726517454,
+            "green": 62.503565007130014,
+            "blue": 52.106082212164424,
+            "red_blue_score": 0.22077751693035744,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "ComplementaryUnbound_r5.9.3.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 81.62948725897452,
+            "green": 62.50747101494203,
+            "blue": 52.09535619071238,
+            "red_blue_score": 0.22085737110015582,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 1334,
+          "fast_tesr_draws": 1334,
+          "particle_draws": 1825,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 81.64157728315456,
+            "green": 62.506851013702025,
+            "blue": 52.10930621861244,
+            "red_blue_score": 0.22080046577408752,
+            "capture_error": 0
+          },
+          "color_only_score_change": 5.690532606830723e-05,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 71.25984251968504,
+            "green": 55.67933535867072,
+            "blue": 38.05759811519623,
+            "red_blue_score": 0.3037230416372218,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 69.8492776985554,
+            "green": 54.796949593899186,
+            "blue": 37.491908983817964,
+            "red_blue_score": 0.30144393801908037,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 81.63066526133052,
+            "green": 62.50461900923802,
+            "blue": 52.10447020894042,
+            "red_blue_score": 0.2207810330479853,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "BSL_v10.1.8.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 110.65354330708661,
+            "green": 93.55663711327422,
+            "blue": 70.84636369272738,
+            "red_blue_score": 0.21932334112064134,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 3884,
+          "fast_tesr_draws": 3884,
+          "particle_draws": 2699,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 110.6253332506665,
+            "green": 93.53177506355013,
+            "blue": 70.82732965465931,
+            "red_blue_score": 0.21932987568384477,
+            "capture_error": 0
+          },
+          "color_only_score_change": -6.534563203430821e-06,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 71.25984251968504,
+            "green": 55.67933535867072,
+            "blue": 38.05759811519623,
+            "red_blue_score": 0.3037230416372218,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 70.49023498046996,
+            "green": 55.10558621117242,
+            "blue": 37.78678157356315,
+            "red_blue_score": 0.3020348705709628,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 110.64157728315456,
+            "green": 93.53778907557815,
+            "blue": 70.83600967201934,
+            "red_blue_score": 0.21934143317527902,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "photon_v1.3b.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 148.0272180544361,
+            "green": 113.86570773141547,
+            "blue": 92.17310434620869,
+            "red_blue_score": 0.23253132524149553,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 914,
+          "fast_tesr_draws": 914,
+          "particle_draws": 1245,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 148.01122202244403,
+            "green": 113.85541571083142,
+            "blue": 92.15462830925662,
+            "red_blue_score": 0.23257502770007302,
+            "capture_error": 0
+          },
+          "color_only_score_change": -4.370245857748811e-05,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 71.25984251968504,
+            "green": 55.67933535867072,
+            "blue": 38.05759811519623,
+            "red_blue_score": 0.3037230416372218,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 1282,
+          "disabled_image": {
+            "red": 70.73587947175895,
+            "green": 55.57002914005828,
+            "blue": 37.9496558993118,
+            "red_blue_score": 0.3016611617864335,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 148.0287060574121,
+            "green": 113.8759377518755,
+            "blue": 92.18432636865273,
+            "red_blue_score": 0.23247849923484867,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "Solas Shader V3.8.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 1282,
+          "red_image": {
+            "red": 152.82987165974333,
+            "green": 124.80556761113522,
+            "blue": 91.56872713745427,
+            "red_blue_score": 0.25066072098117004,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 924,
+          "fast_tesr_draws": 924,
+          "particle_draws": 1260,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 152.81350362700726,
+            "green": 124.80525761051523,
+            "blue": 91.55415710831421,
+            "red_blue_score": 0.25068509798658195,
+            "capture_error": 0
+          },
+          "color_only_score_change": -2.437700541191301e-05,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 71.25984251968504,
+            "green": 55.67933535867072,
+            "blue": 38.05759811519623,
+            "red_blue_score": 0.3037230416372218,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 1282,
+          "disabled_image": {
+            "red": 72.00558001116002,
+            "green": 56.58974517949036,
+            "blue": 38.776675553351104,
+            "red_blue_score": 0.29994772801554503,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 152.81275962551925,
+            "green": 124.79694959389919,
+            "blue": 91.5509331018662,
+            "red_blue_score": 0.25069931746615304,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "Pastel-Shaders-Universal-v1.200.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 1282,
+          "red_image": {
+            "red": 178.46624093248187,
+            "green": 129.41205282410564,
+            "blue": 101.92913385826772,
+            "red_blue_score": 0.27296131474242774,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 6728,
+          "fast_tesr_draws": 6728,
+          "particle_draws": 4626,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 178.45836691673384,
+            "green": 129.40461280922563,
+            "blue": 101.9245458490917,
+            "red_blue_score": 0.2729617271930614,
+            "capture_error": 0
+          },
+          "color_only_score_change": -4.124506336466993e-07,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 71.25984251968504,
+            "green": 55.67933535867072,
+            "blue": 38.05759811519623,
+            "red_blue_score": 0.3037230416372218,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 70.49141298282596,
+            "green": 55.10558621117242,
+            "blue": 37.788827577655155,
+            "red_blue_score": 0.3020178613452523,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 178.49302498604996,
+            "green": 129.44162688325378,
+            "blue": 101.9480438960878,
+            "red_blue_score": 0.27294491663599174,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "Tea_V2.0.0_Dev10.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 76.0241800483601,
+            "green": 60.31756463512927,
+            "blue": 42.88294376588753,
+            "red_blue_score": 0.2787151680993444,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 11924,
+          "fast_tesr_draws": 11924,
+          "particle_draws": 16382,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 74.68770537541076,
+            "green": 59.34038068076136,
+            "blue": 42.219790439580876,
+            "red_blue_score": 0.27772297653481487,
+            "capture_error": 0
+          },
+          "color_only_score_change": 0.0009921915645295099,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 71.25984251968504,
+            "green": 55.67933535867072,
+            "blue": 38.05759811519623,
+            "red_blue_score": 0.3037230416372218,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 69.29338458676918,
+            "green": 54.1737243474487,
+            "blue": 37.064728129456256,
+            "red_blue_score": 0.3030200221399504,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 77.00341000682002,
+            "green": 61.065348130696265,
+            "blue": 43.21253642507285,
+            "red_blue_score": 0.2810846410763686,
+            "capture_error": 0
+          }
+        }
+      ],
+      "all_colored": true,
+      "all_compiled": true
+    }
+  },
+  "scalar_actinium": {
+    "run": "shader-scalar-actinium-final-1",
+    "report": {
+      "completed": true,
+      "cases": [
+        {
+          "pack": "ComplementaryReimagined_r5.9.3.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 82.94543989087978,
+            "green": 63.47194494388989,
+            "blue": 52.8495876991754,
+            "red_blue_score": 0.22162695486656936,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 2886,
+          "fast_tesr_draws": 2886,
+          "particle_draws": 3962,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 82.94376588753177,
+            "green": 63.467666935333874,
+            "blue": 52.850703701407404,
+            "red_blue_score": 0.22160731977920128,
+            "capture_error": 0
+          },
+          "color_only_score_change": 1.9635087368075066e-05,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 69.8492156984314,
+            "green": 54.80972161944324,
+            "blue": 37.49184698369397,
+            "red_blue_score": 0.30144428624650194,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 71.25978051956103,
+            "green": 55.679273358546716,
+            "blue": 38.05753611507223,
+            "red_blue_score": 0.3037233861545616,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 82.93093186186373,
+            "green": 63.45551491102982,
+            "blue": 52.844503689007375,
+            "red_blue_score": 0.22158952620708583,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "ComplementaryUnbound_r5.9.3.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 82.93291586583173,
+            "green": 63.462210924421846,
+            "blue": 52.838923677847355,
+            "red_blue_score": 0.22165110634673826,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 2708,
+          "fast_tesr_draws": 2708,
+          "particle_draws": 3709,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 82.94444788889578,
+            "green": 63.469464938929875,
+            "blue": 52.85702771405543,
+            "red_blue_score": 0.2215543410324319,
+            "capture_error": 0
+          },
+          "color_only_score_change": 9.676531430635738e-05,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 69.8492156984314,
+            "green": 54.80972161944324,
+            "blue": 37.49184698369397,
+            "red_blue_score": 0.30144428624650194,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 71.89472378944758,
+            "green": 56.58968317936636,
+            "blue": 38.64498728997458,
+            "red_blue_score": 0.30079432563649255,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 82.93347386694774,
+            "green": 63.45985491970984,
+            "blue": 52.84326368652737,
+            "red_blue_score": 0.22161525591521974,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "BSL_v10.1.8.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 110.65323330646662,
+            "green": 93.54479508959018,
+            "blue": 70.85696571393143,
+            "red_blue_score": 0.21925078708379858,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 5388,
+          "fast_tesr_draws": 5388,
+          "particle_draws": 3703,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 110.62124124248248,
+            "green": 93.51931303862608,
+            "blue": 70.82968565937132,
+            "red_blue_score": 0.21929643824981898,
+            "capture_error": 0
+          },
+          "color_only_score_change": -4.5651166020399536e-05,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 69.8492156984314,
+            "green": 54.80972161944324,
+            "blue": 37.49184698369397,
+            "red_blue_score": 0.30144428624650194,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 72.00551801103602,
+            "green": 56.58968317936636,
+            "blue": 38.77661355322711,
+            "red_blue_score": 0.2999480637517447,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 110.63760927521855,
+            "green": 93.53716907433815,
+            "blue": 70.84642569285138,
+            "red_blue_score": 0.21925438232387262,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "photon_v1.3b.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 154.18748837497674,
+            "green": 120.14105028210057,
+            "blue": 97.41081282162564,
+            "red_blue_score": 0.22566393052786696,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 1392,
+          "fast_tesr_draws": 1392,
+          "particle_draws": 1909,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 154.14669229338458,
+            "green": 120.10564821129643,
+            "blue": 97.3760927521855,
+            "red_blue_score": 0.22570752600810687,
+            "capture_error": 0
+          },
+          "color_only_score_change": -4.359548023991078e-05,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 69.8492156984314,
+            "green": 54.80972161944324,
+            "blue": 37.49184698369397,
+            "red_blue_score": 0.30144428624650194,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 1282,
+          "disabled_image": {
+            "red": 68.02808605617211,
+            "green": 53.16355632711265,
+            "blue": 36.32221464442929,
+            "red_blue_score": 0.30384054823723594,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 154.18327236654474,
+            "green": 120.13850827701656,
+            "blue": 97.41416082832166,
+            "red_blue_score": 0.2256346451073628,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "Solas Shader V3.8.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 1282,
+          "red_image": {
+            "red": 153.8487196974394,
+            "green": 125.65602331204663,
+            "blue": 92.35129270258541,
+            "red_blue_score": 0.24978638672099776,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 1273,
+          "fast_tesr_draws": 1273,
+          "particle_draws": 1738,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 153.83848967697935,
+            "green": 125.65168330336661,
+            "blue": 92.34664269328539,
+            "red_blue_score": 0.2497788185067649,
+            "capture_error": 0
+          },
+          "color_only_score_change": 7.568214232867021e-06,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 69.8492156984314,
+            "green": 54.80972161944324,
+            "blue": 37.49184698369397,
+            "red_blue_score": 0.30144428624650194,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 1282,
+          "disabled_image": {
+            "red": 70.49017298034596,
+            "green": 55.10552421104842,
+            "blue": 37.78671957343915,
+            "red_blue_score": 0.302035216465424,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 153.85566371132742,
+            "green": 125.66513733027466,
+            "blue": 92.36660673321347,
+            "red_blue_score": 0.24972981275747108,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "Pastel-Shaders-Universal-v1.200.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 1282,
+          "red_image": {
+            "red": 173.6967573935148,
+            "green": 125.0989521979044,
+            "blue": 98.31111662223324,
+            "red_blue_score": 0.2771450049416304,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 5018,
+          "fast_tesr_draws": 5018,
+          "particle_draws": 3465,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 173.67604935209872,
+            "green": 125.08370016740034,
+            "blue": 98.29716659433319,
+            "red_blue_score": 0.27715547397482865,
+            "capture_error": 0
+          },
+          "color_only_score_change": -1.046903319823489e-05,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 69.8492156984314,
+            "green": 54.80972161944324,
+            "blue": 37.49184698369397,
+            "red_blue_score": 0.30144428624650194,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 69.8492156984314,
+            "green": 54.80972161944324,
+            "blue": 37.49184698369397,
+            "red_blue_score": 0.30144428624650194,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 173.8008556017112,
+            "green": 125.18823237646475,
+            "blue": 98.38396676793353,
+            "red_blue_score": 0.27707963654338086,
+            "capture_error": 0
+          }
+        },
+        {
+          "pack": "Tea_V2.0.0_Dev10.zip",
+          "pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "rgb_mode": false,
+          "scalar_chunk_clean": true,
+          "source_callbacks": 0,
+          "rgb_active": false,
+          "canonical_source": 15,
+          "compiled_pipeline": true,
+          "draw_error_red": 0,
+          "red_image": {
+            "red": 77.001984003968,
+            "green": 61.06516213032426,
+            "blue": 43.21235042470085,
+            "red_blue_score": 0.2810780953284736,
+            "capture_error": 0
+          },
+          "patched_programs": 0,
+          "sampler_programs": 0,
+          "field_ready": false,
+          "normal_tesr_draws": 7079,
+          "fast_tesr_draws": 7079,
+          "particle_draws": 9670,
+          "draw_error_blue": 0,
+          "blue_image": {
+            "red": 76.07632215264431,
+            "green": 60.43183086366173,
+            "blue": 42.93037386074772,
+            "red_blue_score": 0.27852156335636064,
+            "capture_error": 0
+          },
+          "color_only_score_change": 0.0025565319721129742,
+          "uploaded_sections": 0,
+          "valid": true,
+          "initial_classic": {
+            "red": 69.8492156984314,
+            "green": 54.80972161944324,
+            "blue": 37.49184698369397,
+            "red_blue_score": 0.30144428624650194,
+            "capture_error": 0
+          },
+          "classic_vanilla_hook": false,
+          "classic_wall_tint": "ffffffff",
+          "disabled_pipeline": "net.coderbot.iris.pipeline.FixedFunctionWorldRenderingPipeline",
+          "disabled_bridge": true,
+          "classic_terrain_hook": false,
+          "classic_tint": "ffffffff",
+          "disabled_draw_error": 0,
+          "disabled_image": {
+            "red": 71.33870667741336,
+            "green": 55.85256370512741,
+            "blue": 38.33889267778535,
+            "red_blue_score": 0.30087999317124847,
+            "capture_error": 0
+          },
+          "reenabled_pipeline": "net.coderbot.iris.pipeline.DeferredWorldRenderingPipeline",
+          "reenabled_bridge": false,
+          "reenabled_draw_error": 0,
+          "reenabled_image": {
+            "red": 77.41149482298965,
+            "green": 61.986235972471945,
+            "blue": 43.50561101122202,
+            "red_blue_score": 0.28040587138313455,
+            "capture_error": 0
+          }
+        }
+      ],
+      "all_colored": true,
+      "all_compiled": true
+    }
+  }
+}
