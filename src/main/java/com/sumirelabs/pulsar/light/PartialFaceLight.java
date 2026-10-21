@@ -2,13 +2,14 @@ package com.sumirelabs.pulsar.light;
 
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockStairs;
+import net.minecraft.block.BlockCarpet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 
-/** Samples the exposed side of slab/stair surfaces and neighboring cube faces. */
+/** Samples exposed slab, stair and carpet surfaces and neighboring cube faces. */
 public final class PartialFaceLight {
     private static final double EPSILON = 0.0001;
     private static final ThreadLocal<PartialFaceLight> LOCAL = ThreadLocal.withInitial(PartialFaceLight::new);
@@ -21,7 +22,8 @@ public final class PartialFaceLight {
     private PartialFaceLight() {}
 
     public static boolean applies(IBlockState state) {
-        return !state.isFullCube() && (state.getBlock() instanceof BlockSlab || state.getBlock() instanceof BlockStairs);
+        return !state.isFullCube() && (state.getBlock() instanceof BlockSlab || state.getBlock() instanceof BlockStairs
+                || state.getBlock() instanceof BlockCarpet);
     }
 
     /** A cube face against a stair/slab is only partly visible and needs the same sampling. */

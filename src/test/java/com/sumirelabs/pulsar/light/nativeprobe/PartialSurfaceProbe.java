@@ -104,6 +104,8 @@ public final class PartialSurfaceProbe {
         boolean uvlock = false;
         if (state.isFullCube()) {
             model = new ResourceLocation("block/cube_all");
+        } else if (state.getBlock() == Blocks.CARPET) {
+            model = new ResourceLocation("block/carpet");
         } else if (state.getBlock() instanceof BlockSlab) {
             model = new ResourceLocation("block/" + (state.getValue(BlockSlab.HALF) == BlockSlab.EnumBlockHalf.TOP ? "upper_slab" : "half_slab"));
         } else {

@@ -53,7 +53,19 @@ public abstract class MixinBlockFaceLight implements FaceLitBlock {
                 continue;
             }
             int opacity = info.pulsar$getLightOpacity(facing, access, pos);
-            final int neighborLight = raw.pulsar$getRawLight(lightType, pos.offset(facing));
+            final BlockPos neighborPos = pos.offset(facing);
+            int neighborLight = raw.pulsar$getRawLight(lightType, neighborPos);
+            if (neighborLight <= lightLevel) {
+                continue;
+            }
+            final IBlockState neighbor = access.getBlockState(neighborPos);
+            // A partial block's stored light belongs to its open cavity. Do
+            // not borrow it through a closed face (e.g. carpet below stairs).
+            // Opaque emitters can still illuminate their exposed surfaces.
+            if (neighbor.getLightOpacity(access, neighborPos) >= 15
+                    && neighbor.isSideSolid(access, neighborPos, facing.getOpposite())) {
+                neighborLight = lightType == EnumSkyBlock.BLOCK ? neighbor.getLightValue(access, neighborPos) : 0;
+            }
             // A fully open face still attenuates by 1 unless it is
             // receiving full sky light (keeps open-to-sky faces at 15).
             if (opacity == 0 && (lightType != EnumSkyBlock.SKY || neighborLight != EnumSkyBlock.SKY.defaultLightValue)) {

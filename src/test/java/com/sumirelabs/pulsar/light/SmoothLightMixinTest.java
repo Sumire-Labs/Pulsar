@@ -47,6 +47,7 @@ class SmoothLightMixinTest {
         String candidate = run(config, false, false, true, false);
         assertTrue(previous.contains("STAIR_WALL_PASS rooms=16 legacy=true"), previous);
         assertTrue(candidate.contains("STAIR_WALL_PASS rooms=16 legacy=false"), candidate);
+        assertTrue(candidate.contains("CARPET_STAIR_PASS cases=4"), candidate);
         candidate.lines().filter(line -> line.startsWith("STAIR_WALL")).forEach(System.out::println);
     }
 

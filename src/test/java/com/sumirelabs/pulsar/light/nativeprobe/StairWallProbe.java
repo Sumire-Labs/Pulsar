@@ -69,6 +69,67 @@ public final class StairWallProbe {
             }
         }
         System.out.println("STAIR_WALL_PASS rooms=" + rooms + " legacy=" + legacy);
+        if (!legacy) carpetUnderStair();
+    }
+
+    private static void carpetUnderStair() throws Exception {
+        int cases = 0;
+        for (EnumFacing facing : EnumFacing.HORIZONTALS) {
+            Room world = new Room(facing, BlockStairs.EnumHalf.BOTTOM, true);
+            world.blocks.put(world.stair, Blocks.STONE.getDefaultState());
+            BlockPos stair = new BlockPos(7, 10, 7);
+            IBlockState state = Blocks.STONE_BRICK_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, facing);
+            world.blocks.put(stair, state);
+            BlockPos carpet = stair.down();
+            world.blocks.put(carpet, Blocks.CARPET.getDefaultState());
+            world.light = new StairRoomLight(world.blocks);
+            if (world.light.sky(carpet) != 0 || world.light.sky(stair) == 0) {
+                throw new AssertionError("Expected a dark room below a lit stair cavity");
+            }
+            int sampled = world.getCombinedLight(carpet, 0);
+            System.out.println("CARPET_STAIR facing=" + facing + " raw=" + world.light.sky(carpet) + " sampled=" + (sampled >>> 20));
+            if (sampled != 0) throw new AssertionError("Carpet borrowed light through the stair's solid underside");
+            for (int renderer = 0; renderer < (Boolean.getBoolean("issue20.celeritas") ? 3 : 2); renderer++) {
+                // The model also contains an internal DOWN quad at y=.5,
+                // buried in the stair base; only y=0 is visible from the room.
+                for (var quad : PartialSurfaceProbe.bake(state)) if (quad.getFace() == EnumFacing.DOWN
+                        && Float.intBitsToFloat(quad.getVertexData()[1]) == 0f) {
+                    for (int packed : PartialSurfaceProbe.renderAt(renderer, world, state, quad, stair)) {
+                        if (packed != 0) throw new AssertionError("Carpet brightened stair underside: renderer=" + renderer);
+                    }
+                }
+                for (var quad : PartialSurfaceProbe.bake(Blocks.CARPET.getDefaultState())) {
+                    for (int packed : PartialSurfaceProbe.renderAt(renderer, world, Blocks.CARPET.getDefaultState(), quad, carpet)) {
+                        if (packed != 0) throw new AssertionError("Carpet surface is lit: renderer=" + renderer);
+                    }
+                }
+            }
+            // Keep the same stored light while changing only source geometry:
+            // the open underside must still contribute to neighbor brightness.
+            world.blocks.put(stair, state.withProperty(BlockStairs.HALF, BlockStairs.EnumHalf.TOP));
+            if ((world.getCombinedLight(carpet, 0) >>> 20) != 13) {
+                throw new AssertionError("Open stair underside lost neighbor brightness");
+            }
+            world.blocks.put(stair, Blocks.GLASS.getDefaultState());
+            if ((world.getCombinedLight(carpet, 0) >>> 20) != 13) {
+                throw new AssertionError("Transparent source lost neighbor brightness");
+            }
+            world.blocks.put(stair, Blocks.GLOWSTONE.getDefaultState());
+            world.blockLights.put(stair, 15);
+            if (((FaceLightInfo) world.getBlockState(carpet)).pulsar$getLightFor(world, EnumSkyBlock.BLOCK, carpet) != 14) {
+                throw new AssertionError("Opaque emitter lost its emitted light");
+            }
+            world.blocks.put(stair, state);
+            if (((FaceLightInfo) world.getBlockState(carpet)).pulsar$getLightFor(world, EnumSkyBlock.BLOCK, carpet) != 0) {
+                throw new AssertionError("Carpet borrowed block light through the stair base");
+            }
+            world.blockLights.put(carpet, 7);
+            if (((FaceLightInfo) world.getBlockState(carpet)).pulsar$getLightFor(world, EnumSkyBlock.BLOCK, carpet) != 7) {
+                throw new AssertionError("Lost the carpet cell's own light");
+            }
+            cases++;
+        }
+        System.out.println("CARPET_STAIR_PASS cases=" + cases);
     }
 
     private static java.util.List<net.minecraft.client.renderer.block.model.BakedQuad> cube() throws Exception {
@@ -77,8 +138,9 @@ public final class StairWallProbe {
 
     private static final class Room implements IBlockAccess, RawLightAccess {
         final Map<BlockPos,IBlockState> blocks=new HashMap<>();
+        final Map<BlockPos,Integer> blockLights=new HashMap<>();
         final BlockPos stair;
-        final StairRoomLight light;
+        StairRoomLight light;
         Room(EnumFacing outward,BlockStairs.EnumHalf half,boolean backOutside)throws Exception {
             this(outward, half, backOutside, false);
         }
@@ -93,8 +155,12 @@ public final class StairWallProbe {
             light=new StairRoomLight(blocks);
         }
         public IBlockState getBlockState(BlockPos pos){return blocks.getOrDefault(pos,Blocks.AIR.getDefaultState());}
-        public int pulsar$getRawLight(EnumSkyBlock type,BlockPos pos){return type==EnumSkyBlock.SKY?light.sky(pos):0;}
-        public int getCombinedLight(BlockPos pos,int emission){return ((FaceLightInfo)getBlockState(pos)).pulsar$getLightFor(this,EnumSkyBlock.SKY,pos)<<20|emission<<4;}
+        public int pulsar$getRawLight(EnumSkyBlock type,BlockPos pos){return type==EnumSkyBlock.SKY?light.sky(pos):blockLights.getOrDefault(pos,0);}
+        public int getCombinedLight(BlockPos pos,int emission){
+            FaceLightInfo info=(FaceLightInfo)getBlockState(pos);
+            return info.pulsar$getLightFor(this,EnumSkyBlock.SKY,pos)<<20
+                    |Math.max(emission,info.pulsar$getLightFor(this,EnumSkyBlock.BLOCK,pos))<<4;
+        }
         public TileEntity getTileEntity(BlockPos pos){return null;}
         public boolean isAirBlock(BlockPos pos){return getBlockState(pos).getBlock()==Blocks.AIR;}
         public Biome getBiome(BlockPos pos){return null;}
