@@ -23,6 +23,9 @@ import java.util.Arrays;
  * <p>One engine instance processes one task at a time. Cache coordinates are
  * recentered for each task, then all references are cleared before the engine
  * returns to its worker pool.
+ * Block and writable nibble references are populated only in the inner 3x3;
+ * the outer ring holds read-only chunk/emptiness metadata. The parallel
+ * scheduler relies on this distinction when sharing read halos.
  */
 abstract class LightEngineCache {
 
@@ -224,6 +227,7 @@ abstract class LightEngineCache {
 
     protected final void setNibbleInCache(final int chunkX, final int chunkY, final int chunkZ,
                                           final SWMRNibbleArray nibble) {
+        this.assertWriteChunk(chunkX, chunkZ);
         this.nibbleCache[
                 chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset] = nibble;
     }
@@ -259,6 +263,8 @@ abstract class LightEngineCache {
     /** Publish a cache nibble only while its owning server chunk remains registered. */
     protected final void publishCacheNibble(final int index, final SWMRNibbleArray nibble,
                                             final boolean notify) {
+        assert index % 5 >= 1 && index % 5 <= 3 && (index / 5) % 5 >= 1 && (index / 5) % 5 <= 3
+                : "Light publication escaped the task's 3x3 write region";
         if (this.isClientSide) {
             this.publishVisibleNibble(index, nibble, notify);
             return;
@@ -409,6 +415,8 @@ abstract class LightEngineCache {
 
     protected final void postLightUpdate(final int sectionIndex,
                                          final int localX, final int localY, final int localZ) {
+        assert sectionIndex % 5 >= 1 && sectionIndex % 5 <= 3 && (sectionIndex / 5) % 5 >= 1 && (sectionIndex / 5) % 5 <= 3
+                : "Light write escaped the task's 3x3 write region";
         if (!this.isClientSide) {
             return;
         }
@@ -420,6 +428,13 @@ abstract class LightEngineCache {
             this.notifyBoundsCache[sectionIndex] =
                     RenderBounds.union(this.notifyBoundsCache[sectionIndex], point);
         }
+    }
+
+    /** Scheduler contract: the outer 5x5 halo is read-only metadata. */
+    protected final void assertWriteChunk(final int chunkX, final int chunkZ) {
+        assert Math.abs((long) (chunkX - ((31 - this.encodeOffsetX) >> 4))) <= 1
+                && Math.abs((long) (chunkZ - ((31 - this.encodeOffsetZ) >> 4))) <= 1
+                : "Light topology write escaped the task's 3x3 write region";
     }
 
     protected final SWMRNibbleArray[] getFilledEmptyLight() {

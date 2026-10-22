@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8.7",
+  "compatibilityLevel": "JAVA_25",
+  "package": "com.sumirelabs.pulsar.light.nativeprobe.mixin",
+  "mixins": ["CacheWriteAudit", "NibbleWriteAudit"],
+  "injectors": {"defaultRequire": 1}
+}

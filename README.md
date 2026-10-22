@@ -13,12 +13,17 @@ It reimplements Starlight-style algorithms for Cleanroom and runs lighting calcu
 ## Features
 
 - Runs server-side light propagation on separate threads.
+- Allows parallel tasks to share read-only chunk halos while keeping light writes isolated.
 - Batches large groups of block changes instead of processing lighting separately for every edit.
 - Caches light data in each chunk's NBT to avoid unnecessary full relights.
 - Keeps Vanilla's block-light and sky-light data synchronized, so removing Pulsar does not corrupt your world.
 - Includes various lighting bug fixes and quality-of-life improvements.
 - Adds natural lighting to Thaumcraft crystals.
 - Fully compatible with rendering mods such as Celeritas, Actinium, and Nothirium.
+
+The shared server lighting pool uses a 5x5 read halo and a 3x3 write region per task.
+Only read-only halos may overlap. For compatibility diagnosis, `performance.conservativeLightTaskReservations=true`
+restores the previous exclusive 5x5 policy after restarting Minecraft/the server.
 
 ### TileEntity Lighting
 

@@ -91,7 +91,7 @@ public class PulsarConfig {
                 "Server-side lighting workers, including the integrated server in singleplayer.",
                 "Default -1 selects logical CPU threads/3 automatically, clamped to 1..16.",
                 "0 uses the dedicated sky/block workers; 1..16 sets the shared pool size explicitly.",
-                "Tasks reserve a shared 5x5 chunk footprint; only non-overlapping tasks run together.",
+                "Tasks read a 5x5 chunk halo and write within 3x3; only read-only halos may overlap.",
                 "More threads may increase CPU and memory use without improving FPS or latency.",
                 "Restart Minecraft/the server to apply. Values are preserved while the config version matches."
         })
@@ -129,6 +129,15 @@ public class PulsarConfig {
     }
 
     public static class Performance {
+        @Config.Comment({
+                "Use the previous exclusive 5x5 chunk reservations in the shared server lighting pool.",
+                "Default false permits overlapping read-only halos while preserving isolated 3x3 writes.",
+                "Set true for compatibility diagnosis; nearby jobs then run less concurrently.",
+                "Only affects the shared pool, not dedicated workers. Restart Minecraft/the server to apply."
+        })
+        @Config.RequiresMcRestart
+        public boolean conservativeLightTaskReservations = false;
+
         @Config.Comment({
                 "Maximum fallback TileEntity light samples per world tick. Default 4096.",
                 "A round-robin cursor prevents starvation; larger source counts take multiple ticks to revisit.",
