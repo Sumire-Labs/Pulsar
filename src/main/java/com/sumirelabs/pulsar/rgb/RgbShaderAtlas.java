@@ -85,7 +85,7 @@ final class RgbShaderAtlas {
             if (world != current || layout == null || layout.side() != side) {
                 clear(); fallback();
                 if (GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE) < WIDTH) return;
-                world = current; radius = distance + 1;
+                world = current;
                 layout = new RgbShaderLightData.Layout(side, height.getMinLightSection(), height.getTotalLightSections());
                 indexHeight = (layout.entries() + RgbShaderLightData.INDEX_WIDTH - 1) / RgbShaderLightData.INDEX_WIDTH;
                 if (indexHeight > GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE)) { clear(); return; }
@@ -94,6 +94,9 @@ final class RgbShaderAtlas {
                 indexUpload = BufferUtils.createIntBuffer(index.length);
                 beginUpload(); grow(64); uploadIndex(true);
             }
+            // Several render distances share the same power-of-two index layout.
+            // Its allocation can stay unchanged while the visible radius changes.
+            radius = distance + 1;
             var camera = Minecraft.getMinecraft().getRenderViewEntity();
             if (camera == null) return;
             centerX = (int)Math.floor(camera.posX) >> 4; centerZ = (int)Math.floor(camera.posZ) >> 4;

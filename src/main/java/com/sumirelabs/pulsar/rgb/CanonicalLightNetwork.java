@@ -86,7 +86,9 @@ public final class CanonicalLightNetwork {
         if (PENDING.isEmpty()) return;
         for (var entry : PENDING.entrySet()) {
             NetworkManager connection = entry.getKey(); Pending pending = entry.getValue();
-            if (!connection.isChannelOpen() || CLIENTS.contains(connection) || RgbNetwork.supported(pending.player)) {
+            // RGB protocol v2 predates canonical authority. Color reception alone
+            // does not stop an older client from recomputing vanilla brightness.
+            if (!connection.isChannelOpen() || CLIENTS.contains(connection)) {
                 PENDING.remove(connection, pending); continue;
             }
             if (++pending.ticks < 300) continue;

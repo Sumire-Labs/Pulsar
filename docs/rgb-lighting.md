@@ -22,6 +22,11 @@ or mismatched managed config version regenerates the main configuration with
 the current defaults; keep the version unchanged. The new RGB defaults are
 `rgbBlendMode=SQUARED_WEIGHT` and `rgbGameplayLight=RGB_MAX`.
 
+Changing between RGB_MAX and ordinary gameplay brightness (SCALAR or
+RGB/VANILLA) invalidates saved lighting and relights loaded chunks. Cache format
+14 also relights older caches once, since they did not identify which gameplay
+brightness policy produced their canonical light.
+
 RGB clients connected to SCALAR servers retain monochrome lighting. In RGB mode,
 the restart-only `rgbGameplayLight` policy selects:
 
@@ -30,6 +35,7 @@ the restart-only `rgbGameplayLight` policy selects:
   and emission can change spawning and every other gameplay light consumer.
   Both RGB and SCALAR clients need a compatible Pulsar version for authoritative
   light; unsupported clients are disconnected after a handshake grace period.
+  The older RGB color handshake alone does not establish this capability.
 - `VANILLA`: retain the independent scalar propagation pass and existing gameplay
   brightness. RGB filters affect appearance without changing scalar brightness.
 
