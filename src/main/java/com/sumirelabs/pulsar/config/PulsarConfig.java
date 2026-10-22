@@ -56,7 +56,7 @@ public class PulsarConfig {
     public static final Features features = new Features();
     @Config.Comment("Debug options")
     public static final Debug debug = new Debug();
-    @Config.Comment("Lighting scheduling and memory tuning. Defaults retain existing budgets and cache sizes.")
+    @Config.Comment("Lighting scheduling, contextual polling and memory tuning.")
     public static final Performance performance = new Performance();
     @Config.Comment({
             "Enable Pulsar's mob-spawn lighting gate. False uses vanilla spawn checks.",
@@ -67,7 +67,8 @@ public class PulsarConfig {
     public static class Features {
 
         @Config.Comment({
-                "Server side: resample tracked TileEntity emission/opacity each world tick.",
+                "Server side: poll tracked TileEntity emission/opacity with a shared per-world tick budget.",
+                "Large source counts are spread over multiple ticks; see performance.tileEntityLight* settings.",
                 "Disable to reduce sampling cost or diagnose compatibility; changing TileEntity lights may then stay stale.",
                 "Normal block-change sampling remains enabled. Changes apply without a restart."
         })
@@ -128,6 +129,25 @@ public class PulsarConfig {
     }
 
     public static class Performance {
+        @Config.Comment({
+                "Maximum fallback TileEntity light samples per world tick. Default 4096.",
+                "A round-robin cursor prevents starvation; larger source counts take multiple ticks to revisit.",
+                "Explicit block changes, TileEntity installation/removal and worker misses are processed first",
+                "and are not limited by this fallback budget. Changes apply without a restart."
+        })
+        @Config.RangeInt(min = 1, max = 1000000)
+        public volatile int tileEntityLightSamplesPerTick = 4096;
+
+        @Config.Comment({
+                "Soft time limit in microseconds for fallback TileEntity light polling per world tick. Default 1000 (1 ms).",
+                "Polling stops at the first of this limit and tileEntityLightSamplesPerTick.",
+                "A single MOD callback cannot be interrupted and may exceed this limit.",
+                "Lower budgets reduce tick cost but delay changes from MODs which do not notify light updates.",
+                "Explicit update processing is not limited. Changes apply without a restart."
+        })
+        @Config.RangeInt(min = 1, max = 50000)
+        public volatile int tileEntityLightBudgetMicros = 1000;
+
         @Config.Comment({
                 "Time in milliseconds spent draining one batch by a dedicated server lighting worker.",
                 "Applies only when experimentalServerLightThreads=0; shared-pool workers run claimed tasks directly.",

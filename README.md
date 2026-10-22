@@ -20,6 +20,19 @@ It reimplements Starlight-style algorithms for Cleanroom and runs lighting calcu
 - Adds natural lighting to Thaumcraft crystals.
 - Fully compatible with rendering mods such as Celeritas, Actinium, and Nothirium.
 
+### TileEntity Lighting
+
+Pulsar samples position-dependent light values on the server thread because MOD callbacks may access live TileEntities.
+Fallback polling for MODs that change light without notifying Minecraft uses a world-wide round-robin cursor.
+It also checks neighbouring contextual blocks and fluids which may depend on a TileEntity, even if that TileEntity's own light stays unchanged.
+By default, each world polls up to **4096 sources or 1 ms per tick**, whichever comes first.
+The `performance.tileEntityLightSamplesPerTick` and `performance.tileEntityLightBudgetMicros` settings control these limits without a restart.
+A single MOD callback can exceed the soft time limit.
+
+With many tracked sources, unnotified light changes may take multiple ticks to appear.
+Explicit block changes, TileEntity installation/removal and worker cache misses are processed before fallback polling and do not share its budget.
+Disabling `features.trackTileEntityLight` stops fallback polling; explicit updates still work, but unnotified changes may remain stale.
+
 ## Fixed Bugs
 
 - [MC-92](https://bugs.mojang.com/browse/MC-92)
@@ -49,6 +62,7 @@ It reimplements Starlight-style algorithms for Cleanroom and runs lighting calcu
 
 ### Unsupported or Untested
 
+- SpongeForge: disable its async-lighting optimization with `optimizations.async-lighting.enabled=false` in `config/sponge/global.conf` before using Pulsar. Its chunk-packet redirects conflict with Pulsar's handling of light-only sections. See [issue #24](https://github.com/Sumire-Labs/Pulsar/issues/24).
 - CubicChunks
 - OptiFine
 
