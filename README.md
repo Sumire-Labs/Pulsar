@@ -62,7 +62,7 @@ Disabling `features.trackTileEntityLight` stops fallback polling; explicit updat
 
 ### Unsupported or Untested
 
-- SpongeForge: disable its async-lighting optimization with `optimizations.async-lighting.enabled=false` in `config/sponge/global.conf` before using Pulsar. Its chunk-packet redirects conflict with Pulsar's handling of light-only sections. See [issue #24](https://github.com/Sumire-Labs/Pulsar/issues/24).
+- SpongeForge: the chunk-packet async-lighting redirect conflict reported in [issue #24](https://github.com/Sumire-Labs/Pulsar/issues/24) is addressed by composing with its captured section arrays. The full SpongeForge server integration remains untested; disabling `optimizations.async-lighting.enabled` in `config/sponge/global.conf` remains a diagnostic workaround.
 - CubicChunks
 - OptiFine
 
