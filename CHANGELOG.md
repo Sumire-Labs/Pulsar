@@ -10,13 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Prevent skylight from brightening wall faces partly hidden by adjacent stairs
-  or slabs. Verify the reported sealed-room stair placement in the actual game
-  and the Vanilla, Forge and Celeritas lighting paths (issue #20).
-- Sample the exposed side of slab and stair model vertices, including inset treads
-  and risers, in Vanilla, Forge and Celeritas. Verify all 42 vanilla model states
-  through the real baked-quad lighting paths (issue #20).
-- Exclude hidden edge and diagonal light from smooth-lighting corners in Vanilla,
-  Forge and Celeritas, including slab halves and stair shapes (MC-12558, issue #20).
+  or slabs (issue #20).
+- Sample the exposed surfaces of slab and stair models, including inset treads
+  and risers, in Vanilla, Forge and Celeritas lighting paths (issue #20).
+- Exclude hidden edge and diagonal light from smooth-lighting corners, including
+  slab halves and stair shapes, in Vanilla, Forge and Celeritas (MC-12558,
+  issue #20).
+- Prevent light leaks through carpets below stairs (issue #20).
+- Fix the chunk-packet redirect conflict with SpongeForge's asynchronous
+  lighting by preserving its captured section arrays (issue #24).
+
+### Changed
+
+- Reduce redundant TileEntity light sampling and spread background checks
+  across ticks with configurable sample and time budgets. Explicit lighting
+  update requests remain prioritized (issue #24).
+- Improve parallel lighting concurrency by allowing read-only chunk halos
+  to overlap while preserving exclusion around writes.
 
 ## [0.5.2]
 
