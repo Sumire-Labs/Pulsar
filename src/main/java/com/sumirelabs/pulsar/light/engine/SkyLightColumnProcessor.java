@@ -50,6 +50,7 @@ final class SkyLightColumnProcessor {
     private void initSkyNibble(final SWMRNibbleArray nibble,
                                final int chunkX, final int chunkY, final int chunkZ,
                                final boolean extrude) {
+        this.engine.assertWriteChunk(chunkX, chunkZ);
         final ScalarSkyEngine engine = this.engine;
         if (!nibble.isNullNibbleUpdating()) {
             return;
@@ -104,6 +105,7 @@ final class SkyLightColumnProcessor {
     void setNibbleNull(final int chunkX, final int chunkY, final int chunkZ) {
         final SWMRNibbleArray nibble = this.engine.getNibbleFromCache(chunkX, chunkY, chunkZ);
         if (nibble != null) {
+            this.engine.assertWriteChunk(chunkX, chunkZ);
             nibble.setNull();
         }
     }

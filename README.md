@@ -13,6 +13,7 @@ It reimplements Starlight-style algorithms for Cleanroom and runs lighting calcu
 ## Features
 
 - Runs server-side light propagation on separate threads.
+- Allows parallel tasks to share read-only chunk halos while keeping light writes isolated.
 - Batches large groups of block changes instead of processing lighting separately for every edit.
 - Caches light data in each chunk's NBT to avoid unnecessary full relights.
 - Keeps Vanilla's block-light and sky-light data synchronized, so removing Pulsar does not corrupt your world.
@@ -36,6 +37,23 @@ listed in the [shader compatibility guide](docs/rgb-lighting.md#demonica-and-act
 See the [RGB setup and API guide](docs/rgb-lighting.md),
 [SuperNova implementation comparison](docs/research/supernova-parity.md) and
 [native validation and measurements](docs/research/supernova-parity/README.md).
+
+The shared server lighting pool uses a 5x5 read halo and a 3x3 write region per task.
+Only read-only halos may overlap. For compatibility diagnosis, `performance.conservativeLightTaskReservations=true`
+restores the previous exclusive 5x5 policy after restarting Minecraft/the server.
+
+### TileEntity Lighting
+
+Pulsar samples position-dependent light values on the server thread because MOD callbacks may access live TileEntities.
+Fallback polling for MODs that change light without notifying Minecraft uses a world-wide round-robin cursor.
+It also checks neighbouring contextual blocks and fluids which may depend on a TileEntity, even if that TileEntity's own light stays unchanged.
+By default, each world polls up to **4096 sources or 1 ms per tick**, whichever comes first.
+The `performance.tileEntityLightSamplesPerTick` and `performance.tileEntityLightBudgetMicros` settings control these limits without a restart.
+A single MOD callback can exceed the soft time limit.
+
+With many tracked sources, unnotified light changes may take multiple ticks to appear.
+Explicit block changes, TileEntity installation/removal and worker cache misses are processed before fallback polling and do not share its budget.
+Disabling `features.trackTileEntityLight` stops fallback polling; explicit updates still work, but unnotified changes may remain stale.
 
 ## Fixed Bugs
 
@@ -66,6 +84,7 @@ See the [RGB setup and API guide](docs/rgb-lighting.md),
 
 ### Unsupported or Untested
 
+- SpongeForge: the chunk-packet async-lighting redirect conflict reported in [issue #24](https://github.com/Sumire-Labs/Pulsar/issues/24) is addressed by composing with its captured section arrays. The full SpongeForge server integration remains untested; disabling `optimizations.async-lighting.enabled` in `config/sponge/global.conf` remains a diagnostic workaround.
 - CubicChunks
 - OptiFine
 

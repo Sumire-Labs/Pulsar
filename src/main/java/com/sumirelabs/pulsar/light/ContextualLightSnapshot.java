@@ -88,6 +88,8 @@ public final class ContextualLightSnapshot<S> {
         return this.cells.containsKey(position);
     }
 
+    boolean isEmpty() { return this.cells.isEmpty(); }
+
     /** Invalidate only already-published sources in a heightmap-affected column. */
     public void requestColumn(final int localX, final int localZ, final int minY, final int maxY) {
         if (minY > maxY || this.cells.isEmpty()) return;

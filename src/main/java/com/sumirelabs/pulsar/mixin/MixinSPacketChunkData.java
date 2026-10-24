@@ -1,5 +1,6 @@
 package com.sumirelabs.pulsar.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.sumirelabs.pulsar.light.ChunkPacketLight;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.util.WorldUtil;
@@ -25,9 +26,8 @@ public abstract class MixinSPacketChunkData {
 
     @Unique
     private ExtendedBlockStorage[] pulsar$getPacketSections(
-            final Chunk chunk, final boolean hasSky, final int sectionMask) {
+            final Chunk chunk, final boolean hasSky, final int sectionMask, final ExtendedBlockStorage[] storage) {
         if (this.pulsar$packetSections == null) {
-            final ExtendedBlockStorage[] storage = chunk.getBlockStorageArray();
             this.pulsar$packetSections = chunk instanceof PulsarChunk
                     ? ChunkPacketLight.prepareSections(
                     WorldUtil.getHeightContext(chunk.getWorld()),
@@ -39,23 +39,25 @@ public abstract class MixinSPacketChunkData {
         return this.pulsar$packetSections;
     }
 
-    @Redirect(method = "calculateChunkSize",
+    @ModifyExpressionValue(method = "calculateChunkSize",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/chunk/Chunk;getBlockStorageArray()[Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;"),
             require = 0)
     private ExtendedBlockStorage[] pulsar$sizePacketSections(
-            final Chunk chunk, final Chunk owner, final boolean hasSky, final int sectionMask) {
-        return this.pulsar$getPacketSections(chunk, hasSky, sectionMask);
+            final ExtendedBlockStorage[] storage, final Chunk chunk, final boolean hasSky, final int sectionMask) {
+        // Preserve other mods' snapshots (notably Sponge's async-lighting
+        // redirect), then add Pulsar's packet-only light sections to that view.
+        return this.pulsar$getPacketSections(chunk, hasSky, sectionMask, storage);
     }
 
-    @Redirect(method = "extractChunkData",
+    @ModifyExpressionValue(method = "extractChunkData",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/chunk/Chunk;getBlockStorageArray()[Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;"),
             require = 0)
     private ExtendedBlockStorage[] pulsar$extractPacketSections(
-            final Chunk chunk, final PacketBuffer buffer, final Chunk owner,
+            final ExtendedBlockStorage[] storage, final PacketBuffer buffer, final Chunk chunk,
             final boolean hasSky, final int sectionMask) {
-        return this.pulsar$getPacketSections(chunk, hasSky, sectionMask);
+        return this.pulsar$getPacketSections(chunk, hasSky, sectionMask, storage);
     }
 
     @Inject(method = "<init>(Lnet/minecraft/world/chunk/Chunk;I)V", at = @At("RETURN"), require = 0)

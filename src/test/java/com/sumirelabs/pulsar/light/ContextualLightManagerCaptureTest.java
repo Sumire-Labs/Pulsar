@@ -15,12 +15,259 @@ import net.minecraftforge.fml.common.Loader;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import com.sumirelabs.pulsar.config.PulsarConfig;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ContextualLightManagerCaptureTest {
     private static java.lang.reflect.Field namedMods;
     private static Object previousMods;
+    private int oldLimit, oldBudget;
+    private boolean oldTracking;
+
+    @BeforeEach void savePollingConfig() {
+        oldLimit = PulsarConfig.performance.tileEntityLightSamplesPerTick;
+        oldBudget = PulsarConfig.performance.tileEntityLightBudgetMicros;
+        oldTracking = PulsarConfig.features.trackTileEntityLight;
+    }
+
+    @AfterEach void restorePollingConfig() {
+        PulsarConfig.performance.tileEntityLightSamplesPerTick = oldLimit;
+        PulsarConfig.performance.tileEntityLightBudgetMicros = oldBudget;
+        PulsarConfig.features.trackTileEntityLight = oldTracking;
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "pulsar.benchmark.contextual", matches = "true")
+    void stationaryTileSourceBenchmark() {
+        if (Boolean.getBoolean("pulsar.benchmark.unlimited")) {
+            PulsarConfig.performance.tileEntityLightSamplesPerTick = 1000000;
+            PulsarConfig.performance.tileEntityLightBudgetMicros = 50000;
+        }
+        var block = new ContextBlock();
+        var manager = new ContextualLightManager(null, WorldHeightContext.VANILLA);
+        for (int c = 0; c < 768; c++) {
+            var chunk = new TestChunk(c % 32, c / 32);
+            var section = new ExtendedBlockStorage(64, true);
+            chunk.getBlockStorageArray()[4] = section;
+            for (int n = 0; n < 89; n++) {
+                int x = n & 15, z = n >> 4;
+                section.set(x, 0, z, block.getDefaultState());
+                chunk.getTileEntityMap().put(new BlockPos(chunk.x * 16 + x, 64, chunk.z * 16 + z),
+                        new net.minecraft.tileentity.TileEntity() {});
+            }
+            manager.load(chunk);
+        }
+        for (int i = 0; i < 40; i++) manager.flush(null);
+        int before = block.calls;
+        long[] timings = new long[100];
+        for (int i = 0; i < timings.length; i++) {
+            long start = System.nanoTime();
+            manager.flush(null);
+            timings[i] = System.nanoTime() - start;
+        }
+        java.util.Arrays.sort(timings);
+        System.out.println("CONTEXTUAL_BENCH sources=68352 medianNs=" + timings[50]
+                + " p95Ns=" + timings[95] + " capturesPerTick=" + (block.calls - before) / 100.0);
+    }
+
+    private static final class TileLightBlock extends Block {
+        int emission, opacity = 255, calls;
+        Runnable callback;
+        java.util.Set<BlockPos> visited;
+        TileLightBlock() { super(Material.ROCK); }
+        @Override public int getLightValue(IBlockState state, IBlockAccess access, BlockPos pos) {
+            calls++;
+            if (visited != null) visited.add(pos.toImmutable());
+            if (callback != null) { Runnable action = callback; callback = null; action.run(); }
+            return emission;
+        }
+        @Override public int getLightOpacity(IBlockState state, IBlockAccess access, BlockPos pos) { return opacity; }
+    }
+
+    private static TestChunk tileChunk(TileLightBlock block, int cx, int count) {
+        var chunk = new TestChunk(cx, 0);
+        var section = new ExtendedBlockStorage(64, true);
+        chunk.getBlockStorageArray()[4] = section;
+        for (int n = 0; n < count; n++) {
+            section.set(n & 15, 0, n >> 4, block.getDefaultState());
+            chunk.getTileEntityMap().put(new BlockPos(cx * 16 + (n & 15), 64, n >> 4),
+                    new net.minecraft.tileentity.TileEntity() {});
+        }
+        return chunk;
+    }
+
+    private static void pollingLimit(int count) {
+        PulsarConfig.features.trackTileEntityLight = true;
+        PulsarConfig.performance.tileEntityLightSamplesPerTick = count;
+        PulsarConfig.performance.tileEntityLightBudgetMicros = 50000;
+    }
+
+    @Test void boundedPollingIsFairAndStationarySourcesCreateNoQueuedWork() {
+        pollingLimit(3);
+        var block = new TileLightBlock();
+        var chunk = tileChunk(block, 0, 10);
+        var manager = new ContextualLightManager(null, WorldHeightContext.VANILLA);
+        manager.load(chunk);
+        int before = block.calls;
+        var changes = new java.util.ArrayList<BlockPos>();
+        manager.flushSamples((x,y,z,lanes) -> changes.add(new BlockPos(x,y,z)));
+        assertEquals(3, block.calls - before);
+        assertTrue(changes.isEmpty());
+        assertFalse(manager.hasPending(0,0));
+        block.emission = 12;
+        for (int tick = 0; tick < 4; tick++) manager.flushSamples((x,y,z,lanes) -> changes.add(new BlockPos(x,y,z)));
+        for (int x = 0; x < 10; x++) {
+            assertEquals(12, LightInfo.emission(manager.read(LightInfo.of(block.getDefaultState()), block.getDefaultState(), x,64,0)));
+        }
+        assertEquals(10, new java.util.HashSet<>(changes).size(), "Every unnotified source must eventually be sampled");
+    }
+
+    @Test void explicitChangesBypassTheFallbackLimitAndWorkWithPollingDisabled() {
+        pollingLimit(1);
+        var block = new TileLightBlock();
+        var chunk = tileChunk(block, 0, 10);
+        var manager = new ContextualLightManager(null, WorldHeightContext.VANILLA);
+        manager.load(chunk);
+        block.opacity = 1;
+        PulsarConfig.features.trackTileEntityLight = false;
+        for (int x=0;x<10;x++) manager.tileEntityChanged(new BlockPos(x,64,0));
+        var changes = new java.util.ArrayList<Integer>();
+        int before = block.calls;
+        manager.flushSamples((x,y,z,lanes) -> changes.add(lanes));
+        assertEquals(10, block.calls - before);
+        assertEquals(10, changes.size());
+        assertTrue(changes.stream().allMatch(lanes -> lanes == ContextualLightSnapshot.BOTH_CHANGED));
+        assertFalse(manager.hasPending(0,0));
+    }
+
+    @Test void workerSnapshotMissesAreCorrectedEvenWithFallbackPollingDisabled() {
+        pollingLimit(1);
+        var block=new TileLightBlock(); var replacement=new TileLightBlock();
+        var chunk=tileChunk(block,0,1);
+        var manager=new ContextualLightManager(null,WorldHeightContext.VANILLA);
+        manager.load(chunk);
+        replacement.emission=7;
+        chunk.getBlockStorageArray()[4].set(0,0,0,replacement.getDefaultState());
+        PulsarConfig.features.trackTileEntityLight=false;
+        manager.read(LightInfo.of(replacement.getDefaultState()),replacement.getDefaultState(),0,64,0);
+        assertEquals(0,replacement.calls,"Worker-side reads must not invoke live callbacks");
+        var lanes=new java.util.ArrayList<Integer>();
+        manager.flushSamples((x,y,z,flags) -> lanes.add(flags));
+        assertEquals(java.util.List.of(ContextualLightSnapshot.BOTH_CHANGED),lanes);
+        assertEquals(1,replacement.calls);
+        assertEquals(7,LightInfo.emission(manager.read(LightInfo.of(replacement.getDefaultState()),replacement.getDefaultState(),0,64,0)));
+    }
+
+    @Test void roundRobinContinuesAcrossChunksAndDiscardsUnloadedChunks() {
+        pollingLimit(1);
+        var first = new TileLightBlock(); var second = new TileLightBlock();
+        var manager = new ContextualLightManager(null, WorldHeightContext.VANILLA);
+        manager.load(tileChunk(first,0,3)); manager.load(tileChunk(second,1,3));
+        int a=first.calls, b=second.calls;
+        for (int tick=0;tick<6;tick++) manager.flushSamples((x,y,z,lanes) -> fail("Stationary sources changed"));
+        assertEquals(3,first.calls-a); assertEquals(3,second.calls-b);
+        manager.unload(0,0); a=first.calls; b=second.calls;
+        for (int tick=0;tick<3;tick++) manager.flushSamples((x,y,z,lanes) -> fail("Stationary sources changed"));
+        assertEquals(a,first.calls); assertEquals(3,second.calls-b);
+    }
+
+    @Test void denseChunksAndSparseChunksShareOneSourceCursor() {
+        pollingLimit(3);
+        var block=new TileLightBlock();
+        var manager=new ContextualLightManager(null,WorldHeightContext.VANILLA);
+        manager.load(tileChunk(block,0,40));
+        for(int c=1;c<=3;c++)manager.load(tileChunk(block,c,1));
+        block.visited=new java.util.HashSet<>();
+        for(int tick=0;tick<15;tick++) {
+            int before=block.calls;
+            manager.flushSamples((x,y,z,lanes) -> fail("Stationary light changed"));
+            assertEquals(3,block.calls-before);
+        }
+        assertEquals(43,block.visited.size(),"Dense chunks must not wait longer simply because other chunks contain few sources");
+    }
+
+    @Test void reentrantUnloadDoesNotResurrectTrackingOrPublishObsoleteLight() {
+        pollingLimit(64);
+        var block = new TileLightBlock();
+        var manager = new ContextualLightManager(null, WorldHeightContext.VANILLA);
+        manager.load(tileChunk(block,0,10));
+        block.emission=15;
+        block.callback=() -> manager.unload(0,0);
+        int before=block.calls;
+        manager.flushSamples((x,y,z,lanes) -> fail("Unloaded chunk published light"));
+        assertEquals(1,block.calls-before);
+        manager.flushSamples((x,y,z,lanes) -> fail("Unloaded chunk published light"));
+        assertEquals(1,block.calls-before);
+    }
+
+    @Test void oneSlowModCallbackExhaustsTheSoftPollingBudget() {
+        pollingLimit(64);
+        PulsarConfig.performance.tileEntityLightBudgetMicros=1000;
+        var block=new TileLightBlock();
+        var manager=new ContextualLightManager(null,WorldHeightContext.VANILLA);
+        manager.load(tileChunk(block,0,10));
+        block.callback=() -> java.util.concurrent.locks.LockSupport.parkNanos(5_000_000L);
+        int before=block.calls;
+        manager.flushSamples((x,y,z,lanes) -> fail("Stationary sources changed"));
+        assertTrue(block.calls-before<=1,"Polling must yield after the callback exceeds its time budget");
+    }
+
+    @Test void tileReplacementAndRemovalDoNotLeaveStaleTrackedObjects() {
+        pollingLimit(1);
+        var block=new TileLightBlock();
+        var chunk=tileChunk(block,0,1);
+        var manager=new ContextualLightManager(null,WorldHeightContext.VANILLA);
+        manager.load(chunk);
+        var replacement=new net.minecraft.tileentity.TileEntity() {};
+        chunk.getTileEntityMap().put(new BlockPos(0,64,0),replacement);
+        manager.flushSamples((x,y,z,lanes) -> fail("Identical replacement changed light"));
+        replacement.invalidate();
+        manager.flushSamples((x,y,z,lanes) -> fail("Invalid tile changed constant light"));
+        int before=block.calls;
+        manager.flushSamples((x,y,z,lanes) -> fail("Removed source published light"));
+        assertEquals(before,block.calls,"The replacement, rather than the old tile, must be checked and removed");
+    }
+
+    @Test void aPolledChangeRefreshesContextualNeighboursWithoutTileEntities() {
+        pollingLimit(1);
+        var source=new TileLightBlock(); var neighbour=new TileLightBlock();
+        var chunk=tileChunk(source,0,1);
+        chunk.getBlockStorageArray()[4].set(1,0,0,neighbour.getDefaultState());
+        var manager=new ContextualLightManager(null,WorldHeightContext.VANILLA);
+        manager.load(chunk);
+        source.emission=9; neighbour.opacity=1;
+        var changes=new java.util.HashMap<BlockPos,Integer>();
+        manager.flushSamples((x,y,z,lanes) -> changes.put(new BlockPos(x,y,z),lanes));
+        assertEquals(ContextualLightSnapshot.BLOCK_CHANGED,changes.get(new BlockPos(0,64,0)));
+        assertTrue(manager.hasPending(0,0));
+        manager.flushSamples((x,y,z,lanes) -> changes.put(new BlockPos(x,y,z),lanes));
+        assertEquals(ContextualLightSnapshot.BOTH_CHANGED,changes.get(new BlockPos(1,64,0)));
+        assertEquals(1,LightInfo.opacity(manager.read(LightInfo.of(neighbour.getDefaultState()),neighbour.getDefaultState(),1,64,0)));
+    }
+
+    @Test void contextualNeighboursArePolledEvenWhenTheTilesOwnLightDoesNotChange() {
+        pollingLimit(1);
+        for(boolean tileChunkFirst:new boolean[]{true,false}) {
+            var source=new TileLightBlock(); var neighbour=new TileLightBlock();
+            var tileChunk=tileChunk(source,0,1);
+            var adjacentChunk=new TestChunk(-1,0);
+            var section=new ExtendedBlockStorage(64,true);
+            section.set(15,0,0,neighbour.getDefaultState());
+            adjacentChunk.getBlockStorageArray()[4]=section;
+            var manager=new ContextualLightManager(null,WorldHeightContext.VANILLA);
+            if(tileChunkFirst) { manager.load(tileChunk); manager.load(adjacentChunk); }
+            else { manager.load(adjacentChunk); manager.load(tileChunk); }
+            neighbour.opacity=1;
+            var changed=new java.util.HashSet<BlockPos>();
+            for(int tick=0;tick<2;tick++)manager.flushSamples((x,y,z,lanes) -> changed.add(new BlockPos(x,y,z)));
+            assertEquals(java.util.Set.of(new BlockPos(-1,64,0)),changed);
+            assertEquals(1,LightInfo.opacity(manager.read(LightInfo.of(neighbour.getDefaultState()),neighbour.getDefaultState(),-1,64,0)));
+        }
+    }
 
     @BeforeAll static void bootstrap() throws Exception {
         Bootstrap.register();

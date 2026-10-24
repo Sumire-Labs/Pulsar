@@ -68,6 +68,7 @@ public class ScalarBlockEngine extends PulsarEngine {
             }
             this.setNibbleInCache(chunkX, chunkY, chunkZ, new SWMRNibbleArray());
         } else {
+            this.assertWriteChunk(chunkX, chunkZ);
             nib.setNonNull();
         }
     }
@@ -77,6 +78,7 @@ public class ScalarBlockEngine extends PulsarEngine {
         // Block light uses setHidden() — maintains data for decrease propagation
         final SWMRNibbleArray nib = this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
         if (nib != null) {
+            this.assertWriteChunk(chunkX, chunkZ);
             nib.setHidden();
         }
     }

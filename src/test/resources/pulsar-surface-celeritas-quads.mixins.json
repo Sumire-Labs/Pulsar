@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8.7",
+  "compatibilityLevel": "JAVA_25",
+  "package": "org.taumc.celeritas.mixin",
+  "mixins": ["core.terrain.BakedQuadMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

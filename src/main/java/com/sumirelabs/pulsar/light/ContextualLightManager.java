@@ -7,6 +7,7 @@ import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -16,6 +17,7 @@ import it.unimi.dsi.fastutil.ints.IntIterator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 /**
  * Captures contextual emission/opacity on the world thread, including optional
@@ -26,15 +28,27 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ContextualLightManager {
     // Owner-thread monotonic flag: worlds which never had samples need no neighbour scan.
     private boolean hasContextualSources;
-    private record Entry(Chunk chunk, ContextualLightSnapshot<IBlockState> snapshot,
-                         TrackedLightSources<BlockPos, TileEntity> tracked) {}
+    private static final class Entry {
+        final Chunk chunk;
+        final ContextualLightSnapshot<IBlockState> snapshot;
+        final Set<BlockPos> tracked = new HashSet<>();
+        boolean active = true;
+        Entry(Chunk chunk, ContextualLightSnapshot<IBlockState> snapshot) {
+            this.chunk = chunk; this.snapshot = snapshot;
+        }
+    }
+
+    private record TrackedSource(Entry entry, TileEntity tile) {}
+
+    @FunctionalInterface
+    interface LightChanges { void changed(int x, int y, int z, int lanes); }
 
     private final World world;
     private final WorldHeightContext height;
     private final Thread owner = Thread.currentThread();
     private final ConcurrentHashMap<Long, Entry> chunks = new ConcurrentHashMap<>();
     private final Set<Entry> pendingChunks = ConcurrentHashMap.newKeySet();
-    private final Set<Entry> trackedChunks = new HashSet<>();
+    private final TrackedLightSources<BlockPos, TrackedSource> trackedSources = new TrackedLightSources<>();
 
     public ContextualLightManager(final World world, final WorldHeightContext height) {
         this.world = world;
@@ -51,7 +65,7 @@ public final class ContextualLightManager {
 
     public void load(final Chunk chunk) {
         this.requireOwner();
-        final Entry entry = new Entry(chunk, new ContextualLightSnapshot<>(), new TrackedLightSources<>());
+        final Entry entry = new Entry(chunk, new ContextualLightSnapshot<>());
         // Local to this load: callbacks can reenter lighting with their own position.
         final BlockPos.MutableBlockPos samplePos = new BlockPos.MutableBlockPos();
         // Publish only after capture, before the chunk becomes worker-visible.
@@ -101,10 +115,10 @@ public final class ContextualLightManager {
                 CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(chunk.x, chunk.z)), entry);
         if (previous != null) {
             this.pendingChunks.remove(previous);
-            this.trackedChunks.remove(previous);
+            this.untrack(previous);
         }
         for (final BlockPos pos : new HashSet<>(chunk.getTileEntityMap().keySet())) this.track(entry, pos);
-        if (!entry.tracked.isEmpty()) this.trackedChunks.add(entry);
+        this.discoverLoadedNeighbours(entry);
     }
 
     static boolean shouldScanSection(final boolean hasBlocks, final boolean contextualBlocks,
@@ -117,8 +131,17 @@ public final class ContextualLightManager {
                 CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(x, z)));
         if (entry != null) {
             this.pendingChunks.remove(entry);
-            this.trackedChunks.remove(entry);
+            this.untrack(entry);
         }
+    }
+
+    private void untrack(final Entry entry) {
+        entry.active = false;
+        for (BlockPos pos : entry.tracked) {
+            TrackedSource source = this.trackedSources.get(pos);
+            if (source != null && source.entry == entry) this.trackedSources.update(pos, null);
+        }
+        entry.tracked.clear();
     }
 
     public int read(final int info, final IBlockState state, final int x, final int y, final int z) {
@@ -134,6 +157,10 @@ public final class ContextualLightManager {
     public void request(final int x, final int y, final int z) {
         this.requestCell(x, y, z, true);
         if (this.isOwnerThread() && !FluidLightBridge.LOADED && !this.hasContextualSources) return;
+        this.requestNeighbours(x, y, z);
+    }
+
+    private void requestNeighbours(final int x, final int y, final int z) {
         this.requestCell(x - 1, y, z, false);
         this.requestCell(x + 1, y, z, false);
         this.requestCell(x, y - 1, z, false);
@@ -163,15 +190,18 @@ public final class ContextualLightManager {
     }
 
     public void flush(final WorldLightManager manager) {
+        this.flushSamples((x, y, z, lanes) -> manager.queueSampledBlockChange(x, y, z, lanes));
+    }
+
+    void flushSamples(final LightChanges changes) {
         this.requireOwner();
-        for (final Entry entry : PulsarConfig.features.trackTileEntityLight && !this.trackedChunks.isEmpty()
-                ? new HashSet<>(this.trackedChunks) : java.util.Collections.<Entry>emptySet()) {
-            entry.tracked.tick((pos, tile) -> !tile.isInvalid()
-                    && entry.chunk.getTileEntityMap().get(pos) == tile,
-                    pos -> this.request(pos.getX(), pos.getY(), pos.getZ()));
-            if (entry.tracked.isEmpty()) this.trackedChunks.remove(entry);
-        }
-        if (this.pendingChunks.isEmpty()) return;
+        if (!this.pendingChunks.isEmpty()) this.flushPending(changes);
+        this.pollTracked(changes);
+    }
+
+    private void flushPending(final LightChanges changes) {
+        // Explicit block/TE changes and worker misses must not wait behind the
+        // bounded fallback poll. Reentrant requests stay queued for next tick.
         for (final Entry entry : new HashSet<>(this.pendingChunks)) {
             this.pendingChunks.remove(entry);
             if (this.chunks.get(CoordinateUtils.mixChunkKey(
@@ -185,14 +215,44 @@ public final class ContextualLightManager {
                 final int x = key & 15;
                 final int z = (key >>> 4) & 15;
                 final int y = key >> 8;
-                final int changes = this.capture(entry, x, y, z, false, samplePos);
+                final int lanes = this.capture(entry, x, y, z, false, samplePos);
+                if (!entry.active) break;
                 samplePos.setPos((entry.chunk.x << 4) + x, y, (entry.chunk.z << 4) + z);
                 this.track(entry, samplePos);
-                if (changes != 0) {
+                if (lanes != 0) {
                     // Publish before enqueueing; bypass request() to avoid a refresh loop.
-                    manager.queueSampledBlockChange((entry.chunk.x << 4) + x, y, (entry.chunk.z << 4) + z, changes);
+                    changes.changed((entry.chunk.x << 4) + x, y, (entry.chunk.z << 4) + z, lanes);
                 }
             }
+        }
+    }
+
+    private void pollTracked(final LightChanges changes) {
+        if (!PulsarConfig.features.trackTileEntityLight || this.trackedSources.isEmpty()) return;
+        final int limit = Math.min(this.trackedSources.size(), Math.max(1, PulsarConfig.performance.tileEntityLightSamplesPerTick));
+        final long budget = Math.max(1L, PulsarConfig.performance.tileEntityLightBudgetMicros) * 1000L;
+        final long start = System.nanoTime();
+        final BlockPos.MutableBlockPos samplePos = new BlockPos.MutableBlockPos();
+        final BiConsumer<BlockPos, TrackedSource> sample = (pos, source) -> {
+            final Entry entry = source.entry;
+            final boolean sameTile = source.tile != null && !source.tile.isInvalid()
+                    && entry.chunk.getTileEntityMap().get(pos) == source.tile;
+            final int lanes = this.capture(entry, pos.getX() & 15, pos.getY(), pos.getZ() & 15, false, samplePos);
+            // MOD callbacks may unload/replace this chunk reentrantly.
+            if (!entry.active) return;
+            if (!sameTile || lanes != 0) this.track(entry, pos);
+            if (lanes != 0) {
+                changes.changed(pos.getX(), pos.getY(), pos.getZ(), lanes);
+                // Neighbour-dependent cells are polled independently too.
+                // An observed change additionally triggers prompt invalidation.
+                this.requestNeighbours(pos.getX(), pos.getY(), pos.getZ());
+            }
+        };
+        // One world-wide source cursor gives dense and sparse chunks the same
+        // revisit interval. Never scan exhausted chunks or restart at chunk 0.
+        for (int samples = 0; samples < limit && !this.trackedSources.isEmpty()
+                && System.nanoTime() - start < budget; samples++) {
+            this.trackedSources.sampleNext(sample);
         }
     }
 
@@ -244,18 +304,65 @@ public final class ContextualLightManager {
     }
 
     private void track(final Entry entry, final BlockPos pos) {
-        final TileEntity tile = entry.chunk.getTileEntityMap().get(pos);
-        final boolean contextual = this.height.containsBlockY(pos.getY()) && tile != null && !tile.isInvalid()
-                && LightInfo.hasContextualValues(LightInfo.of(entry.chunk.getBlockState(pos)));
+        TileEntity tile = entry.chunk.getTileEntityMap().get(pos);
+        if (tile != null && tile.isInvalid()) tile = null;
+        final boolean contextual = this.height.containsBlockY(pos.getY())
+                && entry.snapshot.contains(pack(pos.getX(), pos.getY(), pos.getZ()))
+                && (tile != null || this.hasTrackedNeighbour(pos));
         // Mutable lookup keys are safe for removal; only retained keys must
         // be immutable. An unchanged source needs no replacement key.
         if (contextual) {
-            if (!entry.tracked.matches(pos, tile)) entry.tracked.update(pos.toImmutable(), tile);
+            final TrackedSource previous = this.trackedSources.get(pos);
+            if (previous == null || previous.entry != entry || previous.tile != tile) {
+                final BlockPos retained = pos.toImmutable();
+                entry.tracked.add(retained);
+                this.trackedSources.update(retained, new TrackedSource(entry, tile));
+                if (tile != null) this.discoverDependentNeighbours(retained);
+            }
         } else {
-            entry.tracked.update(pos, null);
+            entry.tracked.remove(pos);
+            final TrackedSource previous = this.trackedSources.get(pos);
+            if (previous != null && previous.entry == entry) this.trackedSources.update(pos, null);
         }
-        if (entry.tracked.isEmpty()) this.trackedChunks.remove(entry);
-        else this.trackedChunks.add(entry);
+    }
+
+    private boolean hasTrackedNeighbour(final BlockPos pos) {
+        for (final EnumFacing face : EnumFacing.VALUES) {
+            final TrackedSource neighbour = this.trackedSources.get(pos.offset(face));
+            if (neighbour != null && neighbour.tile != null && !neighbour.tile.isInvalid()) return true;
+        }
+        return false;
+    }
+
+    private void discoverDependentNeighbours(final BlockPos pos) {
+        for (final EnumFacing face : EnumFacing.VALUES) {
+            final BlockPos adjacent = pos.offset(face);
+            final Entry entry = this.chunks.get(CoordinateUtils.mixChunkKey(
+                    CoordinateUtils.getChunkKey(adjacent.getX() >> 4, adjacent.getZ() >> 4)));
+            // Direct TE sources are installed by their own lifecycle callbacks;
+            // do not recursively walk chains of TE blocks while registering.
+            if (entry != null && entry.snapshot.contains(pack(adjacent.getX(), adjacent.getY(), adjacent.getZ()))
+                    && entry.chunk.getTileEntityMap().get(adjacent) == null) this.track(entry, adjacent);
+        }
+    }
+
+    private void discoverLoadedNeighbours(final Entry entry) {
+        if (entry.snapshot.isEmpty()) return;
+        // Existing TEs just outside this chunk may depend on cells captured
+        // during this load. Inspect neighbour sources, not every block again.
+        for (final EnumFacing face : EnumFacing.HORIZONTALS) {
+            final Entry neighbour = this.chunks.get(CoordinateUtils.mixChunkKey(
+                    CoordinateUtils.getChunkKey(entry.chunk.x + face.getXOffset(), entry.chunk.z + face.getZOffset())));
+            if (neighbour == null) continue;
+            for (final BlockPos pos : neighbour.tracked) {
+                final BlockPos adjacent = pos.offset(face.getOpposite());
+                if ((adjacent.getX() >> 4) != entry.chunk.x || (adjacent.getZ() >> 4) != entry.chunk.z) continue;
+                final TrackedSource source = this.trackedSources.get(pos);
+                if (source != null && source.tile != null
+                        && entry.snapshot.contains(pack(adjacent.getX(), adjacent.getY(), adjacent.getZ()))
+                        && entry.chunk.getTileEntityMap().get(adjacent) == null) this.track(entry, adjacent);
+            }
+        }
     }
 
     private int capture(final Entry entry, final int x, final int y, final int z,

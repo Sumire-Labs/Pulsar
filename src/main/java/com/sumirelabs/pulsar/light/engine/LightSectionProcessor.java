@@ -31,6 +31,8 @@ final class LightSectionProcessor {
         final int chunkX = chunk.x;
         final int chunkZ = chunk.z;
 
+        engine.assertWriteChunk(chunkX, chunkZ);
+
         boolean[] chunkEmptinessMap = engine.getEmptinessMap(chunkX, chunkZ);
         boolean[] initializedMap = null;
         final boolean needsInit = unlit || chunkEmptinessMap == null;

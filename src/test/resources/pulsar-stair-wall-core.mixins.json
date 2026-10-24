@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8.7",
+  "compatibilityLevel": "JAVA_25",
+  "package": "com.sumirelabs.pulsar.mixin",
+  "mixins": ["MixinBlockFaceLight", "MixinBlockSlabFaceLight", "MixinBlockStairsFaceLight", "MixinBlockStateImplementation", "MixinBlockRenderLight"],
+  "injectors": {"defaultRequire": 1}
+}

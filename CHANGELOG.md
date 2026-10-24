@@ -54,6 +54,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Handle RGB logout with absent or stale connections without removing live peers.
 - Preserve RGB modulation for negative signed lightmap coordinates.
 
+## [0.5.3]
+
+### Fixed
+
+- Prevent skylight from brightening wall faces partly hidden by adjacent stairs
+  or slabs (issue #20).
+- Sample the exposed surfaces of slab and stair models, including inset treads
+  and risers, in Vanilla, Forge and Celeritas lighting paths (issue #20).
+- Exclude hidden edge and diagonal light from smooth-lighting corners, including
+  slab halves and stair shapes, in Vanilla, Forge and Celeritas (MC-12558,
+  issue #20).
+- Prevent light leaks through carpets below stairs (issue #20).
+- Fix the chunk-packet redirect conflict with SpongeForge's asynchronous
+  lighting by preserving its captured section arrays (issue #24).
+
+### Changed
+
+- Reduce redundant TileEntity light sampling and spread background checks
+  across ticks with configurable sample and time budgets. Explicit lighting
+  update requests remain prioritized (issue #24).
+- Improve parallel lighting concurrency by allowing read-only chunk halos
+  to overlap while preserving exclusion around writes.
+
+## [0.5.2]
+
+### Fixed
+
+- Prevent initial chunk packets from waiting indefinitely with Fluidlogged API.
+  Skip vanilla's redundant random player lighting repair request, which otherwise
+  creates new pending samples before every send attempt. Block/fluid updates and
+  the contextual-light gate used by Thaumcraft crystals remain active.
+
 ## [0.5.1]
 
 ### Fixed

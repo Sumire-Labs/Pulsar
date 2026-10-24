@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Bounded process-wide workers with ScalableLux-style world/5x5 exclusion. */
+/** Bounded process-wide workers with world-scoped read/write region exclusion. */
 final class ParallelLightScheduler {
     private static ParallelLightScheduler shared;
 
