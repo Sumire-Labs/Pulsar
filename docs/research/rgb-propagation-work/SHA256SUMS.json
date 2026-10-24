@@ -1,0 +1,16 @@
+{
+  ".gitattributes": "26dd06e77fcb17d46a63e564d86784214b961073f9b6398c654915f2b6ff9602",
+  "artifacts.json": "79f2945644e54e78ded06b93050073acd5fee22f6522224eeb7c1fe530d7f7f5",
+  "production-isolation.json": "c65f821b2a8c0573c18d9bbdf2c8453b7f73fa3e5ac2c6419abe6e80d0731474",
+  "protocol.json": "80cf03e4921f59b3537f13da7928dcbeefefd87245ca67e3cf2ed6306c85bcf0",
+  "raw-data.zip": "b20a410998b7fb4609e20a10d45b1dda97ed7330777361e8d69b08e9e09ef7fe",
+  "README.md": "f29daa899e95fee0b1ae8927999b5d62e3a668c1a9574c1a9f9a1dea3784c7cd",
+  "rgb-long-analysis.json": "82220b716e05f092e2a7200c7dba359546601d1bb5a7898cc389b802719d3344",
+  "rgb-long-timing.json": "74105c5afafddb5f2660545f10e2326a870bd665f4c6e6a096828d5156cd1219",
+  "scalar-analysis.json": "bf728b113e7c6400b61eb8e3606cde5221cfbf81f1714d73ffa21c45a2123052",
+  "scalar-timing.json": "7dc9d8f934e23b2c63ceb4191e4e96202385daea3f5494b2741c5d893f6e905b",
+  "static-proof.json": "6fad4f653ebd11be187d27827f27e5bcd213935508b1a2565c86ac0c4305d4f9",
+  "timing.json": "0e1c708eda50ec1a6cd698ecbcba4c0ab6f2f1cd5785f2ba684301a8a309532f",
+  "transformed-proof.json": "0e215f362dab1fde6ae5c767b22b143a8026fce0216185c523eb9f1764ef1cfd",
+  "validation.json": "a698006ad1a96d7d656ddd1329d15b8d3bea1412a4f0f781066e6488bcd5d71a"
+}

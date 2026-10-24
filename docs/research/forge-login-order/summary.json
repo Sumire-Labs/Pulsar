@@ -1,0 +1,647 @@
+{
+  "baseline-gated-scalar-rgb": {
+    "status": {
+      "gate_timeouts": 0,
+      "login_state_errors": 6,
+      "peer_valid": false,
+      "held_gates": 6,
+      "attempts": null,
+      "pass": true,
+      "expected_failure": true
+    },
+    "stage": {
+      "expect_failure": true,
+      "gate": true,
+      "candidate": "D2A5DBDC47241A92E40C015DD98517FFA371C27AC66CBCBD4B861C858101DB9F",
+      "client_mode": "RGB",
+      "host_mode": "SCALAR",
+      "helper": "5CED12DA2321333A2BE8D9D8F7A285FB5181F5F5595D10E0E5C199691C92A856"
+    },
+    "peer-result": {
+      "valid": false,
+      "failure": "java.lang.IllegalStateException: Native login failed six connection attempts"
+    },
+    "host-ready": {
+      "ready": true,
+      "rgb_server": false,
+      "null_logout_keeps_live_peer": true
+    }
+  },
+  "fixed-gated-scalar-rgb": {
+    "status": {
+      "attempts": 2,
+      "expected_failure": false,
+      "peer_valid": true,
+      "held_gates": 2,
+      "gate_timeouts": 0,
+      "pass": true,
+      "login_state_errors": 0
+    },
+    "stage": {
+      "gate": true,
+      "client_mode": "RGB",
+      "helper": "5CED12DA2321333A2BE8D9D8F7A285FB5181F5F5595D10E0E5C199691C92A856",
+      "candidate": "8A64E6142084E4F764A8BF217F0BEBA89A1AE429DDC5BE4280D9DF5FFA2A0722",
+      "host_mode": "SCALAR",
+      "expect_failure": false
+    },
+    "peer-result": {
+      "valid": true,
+      "rgb_client_config": true,
+      "rgb_channel_active": false,
+      "expected_rgb": false,
+      "canonical_source": 15,
+      "canonical_authority": false,
+      "test_only_login_state_workaround": false,
+      "sample_tint": "ffffffff",
+      "rgb_buffer_fields": true,
+      "connection_attempts": 2,
+      "connected_remote": true,
+      "test_only_initial_send_retry": false,
+      "world_transitions": [
+        {
+          "phase": 0,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 15,
+          "canonical_authority": false,
+          "active": false
+        },
+        {
+          "phase": 1,
+          "dimension": -1,
+          "tint": "ffffffff",
+          "canonical_source": 15,
+          "canonical_authority": false,
+          "active": false
+        },
+        {
+          "phase": 2,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 15,
+          "canonical_authority": false,
+          "active": false
+        },
+        {
+          "phase": 3,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 15,
+          "canonical_authority": false,
+          "active": false
+        }
+      ],
+      "rejoin_new_connection": true
+    },
+    "vanilla": {
+      "valid": false,
+      "cases": [
+        {
+          "name": "VanillaAudit0",
+          "login_success": false,
+          "joined": false,
+          "error": "Login disconnect b'\\x81\\x01{\"text\":\"This server has mods that require FML/Forge to be installed on the client. Contact your server admin for more details.\"}'"
+        },
+        {
+          "name": "VanillaAudit1",
+          "login_success": false,
+          "joined": false,
+          "error": "Login disconnect b'\\x81\\x01{\"text\":\"This server has mods that require FML/Forge to be installed on the client. Contact your server admin for more details.\"}'"
+        },
+        {
+          "name": "VanillaAudit2",
+          "login_success": false,
+          "joined": false,
+          "error": "Login disconnect b'\\x81\\x01{\"text\":\"This server has mods that require FML/Forge to be installed on the client. Contact your server admin for more details.\"}'"
+        },
+        {
+          "name": "VanillaAudit3",
+          "login_success": false,
+          "joined": false,
+          "error": "Login disconnect b'\\x81\\x01{\"text\":\"This server has mods that require FML/Forge to be installed on the client. Contact your server admin for more details.\"}'"
+        },
+        {
+          "name": "VanillaAudit4",
+          "login_success": false,
+          "joined": false,
+          "error": "Login disconnect b'\\x81\\x01{\"text\":\"This server has mods that require FML/Forge to be installed on the client. Contact your server admin for more details.\"}'"
+        },
+        {
+          "name": "VanillaAudit5",
+          "login_success": false,
+          "joined": false,
+          "error": "Login disconnect b'\\x81\\x01{\"text\":\"This server has mods that require FML/Forge to be installed on the client. Contact your server admin for more details.\"}'"
+        },
+        {
+          "name": "VanillaAudit6",
+          "login_success": false,
+          "joined": false,
+          "error": "Login disconnect b'\\x81\\x01{\"text\":\"This server has mods that require FML/Forge to be installed on the client. Contact your server admin for more details.\"}'"
+        },
+        {
+          "name": "VanillaAudit7",
+          "login_success": false,
+          "joined": false,
+          "error": "Login disconnect b'\\x81\\x01{\"text\":\"This server has mods that require FML/Forge to be installed on the client. Contact your server admin for more details.\"}'"
+        }
+      ],
+      "protocol": 340,
+      "compression_supported": true,
+      "forge_marker": false
+    },
+    "host-ready": {
+      "ready": true,
+      "rgb_server": false,
+      "null_logout_keeps_live_peer": true
+    }
+  },
+  "fixed-gated-rgb-rgb": {
+    "status": {
+      "attempts": 2,
+      "expected_failure": false,
+      "peer_valid": true,
+      "held_gates": 2,
+      "gate_timeouts": 0,
+      "pass": true,
+      "login_state_errors": 0
+    },
+    "stage": {
+      "client_mode": "RGB",
+      "host_mode": "RGB",
+      "candidate": "8A64E6142084E4F764A8BF217F0BEBA89A1AE429DDC5BE4280D9DF5FFA2A0722",
+      "expect_failure": false,
+      "gate": true,
+      "helper": "5CED12DA2321333A2BE8D9D8F7A285FB5181F5F5595D10E0E5C199691C92A856"
+    },
+    "peer-result": {
+      "valid": true,
+      "rgb_client_config": true,
+      "rgb_channel_active": true,
+      "expected_rgb": true,
+      "canonical_source": 0,
+      "canonical_authority": true,
+      "test_only_login_state_workaround": false,
+      "sample_tint": "ffffffff",
+      "rgb_buffer_fields": true,
+      "connection_attempts": 2,
+      "connected_remote": true,
+      "test_only_initial_send_retry": false,
+      "world_transitions": [
+        {
+          "phase": 0,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 0,
+          "canonical_authority": true,
+          "active": true
+        },
+        {
+          "phase": 1,
+          "dimension": -1,
+          "tint": "ffff3939",
+          "canonical_source": 15,
+          "canonical_authority": true,
+          "active": true
+        },
+        {
+          "phase": 2,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 0,
+          "canonical_authority": true,
+          "active": true
+        },
+        {
+          "phase": 3,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 0,
+          "canonical_authority": true,
+          "active": true
+        }
+      ],
+      "rejoin_new_connection": true
+    },
+    "host-ready": {
+      "ready": true,
+      "rgb_server": true,
+      "null_logout_keeps_live_peer": true
+    }
+  },
+  "fixed-gated-rgb-scalar": {
+    "status": {
+      "attempts": 2,
+      "expected_failure": false,
+      "peer_valid": true,
+      "held_gates": 2,
+      "gate_timeouts": 0,
+      "pass": true,
+      "login_state_errors": 0
+    },
+    "stage": {
+      "client_mode": "SCALAR",
+      "host_mode": "RGB",
+      "candidate": "8A64E6142084E4F764A8BF217F0BEBA89A1AE429DDC5BE4280D9DF5FFA2A0722",
+      "expect_failure": false,
+      "gate": true,
+      "helper": "5CED12DA2321333A2BE8D9D8F7A285FB5181F5F5595D10E0E5C199691C92A856"
+    },
+    "peer-result": {
+      "valid": true,
+      "rgb_client_config": false,
+      "rgb_channel_active": false,
+      "expected_rgb": false,
+      "canonical_source": 0,
+      "canonical_authority": true,
+      "test_only_login_state_workaround": false,
+      "sample_tint": "ffffffff",
+      "rgb_buffer_fields": false,
+      "connection_attempts": 2,
+      "connected_remote": true,
+      "test_only_initial_send_retry": false,
+      "world_transitions": [
+        {
+          "phase": 0,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 0,
+          "canonical_authority": true,
+          "active": false
+        },
+        {
+          "phase": 1,
+          "dimension": -1,
+          "tint": "ffffffff",
+          "canonical_source": 15,
+          "canonical_authority": true,
+          "active": false
+        },
+        {
+          "phase": 2,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 0,
+          "canonical_authority": true,
+          "active": false
+        },
+        {
+          "phase": 3,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 0,
+          "canonical_authority": true,
+          "active": false
+        }
+      ],
+      "rejoin_new_connection": true
+    },
+    "host-ready": {
+      "ready": true,
+      "rgb_server": true,
+      "null_logout_keeps_live_peer": true
+    }
+  },
+  "fixed-gated-scalar-scalar": {
+    "status": {
+      "attempts": 2,
+      "expected_failure": false,
+      "peer_valid": true,
+      "held_gates": 2,
+      "gate_timeouts": 0,
+      "pass": true,
+      "login_state_errors": 0
+    },
+    "stage": {
+      "gate": true,
+      "vanilla_only": false,
+      "host_mode": "SCALAR",
+      "candidate": "8A64E6142084E4F764A8BF217F0BEBA89A1AE429DDC5BE4280D9DF5FFA2A0722",
+      "client_mode": "SCALAR",
+      "expect_failure": false,
+      "fixture_mods": {
+        "lightbench": "7FC43F287B46BF9C62CA8A9A8029D989765E836D8A0EC542873320676386B0B9",
+        "driver": "D4783C32676A5980C778DA20D468BB1457144CA2807A852C58C1280F664043FD",
+        "helper": "5CED12DA2321333A2BE8D9D8F7A285FB5181F5F5595D10E0E5C199691C92A856"
+      },
+      "helper": "5CED12DA2321333A2BE8D9D8F7A285FB5181F5F5595D10E0E5C199691C92A856",
+      "raw_count": 0
+    },
+    "peer-result": {
+      "valid": true,
+      "rgb_client_config": false,
+      "rgb_channel_active": false,
+      "expected_rgb": false,
+      "canonical_source": 15,
+      "canonical_authority": false,
+      "test_only_login_state_workaround": false,
+      "sample_tint": "ffffffff",
+      "rgb_buffer_fields": false,
+      "connection_attempts": 2,
+      "connected_remote": true,
+      "test_only_initial_send_retry": false,
+      "world_transitions": [
+        {
+          "phase": 0,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 15,
+          "canonical_authority": false,
+          "active": false
+        },
+        {
+          "phase": 1,
+          "dimension": -1,
+          "tint": "ffffffff",
+          "canonical_source": 15,
+          "canonical_authority": false,
+          "active": false
+        },
+        {
+          "phase": 2,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 15,
+          "canonical_authority": false,
+          "active": false
+        },
+        {
+          "phase": 3,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 15,
+          "canonical_authority": false,
+          "active": false
+        }
+      ],
+      "rejoin_new_connection": true
+    },
+    "host-ready": {
+      "ready": true,
+      "rgb_server": false,
+      "null_logout_keeps_live_peer": true
+    }
+  },
+  "fixed-natural-rgb-rgb": {
+    "status": {
+      "attempts": 2,
+      "expected_failure": false,
+      "peer_valid": true,
+      "held_gates": 0,
+      "gate_timeouts": 0,
+      "pass": true,
+      "login_state_errors": 0
+    },
+    "stage": {
+      "gate": false,
+      "vanilla_only": false,
+      "host_mode": "RGB",
+      "candidate": "8A64E6142084E4F764A8BF217F0BEBA89A1AE429DDC5BE4280D9DF5FFA2A0722",
+      "client_mode": "RGB",
+      "expect_failure": false,
+      "fixture_mods": {
+        "lightbench": "7FC43F287B46BF9C62CA8A9A8029D989765E836D8A0EC542873320676386B0B9",
+        "driver": "D4783C32676A5980C778DA20D468BB1457144CA2807A852C58C1280F664043FD",
+        "helper": "5CED12DA2321333A2BE8D9D8F7A285FB5181F5F5595D10E0E5C199691C92A856"
+      },
+      "helper": "5CED12DA2321333A2BE8D9D8F7A285FB5181F5F5595D10E0E5C199691C92A856",
+      "raw_count": 0
+    },
+    "peer-result": {
+      "valid": true,
+      "rgb_client_config": true,
+      "rgb_channel_active": true,
+      "expected_rgb": true,
+      "canonical_source": 0,
+      "canonical_authority": true,
+      "test_only_login_state_workaround": false,
+      "sample_tint": "ffffffff",
+      "rgb_buffer_fields": true,
+      "connection_attempts": 2,
+      "connected_remote": true,
+      "test_only_initial_send_retry": false,
+      "world_transitions": [
+        {
+          "phase": 0,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 0,
+          "canonical_authority": true,
+          "active": true
+        },
+        {
+          "phase": 1,
+          "dimension": -1,
+          "tint": "ffff3939",
+          "canonical_source": 15,
+          "canonical_authority": true,
+          "active": true
+        },
+        {
+          "phase": 2,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 0,
+          "canonical_authority": true,
+          "active": true
+        },
+        {
+          "phase": 3,
+          "dimension": 0,
+          "tint": "ffffffff",
+          "canonical_source": 0,
+          "canonical_authority": true,
+          "active": true
+        }
+      ],
+      "rejoin_new_connection": true
+    },
+    "host-ready": {
+      "ready": true,
+      "rgb_server": true,
+      "null_logout_keeps_live_peer": true
+    }
+  },
+  "baseline-vanilla-gated": {
+    "status": {
+      "vanilla_valid": false,
+      "test_only_optional_diagnostic_mods": true,
+      "pass": true,
+      "expected_failure": true,
+      "gate_timeouts": 0,
+      "held_gates": 8,
+      "login_state_errors": 8
+    },
+    "stage": {
+      "vanilla_only": true,
+      "raw_count": 8,
+      "host_mode": "SCALAR",
+      "expect_failure": true,
+      "candidate": "D2A5DBDC47241A92E40C015DD98517FFA371C27AC66CBCBD4B861C858101DB9F",
+      "helper": "5CED12DA2321333A2BE8D9D8F7A285FB5181F5F5595D10E0E5C199691C92A856",
+      "gate": true,
+      "fixture_mods": {
+        "driver": "AE9D06AE0A65DDC3E858F8EFA47DBC90AE8A4738890C1492C87CB660AE353282",
+        "lightbench": "EA54D370FEEE2A30326863DA29FA772CE9852268E5710EDD14C76F5390B1AE84",
+        "helper": "1F688869E87165013229EE91A3F14BC27782F2BA70C51F49217B2D3E773714AF"
+      },
+      "client_mode": "SCALAR"
+    },
+    "vanilla": {
+      "valid": false,
+      "cases": [
+        {
+          "name": "VanillaAudit0",
+          "login_success": false,
+          "joined": false,
+          "compression_threshold": 256,
+          "error": "Closed before join"
+        },
+        {
+          "name": "VanillaAudit1",
+          "login_success": false,
+          "joined": false,
+          "compression_threshold": 256,
+          "error": "Closed before join"
+        },
+        {
+          "name": "VanillaAudit2",
+          "login_success": false,
+          "joined": false,
+          "compression_threshold": 256,
+          "error": "Closed before join"
+        },
+        {
+          "name": "VanillaAudit3",
+          "login_success": false,
+          "joined": false,
+          "compression_threshold": 256,
+          "error": "Closed before join"
+        },
+        {
+          "name": "VanillaAudit4",
+          "login_success": false,
+          "joined": false,
+          "compression_threshold": 256,
+          "error": "Closed before join"
+        },
+        {
+          "name": "VanillaAudit5",
+          "login_success": false,
+          "joined": false,
+          "compression_threshold": 256,
+          "error": "Closed before join"
+        },
+        {
+          "name": "VanillaAudit6",
+          "login_success": false,
+          "joined": false,
+          "compression_threshold": 256,
+          "error": "Closed before join"
+        },
+        {
+          "name": "VanillaAudit7",
+          "login_success": false,
+          "joined": false,
+          "compression_threshold": 256,
+          "error": "Closed before join"
+        }
+      ],
+      "protocol": 340,
+      "compression_supported": true,
+      "forge_marker": false
+    },
+    "host-ready": {
+      "ready": true,
+      "rgb_server": false,
+      "null_logout_keeps_live_peer": true
+    }
+  },
+  "fixed-vanilla-gated": {
+    "status": {
+      "vanilla_valid": true,
+      "test_only_optional_diagnostic_mods": true,
+      "pass": true,
+      "expected_failure": false,
+      "gate_timeouts": 0,
+      "held_gates": 8,
+      "login_state_errors": 0
+    },
+    "stage": {
+      "vanilla_only": true,
+      "raw_count": 8,
+      "host_mode": "SCALAR",
+      "expect_failure": false,
+      "candidate": "8A64E6142084E4F764A8BF217F0BEBA89A1AE429DDC5BE4280D9DF5FFA2A0722",
+      "helper": "5CED12DA2321333A2BE8D9D8F7A285FB5181F5F5595D10E0E5C199691C92A856",
+      "gate": true,
+      "fixture_mods": {
+        "driver": "9932DE35A31AF26ADBFDC31FD860B15C51991E43F1E559196EB6C48AB160ED61",
+        "lightbench": "3F66F2AC678FDBF8694E2CD061EB5ED8EBC48B6CCFF0A56F0826B55D9D6154CB",
+        "helper": "1696B8EA49FBD43590A42B4DFB73CB01E4A5932EA563B9B79DD13912CCCF2CEE"
+      },
+      "client_mode": "SCALAR"
+    },
+    "vanilla": {
+      "valid": true,
+      "cases": [
+        {
+          "name": "VanillaAudit0",
+          "login_success": true,
+          "joined": true,
+          "compression_threshold": 256
+        },
+        {
+          "name": "VanillaAudit1",
+          "login_success": true,
+          "joined": true,
+          "compression_threshold": 256
+        },
+        {
+          "name": "VanillaAudit2",
+          "login_success": true,
+          "joined": true,
+          "compression_threshold": 256
+        },
+        {
+          "name": "VanillaAudit3",
+          "login_success": true,
+          "joined": true,
+          "compression_threshold": 256
+        },
+        {
+          "name": "VanillaAudit4",
+          "login_success": true,
+          "joined": true,
+          "compression_threshold": 256
+        },
+        {
+          "name": "VanillaAudit5",
+          "login_success": true,
+          "joined": true,
+          "compression_threshold": 256
+        },
+        {
+          "name": "VanillaAudit6",
+          "login_success": true,
+          "joined": true,
+          "compression_threshold": 256
+        },
+        {
+          "name": "VanillaAudit7",
+          "login_success": true,
+          "joined": true,
+          "compression_threshold": 256
+        }
+      ],
+      "protocol": 340,
+      "compression_supported": true,
+      "forge_marker": false
+    },
+    "host-ready": {
+      "ready": true,
+      "rgb_server": false,
+      "null_logout_keeps_live_peer": true
+    }
+  }
+}

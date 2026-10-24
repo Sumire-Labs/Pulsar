@@ -1,0 +1,11 @@
+{
+  ".gitattributes": "26dd06e77fcb17d46a63e564d86784214b961073f9b6398c654915f2b6ff9602",
+  "client-performance.json": "d69c78f78c2351c27e297a1c0cd5f2c7977e0aa4857382aa462a5b11a85a2c4f",
+  "client-rendering.png": "d2472d67ee8fa1f727f648c4ee51d55c2a79101576c157b4e177bbb72dde7adb",
+  "native-evidence.zip": "e4edc97b2e152949ae98a1d550f89d93446aad8c80e671d2e076655591211b23",
+  "production-isolation.json": "af963a3044e779de4f810e1dc9da23c3e0050d111d8b163b6aaac540ed04285a",
+  "README.md": "f1899cfca491f97eca66570a0c27e95baa414930ce83cadb05eae56a4074f5d2",
+  "results.json": "4c3bb18c2a107c3a558a81f618a253ffba0b0fa800167f7e2869e2db2929b893",
+  "server-performance.json": "777a47bbf9f64628ad08525b85a063d81589a6ab36a5c32794ecdf59796aef03",
+  "unit-tests.json": "26b7c2b7fc7358c6a92c2126ba751ceb410c1a855f6890defc012415b621ab21"
+}

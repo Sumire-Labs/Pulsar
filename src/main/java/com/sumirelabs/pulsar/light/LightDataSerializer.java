@@ -35,6 +35,8 @@ public final class LightDataSerializer {
     /**
      * Bump when the on-disk layout or BFS semantics change incompatibly.
      */
+    // v14: distinguish vanilla gameplay light from the RGB maximum projection.
+    // Older readers must not restore RGB_MAX data as ordinary scalar light.
     // v13: reject light saved after external bulk section/nibble writes (CQR),
     // which bypassed Pulsar's change notifications and could persist stale light.
     // v12: discard skylight persisted after dense per-chunk rebuilds, which
@@ -52,10 +54,11 @@ public final class LightDataSerializer {
     // v6: invalidated light computed before the 2026-07-26 correctness batch
     // (UNINIT-as-15 sync, missing extrude, decrease re-seed/continuation
     // fixes) — old data relights once on load.
-    public static final int LIGHT_VERSION = 13;
+    public static final int LIGHT_VERSION = 14;
 
     private static final String TAG_ROOT = "PulsarLight";
     private static final String TAG_VERSION = "version";
+    private static final String TAG_RGB_MAX = "rgbMaxGameplayLight";
     private static final String TAG_CRYSTAL_LIGHT = "thaumcraftCrystalLight";
     private static final String TAG_SECTIONS = "sections";
     private static final String TAG_Y = "y";
@@ -63,6 +66,13 @@ public final class LightDataSerializer {
     private static final String TAG_BLOCK_DATA = "bd";
     private static final String TAG_SKY_STATE = "ss";
     private static final String TAG_SKY_DATA = "sd";
+
+    /** SCALAR and RGB/VANILLA may share canonical light; RGB_MAX may not. */
+    static boolean hasCompatibleGameplayLight(final NBTTagCompound root, final boolean projected) {
+        return root.getInteger(TAG_VERSION) == LIGHT_VERSION
+                && root.hasKey(TAG_RGB_MAX, Constants.NBT.TAG_BYTE)
+                && root.getBoolean(TAG_RGB_MAX) == projected;
+    }
 
     private static SWMRNibbleArray restoreNibble(final NBTTagCompound section, final String stateTag, final String dataTag) {
         final int state = section.getByte(stateTag);
@@ -155,8 +165,19 @@ public final class LightDataSerializer {
 
             final NBTTagCompound root = new NBTTagCompound();
             root.setInteger(TAG_VERSION, LIGHT_VERSION);
+            root.setBoolean(TAG_RGB_MAX, com.sumirelabs.pulsar.rgb.RgbSettings.projectsGameplayLight());
             root.setInteger(TAG_CRYSTAL_LIGHT, ThaumcraftCrystalLighting.cacheProfile());
             root.setTag(TAG_SECTIONS, sections);
+            if (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {
+                var snapshot = ((com.sumirelabs.pulsar.rgb.RgbChunk) chunk).pulsar$getRgbSnapshot();
+                if (snapshot == null) return;
+                com.sumirelabs.pulsar.rgb.RgbPersistence.save(root, snapshot);
+                if (chunk.getWorld().provider.hasSkyLight()) {
+                    var skySnapshot = ((com.sumirelabs.pulsar.rgb.RgbChunk) chunk).pulsar$getRgbSkySnapshot();
+                    if (skySnapshot == null) return;
+                    com.sumirelabs.pulsar.rgb.RgbPersistence.save(root, skySnapshot, true);
+                }
+            }
             event.getData().setTag(TAG_ROOT, root);
         }
     }
@@ -167,7 +188,7 @@ public final class LightDataSerializer {
             return;
         }
         final NBTTagCompound root = data.getCompoundTag(TAG_ROOT);
-        if (root.getInteger(TAG_VERSION) != LIGHT_VERSION) {
+        if (!hasCompatibleGameplayLight(root, com.sumirelabs.pulsar.rgb.RgbSettings.projectsGameplayLight())) {
             return;
         }
         if (root.getInteger(TAG_CRYSTAL_LIGHT) != ThaumcraftCrystalLighting.cacheProfile()) {
@@ -201,6 +222,19 @@ public final class LightDataSerializer {
             }
         }
 
+        if (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {
+            var storage = com.sumirelabs.pulsar.rgb.RgbPersistence.load(root, heightContext);
+            var skyStorage = event.getChunk().getWorld().provider.hasSkyLight()
+                    ? com.sumirelabs.pulsar.rgb.RgbPersistence.load(root, heightContext, true) : null;
+            if (storage == null || (event.getChunk().getWorld().provider.hasSkyLight() && skyStorage == null)) return;
+            var rgb = (com.sumirelabs.pulsar.rgb.RgbChunk) event.getChunk();
+            rgb.pulsar$setRgbStorage(storage);
+            rgb.pulsar$setRgbSnapshot(storage.snapshot(1, blockNibbles));
+            if (skyStorage != null) {
+                rgb.pulsar$setRgbSkyStorage(skyStorage);
+                rgb.pulsar$setRgbSkySnapshot(skyStorage.skySnapshot(heightContext, 1, skyNibbles, null));
+            }
+        }
         final PulsarChunk pc = (PulsarChunk) event.getChunk();
         pc.pulsar$setBlockNibbles(blockNibbles);
         pc.pulsar$setSkyNibbles(skyNibbles);

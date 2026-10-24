@@ -1,0 +1,8 @@
+{
+  "gate": true,
+  "client_mode": "RGB",
+  "helper": "5CED12DA2321333A2BE8D9D8F7A285FB5181F5F5595D10E0E5C199691C92A856",
+  "candidate": "8A64E6142084E4F764A8BF217F0BEBA89A1AE429DDC5BE4280D9DF5FFA2A0722",
+  "host_mode": "SCALAR",
+  "expect_failure": false
+}

@@ -1,0 +1,11 @@
+{
+  "baseline_commit": "e8c3f26",
+  "unchanged_non_rgb_light_mixin_core_classes": 86,
+  "changed_non_rgb_management_classes": [
+    "com/sumirelabs/pulsar/light/DeferredChunkUpdates.class",
+    "com/sumirelabs/pulsar/light/WorldLightManager.class",
+    "com/sumirelabs/pulsar/mixin/MixinPlayerChunkMapEntry.class"
+  ],
+  "all_engine_classes_byte_identical": true,
+  "engine_class_count": 21
+}

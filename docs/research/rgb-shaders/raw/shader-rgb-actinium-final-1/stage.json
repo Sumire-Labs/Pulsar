@@ -1,0 +1,11 @@
+{
+  "diagnostic_sha256": {
+    "shader-audit.jar": "2AB34770F5794DB4CA343BFDB4C273EDED0DDF57266FB1E532D91E1E2D09F281"
+  },
+  "fast_celeritas": false,
+  "sha256": "75F9A389F737A3546DFDD2143B415DC6C467E101328A6B3F07A50284AC751C87",
+  "artifact": "shaders/pulsar-final.jar",
+  "celeritas": false,
+  "mode": "RGB",
+  "command": "shaderaudit"
+}

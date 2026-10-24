@@ -1,0 +1,344 @@
+{
+  "unit": "microseconds",
+  "summary": "median of four independent JVM run means per mode/version",
+  "runs": [
+    {
+      "run": "sky-perf-rgb-before-1",
+      "mode": "rgb",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 811.6874,
+      "sky_place": 863.4643000000001,
+      "block_place": 348.64779999999996,
+      "block_remove": 330.01309999999995
+    },
+    {
+      "run": "sky-perf-rgb-before-2",
+      "mode": "rgb",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 697.434,
+      "sky_place": 747.197,
+      "block_place": 312.87690000000003,
+      "block_remove": 280.4714
+    },
+    {
+      "run": "sky-perf-rgb-before-3",
+      "mode": "rgb",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 705.916,
+      "sky_place": 752.389,
+      "block_place": 325.63870000000003,
+      "block_remove": 289.2289
+    },
+    {
+      "run": "sky-perf-rgb-before-4",
+      "mode": "rgb",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 712.5994000000001,
+      "sky_place": 745.2081,
+      "block_place": 299.06359999999995,
+      "block_remove": 266.2838
+    },
+    {
+      "run": "sky-perf-rgb-after-1",
+      "mode": "rgb",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 3480.4797000000003,
+      "sky_place": 3689.7377,
+      "block_place": 296.0688,
+      "block_remove": 286.8698
+    },
+    {
+      "run": "sky-perf-rgb-after-2",
+      "mode": "rgb",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 3401.5492000000004,
+      "sky_place": 3550.573,
+      "block_place": 289.55559999999997,
+      "block_remove": 276.4661
+    },
+    {
+      "run": "sky-perf-rgb-after-3",
+      "mode": "rgb",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 1,
+        "collection_time_millis_delta": 4
+      },
+      "sky_remove": 3364.909,
+      "sky_place": 3628.4026,
+      "block_place": 287.05879999999996,
+      "block_remove": 274.1335
+    },
+    {
+      "run": "sky-perf-rgb-after-4",
+      "mode": "rgb",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 1,
+        "collection_time_millis_delta": 4
+      },
+      "sky_remove": 3188.2836,
+      "sky_place": 3455.944,
+      "block_place": 300.7571,
+      "block_remove": 273.968
+    },
+    {
+      "run": "sky-perf-scalar-before-1",
+      "mode": "scalar",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 736.6213,
+      "sky_place": 776.3566,
+      "block_place": 84.0485,
+      "block_remove": 81.2326
+    },
+    {
+      "run": "sky-perf-scalar-before-2",
+      "mode": "scalar",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 726.5952,
+      "sky_place": 764.0586999999999,
+      "block_place": 87.7619,
+      "block_remove": 84.6592
+    },
+    {
+      "run": "sky-perf-scalar-before-3",
+      "mode": "scalar",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 694.7266999999999,
+      "sky_place": 731.0265,
+      "block_place": 80.694,
+      "block_remove": 78.1189
+    },
+    {
+      "run": "sky-perf-scalar-before-4",
+      "mode": "scalar",
+      "version": "before",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 672.7223,
+      "sky_place": 714.6827,
+      "block_place": 94.0753,
+      "block_remove": 87.29589999999999
+    },
+    {
+      "run": "sky-perf-scalar-after-1",
+      "mode": "scalar",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 732.6029,
+      "sky_place": 776.5694,
+      "block_place": 90.42739999999999,
+      "block_remove": 82.1925
+    },
+    {
+      "run": "sky-perf-scalar-after-2",
+      "mode": "scalar",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 676.6798,
+      "sky_place": 716.9439,
+      "block_place": 79.76639999999999,
+      "block_remove": 78.88510000000001
+    },
+    {
+      "run": "sky-perf-scalar-after-3",
+      "mode": "scalar",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 748.7801999999999,
+      "sky_place": 773.4802,
+      "block_place": 75.86580000000001,
+      "block_remove": 75.6125
+    },
+    {
+      "run": "sky-perf-scalar-after-4",
+      "mode": "scalar",
+      "version": "after",
+      "gc": {
+        "collection_count_delta": 0,
+        "collection_time_millis_delta": 0
+      },
+      "sky_remove": 703.0056999999999,
+      "sky_place": 750.4225,
+      "block_place": 83.3874,
+      "block_remove": 77.894
+    }
+  ],
+  "groups": [
+    {
+      "mode": "rgb",
+      "version": "before",
+      "phase": "sky_remove",
+      "median": 709.2577000000001,
+      "minimum": 697.434,
+      "maximum": 811.6874
+    },
+    {
+      "mode": "rgb",
+      "version": "before",
+      "phase": "sky_place",
+      "median": 749.793,
+      "minimum": 745.2081,
+      "maximum": 863.4643000000001
+    },
+    {
+      "mode": "rgb",
+      "version": "before",
+      "phase": "block_place",
+      "median": 319.25780000000003,
+      "minimum": 299.06359999999995,
+      "maximum": 348.64779999999996
+    },
+    {
+      "mode": "rgb",
+      "version": "before",
+      "phase": "block_remove",
+      "median": 284.85015,
+      "minimum": 266.2838,
+      "maximum": 330.01309999999995
+    },
+    {
+      "mode": "rgb",
+      "version": "after",
+      "phase": "sky_remove",
+      "median": 3383.2291000000005,
+      "minimum": 3188.2836,
+      "maximum": 3480.4797000000003
+    },
+    {
+      "mode": "rgb",
+      "version": "after",
+      "phase": "sky_place",
+      "median": 3589.4878,
+      "minimum": 3455.944,
+      "maximum": 3689.7377
+    },
+    {
+      "mode": "rgb",
+      "version": "after",
+      "phase": "block_place",
+      "median": 292.81219999999996,
+      "minimum": 287.05879999999996,
+      "maximum": 300.7571
+    },
+    {
+      "mode": "rgb",
+      "version": "after",
+      "phase": "block_remove",
+      "median": 275.2998,
+      "minimum": 273.968,
+      "maximum": 286.8698
+    },
+    {
+      "mode": "scalar",
+      "version": "before",
+      "phase": "sky_remove",
+      "median": 710.66095,
+      "minimum": 672.7223,
+      "maximum": 736.6213
+    },
+    {
+      "mode": "scalar",
+      "version": "before",
+      "phase": "sky_place",
+      "median": 747.5426,
+      "minimum": 714.6827,
+      "maximum": 776.3566
+    },
+    {
+      "mode": "scalar",
+      "version": "before",
+      "phase": "block_place",
+      "median": 85.90520000000001,
+      "minimum": 80.694,
+      "maximum": 94.0753
+    },
+    {
+      "mode": "scalar",
+      "version": "before",
+      "phase": "block_remove",
+      "median": 82.9459,
+      "minimum": 78.1189,
+      "maximum": 87.29589999999999
+    },
+    {
+      "mode": "scalar",
+      "version": "after",
+      "phase": "sky_remove",
+      "median": 717.8043,
+      "minimum": 676.6798,
+      "maximum": 748.7801999999999
+    },
+    {
+      "mode": "scalar",
+      "version": "after",
+      "phase": "sky_place",
+      "median": 761.95135,
+      "minimum": 716.9439,
+      "maximum": 776.5694
+    },
+    {
+      "mode": "scalar",
+      "version": "after",
+      "phase": "block_place",
+      "median": 81.5769,
+      "minimum": 75.86580000000001,
+      "maximum": 90.42739999999999
+    },
+    {
+      "mode": "scalar",
+      "version": "after",
+      "phase": "block_remove",
+      "median": 78.38955000000001,
+      "minimum": 75.6125,
+      "maximum": 82.1925
+    }
+  ]
+}

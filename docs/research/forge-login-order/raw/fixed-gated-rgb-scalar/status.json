@@ -1,0 +1,9 @@
+{
+  "attempts": 2,
+  "expected_failure": false,
+  "peer_valid": true,
+  "held_gates": 2,
+  "gate_timeouts": 0,
+  "pass": true,
+  "login_state_errors": 0
+}

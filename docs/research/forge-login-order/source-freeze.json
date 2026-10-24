@@ -1,0 +1,14 @@
+{
+  "baseline_commit": "d1a40083d2062b4d85138eacef7944bd0ee4fea4",
+  "branch": "feat/rgb-engine",
+  "build_target": "Cleanroom 0.6.13-alpha",
+  "native_platform": "Cleanroom 0.7.7-alpha",
+  "source_normalization": "UTF-8 bytes with CRLF normalized to LF",
+  "source_sha256_lf": {
+    "src/main/java/com/sumirelabs/pulsar/compat/LoginProtocolOrder.java": "8cb419e26f355e3c32c8a5583d45cb61ce9e9c3b1a2c2d64a1dd6843bea3d030",
+    "src/main/java/com/sumirelabs/pulsar/mixin/MixinForgeLoginProtocol.java": "df869b1e9f6c8bf769b531b423ad9f34c52c2d23247518b11ca22977a6560571",
+    "src/test/java/com/sumirelabs/pulsar/compat/LoginProtocolOrderTest.java": "08a49ad03790b872d1f1d6c3c16e288b1298eb4e5daec1ebf02d05a0d28247ac",
+    "src/main/resources/pulsar.mixin.json": "4b6d694c02e5a146291b836b88e95e244d7d23e0374280000051ddbeb04dc888",
+    "build.gradle": "7ad052c5be674ee6087f68151eb6bd8f7d645d70e2f322fb4d1bfbf73d79ddd5"
+  }
+}

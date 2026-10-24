@@ -104,7 +104,8 @@ public abstract class MixinChunkSectionChanges {
 
         if (manager != null && (!this.world.isRemote
                 || ((PulsarChunk) (Object) this).pulsar$isLightReady())
-                && LightInfo.requiresBlockChange(previousState, state)) {
+                && (LightInfo.requiresBlockChange(previousState, state)
+                    || (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled() && previousState != state))) {
             // New-section initialization above must enter the queues first,
             // so the recheck sees the materialized nibble.
             // Server sampling was already requested above; enqueue only the lanes.

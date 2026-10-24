@@ -232,7 +232,7 @@ abstract class LightEngineCache {
                 chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset] = nibble;
     }
 
-    protected final void setNibblesForChunkInCache(final int chunkX, final int chunkZ,
+    protected void setNibblesForChunkInCache(final int chunkX, final int chunkZ,
                                                    final SWMRNibbleArray[] nibbles) {
         for (int sectionY = this.minLightSection; sectionY <= this.maxLightSection; ++sectionY) {
             this.setNibbleInCache(chunkX, sectionY, chunkZ,
@@ -249,7 +249,7 @@ abstract class LightEngineCache {
         this.emptinessMapCache[chunkX + 5 * chunkZ + this.chunkIndexOffset] = emptinessMap;
     }
 
-    protected final void updateVisible() {
+    protected void updateVisible() {
         for (int index = 0, max = this.nibbleCache.length; index < max; ++index) {
             final SWMRNibbleArray nibble = this.nibbleCache[index];
             final boolean notify = this.notifyUpdateCache[index];

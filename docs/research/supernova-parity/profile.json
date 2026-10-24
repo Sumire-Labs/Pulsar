@@ -1,0 +1,10 @@
+{
+  "run": "parity-packed-max-jfr-block-1",
+  "jfr_sha256": "8991dfc6b9b813f00a839d1c4380e36785e7660120be8e29d851138d31bd8c7f",
+  "update_stack_samples": 356,
+  "increase_leaf_samples": 266,
+  "increase_loop_backedge": 154,
+  "increase_write_site": 106,
+  "decrease_write_site": 42,
+  "use": "Diagnosis only; never merged with unprofiled timing runs. Inlined source-line samples do not precisely apportion machine instructions."
+}

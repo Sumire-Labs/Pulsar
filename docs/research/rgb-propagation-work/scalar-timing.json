@@ -1,0 +1,2114 @@
+[
+  {
+    "run": "scalar-repeat-after-1",
+    "version": "after",
+    "pair": 1,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7578125000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 583600,
+          "average": 677856.74,
+          "p50": 620100,
+          "p95": 950900,
+          "p99": 1351200,
+          "maximum": 2450700
+        },
+        "submission": {
+          "minimum": 15200,
+          "average": 29449.66,
+          "p50": 26300,
+          "p95": 51000,
+          "p99": 97500,
+          "maximum": 479900
+        },
+        "barrier": {
+          "minimum": 519400,
+          "average": 648329.6,
+          "p50": 588800,
+          "p95": 920500,
+          "p99": 1323400,
+          "maximum": 2417200
+        },
+        "half_means": [
+          683485.6,
+          672227.88
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 621600,
+          "average": 719924.56,
+          "p50": 656200,
+          "p95": 1045300,
+          "p99": 1435900,
+          "maximum": 2101300
+        },
+        "submission": {
+          "minimum": 14500,
+          "average": 28188.6,
+          "p50": 25400,
+          "p95": 48300,
+          "p99": 88800,
+          "maximum": 312600
+        },
+        "barrier": {
+          "minimum": 551800,
+          "average": 691635.92,
+          "p50": 626900,
+          "p95": 1014800,
+          "p99": 1408000,
+          "maximum": 2083500
+        },
+        "half_means": [
+          722763.44,
+          717085.68
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57700,
+          "average": 84097.2,
+          "p50": 67900,
+          "p95": 181600,
+          "p99": 255100,
+          "maximum": 669600
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1379.58,
+          "p50": 800,
+          "p95": 4500,
+          "p99": 9200,
+          "maximum": 46300
+        },
+        "barrier": {
+          "minimum": 56900,
+          "average": 82665.6,
+          "p50": 66200,
+          "p95": 178600,
+          "p99": 251100,
+          "maximum": 668400
+        },
+        "half_means": [
+          84277,
+          83917.4
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63100,
+          "average": 79739.9,
+          "p50": 72200,
+          "p95": 106700,
+          "p99": 157500,
+          "maximum": 580700
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1351.22,
+          "p50": 700,
+          "p95": 4200,
+          "p99": 9300,
+          "maximum": 52900
+        },
+        "barrier": {
+          "minimum": 35400,
+          "average": 78335.26,
+          "p50": 70500,
+          "p95": 103900,
+          "p99": 154100,
+          "maximum": 580100
+        },
+        "half_means": [
+          80779.4,
+          78700.4
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-after-2",
+    "version": "after",
+    "pair": 2,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7937500000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 588700,
+          "average": 714042.4,
+          "p50": 634700,
+          "p95": 1062000,
+          "p99": 1524000,
+          "maximum": 3446800
+        },
+        "submission": {
+          "minimum": 16600,
+          "average": 29464.94,
+          "p50": 28200,
+          "p95": 42800,
+          "p99": 66900,
+          "maximum": 330900
+        },
+        "barrier": {
+          "minimum": 537000,
+          "average": 684484.2,
+          "p50": 604100,
+          "p95": 1029900,
+          "p99": 1487800,
+          "maximum": 3408800
+        },
+        "half_means": [
+          711105,
+          716979.8
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 624000,
+          "average": 748417.28,
+          "p50": 666400,
+          "p95": 1138600,
+          "p99": 1506200,
+          "maximum": 6813800
+        },
+        "submission": {
+          "minimum": 16400,
+          "average": 28606.18,
+          "p50": 27200,
+          "p95": 41600,
+          "p99": 66700,
+          "maximum": 366200
+        },
+        "barrier": {
+          "minimum": 596100,
+          "average": 719729.36,
+          "p50": 637300,
+          "p95": 1111200,
+          "p99": 1476800,
+          "maximum": 6779200
+        },
+        "half_means": [
+          747677.2,
+          749157.36
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57600,
+          "average": 85169.72,
+          "p50": 71200,
+          "p95": 185200,
+          "p99": 251200,
+          "maximum": 495100
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1546.68,
+          "p50": 900,
+          "p95": 5200,
+          "p99": 9700,
+          "maximum": 47600
+        },
+        "barrier": {
+          "minimum": 56700,
+          "average": 83572.86,
+          "p50": 69500,
+          "p95": 181200,
+          "p99": 248400,
+          "maximum": 492200
+        },
+        "half_means": [
+          87169.68,
+          83169.76
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63500,
+          "average": 80389.14,
+          "p50": 73700,
+          "p95": 107200,
+          "p99": 140400,
+          "maximum": 643100
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1600.06,
+          "p50": 800,
+          "p95": 5100,
+          "p99": 9600,
+          "maximum": 317200
+        },
+        "barrier": {
+          "minimum": 45500,
+          "average": 78730.32,
+          "p50": 71900,
+          "p95": 103900,
+          "p99": 132000,
+          "maximum": 639800
+        },
+        "half_means": [
+          81857.48,
+          78920.8
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-after-3",
+    "version": "after",
+    "pair": 3,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7671875000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 585400,
+          "average": 716351.8,
+          "p50": 630700,
+          "p95": 1128000,
+          "p99": 1462000,
+          "maximum": 2484800
+        },
+        "submission": {
+          "minimum": 16500,
+          "average": 31467.3,
+          "p50": 28500,
+          "p95": 51500,
+          "p99": 100100,
+          "maximum": 412800
+        },
+        "barrier": {
+          "minimum": 515500,
+          "average": 684811.5,
+          "p50": 599700,
+          "p95": 1096800,
+          "p99": 1437700,
+          "maximum": 2453800
+        },
+        "half_means": [
+          689603.36,
+          743100.24
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 622800,
+          "average": 748215.56,
+          "p50": 661000,
+          "p95": 1161300,
+          "p99": 1507200,
+          "maximum": 3770300
+        },
+        "submission": {
+          "minimum": 16100,
+          "average": 31031.6,
+          "p50": 27600,
+          "p95": 51200,
+          "p99": 88100,
+          "maximum": 1695800
+        },
+        "barrier": {
+          "minimum": 538500,
+          "average": 717090.9,
+          "p50": 628700,
+          "p95": 1126000,
+          "p99": 1470200,
+          "maximum": 2757800
+        },
+        "half_means": [
+          723225.52,
+          773205.6
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57400,
+          "average": 83400.58,
+          "p50": 66200,
+          "p95": 181300,
+          "p99": 262900,
+          "maximum": 665900
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1239.06,
+          "p50": 700,
+          "p95": 4200,
+          "p99": 8400,
+          "maximum": 27600
+        },
+        "barrier": {
+          "minimum": 56600,
+          "average": 82110.26,
+          "p50": 64400,
+          "p95": 179100,
+          "p99": 260800,
+          "maximum": 657900
+        },
+        "half_means": [
+          82668.44,
+          84132.72
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63300,
+          "average": 79513.7,
+          "p50": 71100,
+          "p95": 107500,
+          "p99": 174600,
+          "maximum": 478000
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1230.44,
+          "p50": 800,
+          "p95": 3700,
+          "p99": 7900,
+          "maximum": 119500
+        },
+        "barrier": {
+          "minimum": 50700,
+          "average": 78233.82,
+          "p50": 69500,
+          "p95": 105300,
+          "p99": 172800,
+          "maximum": 477300
+        },
+        "half_means": [
+          78511.04,
+          80516.36
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-after-4",
+    "version": "after",
+    "pair": 4,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7437500000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 585200,
+          "average": 695891.32,
+          "p50": 621600,
+          "p95": 1083900,
+          "p99": 1406700,
+          "maximum": 2935600
+        },
+        "submission": {
+          "minimum": 15900,
+          "average": 31869.28,
+          "p50": 27900,
+          "p95": 58500,
+          "p99": 104200,
+          "maximum": 507600
+        },
+        "barrier": {
+          "minimum": 525100,
+          "average": 663913.92,
+          "p50": 587900,
+          "p95": 1045300,
+          "p99": 1381600,
+          "maximum": 2905300
+        },
+        "half_means": [
+          706692.56,
+          685090.08
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 621400,
+          "average": 737291.06,
+          "p50": 658800,
+          "p95": 1154800,
+          "p99": 1493500,
+          "maximum": 4078800
+        },
+        "submission": {
+          "minimum": 15300,
+          "average": 30260.04,
+          "p50": 27000,
+          "p95": 55300,
+          "p99": 94300,
+          "maximum": 406400
+        },
+        "barrier": {
+          "minimum": 497800,
+          "average": 706928.04,
+          "p50": 626700,
+          "p95": 1124900,
+          "p99": 1469200,
+          "maximum": 4053900
+        },
+        "half_means": [
+          755373.2,
+          719208.92
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57400,
+          "average": 77706.92,
+          "p50": 62800,
+          "p95": 173200,
+          "p99": 239700,
+          "maximum": 590000
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1210.94,
+          "p50": 700,
+          "p95": 3800,
+          "p99": 8500,
+          "maximum": 236600
+        },
+        "barrier": {
+          "minimum": 54700,
+          "average": 76449.42,
+          "p50": 61500,
+          "p95": 171400,
+          "p99": 237000,
+          "maximum": 588900
+        },
+        "half_means": [
+          78551.56,
+          76862.28
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63100,
+          "average": 74633.48,
+          "p50": 68200,
+          "p95": 100900,
+          "p99": 143500,
+          "maximum": 583700
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1131.22,
+          "p50": 700,
+          "p95": 3500,
+          "p99": 8100,
+          "maximum": 40800
+        },
+        "barrier": {
+          "minimum": 48000,
+          "average": 73453.96,
+          "p50": 67000,
+          "p95": 99100,
+          "p99": 141400,
+          "maximum": 582800
+        },
+        "half_means": [
+          75174.76,
+          74092.2
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-after-5",
+    "version": "after",
+    "pair": 5,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7546875000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 587600,
+          "average": 707284.9,
+          "p50": 632300,
+          "p95": 1052400,
+          "p99": 1480200,
+          "maximum": 2160100
+        },
+        "submission": {
+          "minimum": 15800,
+          "average": 29515.22,
+          "p50": 27700,
+          "p95": 43900,
+          "p99": 78300,
+          "maximum": 558400
+        },
+        "barrier": {
+          "minimum": 543800,
+          "average": 677688.56,
+          "p50": 602100,
+          "p95": 1019400,
+          "p99": 1456300,
+          "maximum": 2132400
+        },
+        "half_means": [
+          706466.48,
+          708103.32
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 621500,
+          "average": 743573.86,
+          "p50": 671700,
+          "p95": 1107700,
+          "p99": 1506200,
+          "maximum": 4870200
+        },
+        "submission": {
+          "minimum": 14900,
+          "average": 28567.62,
+          "p50": 26900,
+          "p95": 42600,
+          "p99": 76600,
+          "maximum": 386000
+        },
+        "barrier": {
+          "minimum": 576200,
+          "average": 714929.98,
+          "p50": 642700,
+          "p95": 1066100,
+          "p99": 1479700,
+          "maximum": 4838100
+        },
+        "half_means": [
+          741759.6,
+          745388.12
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57200,
+          "average": 76874.56,
+          "p50": 63000,
+          "p95": 173300,
+          "p99": 239100,
+          "maximum": 781500
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1162.02,
+          "p50": 700,
+          "p95": 3800,
+          "p99": 7600,
+          "maximum": 49500
+        },
+        "barrier": {
+          "minimum": 53900,
+          "average": 75662.66,
+          "p50": 61700,
+          "p95": 171200,
+          "p99": 237500,
+          "maximum": 780400
+        },
+        "half_means": [
+          76895.68,
+          76853.44
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63100,
+          "average": 73718.92,
+          "p50": 68400,
+          "p95": 97100,
+          "p99": 134500,
+          "maximum": 412400
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1197.38,
+          "p50": 700,
+          "p95": 3600,
+          "p99": 8000,
+          "maximum": 131800
+        },
+        "barrier": {
+          "minimum": 59500,
+          "average": 72470.86,
+          "p50": 67100,
+          "p95": 95200,
+          "p99": 131100,
+          "maximum": 410300
+        },
+        "half_means": [
+          72907,
+          74530.84
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-after-6",
+    "version": "after",
+    "pair": 6,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7578125000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 582600,
+          "average": 698826.52,
+          "p50": 619300,
+          "p95": 1121500,
+          "p99": 1423000,
+          "maximum": 3776800
+        },
+        "submission": {
+          "minimum": 16000,
+          "average": 30317.28,
+          "p50": 27600,
+          "p95": 45900,
+          "p99": 79900,
+          "maximum": 1735600
+        },
+        "barrier": {
+          "minimum": 370000,
+          "average": 668441.66,
+          "p50": 587500,
+          "p95": 1088300,
+          "p99": 1393000,
+          "maximum": 2421500
+        },
+        "half_means": [
+          703083.56,
+          694569.48
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 620700,
+          "average": 739746.94,
+          "p50": 659900,
+          "p95": 1183300,
+          "p99": 1500800,
+          "maximum": 1909000
+        },
+        "submission": {
+          "minimum": 15700,
+          "average": 28785.28,
+          "p50": 26500,
+          "p95": 43200,
+          "p99": 80800,
+          "maximum": 448400
+        },
+        "barrier": {
+          "minimum": 577200,
+          "average": 710892.78,
+          "p50": 630600,
+          "p95": 1160300,
+          "p99": 1473400,
+          "maximum": 1887500
+        },
+        "half_means": [
+          740947.88,
+          738546
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57500,
+          "average": 82082.92,
+          "p50": 66800,
+          "p95": 179200,
+          "p99": 251200,
+          "maximum": 575400
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1495.42,
+          "p50": 800,
+          "p95": 4800,
+          "p99": 9700,
+          "maximum": 263800
+        },
+        "barrier": {
+          "minimum": 56800,
+          "average": 80535.58,
+          "p50": 64900,
+          "p95": 175900,
+          "p99": 248800,
+          "maximum": 572500
+        },
+        "half_means": [
+          82264.8,
+          81901.04
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63500,
+          "average": 78791.28,
+          "p50": 71500,
+          "p95": 106500,
+          "p99": 154600,
+          "maximum": 408400
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1486.1,
+          "p50": 800,
+          "p95": 4700,
+          "p99": 9700,
+          "maximum": 135100
+        },
+        "barrier": {
+          "minimum": 51300,
+          "average": 77255.94,
+          "p50": 69700,
+          "p95": 103400,
+          "p99": 146700,
+          "maximum": 407400
+        },
+        "half_means": [
+          78548.6,
+          79033.96
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-after-7",
+    "version": "after",
+    "pair": 7,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7906250000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 584000,
+          "average": 695706.1,
+          "p50": 636700,
+          "p95": 962600,
+          "p99": 1269500,
+          "maximum": 6582400
+        },
+        "submission": {
+          "minimum": 15200,
+          "average": 29678.38,
+          "p50": 28200,
+          "p95": 43600,
+          "p99": 68000,
+          "maximum": 470000
+        },
+        "barrier": {
+          "minimum": 411300,
+          "average": 665953.7,
+          "p50": 605600,
+          "p95": 930800,
+          "p99": 1238300,
+          "maximum": 6535800
+        },
+        "half_means": [
+          694269.32,
+          697142.88
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 622700,
+          "average": 737041.48,
+          "p50": 678800,
+          "p95": 1009500,
+          "p99": 1394600,
+          "maximum": 3886300
+        },
+        "submission": {
+          "minimum": 15100,
+          "average": 28616.34,
+          "p50": 27200,
+          "p95": 42000,
+          "p99": 70600,
+          "maximum": 380400
+        },
+        "barrier": {
+          "minimum": 601900,
+          "average": 708348.1,
+          "p50": 649500,
+          "p95": 974400,
+          "p99": 1366800,
+          "maximum": 3855300
+        },
+        "half_means": [
+          738505.44,
+          735577.52
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57500,
+          "average": 86097.22,
+          "p50": 70000,
+          "p95": 188700,
+          "p99": 251200,
+          "maximum": 587300
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1704.34,
+          "p50": 1000,
+          "p95": 6000,
+          "p99": 9900,
+          "maximum": 41600
+        },
+        "barrier": {
+          "minimum": 56700,
+          "average": 84337.52,
+          "p50": 68200,
+          "p95": 186300,
+          "p99": 245800,
+          "maximum": 586400
+        },
+        "half_means": [
+          86477.08,
+          85717.36
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63400,
+          "average": 79683.18,
+          "p50": 73300,
+          "p95": 106000,
+          "p99": 130600,
+          "maximum": 458700
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1770.58,
+          "p50": 1000,
+          "p95": 5900,
+          "p99": 10300,
+          "maximum": 144800
+        },
+        "barrier": {
+          "minimum": 56200,
+          "average": 77858.02,
+          "p50": 71000,
+          "p95": 102700,
+          "p99": 127300,
+          "maximum": 457700
+        },
+        "half_means": [
+          79897.64,
+          79468.72
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-after-8",
+    "version": "after",
+    "pair": 8,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7546875000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 589300,
+          "average": 712128.56,
+          "p50": 641900,
+          "p95": 1074200,
+          "p99": 1401600,
+          "maximum": 6176500
+        },
+        "submission": {
+          "minimum": 18300,
+          "average": 35058.0,
+          "p50": 31200,
+          "p95": 57300,
+          "p99": 96900,
+          "maximum": 4996400
+        },
+        "barrier": {
+          "minimum": 384400,
+          "average": 676998.64,
+          "p50": 605100,
+          "p95": 1040700,
+          "p99": 1366200,
+          "maximum": 3136100
+        },
+        "half_means": [
+          701255.44,
+          723001.68
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 625500,
+          "average": 751887.92,
+          "p50": 676900,
+          "p95": 1100700,
+          "p99": 1461800,
+          "maximum": 8432600
+        },
+        "submission": {
+          "minimum": 17600,
+          "average": 32830.34,
+          "p50": 30000,
+          "p95": 55300,
+          "p99": 90600,
+          "maximum": 479100
+        },
+        "barrier": {
+          "minimum": 490900,
+          "average": 718976.9,
+          "p50": 642000,
+          "p95": 1066400,
+          "p99": 1423700,
+          "maximum": 8379800
+        },
+        "half_means": [
+          738936.12,
+          764839.72
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57500,
+          "average": 85661.2,
+          "p50": 66800,
+          "p95": 184600,
+          "p99": 271200,
+          "maximum": 467700
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1658.1,
+          "p50": 900,
+          "p95": 5500,
+          "p99": 10400,
+          "maximum": 315300
+        },
+        "barrier": {
+          "minimum": 57000,
+          "average": 83952.16,
+          "p50": 64700,
+          "p95": 182800,
+          "p99": 266100,
+          "maximum": 465900
+        },
+        "half_means": [
+          85361.48,
+          85960.92
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63200,
+          "average": 80950.22,
+          "p50": 70400,
+          "p95": 115300,
+          "p99": 181300,
+          "maximum": 6212300
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1641.56,
+          "p50": 900,
+          "p95": 5200,
+          "p99": 11000,
+          "maximum": 143100
+        },
+        "barrier": {
+          "minimum": 33000,
+          "average": 79248.32,
+          "p50": 68400,
+          "p95": 112400,
+          "p99": 177900,
+          "maximum": 6203300
+        },
+        "half_means": [
+          82544.84,
+          79355.6
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-before-1",
+    "version": "before",
+    "pair": 1,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7500000000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 588300,
+          "average": 711503.58,
+          "p50": 628300,
+          "p95": 1119200,
+          "p99": 1409900,
+          "maximum": 2407700
+        },
+        "submission": {
+          "minimum": 18000,
+          "average": 31710.42,
+          "p50": 29000,
+          "p95": 50200,
+          "p99": 93600,
+          "maximum": 483500
+        },
+        "barrier": {
+          "minimum": 564000,
+          "average": 679717.66,
+          "p50": 595800,
+          "p95": 1092100,
+          "p99": 1376700,
+          "maximum": 2375900
+        },
+        "half_means": [
+          714844.28,
+          708162.88
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 624100,
+          "average": 744915.24,
+          "p50": 661000,
+          "p95": 1146100,
+          "p99": 1457100,
+          "maximum": 3212700
+        },
+        "submission": {
+          "minimum": 17300,
+          "average": 30332.82,
+          "p50": 28100,
+          "p95": 49500,
+          "p99": 82500,
+          "maximum": 330400
+        },
+        "barrier": {
+          "minimum": 551400,
+          "average": 714512.98,
+          "p50": 628800,
+          "p95": 1117400,
+          "p99": 1420900,
+          "maximum": 3183600
+        },
+        "half_means": [
+          749182.2,
+          740648.28
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57500,
+          "average": 80977.56,
+          "p50": 64500,
+          "p95": 177400,
+          "p99": 245000,
+          "maximum": 671800
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1344.08,
+          "p50": 800,
+          "p95": 4100,
+          "p99": 8100,
+          "maximum": 257900
+        },
+        "barrier": {
+          "minimum": 56700,
+          "average": 79584.3,
+          "p50": 62800,
+          "p95": 175200,
+          "p99": 243100,
+          "maximum": 670500
+        },
+        "half_means": [
+          83078.56,
+          78876.56
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63200,
+          "average": 77783.58,
+          "p50": 69600,
+          "p95": 104600,
+          "p99": 174400,
+          "maximum": 1326400
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1396.34,
+          "p50": 800,
+          "p95": 4200,
+          "p99": 8300,
+          "maximum": 247300
+        },
+        "barrier": {
+          "minimum": 48600,
+          "average": 76337.16,
+          "p50": 68100,
+          "p95": 101800,
+          "p99": 170100,
+          "maximum": 1324000
+        },
+        "half_means": [
+          80274.52,
+          75292.64
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-before-2",
+    "version": "before",
+    "pair": 2,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7796875000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 587500,
+          "average": 696732.48,
+          "p50": 625900,
+          "p95": 1023500,
+          "p99": 1396600,
+          "maximum": 4587000
+        },
+        "submission": {
+          "minimum": 18100,
+          "average": 32296.2,
+          "p50": 29100,
+          "p95": 52000,
+          "p99": 92600,
+          "maximum": 1398700
+        },
+        "barrier": {
+          "minimum": 489700,
+          "average": 664359.1,
+          "p50": 593100,
+          "p95": 985600,
+          "p99": 1364800,
+          "maximum": 3968600
+        },
+        "half_means": [
+          689718.16,
+          703746.8
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 625400,
+          "average": 731346.74,
+          "p50": 664300,
+          "p95": 1056100,
+          "p99": 1429800,
+          "maximum": 3769100
+        },
+        "submission": {
+          "minimum": 17000,
+          "average": 31047.28,
+          "p50": 28200,
+          "p95": 49600,
+          "p99": 89100,
+          "maximum": 450900
+        },
+        "barrier": {
+          "minimum": 495300,
+          "average": 700218.42,
+          "p50": 632200,
+          "p95": 1018300,
+          "p99": 1388800,
+          "maximum": 3734600
+        },
+        "half_means": [
+          724115.28,
+          738578.2
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 58200,
+          "average": 84019.46,
+          "p50": 67400,
+          "p95": 182400,
+          "p99": 252800,
+          "maximum": 794000
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1414.8,
+          "p50": 800,
+          "p95": 4600,
+          "p99": 8600,
+          "maximum": 333100
+        },
+        "barrier": {
+          "minimum": 57400,
+          "average": 82552.72,
+          "p50": 65700,
+          "p95": 179600,
+          "p99": 248300,
+          "maximum": 791900
+        },
+        "half_means": [
+          86328.64,
+          81710.28
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 64200,
+          "average": 80768.2,
+          "p50": 72500,
+          "p95": 112000,
+          "p99": 176200,
+          "maximum": 425800
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1330.04,
+          "p50": 800,
+          "p95": 4400,
+          "p99": 9300,
+          "maximum": 73200
+        },
+        "barrier": {
+          "minimum": 60500,
+          "average": 79384.26,
+          "p50": 71000,
+          "p95": 107700,
+          "p99": 174000,
+          "maximum": 424900
+        },
+        "half_means": [
+          84109.64,
+          77426.76
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-before-3",
+    "version": "before",
+    "pair": 3,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 8734375000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 584300,
+          "average": 800942.56,
+          "p50": 694100,
+          "p95": 1284000,
+          "p99": 1685900,
+          "maximum": 9475900
+        },
+        "submission": {
+          "minimum": 16800,
+          "average": 36454.54,
+          "p50": 31400,
+          "p95": 59600,
+          "p99": 114700,
+          "maximum": 2704200
+        },
+        "barrier": {
+          "minimum": 25800,
+          "average": 764145.64,
+          "p50": 658800,
+          "p95": 1247600,
+          "p99": 1641300,
+          "maximum": 9440300
+        },
+        "half_means": [
+          872679.72,
+          729205.4
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 619200,
+          "average": 836205.7,
+          "p50": 734300,
+          "p95": 1322100,
+          "p99": 1663800,
+          "maximum": 15486200
+        },
+        "submission": {
+          "minimum": 15800,
+          "average": 34571.42,
+          "p50": 30400,
+          "p95": 57500,
+          "p99": 117700,
+          "maximum": 1121100
+        },
+        "barrier": {
+          "minimum": 50000,
+          "average": 801523.7,
+          "p50": 698900,
+          "p95": 1275000,
+          "p99": 1628600,
+          "maximum": 15441000
+        },
+        "half_means": [
+          903466.8,
+          768944.6
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57900,
+          "average": 130560.06,
+          "p50": 97100,
+          "p95": 280300,
+          "p99": 631000,
+          "maximum": 4774900
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 4378.76,
+          "p50": 1800,
+          "p95": 9400,
+          "p99": 35800,
+          "maximum": 873300
+        },
+        "barrier": {
+          "minimum": 57200,
+          "average": 126100.64,
+          "p50": 94200,
+          "p95": 273300,
+          "p99": 574800,
+          "maximum": 4771600
+        },
+        "half_means": [
+          137031.4,
+          124088.72
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63900,
+          "average": 119594.92,
+          "p50": 101200,
+          "p95": 209100,
+          "p99": 474200,
+          "maximum": 3117200
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 4690.16,
+          "p50": 1900,
+          "p95": 10500,
+          "p99": 45300,
+          "maximum": 887100
+        },
+        "barrier": {
+          "minimum": 1900,
+          "average": 114790.36,
+          "p50": 98400,
+          "p95": 190400,
+          "p99": 441000,
+          "maximum": 3113100
+        },
+        "half_means": [
+          124117.56,
+          115072.28
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-before-4",
+    "version": "before",
+    "pair": 4,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7484375000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 572300,
+          "average": 707969.28,
+          "p50": 622100,
+          "p95": 1130800,
+          "p99": 1505300,
+          "maximum": 4727000
+        },
+        "submission": {
+          "minimum": 16500,
+          "average": 31669.74,
+          "p50": 28600,
+          "p95": 52600,
+          "p99": 100600,
+          "maximum": 497000
+        },
+        "barrier": {
+          "minimum": 323900,
+          "average": 676215.48,
+          "p50": 588200,
+          "p95": 1098700,
+          "p99": 1466000,
+          "maximum": 4677600
+        },
+        "half_means": [
+          718267.64,
+          697670.92
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 616900,
+          "average": 749084.68,
+          "p50": 667300,
+          "p95": 1171300,
+          "p99": 1545700,
+          "maximum": 3765700
+        },
+        "submission": {
+          "minimum": 15900,
+          "average": 30472.18,
+          "p50": 27600,
+          "p95": 51200,
+          "p99": 90400,
+          "maximum": 645600
+        },
+        "barrier": {
+          "minimum": 553800,
+          "average": 718529.74,
+          "p50": 635300,
+          "p95": 1140600,
+          "p99": 1518200,
+          "maximum": 3733100
+        },
+        "half_means": [
+          752688.56,
+          745480.8
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57000,
+          "average": 80073.2,
+          "p50": 65900,
+          "p95": 176000,
+          "p99": 241200,
+          "maximum": 544400
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1205.36,
+          "p50": 800,
+          "p95": 3900,
+          "p99": 8300,
+          "maximum": 31600
+        },
+        "barrier": {
+          "minimum": 56300,
+          "average": 78816.48,
+          "p50": 64400,
+          "p95": 172600,
+          "p99": 238600,
+          "maximum": 543800
+        },
+        "half_means": [
+          78617.64,
+          81528.76
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 62900,
+          "average": 77774.98,
+          "p50": 70300,
+          "p95": 102800,
+          "p99": 149800,
+          "maximum": 611000
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1209.32,
+          "p50": 800,
+          "p95": 3900,
+          "p99": 8000,
+          "maximum": 30100
+        },
+        "barrier": {
+          "minimum": 48800,
+          "average": 76515.08,
+          "p50": 68700,
+          "p95": 100500,
+          "p99": 147400,
+          "maximum": 610400
+        },
+        "half_means": [
+          76436.12,
+          79113.84
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-before-5",
+    "version": "before",
+    "pair": 5,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7484375000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 584200,
+          "average": 696905.68,
+          "p50": 625000,
+          "p95": 1074700,
+          "p99": 1424100,
+          "maximum": 1987200
+        },
+        "submission": {
+          "minimum": 16200,
+          "average": 31863.72,
+          "p50": 28300,
+          "p95": 56600,
+          "p99": 105500,
+          "maximum": 354300
+        },
+        "barrier": {
+          "minimum": 528100,
+          "average": 664969.48,
+          "p50": 592500,
+          "p95": 1041600,
+          "p99": 1398200,
+          "maximum": 1960200
+        },
+        "half_means": [
+          708058.96,
+          685752.4
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 621300,
+          "average": 738060.78,
+          "p50": 661700,
+          "p95": 1134300,
+          "p99": 1469100,
+          "maximum": 3400800
+        },
+        "submission": {
+          "minimum": 16100,
+          "average": 30656.38,
+          "p50": 27200,
+          "p95": 53600,
+          "p99": 96800,
+          "maximum": 519700
+        },
+        "barrier": {
+          "minimum": 461500,
+          "average": 707333.06,
+          "p50": 630100,
+          "p95": 1105300,
+          "p99": 1445400,
+          "maximum": 3384400
+        },
+        "half_means": [
+          747112.28,
+          729009.28
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 58300,
+          "average": 81021.26,
+          "p50": 64500,
+          "p95": 178900,
+          "p99": 242300,
+          "maximum": 779300
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1414.36,
+          "p50": 800,
+          "p95": 4700,
+          "p99": 9200,
+          "maximum": 74400
+        },
+        "barrier": {
+          "minimum": 57500,
+          "average": 79557.04,
+          "p50": 62800,
+          "p95": 177000,
+          "p99": 241000,
+          "maximum": 778200
+        },
+        "half_means": [
+          77880.36,
+          84162.16
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63100,
+          "average": 75491.88,
+          "p50": 68800,
+          "p95": 102800,
+          "p99": 150600,
+          "maximum": 401300
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1420.88,
+          "p50": 700,
+          "p95": 4900,
+          "p99": 9200,
+          "maximum": 91600
+        },
+        "barrier": {
+          "minimum": 52700,
+          "average": 74020.9,
+          "p50": 67400,
+          "p95": 100000,
+          "p99": 148300,
+          "maximum": 398300
+        },
+        "half_means": [
+          72055.8,
+          78927.96
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-before-6",
+    "version": "before",
+    "pair": 6,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 7500000000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 580500,
+          "average": 706143.04,
+          "p50": 625100,
+          "p95": 1145300,
+          "p99": 1432000,
+          "maximum": 2814200
+        },
+        "submission": {
+          "minimum": 16100,
+          "average": 32363.12,
+          "p50": 28900,
+          "p95": 59600,
+          "p99": 95800,
+          "maximum": 375000
+        },
+        "barrier": {
+          "minimum": 489300,
+          "average": 673703.66,
+          "p50": 590400,
+          "p95": 1113700,
+          "p99": 1407500,
+          "maximum": 2787300
+        },
+        "half_means": [
+          708769,
+          703517.08
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 622900,
+          "average": 746365.42,
+          "p50": 663800,
+          "p95": 1160700,
+          "p99": 1559800,
+          "maximum": 4380800
+        },
+        "submission": {
+          "minimum": 16000,
+          "average": 30892.22,
+          "p50": 27700,
+          "p95": 53400,
+          "p99": 91100,
+          "maximum": 576100
+        },
+        "barrier": {
+          "minimum": 429000,
+          "average": 715401.76,
+          "p50": 630700,
+          "p95": 1135200,
+          "p99": 1535600,
+          "maximum": 4355800
+        },
+        "half_means": [
+          751436.2,
+          741294.64
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57400,
+          "average": 83051.5,
+          "p50": 66500,
+          "p95": 179700,
+          "p99": 242600,
+          "maximum": 633900
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1408.18,
+          "p50": 800,
+          "p95": 4900,
+          "p99": 9600,
+          "maximum": 57700
+        },
+        "barrier": {
+          "minimum": 56600,
+          "average": 81592.74,
+          "p50": 64600,
+          "p95": 177000,
+          "p99": 238900,
+          "maximum": 632900
+        },
+        "half_means": [
+          82080.12,
+          84022.88
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63200,
+          "average": 77718.12,
+          "p50": 70500,
+          "p95": 102500,
+          "p99": 160400,
+          "maximum": 449100
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1348.66,
+          "p50": 800,
+          "p95": 4500,
+          "p99": 8900,
+          "maximum": 33900
+        },
+        "barrier": {
+          "minimum": 51800,
+          "average": 76316.82,
+          "p50": 68500,
+          "p95": 100100,
+          "p99": 159200,
+          "maximum": 448200
+        },
+        "half_means": [
+          76518.64,
+          78917.6
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-before-7",
+    "version": "before",
+    "pair": 7,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 8156250000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 578000,
+          "average": 740116.7,
+          "p50": 657700,
+          "p95": 1143300,
+          "p99": 1524200,
+          "maximum": 6966300
+        },
+        "submission": {
+          "minimum": 18900,
+          "average": 36268.6,
+          "p50": 33100,
+          "p95": 57100,
+          "p99": 107100,
+          "maximum": 632500
+        },
+        "barrier": {
+          "minimum": 544400,
+          "average": 703758.46,
+          "p50": 620300,
+          "p95": 1095400,
+          "p99": 1491100,
+          "maximum": 6927700
+        },
+        "half_means": [
+          773324.72,
+          706908.68
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 626700,
+          "average": 786286.12,
+          "p50": 699900,
+          "p95": 1212500,
+          "p99": 1594800,
+          "maximum": 3076100
+        },
+        "submission": {
+          "minimum": 18700,
+          "average": 34787.2,
+          "p50": 32300,
+          "p95": 53600,
+          "p99": 99600,
+          "maximum": 461200
+        },
+        "barrier": {
+          "minimum": 523300,
+          "average": 751409.78,
+          "p50": 664600,
+          "p95": 1168900,
+          "p99": 1561300,
+          "maximum": 3019500
+        },
+        "half_means": [
+          819329.76,
+          753242.48
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 57900,
+          "average": 85829.68,
+          "p50": 68700,
+          "p95": 188700,
+          "p99": 256400,
+          "maximum": 612300
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1517.18,
+          "p50": 900,
+          "p95": 5000,
+          "p99": 9600,
+          "maximum": 64700
+        },
+        "barrier": {
+          "minimum": 57200,
+          "average": 84259.1,
+          "p50": 67000,
+          "p95": 184700,
+          "p99": 252600,
+          "maximum": 611400
+        },
+        "half_means": [
+          86863.88,
+          84795.48
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 63500,
+          "average": 81019.8,
+          "p50": 73400,
+          "p95": 109000,
+          "p99": 168100,
+          "maximum": 609500
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 1601.1,
+          "p50": 900,
+          "p95": 5000,
+          "p99": 10700,
+          "maximum": 91800
+        },
+        "barrier": {
+          "minimum": 43100,
+          "average": 79367.36,
+          "p50": 71700,
+          "p95": 105700,
+          "p99": 162000,
+          "maximum": 608900
+        },
+        "half_means": [
+          82612.72,
+          79426.88
+        ]
+      }
+    }
+  },
+  {
+    "run": "scalar-repeat-before-8",
+    "version": "before",
+    "pair": 8,
+    "gc": {
+      "collection_count_delta": 0,
+      "collection_time_millis_delta": 0
+    },
+    "worker_cpu_ns": 9500000000,
+    "phases": {
+      "sky_remove": {
+        "completion": {
+          "minimum": 608500,
+          "average": 917341.24,
+          "p50": 830600,
+          "p95": 1310100,
+          "p99": 1804100,
+          "maximum": 93537200
+        },
+        "submission": {
+          "minimum": 17700,
+          "average": 42277.14,
+          "p50": 36000,
+          "p95": 71400,
+          "p99": 140200,
+          "maximum": 5786300
+        },
+        "barrier": {
+          "minimum": 289200,
+          "average": 874905.74,
+          "p50": 794500,
+          "p95": 1247400,
+          "p99": 1701200,
+          "maximum": 93468100
+        },
+        "half_means": [
+          914027.64,
+          920654.84
+        ]
+      },
+      "sky_place": {
+        "completion": {
+          "minimum": 634500,
+          "average": 931731.98,
+          "p50": 861100,
+          "p95": 1385900,
+          "p99": 1942300,
+          "maximum": 37177100
+        },
+        "submission": {
+          "minimum": 16600,
+          "average": 41191.26,
+          "p50": 34800,
+          "p95": 70000,
+          "p99": 143000,
+          "maximum": 2713300
+        },
+        "barrier": {
+          "minimum": 317600,
+          "average": 890428.3,
+          "p50": 825000,
+          "p95": 1325500,
+          "p99": 1841800,
+          "maximum": 37139600
+        },
+        "half_means": [
+          973653.24,
+          889810.72
+        ]
+      },
+      "block_place": {
+        "completion": {
+          "minimum": 58800,
+          "average": 150479.4,
+          "p50": 99100,
+          "p95": 301600,
+          "p99": 847000,
+          "maximum": 11728100
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 3969.78,
+          "p50": 1500,
+          "p95": 9800,
+          "p99": 38500,
+          "maximum": 1245200
+        },
+        "barrier": {
+          "minimum": 57800,
+          "average": 146432.74,
+          "p50": 96600,
+          "p95": 294300,
+          "p99": 830700,
+          "maximum": 11726000
+        },
+        "half_means": [
+          191845.64,
+          109113.16
+        ]
+      },
+      "block_remove": {
+        "completion": {
+          "minimum": 64100,
+          "average": 132497.82,
+          "p50": 102600,
+          "p95": 223900,
+          "p99": 782200,
+          "maximum": 7181600
+        },
+        "submission": {
+          "minimum": 400,
+          "average": 3894.44,
+          "p50": 1600,
+          "p95": 9300,
+          "p99": 36000,
+          "maximum": 1285200
+        },
+        "barrier": {
+          "minimum": 5900,
+          "average": 128526.26,
+          "p50": 100200,
+          "p95": 212700,
+          "p99": 760900,
+          "maximum": 7178900
+        },
+        "half_means": [
+          164883.16,
+          100112.48
+        ]
+      }
+    }
+  }
+]

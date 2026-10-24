@@ -1,0 +1,8 @@
+{
+  "baseline": "artifacts/parity-bytes.jar",
+  "candidate": "artifacts/shaders/pulsar-final.jar",
+  "lighting_classes": 80,
+  "changed": [],
+  "sha256_baseline": "c93b33a4e482c218a9b573586ae5a8931bf1c3b69807624759ec9380532e4de7",
+  "sha256_candidate": "75f9a389f737a3546dfdd2143b415dc6c467e101328a6b3f07a50284ac751c87"
+}
