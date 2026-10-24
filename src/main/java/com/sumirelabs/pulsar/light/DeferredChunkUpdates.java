@@ -15,6 +15,8 @@ final class DeferredChunkUpdates<T> {
         pending.put(key, chunk);
     }
 
+    T get(long key) { return pending.get(key); }
+
     void remove(long key) {
         pending.remove(key);
     }

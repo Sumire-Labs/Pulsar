@@ -113,6 +113,17 @@ public final class FluidLightBridge {
         return LightInfo.COMPUTED | opacity | (emission << LightInfo.EMISSION_SHIFT);
     }
 
+    /** RGB counterpart of merge's cached-capability lookup. No live World lookup or block callback.
+     * Positional block properties must still be resolved through world-thread snapshots.
+     */
+    public static IBlockState rgbState(final Object capability, final int x, final int y, final int z) {
+        if (!LOADED || capability == null) return null;
+        final IFluidStateContainer container = ((IFluidStateCapability) capability).getContainer(y);
+        if (container == null) return null;
+        final FluidState fluid = container.getFluidState(x, y, z, FluidState.EMPTY);
+        return fluid.isEmpty() ? null : fluid.getState();
+    }
+
     /**
      * Scalar opacity with the fluid layer max'd in for the heightmap walks in
      * {@code MixinChunk}. Context-sensitive fluid blocks use the same world

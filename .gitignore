@@ -4,9 +4,12 @@
 run/
 out/
 bin/
-# Documentation stays local. Existing tracked benchmark publications remain
-# public; new benchmark data remains opt-in, as before.
-/docs/
+# Only benchmark documentation is published. Other docs stay local.
+/docs/*
+!/docs/benchmarks/
+
+# Runtime logs stay local.
+/logs/
 test-fixtures/
 
 # Keep local benchmark tools, reports and raw measurement data out of new commits.

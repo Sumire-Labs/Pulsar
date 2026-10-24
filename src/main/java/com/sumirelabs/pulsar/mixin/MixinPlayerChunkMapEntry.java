@@ -73,13 +73,10 @@ public abstract class MixinPlayerChunkMapEntry {
         if (c == null) {
             return; // vanilla returns false itself
         }
-        if (!((PulsarChunk) c).pulsar$isLightReady()) {
-            cir.setReturnValue(false);
-            return;
-        }
         final WorldLightManager mgr = ((PulsarWorld) c.getWorld()).pulsar$getLightManager();
-        if (mgr != null && (!mgr.areNeighboursLightReady(c.x, c.z)
-                || !mgr.canSendUpdatedChunkLight(c.x, c.z))) {
+        if (!((PulsarChunk) c).pulsar$isLightReady() || mgr != null
+                && (!mgr.areNeighboursLightReady(c.x, c.z) || !mgr.canSendUpdatedChunkLight(c.x, c.z))) {
+            if(mgr!=null)mgr.deferInitialChunkSend((PlayerChunkMapEntry)(Object)this,c);
             cir.setReturnValue(false);
         }
     }

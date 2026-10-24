@@ -7,16 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add optional RGB shader lighting for tested Demonica/Actinium loaders and
+  Complementary, BSL, Photon, Solas, Pastel and Tea packs, with a bounded sparse
+  GPU light field and shader-owned material rendering.
+- Support GLSM emulated texture-combiner state when returning to normal rendering.
+
+- Add server-authoritative RGB block and sky lighting with packed propagation,
+  per-component filters, immutable snapshots and persistent color caches.
+- Color terrain, fluids, entities, normal/Fast TESRs, particles and held items in
+  Vanilla/Forge and Celeritas, preserving alpha, full-bright effects and render state.
+- Add static and positional RGB emission/transmittance APIs. Sample positional
+  callbacks on the world thread, including color-only changes each tick.
+- Add validated state/property and legacy metadata overrides in
+  `pulsar-colors.cfg` and `pulsar-filters.cfg`, with cache-profile invalidation.
+- Add SuperNova's additive, squared-weight, linear-weight, OkLab and vivid blends
+  with runtime terrain refresh; retain LEGACY for the earlier appearance.
+- Add RGB_MAX gameplay light derived from the brightest color component and an
+  independent VANILLA option. Compatible SCALAR clients receive authoritative
+  canonical light without RGB render buffers.
+- Retain SCALAR without RGB chunk/state/buffer fields or renderer hooks.
+
 ### Changed
 
 - Reduce initial skylight BFS work by pruning directions into columns already
   filled with direct sky, preserving chunk boundaries, attenuating surfaces,
   contextual and fluid opacity lookups, and sided-block handling.
+- Default new or regenerated configurations to RGB, squared-weight blending and
+  RGB_MAX gameplay light. Retain valid explicit SCALAR configurations. Engine
+  and gameplay policy changes require a restart.
+- Share RGB queues and reuse bounded worker scratch, frozen state metadata,
+  immutable snapshot sections and sampler chunk views.
+- Skip redundant RGB sky work in verified filter-free neighborhoods, preserving
+  contextual, sided and Fluidlogged behavior.
+- RGB_MAX servers require compatible Pulsar clients; unsupported clients receive
+  an explanatory disconnect after a capability-handshake grace period. SCALAR
+  servers retain ordinary client compatibility.
 
 ### Fixed
 
 - Keep the global pending-light query consistent while initial Sky and Block
   lighting hand work to their final edge passes, preventing premature idle reports.
+- Order Forge's initial PLAY transition after queued LOGIN packet writes,
+  preventing intermittent login-success encoding failures in RGB and SCALAR.
+
+- Retry completed deferred chunk updates before fresh server-tick work in both
+  SCALAR and RGB, preventing large edits from remaining unsent to clients.
+- Retry lighting-deferred initial chunk sends before fresh server-tick work,
+  retaining readiness checks and cancelling stale or unloaded entries.
+- Handle RGB logout with absent or stale connections without removing live peers.
+- Preserve RGB modulation for negative signed lightmap coordinates.
 
 ## [0.5.3]
 

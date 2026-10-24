@@ -51,10 +51,12 @@ public final class WorldLightManager {
     private final World world;
     private final WorldHeightContext heightContext;
     private final ContextualLightManager contextualLight;
+    private final com.sumirelabs.pulsar.rgb.RgbContextualLightManager rgbContextualLight;
 
     private final SnapshotChunkMap loadedChunkMap = new SnapshotChunkMap();
     // Only accessed by server-thread packet/update callbacks, never by workers.
     private final DeferredChunkUpdates<Chunk> deferredChunkUpdates = new DeferredChunkUpdates<>();
+    private InitialChunkSendRetries<PlayerChunkMapEntry,Chunk> deferredInitialChunkSends;
     private final DeferredChunkUpdates<Chunk> deferredRelightRefreshes = new DeferredChunkUpdates<>();
     private final DeferredChunkWatches<PlayerChunkMapEntry, Chunk, EntityPlayerMP> deferredChunkWatches = new DeferredChunkWatches<>();
 
@@ -77,6 +79,9 @@ public final class WorldLightManager {
         this.world = world;
         this.heightContext = WorldUtil.getHeightContext(world);
         this.contextualLight = new ContextualLightManager(world, this.heightContext);
+        this.rgbContextualLight = !world.isRemote && com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
+                && com.sumirelabs.pulsar.api.RgbStateProperties.hasDynamicStates()
+                ? new com.sumirelabs.pulsar.rgb.RgbContextualLightManager(world, this.heightContext) : null;
         this.skyQueue = hasSkyLight ? new LightQueue(this.heightContext) : null;
         // Block propagation consumes every position. Bulk sky work only peeks
         // at the set before rebuilding, so retain its cheaper hash-only enqueue path.
@@ -89,7 +94,9 @@ public final class WorldLightManager {
         if (!world.isRemote) this.unloadWaitBudget.beginTick();
         this.skyWorker = hasSkyLight ? new LightEngineWorker(
                 this.skyQueue,
-                () -> new ScalarSkyEngine(world, this.heightContext),
+                () -> !world.isRemote && com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
+                        ? new com.sumirelabs.pulsar.light.engine.RgbSkyEngine(world, this.heightContext)
+                        : new ScalarSkyEngine(world, this.heightContext),
                 (task, engine) -> this.processWithGate(task, engine, true),
                 this.stats.skyBudgetYields,
                 "propagateSkyChanges",
@@ -97,7 +104,9 @@ public final class WorldLightManager {
                 !world.isRemote, world, this.stats.parallelJobsMax) : null;
         this.blockWorker = hasBlockLight ? new LightEngineWorker(
                 this.blockQueue,
-                () -> new ScalarBlockEngine(world, this.heightContext),
+                () -> !world.isRemote && com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
+                        ? new com.sumirelabs.pulsar.light.engine.RgbBlockEngine(world, this.heightContext)
+                        : new ScalarBlockEngine(world, this.heightContext),
                 (task, engine) -> this.processWithGate(task, engine, false),
                 this.stats.blockBudgetYields,
                 "propagateBlockChanges",
@@ -114,14 +123,17 @@ public final class WorldLightManager {
     public void unregisterChunk(final int cx, final int cz) {
         this.clientRenderUpdates.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.deferredChunkUpdates.remove(CoordinateUtils.getChunkKey(cx,cz));
+        if(this.deferredInitialChunkSends!=null)this.deferredInitialChunkSends.remove(CoordinateUtils.getChunkKey(cx,cz));
         this.deferredRelightRefreshes.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.loadedChunkMap.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.contextualLight.unload(cx, cz);
+        if (this.rgbContextualLight != null) this.rgbContextualLight.unload(cx, cz);
     }
 
     public ContextualLightManager contextualLight() {
         return this.contextualLight;
     }
+    public com.sumirelabs.pulsar.rgb.RgbContextualLightManager rgbContextualLight() { return this.rgbContextualLight; }
 
     /** Forge WorldTick END includes tile ticks, unlike WorldServer.tick TAIL. */
     public void publishContextualLight() {
@@ -129,6 +141,7 @@ public final class WorldLightManager {
             final boolean measure = PulsarConfig.debug.enableDebugStats;
             final long start = measure ? System.nanoTime() : 0L;
             this.contextualLight.flush(this);
+            if (this.rgbContextualLight != null) this.rgbContextualLight.flush(this);
             if (measure) this.stats.recordSampleFlush(System.nanoTime() - start);
         }
     }
@@ -137,6 +150,7 @@ public final class WorldLightManager {
         final boolean measure = PulsarConfig.debug.enableDebugStats;
         final long start = measure ? System.nanoTime() : 0L;
         this.contextualLight.load(chunk);
+        if (this.rgbContextualLight != null) this.rgbContextualLight.load(chunk, this);
         if (measure) this.stats.recordSampleLoad(System.nanoTime() - start);
     }
 
@@ -165,6 +179,7 @@ public final class WorldLightManager {
     /** Queue a recheck for the requested light type, if this world has that lane. */
     public void queueLightCheck(final EnumSkyBlock lightType, final int x, final int y, final int z) {
         if (!this.world.isRemote) this.contextualLight.request(x, y, z);
+        if (this.rgbContextualLight != null) this.rgbContextualLight.request(x, y, z);
         final LightQueue queue = lightType == EnumSkyBlock.SKY ? this.skyQueue : this.blockQueue;
         if (queue != null) queue.queueBlockChange(x, y, z);
     }
@@ -172,12 +187,16 @@ public final class WorldLightManager {
     /** Queue a block change whose effects may involve both light types. */
     public void queueBlockChange(final int x, final int y, final int z) {
         if (!this.world.isRemote) this.contextualLight.request(x, y, z);
+        if (this.rgbContextualLight != null) this.rgbContextualLight.request(x, y, z);
         this.queueSampledBlockChange(x, y, z);
     }
 
     /** Enqueue both lanes after the caller has requested or published contextual samples. */
     public void queueSampledBlockChange(final int x, final int y, final int z) {
         this.queueSampledBlockChange(x, y, z, ContextualLightSnapshot.BOTH_CHANGED);
+    }
+    public void queueSampledRgbChange(final int x, final int y, final int z, final int changes) {
+        this.queueSampledBlockChange(x, y, z, changes);
     }
 
     void queueSampledBlockChange(final int x, final int y, final int z, final int changes) {
@@ -319,6 +338,21 @@ public final class WorldLightManager {
         return !this.hasPendingLightWorkNear(cx, cz);
     }
 
+    public void deferInitialChunkSend(PlayerChunkMapEntry entry,Chunk chunk) {
+        if(this.deferredInitialChunkSends==null)this.deferredInitialChunkSends=new InitialChunkSendRetries<>();
+        this.deferredInitialChunkSends.defer(CoordinateUtils.getChunkKey(chunk.x,chunk.z),entry,chunk);
+    }
+
+    public void retryInitialChunkSends() {
+        if(this.deferredInitialChunkSends==null || this.deferredInitialChunkSends.size()==0
+                || !(this.world instanceof WorldServer server))return;
+        this.deferredInitialChunkSends.drain((entry,chunk)->!entry.isSentToPlayers()
+                        && server.getPlayerChunkMap().getEntry(chunk.x,chunk.z)==entry
+                        && entry.getChunk()==chunk && this.getLoadedChunk(chunk.x,chunk.z)==chunk,
+                (entry,chunk)->chunk.isPopulated() && this.canSendUpdatedChunkLight(chunk.x,chunk.z)
+                        && this.areNeighboursLightReady(chunk.x,chunk.z),PlayerChunkMapEntry::sendToPlayers);
+    }
+
     public void deferChunkWatch(PlayerChunkMapEntry entry, Chunk chunk, EntityPlayerMP player) {
         this.deferredChunkWatches.defer(entry, chunk, player);
     }
@@ -343,6 +377,8 @@ public final class WorldLightManager {
     /** PlayerChunkMap clears its changed-entry set after update(), so it cannot own retries. */
     public void processDeferredChunkUpdates() {
         if(!(this.world instanceof WorldServer serverWorld)) return;
+        if(this.deferredChunkWatches.isEmpty() && this.deferredChunkUpdates.size()==0
+                && this.deferredRelightRefreshes.size()==0) return;
         this.deferredChunkWatches.drain((entry, chunk) -> entry.getChunk() == chunk
                         && this.getLoadedChunk(chunk.x, chunk.z) == chunk
                         && serverWorld.getPlayerChunkMap().getEntry(chunk.x, chunk.z) == entry,
@@ -383,10 +419,91 @@ public final class WorldLightManager {
             long generation = task.initialLightChunk != null ? task.initialLightGeneration
                     : task.initialLightEdgeGeneration;
             if (generation > 0L && !this.initialLighting.isCurrent(task.chunkCoordinate, generation)) return;
-            if (sky) this.processSkyTask(task, engine);
-            else this.processBlockTask(task, engine);
+            if (this.world.isRemote && (Pulsar.proxy.authoritativeClientLight(this.world)
+                    || com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
+                    && (sky ? com.sumirelabs.pulsar.rgb.RgbClient.skyActive() : com.sumirelabs.pulsar.rgb.RgbClient.active()))) {
+                if (task.initialLightChunk != null) this.initialLighting.completeInitial(task, sky ? InitialLightCompletionState.SKY : InitialLightCompletionState.BLOCK);
+                if (task.initialLightEdgeGeneration > 0L) this.initialLighting.completeEdges(task, sky ? InitialLightCompletionState.SKY : InitialLightCompletionState.BLOCK);
+                return;
+            }
+            // Keep monochrome workers out of the larger RGB policy/dispatch path.
+            if (!com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {
+                if (sky) this.processSkyTask(task, engine); else this.processBlockTask(task, engine);
+                return;
+            }
+            if (sky) {
+                boolean measureRgb = LightStats.enabled && engine instanceof com.sumirelabs.pulsar.light.engine.RgbSkyEngine;
+                long rgbStarted = measureRgb ? System.nanoTime() : 0L;
+                if (engine instanceof com.sumirelabs.pulsar.light.engine.RgbSkyEngine rgb
+                        && this.loadedChunkMap.get(task.chunkCoordinate) != null) {
+                    try { rgb.processColors(task); }
+                    catch (com.sumirelabs.pulsar.light.engine.RgbSkyEngine.QueueOverflow overflow) {
+                        this.requeueAfterOverflow(this.skyQueue, task,
+                                CoordinateUtils.getChunkX(task.chunkCoordinate), CoordinateUtils.getChunkZ(task.chunkCoordinate), "RGB sky");
+                        return;
+                    }
+                }
+                long scalarStarted = measureRgb ? System.nanoTime() : 0L;
+                boolean scalar = !(engine instanceof com.sumirelabs.pulsar.light.engine.RgbSkyEngine rgb) || rgb.requiresScalarLighting();
+                if (!scalar) {
+                    ((com.sumirelabs.pulsar.light.engine.RgbSkyEngine)engine).publishColors();
+                    this.completeProjectedTask(task, engine, true);
+                } else this.processSkyTask(task, engine);
+                long scalarFinished = measureRgb ? System.nanoTime() : 0L;
+                if (scalar && engine instanceof com.sumirelabs.pulsar.light.engine.RgbSkyEngine rgb) rgb.publishColors();
+                if (measureRgb) {
+                    long total = System.nanoTime() - rgbStarted;
+                    this.stats.skyWorkerTimeNs.addAndGet(total - (scalarFinished - scalarStarted));
+                    this.stats.skyTaskMaxNs.accumulateAndGet(total, Math::max);
+                }
+            }
+            else {
+                boolean measureRgb = LightStats.enabled && engine instanceof com.sumirelabs.pulsar.light.engine.RgbBlockEngine;
+                long rgbStarted = measureRgb ? System.nanoTime() : 0L;
+                if (engine instanceof com.sumirelabs.pulsar.light.engine.RgbBlockEngine rgb
+                        && this.loadedChunkMap.get(task.chunkCoordinate) != null) {
+                    try { rgb.processColors(task); }
+                    catch (com.sumirelabs.pulsar.light.engine.RgbBlockEngine.QueueOverflow overflow) {
+                        this.requeueAfterOverflow(this.blockQueue, task,
+                                CoordinateUtils.getChunkX(task.chunkCoordinate), CoordinateUtils.getChunkZ(task.chunkCoordinate), "RGB");
+                        return;
+                    }
+                }
+                long scalarStarted = measureRgb ? System.nanoTime() : 0L;
+                boolean scalar = !(engine instanceof com.sumirelabs.pulsar.light.engine.RgbBlockEngine rgb) || rgb.requiresScalarLighting();
+                if (!scalar) {
+                    ((com.sumirelabs.pulsar.light.engine.RgbBlockEngine)engine).publishColors();
+                    this.completeProjectedTask(task, engine, false);
+                } else this.processBlockTask(task, engine);
+                long scalarFinished = measureRgb ? System.nanoTime() : 0L;
+                if (scalar && engine instanceof com.sumirelabs.pulsar.light.engine.RgbBlockEngine rgb) rgb.publishColors();
+                if (measureRgb) {
+                    long total = System.nanoTime() - rgbStarted;
+                    this.stats.blockWorkerTimeNs.addAndGet(total - (scalarFinished - scalarStarted));
+                    this.stats.blockTaskMaxNs.accumulateAndGet(total, Math::max);
+                }
+            }
         } finally {
             if (!this.world.isRemote) this.lightingGate.readLock().unlock();
+        }
+    }
+
+    /** RGB maximum and snapshot are installed before initial/edge readiness becomes observable. */
+    private void completeProjectedTask(ChunkTasks task, PulsarEngine engine, boolean sky) {
+        if (task.initialLightChunk != null) this.initialLighting.completeInitial(task,
+                sky ? InitialLightCompletionState.SKY : InitialLightCompletionState.BLOCK);
+        if (task.initialLightEdgeGeneration > 0L && (sky ? task.queuedEdgeChecksSky : task.queuedEdgeChecksBlock) != null)
+            this.initialLighting.completeEdges(task, sky ? InitialLightCompletionState.SKY : InitialLightCompletionState.BLOCK);
+        if (LightStats.enabled) {
+            this.stats.chunksProcessed.incrementAndGet();
+            this.stats.recordQueueLatency(task.enqueueTimeNs);
+            if (sky) {
+                this.stats.skyTasksProcessed.incrementAndGet();
+                if (task.initialLightChunk != null) this.stats.initialLightsRun.incrementAndGet();
+            } else {
+                this.stats.blockTasksProcessed.incrementAndGet();
+                this.stats.blockPositionsProcessed.addAndGet(((com.sumirelabs.pulsar.light.engine.RgbBlockEngine)engine).colorPositions());
+            }
         }
     }
 
@@ -686,10 +803,22 @@ public final class WorldLightManager {
         try {
             java.util.function.LongPredicate current = key -> this.loadedChunkMap.get(key) == targets.get(key)
                     && this.initialLighting.isCurrent(key, tasks.get(key).initialLightGeneration);
-            if (this.skyQueue != null) new ScalarSkyEngine(this.world, this.heightContext)
-                    .relightChunks(targets, available, current);
-            if (this.blockQueue != null) new ScalarBlockEngine(this.world, this.heightContext)
-                    .relightChunks(targets, available, current);
+            if (this.skyQueue != null) {
+                com.sumirelabs.pulsar.light.engine.RgbSkyEngine rgb = com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
+                        ? new com.sumirelabs.pulsar.light.engine.RgbSkyEngine(this.world, this.heightContext) : null;
+                if (rgb != null) rgb.relightColors(targets, available, current);
+                if (rgb == null || rgb.requiresScalarLighting())
+                    new ScalarSkyEngine(this.world, this.heightContext).relightChunks(targets, available, current);
+                if (rgb != null) rgb.publishColors();
+            }
+            if (this.blockQueue != null) {
+                com.sumirelabs.pulsar.light.engine.RgbBlockEngine rgb = com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
+                        ? new com.sumirelabs.pulsar.light.engine.RgbBlockEngine(this.world, this.heightContext) : null;
+                if (rgb != null) rgb.relightColors(targets, available, current);
+                if (rgb == null || rgb.requiresScalarLighting())
+                    new ScalarBlockEngine(this.world, this.heightContext).relightChunks(targets, available, current);
+                if (rgb != null) rgb.publishColors();
+            }
             for (final var entry : tasks.entrySet()) {
                 if (!current.test(entry.getKey())) continue;
                 if (this.skyQueue != null) this.initialLighting.completeInitial(entry.getValue(), InitialLightCompletionState.SKY);
@@ -746,6 +875,7 @@ public final class WorldLightManager {
      */
     public boolean hasPendingLightWork(final int cx, final int cz) {
         if (this.contextualLight.hasPending(cx, cz)) return true;
+        if (this.rgbContextualLight != null && this.rgbContextualLight.hasPending(cx, cz)) return true;
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         if (this.initialLighting.hasPending(key)) {
             return true;
@@ -760,6 +890,7 @@ public final class WorldLightManager {
             for (int dx = -1; dx <= 1; ++dx) {
                 final long key = CoordinateUtils.getChunkKey(cx + dx, cz + dz);
                 if (this.contextualLight.hasPending(cx + dx, cz + dz)
+                        || this.rgbContextualLight != null && this.rgbContextualLight.hasPending(cx + dx, cz + dz)
                         || this.getPendingWorkFutureAt(key) != null) {
                     return true;
                 }
@@ -846,8 +977,10 @@ public final class WorldLightManager {
         this.loadedChunkMap.clear();
         this.clientRenderUpdates.clear();
         this.deferredChunkUpdates.clear();
+        if(this.deferredInitialChunkSends!=null)this.deferredInitialChunkSends.clear();
         this.deferredRelightRefreshes.clear();
         this.deferredChunkWatches.clear();
+        if (this.rgbContextualLight != null) this.rgbContextualLight.clear();
         if (this.skyWorker != null) this.skyWorker.requestStop();
         if (this.blockWorker != null) this.blockWorker.requestStop();
         if (this.skyWorker != null) this.skyWorker.awaitStop();
