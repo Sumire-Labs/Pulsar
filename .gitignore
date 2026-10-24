@@ -4,9 +4,10 @@
 run/
 out/
 bin/
-# Only benchmark documentation is published. Other docs stay local.
-/docs/*
-!/docs/benchmarks/
+# Keep local docs and unpublished benchmark outputs out of Git status.
+# Existing tracked benchmark publications remain versioned.
+# Add new benchmark publications explicitly with git add -f.
+/docs/
 
 # Runtime logs stay local.
 /logs/
