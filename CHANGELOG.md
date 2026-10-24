@@ -5,6 +5,19 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Reduce initial skylight BFS work by pruning directions into columns already
+  filled with direct sky, preserving chunk boundaries, attenuating surfaces,
+  contextual and fluid opacity lookups, and sided-block handling.
+
+### Fixed
+
+- Keep the global pending-light query consistent while initial Sky and Block
+  lighting hand work to their final edge passes, preventing premature idle reports.
+
 ## [0.5.3]
 
 ### Fixed

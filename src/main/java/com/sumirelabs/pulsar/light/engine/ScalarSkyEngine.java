@@ -22,6 +22,8 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 public class ScalarSkyEngine extends PulsarEngine {
 
     private final SkyLightColumnProcessor columnProcessor;
+    // First non-direct-sky Y for each column, refreshed on every initial light.
+    private final int[] initialSkyStops = new int[256];
 
     public ScalarSkyEngine(final World world, final WorldHeightContext heightContext) {
         super(true, world, heightContext);
@@ -231,11 +233,14 @@ public class ScalarSkyEngine extends PulsarEngine {
             final int minZ = chunkZ << 4;
             final int maxZ = chunkZ << 4 | 15;
             final int startY = highestNonEmptySection << 4 | 15;
+            final int firstDirectSeed = this.increaseQueueInitialLength;
             for (int currZ = minZ; currZ <= maxZ; ++currZ) {
                 for (int currX = minX; currX <= maxX; ++currX) {
-                    this.tryPropagateSkylight(currX, startY + 1, currZ, false, false);
+                    this.initialSkyStops[(currX & 15) | ((currZ & 15) << 4)] =
+                            this.tryPropagateSkylight(currX, startY + 1, currZ, false, false);
                 }
             }
+            this.trimInitialSkySeeds(firstDirectSeed);
         }
 
         if (needsEdgeChecks) {
@@ -251,6 +256,52 @@ public class ScalarSkyEngine extends PulsarEngine {
             this.propagateNeighbourLevels(chunk, this.minLightSection, highestNonEmptySection);
             this.performLightIncrease();
         }
+    }
+
+    /**
+     * After all columns are filled, discard directions whose destination is
+     * already full-strength direct sky. Only initial extrusion seeds are in
+     * this range; empty-section boundary seeds and incremental updates keep
+     * their original paths. The stops come from actual opacity lookups rather
+     * than the heightmap, including contextual and fluid values.
+     */
+    private void trimInitialSkySeeds(final int firstSeed) {
+        int write = firstSeed;
+        for (int read = firstSeed; read < this.increaseQueueInitialLength; ++read) {
+            final long seed = this.increaseQueue[read];
+            // Preserve the original source-face callback path for sided blocks.
+            if ((seed & FLAG_HAS_SIDED_TRANSPARENT_BLOCKS) != 0L) {
+                this.increaseQueue[write++] = seed;
+                continue;
+            }
+            final int x = (((int) seed & 63) - this.encodeOffsetX) & 15;
+            final int z = ((((int) seed >>> 6) & 63) - this.encodeOffsetZ) & 15;
+            final int y = (((int) seed >>> 12) & COORD_Y_MASK) - this.encodeOffsetY;
+            final int column = x | (z << 4);
+            int directions = (int) (seed >>> DIRECTION_SHIFT) & 63;
+            // Every destination removed here already has direct sky 15. Keep
+            // boundaries and the bottom of each column for normal attenuation.
+            if (x < 15 && y > this.initialSkyStops[column + 1]) {
+                directions &= ~(1 << AxisDirection.POSITIVE_X.ordinal());
+            }
+            if (x > 0 && y > this.initialSkyStops[column - 1]) {
+                directions &= ~(1 << AxisDirection.NEGATIVE_X.ordinal());
+            }
+            if (z < 15 && y > this.initialSkyStops[column + 16]) {
+                directions &= ~(1 << AxisDirection.POSITIVE_Z.ordinal());
+            }
+            if (z > 0 && y > this.initialSkyStops[column - 16]) {
+                directions &= ~(1 << AxisDirection.NEGATIVE_Z.ordinal());
+            }
+            if (y - 1 > this.initialSkyStops[column]) {
+                directions &= ~(1 << AxisDirection.NEGATIVE_Y.ordinal());
+            }
+            if (directions != 0) {
+                this.increaseQueue[write++] = (seed & ~(63L << DIRECTION_SHIFT))
+                        | ((long) directions << DIRECTION_SHIFT);
+            }
+        }
+        this.increaseQueueInitialLength = write;
     }
 
     @Override
