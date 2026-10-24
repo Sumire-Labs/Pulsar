@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Reduce initial skylight BFS work by pruning directions into columns already
+  filled with direct sky, preserving chunk boundaries, attenuating surfaces,
+  contextual and fluid opacity lookups, and sided-block handling.
 - Default new or regenerated configurations to RGB, squared-weight blending and
   RGB_MAX gameplay light. Retain valid explicit SCALAR configurations. Engine
   and gameplay policy changes require a restart.
@@ -44,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Keep the global pending-light query consistent while initial Sky and Block
+  lighting hand work to their final edge passes, preventing premature idle reports.
 - Order Forge's initial PLAY transition after queued LOGIN packet writes,
   preventing intermittent login-success encoding failures in RGB and SCALAR.
 

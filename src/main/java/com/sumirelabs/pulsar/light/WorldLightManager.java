@@ -233,8 +233,15 @@ public final class WorldLightManager {
     }
 
     public boolean hasUpdates() {
-        return (this.skyQueue != null && this.skyQueue.hasWork())
-                || (this.blockQueue != null && this.blockQueue.hasWork());
+        if (this.skyQueue == null) return this.blockQueue != null && this.blockQueue.hasWork();
+        if (this.blockQueue == null) return this.skyQueue.hasWork();
+        // Initial completion in one lane can enqueue edge work in the other.
+        // Keep one snapshot: separate reads can miss that handoff entirely.
+        synchronized (this.skyQueue) {
+            synchronized (this.blockQueue) {
+                return this.skyQueue.hasWork() || this.blockQueue.hasWork();
+            }
+        }
     }
 
     public boolean hasChunkPendingLight(final int cx, final int cz) {
