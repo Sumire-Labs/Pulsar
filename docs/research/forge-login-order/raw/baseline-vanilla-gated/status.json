@@ -1,9 +1,0 @@
-{
-  "vanilla_valid": false,
-  "test_only_optional_diagnostic_mods": true,
-  "pass": true,
-  "expected_failure": true,
-  "gate_timeouts": 0,
-  "held_gates": 8,
-  "login_state_errors": 8
-}

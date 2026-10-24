@@ -1,4 +1,0 @@
-{
-  "valid": false,
-  "failure": "java.lang.IllegalStateException: Native login failed six connection attempts"
-}

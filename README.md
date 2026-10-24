@@ -32,11 +32,13 @@ clients. The optional VANILLA policy keeps independent gameplay brightness.
 Vanilla/Forge and Celeritas rendering are validated on Cleanroom 0.6.12-alpha
 and 0.7.7-alpha; other renderer integrations require separate validation.
 RGB shader lighting is also validated with Demonica 0.8.2 on Cleanroom 0.7.7
-and Actinium alpha-0.0.12 on Cleanroom 0.6.12, including the seven tested packs
-listed in the [shader compatibility guide](docs/rgb-lighting.md#demonica-and-actinium-shaderpacks).
-See the [RGB setup and API guide](docs/rgb-lighting.md),
-[SuperNova implementation comparison](docs/research/supernova-parity.md) and
-[native validation and measurements](docs/research/supernova-parity/README.md).
+and Actinium alpha-0.0.12 on Cleanroom 0.6.12.
+
+Select `RGB` or `SCALAR` using `general.lightingMode` in `config/pulsar.cfg`.
+Changing the engine or gameplay-light policy requires restarting Minecraft and
+the server. RGB source colors and filters can be customized in
+`config/pulsar-colors.cfg` and `config/pulsar-filters.cfg`; restart the server
+after editing these files.
 
 The shared server lighting pool uses a 5x5 read halo and a 3x3 write region per task.
 Only read-only halos may overlap. For compatibility diagnosis, `performance.conservativeLightTaskReservations=true`
