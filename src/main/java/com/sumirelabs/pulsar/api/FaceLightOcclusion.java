@@ -13,9 +13,11 @@ import net.minecraft.util.EnumFacing;
  * {@link IBlockState#getLightOpacity(net.minecraft.world.IBlockAccess,
  * net.minecraft.util.math.BlockPos)}.
  *
- * <p>This API surface is intentionally minimal: Pulsar's initial release is
- * scalar-only (no RGB), so there is no per-channel absorption variant. RGB
- * additions can append a sibling interface in a future release.
+ * <p>This directional opacity applies to scalar lighting and all RGB channels.
+ * Use {@link ColoredTranslucency} or {@link BlockLightFilters} for additional
+ * per-channel absorption; these filters cannot open an opaque face.
+ * Implementations must depend only on the supplied state and direction, be
+ * safe to call from lighting workers, and never access a live world.
  */
 public interface FaceLightOcclusion {
 

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a Forge light-property registration event and validated public RGB value
+  helpers, with integration examples and explicit registration/threading contracts.
 - Add optional RGB shader lighting for tested Demonica/Actinium loaders and
   Complementary, BSL, Photon, Solas, Pastel and Tea packs, with a bounded sparse
   GPU light field and shader-owned material rendering.
@@ -31,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Deprecate the legacy no-op light flush API and clarify readiness query semantics.
 - Reduce initial skylight BFS work by pruning directions into columns already
   filled with direct sky, preserving chunk boundaries, attenuating surfaces,
   contextual and fluid opacity lookups, and sided-block handling.

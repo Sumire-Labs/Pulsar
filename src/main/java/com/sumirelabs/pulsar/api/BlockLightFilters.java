@@ -9,7 +9,8 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 /** Static minimum absorption per RGB component; RGB_MAX also uses this for gameplay light.
- * Register during initialization. Values 0..15 are combined with the existing
+ * Register during initialization, preferably in {@link RegisterLightPropertiesEvent}.
+ * Registration is per exact canonical block state. Values 0..15 are combined with the existing
  * contextual, fluid and face absorption using max; filters never open an opaque face.
  * Zero means no additional absorption, and 15 stops that component completely.
  */
