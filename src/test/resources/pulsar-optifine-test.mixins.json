@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "plugin": "com.sumirelabs.pulsar.core.RgbMixinSelection",
+  "minVersion": "0.8.7",
+  "compatibilityLevel": "JAVA_25",
+  "package": "com.sumirelabs.pulsar.mixin",
+  "mixins": [
+    "MixinBlockModelRendererLight",
+    "MixinSmoothLightOcclusion",
+    "MixinPartialBlockModelLight"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

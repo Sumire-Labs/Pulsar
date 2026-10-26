@@ -12,9 +12,14 @@ import java.util.regex.Pattern;
 /** Reads the restart-only switch before mixin application. SCALAR gets no RGB chunk fields or renderer hooks. */
 public final class RgbMixinSelection implements IMixinConfigPlugin {
     private boolean rgb = true;
+    private boolean optifine;
     private static boolean enabled;
     public static boolean rgbEnabled() { return enabled; }
     public void onLoad(String mixinPackage) {
+        // Resource lookup only: defining an OptiFine/renderer class here can
+        // load Minecraft targets before Mixins have been applied.
+        ClassLoader loader = Launch.classLoader != null ? Launch.classLoader : getClass().getClassLoader();
+        optifine = loader.getResource("net/optifine/reflect/ReflectorForge.class") != null;
         try {
             var home = Launch.minecraftHome == null ? new java.io.File(".") : Launch.minecraftHome;
             var path = home.toPath().resolve("config/pulsar.cfg");
@@ -30,6 +35,10 @@ public final class RgbMixinSelection implements IMixinConfigPlugin {
     }
     public boolean shouldApplyMixin(String target, String mixin) {
         String name = mixin.substring(mixin.lastIndexOf('.') + 1);
+        // OptiFine G5 replaces the vanilla renderQuadsSmooth descriptor with
+        // a RenderEnv overload. Leave its partial-face path to OptiFine; keep
+        // strict injection requirements and all other corrections unchanged.
+        if (optifine && name.equals("MixinPartialBlockModelLight")) return false;
         return !name.startsWith("MixinRgb") || rgb;
     }
     public String getRefMapperConfig() { return null; }
