@@ -7,7 +7,9 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-/** Static, state-specific RGB chromaticity. Register during initialization, before worlds load.
+/** Static, state-specific RGB chromaticity. Register during initialization, before worlds load,
+ * preferably in {@link RegisterLightPropertiesEvent}. Registration is per exact canonical
+ * block state; iterate the block's valid states to cover all property combinations.
  * The largest component is normalized to the block's existing contextual scalar emission.
  * Black chromaticity is rejected by register; use disable to suppress RGB emission.
  * Unregistered states emit white. RGB_MAX gameplay brightness follows emitted RGB;
@@ -91,8 +93,7 @@ public final class BlockLightColors {
             }
     }
     public static int checkedColor(int value) {
-        if ((value & ~0xFFF) != 0) throw new IllegalArgumentException("Colored API must return 0xRGB with four bits per component");
-        return value;
+        return PackedLightColor.checked(value);
     }
     public static synchronized void defaults() {
         for (IBlockState s : Blocks.TORCH.getBlockState().getValidStates()) COLORS.putIfAbsent(s, 0xFA6);

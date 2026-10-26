@@ -5,8 +5,8 @@ package com.sumirelabs.pulsar.api;
  * runtime by {@code com.sumirelabs.pulsar.mixin.MixinChunk}.
  *
  * <p>Other mods may cast a {@link net.minecraft.world.chunk.Chunk} to this
- * interface to query whether Pulsar's BFS lighting engine has finished its
- * initial propagation and edge reconciliation for the chunk. Light values
+ * interface to query whether Pulsar has accepted persisted/received base light
+ * or finished initial propagation and edge reconciliation for the chunk. Light values
  * returned from
  * {@link net.minecraft.world.chunk.Chunk#getLightFor} before
  * {@link #pulsar$isLightReady()} returns {@code true} should be treated as
@@ -15,8 +15,10 @@ package com.sumirelabs.pulsar.api;
 public interface ExtendedChunk {
 
     /**
-     * @return {@code true} once Pulsar has completed initial light propagation
-     * and edge reconciliation for this chunk.
+     * @return {@code true} when initial, persisted or received base light is ready. This does
+     * not imply that subsequent updates, load-time edge checks, network delivery
+     * or renderer rebuilds have completed; it is not a completion barrier.
+     * On clients it does not guarantee receipt of a separate RGB snapshot.
      */
     boolean pulsar$isLightReady();
 }
