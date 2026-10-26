@@ -88,7 +88,10 @@ Disabling `features.trackTileEntityLight` stops fallback polling; explicit updat
 
 - SpongeForge: the chunk-packet async-lighting redirect conflict reported in [issue #24](https://github.com/Sumire-Labs/Pulsar/issues/24) is addressed by composing with its captured section arrays. The full SpongeForge server integration remains untested; disabling `optimizations.async-lighting.enabled` in `config/sponge/global.conf` remains a diagnostic workaround.
 - CubicChunks
-- OptiFine
+- OptiFine: the G5 startup injection conflict reported in [issue #26](https://github.com/Sumire-Labs/Pulsar/issues/26)
+  is handled by skipping Pulsar's vanilla-only partial-face renderer correction
+  when OptiFine is present. That path uses OptiFine's lighting behavior; full
+  OptiFine/OptiNotFine rendering and RGB compatibility remains unverified.
 
 ## Performance
 

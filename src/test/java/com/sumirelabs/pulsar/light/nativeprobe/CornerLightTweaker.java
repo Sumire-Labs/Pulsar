@@ -24,9 +24,16 @@ public final class CornerLightTweaker implements ITweaker {
     public void acceptOptions(List<String> args, File game, File assets, String version) {}
 
     public void injectIntoClassLoader(LaunchClassLoader loader) {
+        if (Boolean.getBoolean("issue26.replacedRenderer")) {
+            loader.registerTransformer("com.sumirelabs.pulsar.light.nativeprobe.OptifineRendererShape");
+        }
         MixinBootstrap.init();
         MixinExtrasBootstrap.init();
         MixinEnvironment.getDefaultEnvironment().setSide(MixinEnvironment.Side.CLIENT);
+        if (Boolean.getBoolean("issue26.probe")) {
+            Mixins.addConfiguration("pulsar-optifine-test.mixins.json");
+            return;
+        }
         if (Boolean.getBoolean("pulsar.region")) {
             Mixins.addConfiguration("pulsar-region-test.mixins.json");
             if (Boolean.getBoolean("pulsar.region.audit")) Mixins.addConfiguration("pulsar-region-audit.mixins.json");
@@ -54,6 +61,7 @@ public final class CornerLightTweaker implements ITweaker {
     }
 
     public String getLaunchTarget() {
+        if (Boolean.getBoolean("issue26.probe")) return "com.sumirelabs.pulsar.light.nativeprobe.OptifineRendererProbe";
         if (Boolean.getBoolean("pulsar.region")) return "com.sumirelabs.pulsar.light.RegionExclusionProbe";
         if (Boolean.getBoolean("issue24.packet")) return "com.sumirelabs.pulsar.light.nativeprobe.PacketLightProbe";
         return "com.sumirelabs.pulsar.light.nativeprobe.CornerLightProbe";

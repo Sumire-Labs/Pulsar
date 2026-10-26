@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Avoid the OptiFine G5 startup crash from the vanilla-only partial-face renderer
+  mixin (#26). With OptiFine, leave that correction to its renderer; other Pulsar
+  lighting hooks remain enabled. Full OptiFine rendering/RGB compatibility is not certified.
 - Keep the global pending-light query consistent while initial Sky and Block
   lighting hand work to their final edge passes, preventing premature idle reports.
 - Order Forge's initial PLAY transition after queued LOGIN packet writes,
