@@ -49,9 +49,7 @@ public final class BlockLightFilters {
 
     public static synchronized void defaults() {
         for (EnumDyeColor dye : EnumDyeColor.values()) {
-            float[] color = dye.getColorComponentValues();
-            int filter = RgbLight.pack(Math.round(15 * (1 - color[0])),
-                    Math.round(15 * (1 - color[1])), Math.round(15 * (1 - color[2])));
+            int filter = 0xFFF ^ com.sumirelabs.pulsar.rgb.RgbDefaultPalette.glassTransmittance(dye);
             for (IBlockState state : Blocks.STAINED_GLASS.getBlockState().getValidStates())
                 if (state.getBlock().getMetaFromState(state) == dye.getMetadata()) FILTERS.putIfAbsent(state, filter);
             for (IBlockState state : Blocks.STAINED_GLASS_PANE.getBlockState().getValidStates())

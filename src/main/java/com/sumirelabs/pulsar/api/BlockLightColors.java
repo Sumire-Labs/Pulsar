@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: LGPL-3.0-only
+ * Default source hues adapted from GTNewHorizons/SuperNova DefaultColors/LightColors,
+ * commit 22d8559c3064d77d115e58523c58cde824f4e214 (https://github.com/GTNewHorizons/SuperNova).
+ */
 package com.sumirelabs.pulsar.api;
 
 import com.sumirelabs.pulsar.rgb.RgbLight;
@@ -96,11 +100,17 @@ public final class BlockLightColors {
         return PackedLightColor.checked(value);
     }
     public static synchronized void defaults() {
-        for (IBlockState s : Blocks.TORCH.getBlockState().getValidStates()) COLORS.putIfAbsent(s, 0xFA6);
-        for (IBlockState s : Blocks.GLOWSTONE.getBlockState().getValidStates()) COLORS.putIfAbsent(s, 0xFD9);
-        for (IBlockState s : Blocks.LAVA.getBlockState().getValidStates()) COLORS.putIfAbsent(s, 0xF50);
-        for (IBlockState s : Blocks.FLOWING_LAVA.getBlockState().getValidStates()) COLORS.putIfAbsent(s, 0xF50);
-        for (IBlockState s : Blocks.REDSTONE_TORCH.getBlockState().getValidStates()) COLORS.putIfAbsent(s, 0xF10);
-        for (IBlockState s : Blocks.SEA_LANTERN.getBlockState().getValidStates()) COLORS.putIfAbsent(s, 0x9DF);
+        // SuperNova DefaultColors/LightColors, commit 22d8559c3064d77d115e58523c58cde824f4e214.
+        // Keep Pulsar's contextual scalar peak; adopt hue without changing source strength.
+        defaultHue(Blocks.TORCH, 0xDA8);
+        defaultHue(Blocks.GLOWSTONE, 0xFD3);
+        defaultHue(Blocks.LAVA, 0xFCA);
+        defaultHue(Blocks.FLOWING_LAVA, 0xFCA);
+        defaultHue(Blocks.REDSTONE_TORCH, 0x611);
+        defaultHue(Blocks.SEA_LANTERN, 0x9DF); // 1.12.2 source, absent from the 1.7.10 reference.
+    }
+    private static void defaultHue(net.minecraft.block.Block block, int color) {
+        int normalized = RgbLight.normalize(color);
+        for (IBlockState state : block.getBlockState().getValidStates()) COLORS.putIfAbsent(state, normalized);
     }
 }

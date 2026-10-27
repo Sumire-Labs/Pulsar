@@ -236,9 +236,13 @@ public enum RgbTintBlendMode {
         }
         float[] tint = Scratch.TINT.get();
         computeTint(r, g, b, sr * skyScale, sg * skyScale, sb * skyScale, tint);
-        // Unlike SuperNova, gameplay brightness is independent of filtered RGB.
-        // Account for that difference instead of making an absorbed color white.
-        float brightness = Math.min(1f, (.6f + Math.max(red, Math.max(green, blue))) / (.6f + scalar));
+        // Compare each lane's RGB peak to its own canonical brightness. Taking
+        // the peak AFTER adding different hues incorrectly darkens RGB_MAX too
+        // (red block light + blue sky becomes half brightness a second time).
+        // VANILLA still needs attenuation when canonical light survives a filter.
+        float rgbBrightness = Math.max(r, Math.max(g, b))
+                + Math.max(sr, Math.max(sg, sb)) * skyScale;
+        float brightness = Math.min(1f, (.6f + rgbBrightness) / (.6f + scalar));
         return color & 0xFF000000 | component(color & 255, tint[0] * brightness)
                 | component(color >>> 8 & 255, tint[1] * brightness) << 8
                 | component(color >>> 16 & 255, tint[2] * brightness) << 16;

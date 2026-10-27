@@ -4,6 +4,19 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RgbTintBlendModeTest {
+    @Test void projectedMixedHuesReceiveOnlyTheReferenceTintNotAnotherBrightnessPenalty() {
+        float[] tint=new float[3];
+        for(var mode:RgbTintBlendMode.values()) {
+            if(mode==RgbTintBlendMode.LEGACY)continue;
+            for(int block=0;block<16;block++)for(int sky=0;sky<16;sky++)for(float scale:new float[]{0,.5f,1}) {
+                // RGB_MAX canonical values already equal each lane's maximum.
+                mode.computeTint(block,0,0,0,0,sky*scale,tint);
+                int actual=mode.tintAbgr(-1,block,0,0,block,0,0,sky,sky,scale);
+                for(int c=0;c<3;c++)assertEquals(Math.round(tint[c]*255),actual>>>(c*8)&255,mode.name());
+            }
+        }
+    }
+
     @Test void weightedModesHaveDistinctKnownMixedLightResults() {
         float[] tint = new float[3];
         RgbTintBlendMode.ADDITIVE.computeTint(15, 0, 0, 0, 0, 5, tint);

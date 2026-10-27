@@ -40,6 +40,20 @@ the server. RGB source colors and filters can be customized in
 `config/pulsar-colors.cfg` and `config/pulsar-filters.cfg`; restart the server
 after editing these files.
 
+Stained glass and panes use SuperNova's dedicated light-transmittance palette,
+not the block texture's dye/albedo values. Red, green and blue glass preserve
+their selected component (with the normal propagation falloff); gray, brown and
+black intentionally absorb more light. A warm torch still contains less blue
+than red, so blue glass cannot make it as bright as an unfiltered source.
+Default torch, glowstone, lava and redstone-torch hues follow SuperNova while
+retaining Pulsar's existing contextual source brightness. Explicit palette/API
+overrides keep precedence. Restart the server and client after updating; old RGB
+caches with a different palette profile are rejected and rebuilt on chunk load.
+In RGB_MAX, changed transmitted light also changes canonical gameplay brightness;
+VANILLA retains its independent scalar gameplay light. SCALAR is unaffected.
+
+Reference: [SuperNova's palette and filters](https://github.com/GTNewHorizons/SuperNova/tree/22d8559c3064d77d115e58523c58cde824f4e214/src/main/java/com/mitchej123/supernova/config).
+
 The shared server lighting pool uses a 5x5 read halo and a 3x3 write region per task.
 Only read-only halos may overlap. For compatibility diagnosis, `performance.conservativeLightTaskReservations=true`
 restores the previous exclusive 5x5 policy after restarting Minecraft/the server.

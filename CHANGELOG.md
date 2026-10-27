@@ -34,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Deprecate the legacy no-op light flush API and clarify readiness query semantics.
+- Match stained-glass/pane transmission to SuperNova's dedicated light palette
+  instead of dye texture colors. Align common source hues while retaining their
+  contextual emission strength and explicit palette overrides.
 - Reduce initial skylight BFS work by pruning directions into columns already
   filled with direct sky, preserving chunk boundaries, attenuating surfaces,
   contextual and fluid opacity lookups, and sided-block handling.
@@ -53,6 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Avoid the OptiFine G5 startup crash from the vanilla-only partial-face renderer
   mixin (#26). With OptiFine, leave that correction to its renderer; other Pulsar
   lighting hooks remain enabled. Full OptiFine rendering/RGB compatibility is not certified.
+- Avoid an extra brightness penalty when block and sky light have different hues
+  in RGB_MAX; retain independent scalar-light attenuation in VANILLA and LEGACY output.
 - Keep the global pending-light query consistent while initial Sky and Block
   lighting hand work to their final edge passes, preventing premature idle reports.
 - Order Forge's initial PLAY transition after queued LOGIN packet writes,
