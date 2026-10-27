@@ -29,4 +29,19 @@ public final class PackedLightColor {
 
     /** Convert transmittance to absorption (or absorption to transmittance). */
     public static int complement(int color) { return checked(color) ^ WHITE; }
+
+    /** Convert SuperNova's 0x0R0G0B light format to Pulsar's 0xRGB.
+     * Rejects nonzero padding bits; this does not quantize 24-bit display RGB.
+     */
+    public static int fromSuperNova(int color) {
+        if ((color & ~0x0F0F0F) != 0)
+            throw new IllegalArgumentException("SuperNova light color must be 0x0R0G0B");
+        return (color >>> 8 & 0xF00) | (color >>> 4 & 0xF0) | (color & 15);
+    }
+
+    /** Convert Pulsar's 0xRGB to SuperNova's 0x0R0G0B light format. */
+    public static int toSuperNova(int color) {
+        checked(color);
+        return (color & 0xF00) << 8 | (color & 0xF0) << 4 | color & 15;
+    }
 }

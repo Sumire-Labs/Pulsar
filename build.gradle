@@ -41,6 +41,7 @@ configurations {
     compileOnly.extendsFrom(modCompileOnly)
     modRuntimeOnly
     runtimeOnly.extendsFrom(modRuntimeOnly)
+    gpuTestRuntime
 }
 
 def remapTaskName = enable_shadow.toBoolean() ? "remapShadowJar" : "remapJar"
@@ -99,6 +100,15 @@ tasks.matching { it.name == 'genIntellijRuns' }.configureEach {
 }
 
 dependencies {
+    // Standalone hidden-context probe uses unrelocated LWJGL, not LWJGLX's game bridge.
+    def gpuOs = System.getProperty('os.name').toLowerCase(java.util.Locale.ROOT)
+    def gpuArch = System.getProperty('os.arch').toLowerCase(java.util.Locale.ROOT)
+    def gpuNative = gpuOs.contains('win') ? 'natives-windows' : gpuOs.contains('mac') ? 'natives-macos' : 'natives-linux'
+    if (gpuArch.contains('aarch64') || gpuArch.contains('arm64')) gpuNative += '-arm64'
+    for (def module : ['lwjgl', 'lwjgl-glfw', 'lwjgl-opengl']) {
+        gpuTestRuntime "org.lwjgl:${module}:3.4.1"
+        gpuTestRuntime "org.lwjgl:${module}:3.4.1:${gpuNative}"
+    }
     if (use_asset_mover.toBoolean()) {
         implementation "com.cleanroommc:assetmover:${asset_mover_version}"
     }
@@ -233,8 +243,12 @@ test {
     classpath += sourceSets.main.compileClasspath
     // Switching the optional renderer must invalidate the previous test result.
     inputs.property('celeritasTestClasspath', project.findProperty('celeritasTestClasspath') ?: '')
+    inputs.property('pulsarGpuTests', project.findProperty('pulsarGpuTests') ?: 'false')
     doFirst {
         systemProperty 'pulsar.test.classpath', classpath.asPath
+        systemProperty 'pulsar.test.gpu', project.findProperty('pulsarGpuTests') ?: 'false'
+        if ((project.findProperty('pulsarGpuTests') ?: 'false').toBoolean())
+            systemProperty 'pulsar.test.gpuClasspath', configurations.gpuTestRuntime.asPath
         if (project.hasProperty('celeritasTestClasspath')) {
             systemProperty 'pulsar.test.celeritasClasspath', project.property('celeritasTestClasspath')
         }
@@ -254,5 +268,6 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
+apply from: 'gradle/scripts/api.gradle'
 apply from: 'gradle/scripts/publishing.gradle'
 apply from: 'gradle/scripts/extra.gradle'

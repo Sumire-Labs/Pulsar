@@ -65,6 +65,7 @@ public class Pulsar {
 
     @Mod.EventHandler
     public void loadComplete(net.minecraftforge.fml.common.event.FMLLoadCompleteEvent event) {
+        com.sumirelabs.pulsar.api.BlockLightColors.modDefaults();
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
                 new com.sumirelabs.pulsar.api.RegisterLightPropertiesEvent());
         if (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {

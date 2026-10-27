@@ -106,8 +106,8 @@ public class CommandPulsar extends CommandBase {
             }
             final EntityPlayerMP player = (EntityPlayerMP) sender;
             final int radius = Math.min(Math.max(0, parseInt(args[1])), 16);
-            final int playerCx = (int) player.posX >> 4;
-            final int playerCz = (int) player.posZ >> 4;
+            final int playerCx = playerChunk(player.posX);
+            final int playerCz = playerChunk(player.posZ);
             final List<Long> coordinates = new ArrayList<>();
             // Chebyshev rings preserve locality and start with the requested center.
             for (int ring = 0; ring <= radius; ring++)
@@ -123,14 +123,18 @@ public class CommandPulsar extends CommandBase {
                 return;
             }
             final EntityPlayerMP player = (EntityPlayerMP) sender;
-            final int cx = (int) player.posX >> 4;
-            final int cz = (int) player.posZ >> 4;
+            final int cx = playerChunk(player.posX);
+            final int cz = playerChunk(player.posZ);
             if (mgr.forceRelightChunk(cx, cz)) {
                 sender.sendMessage(new TextComponentString("Queued relight for chunk (" + cx + ", " + cz + ")."));
             } else {
                 sender.sendMessage(new TextComponentString("Chunk (" + cx + ", " + cz + ") is not loaded."));
             }
         }
+    }
+
+    static int playerChunk(double coordinate) {
+        return net.minecraft.util.math.MathHelper.floor(coordinate) >> 4;
     }
 
     @Override

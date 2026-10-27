@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add conservative Botania 1.12.2 source-color presets for shiny flowers, pylons
+  and blaze blocks, preserving mod-provided RGB APIs and explicit overrides.
+- Add opt-in GPU rendering tests for the shipped GLSL, and document the verified
+  Demonica 0.9.0 / Complementary Reimagined r5.9.3 development/production-client combination.
+- Add whole-block RGB registration, packed-value overloads, basic color constants
+  and validated conversion to/from SuperNova's light-value layout.
+- Build compile-only API/source jars and a local Maven publication, with a consumer
+  example compiled against the API artifact during checks.
 - Add a Forge light-property registration event and validated public RGB value
   helpers, with integration examples and explicit registration/threading contracts.
 - Add optional RGB shader lighting for tested Demonica/Actinium loaders and
@@ -33,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Extend SuperNova-derived default hues to the remaining common vanilla light
+  sources while retaining their contextual source strength.
 - Deprecate the legacy no-op light flush API and clarify readiness query semantics.
 - Match stained-glass/pane transmission to SuperNova's dedicated light palette
   instead of dye texture colors. Align common source hues while retaining their
@@ -53,11 +63,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Subtract night-time sky darkening per RGB component instead of scaling weak
+  filtered skylight; correct mixed-hue attenuation in the shader lightmap path too.
+- Center current-chunk and radius relights correctly at negative fractional coordinates.
+- Avoid an extra brightness penalty when block and sky light have different hues
+  in RGB_MAX; retain independent scalar-light attenuation in VANILLA and LEGACY output.
 - Avoid the OptiFine G5 startup crash from the vanilla-only partial-face renderer
   mixin (#26). With OptiFine, leave that correction to its renderer; other Pulsar
   lighting hooks remain enabled. Full OptiFine rendering/RGB compatibility is not certified.
-- Avoid an extra brightness penalty when block and sky light have different hues
-  in RGB_MAX; retain independent scalar-light attenuation in VANILLA and LEGACY output.
 - Keep the global pending-light query consistent while initial Sky and Block
   lighting hand work to their final edge passes, preventing premature idle reports.
 - Order Forge's initial PLAY transition after queued LOGIN packet writes,

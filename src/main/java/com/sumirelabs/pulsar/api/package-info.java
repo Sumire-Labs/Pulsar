@@ -7,7 +7,8 @@
  *         register static properties before the registries freeze.</li>
  *     <li>{@link com.sumirelabs.pulsar.api.BlockLightColors} and
  *         {@link com.sumirelabs.pulsar.api.BlockLightFilters} — state-specific
- *         emission and minimum absorption. User palette files take precedence.</li>
+ *         emission and minimum absorption, including whole-block registration.
+ *         User palette files take precedence.</li>
  *     <li>{@link com.sumirelabs.pulsar.api.ColoredLightSource} and
  *         {@link com.sumirelabs.pulsar.api.ColoredTranslucency} — immutable
  *         state callbacks, sampled during initialization.</li>
@@ -15,7 +16,8 @@
  *         {@link com.sumirelabs.pulsar.api.PositionalColoredTranslucency} —
  *         world-dependent callbacks sampled on the owning world thread.</li>
  *     <li>{@link com.sumirelabs.pulsar.api.PackedLightColor} — validated
- *         four-bit-per-channel {@code 0xRGB} values.</li>
+ *         four-bit-per-channel {@code 0xRGB} values and SuperNova layout conversion.</li>
+ *     <li>{@link com.sumirelabs.pulsar.api.LightColors} — basic additive color constants.</li>
  *     <li>{@link com.sumirelabs.pulsar.api.ExtendedChunk} — query whether a
  *         chunk has ready initial, persisted or received base light.</li>
  *     <li>{@link com.sumirelabs.pulsar.api.ExtendedWorld} — query world-level

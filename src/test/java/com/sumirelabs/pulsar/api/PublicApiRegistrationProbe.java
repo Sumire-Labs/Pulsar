@@ -18,8 +18,26 @@ public final class PublicApiRegistrationProbe {
         public void register(RegisterLightPropertiesEvent event) {
             check(!event.isCancelable() && !event.hasResult(), "Event is informational");
             calls++;
-            BlockLightColors.registerEmission(Blocks.TORCH.getDefaultState(), 8, 4, 2);
+            BlockLightColors.registerEmission(Blocks.TORCH.getDefaultState(), 0x842);
             BlockLightFilters.register(Blocks.GLASS.getDefaultState(), 0, 15, 15);
+            BlockLightColors.registerEmission(Blocks.WOOL.getDefaultState(), 0x111);
+            BlockLightColors.registerEmissionAll(Blocks.WOOL, 0x842);
+            BlockLightColors.register(Blocks.WOOL.getDefaultState(), LightColors.WHITE);
+            BlockLightColors.registerEmissionAll(Blocks.STAINED_HARDENED_CLAY, 0x111);
+            BlockLightColors.registerAll(Blocks.STAINED_HARDENED_CLAY, 0x842);
+            BlockLightColors.registerEmissionAll(Blocks.CONCRETE, LightColors.RED);
+            BlockLightColors.disableAll(Blocks.CONCRETE);
+            BlockLightFilters.registerAll(Blocks.STAINED_GLASS, PackedLightColor.complement(LightColors.RED));
+            BlockLightFilters.register(Blocks.STAINED_GLASS.getDefaultState(), 0x123);
+            // Rejected requests must leave every state's previous value intact.
+            expectInvalid(() -> BlockLightColors.registerAll(Blocks.WOOL, 0));
+            expectInvalid(() -> BlockLightColors.registerAll(Blocks.WOOL, 0x1000));
+            expectInvalid(() -> BlockLightColors.registerEmissionAll(Blocks.WOOL, -1));
+            expectInvalid(() -> BlockLightFilters.registerAll(Blocks.STAINED_GLASS, 0x1000));
+            expectInvalid(() -> BlockLightColors.registerAll(Blocks.AIR, LightColors.WHITE));
+            expectInvalid(() -> BlockLightColors.registerEmissionAll(Blocks.AIR, 0));
+            expectInvalid(() -> BlockLightColors.disableAll(Blocks.AIR));
+            expectInvalid(() -> BlockLightFilters.registerAll(Blocks.AIR, 0));
         }
     }
 
@@ -45,10 +63,34 @@ public final class PublicApiRegistrationProbe {
                 "Color event/config precedence");
         check(RgbStateProperties.filter(RgbStateProperties.of(Blocks.GLASS.getDefaultState())) == expectedFilter,
                 "Filter event/config precedence");
+        for (var state : Blocks.WOOL.getBlockState().getValidStates()) {
+            int properties = RgbStateProperties.of(state);
+            boolean exception = state == Blocks.WOOL.getDefaultState();
+            check(RgbStateProperties.color(properties) == (exception ? 0xFFF : 0x842), "All-state emission/per-state override");
+            check(((properties & RgbStateProperties.SOURCE_ABSOLUTE) != 0) != exception, "Hue must clear absolute emission flag");
+        }
+        for (var state : Blocks.STAINED_HARDENED_CLAY.getBlockState().getValidStates()) {
+            int properties = RgbStateProperties.of(state);
+            check(RgbStateProperties.color(properties) == 0xF84, "All-state hue normalization");
+            check((properties & RgbStateProperties.SOURCE_ABSOLUTE) == 0, "All-state hue clears absolute emission flags");
+        }
+        for (var state : Blocks.CONCRETE.getBlockState().getValidStates()) {
+            int properties = RgbStateProperties.of(state);
+            check(RgbStateProperties.color(properties) == 0, "All-state disable");
+            check((properties & RgbStateProperties.SOURCE_ABSOLUTE) == 0, "Disable clears absolute emission flags");
+        }
+        for (var state : Blocks.STAINED_GLASS.getBlockState().getValidStates()) {
+            int filter = RgbStateProperties.filter(RgbStateProperties.of(state));
+            check(filter == (state == Blocks.STAINED_GLASS.getDefaultState() ? 0x123 : 0x0FF), "All-state filter/per-state override");
+        }
         expectFrozen(() -> BlockLightColors.register(Blocks.TORCH.getDefaultState(), 15, 15, 15));
         expectFrozen(() -> BlockLightColors.registerEmission(Blocks.TORCH.getDefaultState(), 1, 2, 3));
         expectFrozen(() -> BlockLightColors.disable(Blocks.TORCH.getDefaultState()));
         expectFrozen(() -> BlockLightFilters.register(Blocks.GLASS.getDefaultState(), 0, 0, 0));
+        expectFrozen(() -> BlockLightColors.registerAll(Blocks.WOOL, LightColors.WHITE));
+        expectFrozen(() -> BlockLightColors.registerEmissionAll(Blocks.WOOL, LightColors.BLUE));
+        expectFrozen(() -> BlockLightColors.disableAll(Blocks.WOOL));
+        expectFrozen(() -> BlockLightFilters.registerAll(Blocks.STAINED_GLASS, 0));
         System.out.println("Public API lifecycle passed: " + args[1]);
     }
 
@@ -56,6 +98,12 @@ public final class PublicApiRegistrationProbe {
         try { action.run(); }
         catch (IllegalStateException expected) { return; }
         throw new AssertionError("Registration after freeze must fail");
+    }
+
+    private static void expectInvalid(Runnable action) {
+        try { action.run(); }
+        catch (IllegalArgumentException expected) { return; }
+        throw new AssertionError("Invalid registration must fail");
     }
 
     private static void check(boolean condition, String message) {

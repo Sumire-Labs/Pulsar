@@ -234,14 +234,21 @@ public enum RgbTintBlendMode {
                     | Math.round((color >>> 8 & 255) * (.6f + green) / max) << 8
                     | Math.round((color >>> 16 & 255) * (.6f + blue) / max) << 16;
         }
+        // Vanilla and SuperNova subtract the time-of-day darkening from each
+        // sky component. Scaling kept weak filtered skylight alive at night.
+        float skyDarkening = 15f - 15f * skyScale;
+        float skyRed = Math.max(0, sr - skyDarkening);
+        float skyGreen = Math.max(0, sg - skyDarkening);
+        float skyBlue = Math.max(0, sb - skyDarkening);
+        scalar = canonical + Math.max(0, skyCanonical - skyDarkening);
         float[] tint = Scratch.TINT.get();
-        computeTint(r, g, b, sr * skyScale, sg * skyScale, sb * skyScale, tint);
+        computeTint(r, g, b, skyRed, skyGreen, skyBlue, tint);
         // Compare each lane's RGB peak to its own canonical brightness. Taking
         // the peak AFTER adding different hues incorrectly darkens RGB_MAX too
         // (red block light + blue sky becomes half brightness a second time).
         // VANILLA still needs attenuation when canonical light survives a filter.
         float rgbBrightness = Math.max(r, Math.max(g, b))
-                + Math.max(sr, Math.max(sg, sb)) * skyScale;
+                + Math.max(skyRed, Math.max(skyGreen, skyBlue));
         float brightness = Math.min(1f, (.6f + rgbBrightness) / (.6f + scalar));
         return color & 0xFF000000 | component(color & 255, tint[0] * brightness)
                 | component(color >>> 8 & 255, tint[1] * brightness) << 8

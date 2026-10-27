@@ -17,7 +17,9 @@ class RgbGlassLightingTest {
                     "-cp",System.getProperty("pulsar.test.classpath"),RgbGlassProbe.class.getName(),Boolean.toString(legacy))
                     .redirectErrorStream(true).redirectOutput(log.toFile()).start();
             if(!child.waitFor(60,TimeUnit.SECONDS)){child.destroyForcibly();fail("Glass probe timeout");}
-            String output=Files.readString(log);
+            // Windows JVM/native diagnostics can mix console encodings. Result
+            // markers are ASCII; retain diagnostics without failing their decoder.
+            String output=new String(Files.readAllBytes(log),java.nio.charset.StandardCharsets.UTF_8);
             assertEquals(0,child.exitValue(),output);
             assertTrue(output.contains("GLASS_BFS_PASS legacy="+legacy+" cases=35"),output);
             assertTrue(output.contains(legacy?"type=red source=E96 outside=800":"type=red source=EB8 outside=C00"),output);

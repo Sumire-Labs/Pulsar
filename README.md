@@ -34,6 +34,43 @@ and 0.7.7-alpha; other renderer integrations require separate validation.
 RGB shader lighting is also validated with Demonica 0.8.2 on Cleanroom 0.7.7
 and Actinium alpha-0.0.12 on Cleanroom 0.6.12.
 
+The current release-candidate shader target is **Demonica 0.9.0 + its pinned
+Celeritas d94ec1e5 + Complementary Reimagined r5.9.3**, on Cleanroom 0.7.4-alpha
+and Java 25. The 2026-10-26 isolated development and production-client checks on AMD Radeon 8060S
+covered day/night, stained glass, a chest, first/third person, shader OFF/ON and
+Overworld/Nether/return. Runtime assertions confirmed shader injection, sampler
+registration and a ready GPU light field after switching and dimension changes.
+The production check used unmodified Demonica/Celeritas release binaries and the
+remapped Pulsar candidate jar, with Fugue 0.25.5 and Scalar 3.9.0 as Cleanroom's
+required patch mods. The development check used MCP-mapped jars. Both completed
+the scene/switching/dimension script; the test diagnostics mods are not distributed
+with Pulsar. This is a tested combination, not a guarantee for every shaderpack,
+GPU or modpack. Demonica 0.9.0 requires
+Cleanroom 0.7.4 or later and its exact Celeritas pin; do not substitute an arbitrary
+Celeritas build. See the [Demonica requirements](https://github.com/ndellagrotte/Demonica/releases/tag/v0.9.0).
+
+`./gradlew build -PpulsarGpuTests=true` also runs a hidden-window GPU test of the
+shipped light-field GLSL: mixed colors, alpha, fullbright, missing chunks,
+independent scalar attenuation, neutral white and filtered night sky. Without that
+flag the GPU test is explicitly skipped, while the normal tests still run.
+
+### Source presets and remaining SuperNova differences
+
+Common vanilla light sources now have SuperNova-derived hues, including fire,
+portals, furnaces, ender chests and redstone sources. Presets retain the original
+contextual emission strength. Botania 1.12.2 shiny flowers, the three pylon variants
+and blaze blocks have optional defaults verified against its `1.12-final` source.
+Missing blocks, unknown state layouts and blocks implementing Pulsar's own RGB
+source API are left alone. Explicit API registrations and user palette files take
+precedence. Botania's complete mod/runtime interaction has not been certified by
+the preset unit tests.
+
+Pulsar does not yet port SuperNova's entire mod-preset catalogue or its live
+palette dump/reload commands. Runtime registry replacement needs coordinated
+worker/cache invalidation; use the documented restart workflow for now. Public
+relight-completion futures and general compatibility with OptiFine remain outside
+the verified release-candidate scope.
+
 Select `RGB` or `SCALAR` using `general.lightingMode` in `config/pulsar.cfg`.
 Changing the engine or gameplay-light policy requires restarting Minecraft and
 the server. RGB source colors and filters can be customized in
@@ -73,9 +110,43 @@ Disabling `features.trackTileEntityLight` stops fallback polling; explicit updat
 
 ## Mod integration API
 
-Use the matching Pulsar development jar as a **compile-only** dependency and the
-normal remapped jar at runtime. Do not bundle/shade Pulsar or its API classes.
-There is currently no configured public Maven repository for Pulsar.
+Use the public API jar as a **compile-only** dependency. Supply the matching full
+Pulsar mod at runtime (development jar in a development environment, remapped jar
+in a normal game). Do not bundle/shade Pulsar or its API classes, or put the API
+jar in a game's mods directory. The matching full development jar remains a valid
+compile-only dependency for existing integrations.
+
+Build the API artifacts with `./gradlew apiJar apiSourcesJar` (also included in
+`build`). `build/libs/*-api.jar` contains the public integration types in MCP
+stable_39 development names; `*-api-sources.jar` supplies matching sources.
+Internal caches, renderer bridges, Mixins and mod metadata are excluded. This is
+a compile-time artifact, not a standalone implementation or a replacement for Pulsar.
+Consumers must configure their own Minecraft 1.12.2/Cleanroom platform and Java 25.
+
+For a local Maven repository, run:
+
+```sh
+./gradlew publishPulsarApiPublicationToApiLocalRepository
+```
+
+The result is written under `build/api-repository`, with coordinates
+`com.sumirelabs:pulsar-api:<version>`. Use the exact generated version from that
+directory; branch/dirty builds include a suffix. For example, in another project:
+
+```groovy
+repositories {
+    maven { url = uri('../Pulsar/build/api-repository') }
+}
+dependencies {
+    compileOnly 'com.sumirelabs:pulsar-api:<version>'
+}
+```
+
+Replace the path and `<version>` with your local values. Alternatively, use
+`compileOnly files('libs/pulsar-<version>-api.jar')`. This task publishes locally
+only; no public Maven endpoint has been configured. `check` compiles the
+[integration example](src/apiExample/java/example/pulsar/PulsarCompat.java) against
+the packaged API and the platform dependencies, without the full Pulsar classes.
 
 ### Static RGB registration
 
@@ -87,9 +158,10 @@ depending on the order of mods' load-complete handlers.
 ```java
 import com.sumirelabs.pulsar.api.BlockLightColors;
 import com.sumirelabs.pulsar.api.BlockLightFilters;
+import com.sumirelabs.pulsar.api.LightColors;
+import com.sumirelabs.pulsar.api.PackedLightColor;
 import com.sumirelabs.pulsar.api.RegisterLightPropertiesEvent;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public final class PulsarCompat {
@@ -103,15 +175,10 @@ public final class PulsarCompat {
 
     @SubscribeEvent
     public void registerLight(RegisterLightPropertiesEvent event) {
-        for (IBlockState state : lamp.getBlockState().getValidStates()) {
-            // Actual component strengths. RGB_MAX can light a source whose
-            // vanilla emission is zero; VANILLA caps it to scalar emission.
-            BlockLightColors.registerEmission(state, 15, 8, 3);
-        }
-        for (IBlockState state : glass.getBlockState().getValidStates()) {
-            // Minimum ABSORPTION: preserve red, absorb green and blue.
-            BlockLightFilters.register(state, 0, 15, 15);
-        }
+        // Actual component strengths for every state of the block.
+        BlockLightColors.registerEmissionAll(lamp, PackedLightColor.pack(15, 8, 3));
+        // Transmit red: ABSORPTION is the complement of red transmittance.
+        BlockLightFilters.registerAll(glass, PackedLightColor.complement(LightColors.RED));
     }
 }
 ```
@@ -130,6 +197,16 @@ is normalized to existing scalar emission. It rejects black; use `disable(state)
 to suppress RGB emission. `registerEmission` accepts black. In VANILLA policy,
 disabling RGB emission does not remove the independent scalar gameplay light.
 In SCALAR mode these RGB registrations do not affect propagation.
+
+`registerAll(block, color)` applies a hue to every canonical state;
+`registerEmissionAll(block, color)` applies actual strengths and
+`disableAll(block)` suppresses RGB emission. `BlockLightFilters.registerAll`
+sets minimum absorption for all states. These methods take packed `0xRGB` values.
+They validate the request before writing and cannot be interrupted by registry
+freezing. Register a common value first, then call the single-state method to
+override selected states. A later All call overwrites earlier per-state settings.
+Packed overloads of `register(state, color)` and `registerEmission(state, color)`
+accept the same values; the original three-component overloads remain supported.
 
 ### Block callbacks and changing lights
 
@@ -151,6 +228,14 @@ values and extracts components. Translucency callbacks return **transmittance**:
 `BlockLightFilters.register`, which takes absorption. `PackedLightColor.complement`
 converts between these conventions. Scalar, fluid and face opacity still applies;
 an RGB filter cannot make an opaque face transparent.
+
+`LightColors` provides BLACK, WHITE, RED, GREEN, BLUE, YELLOW, CYAN and MAGENTA as
+basic additive colors; these are not Minecraft dye shades. For ports using
+[SuperNova's light format](https://github.com/GTNewHorizons/SuperNova#api),
+`PackedLightColor.fromSuperNova(0x0F0803)` returns `0xF83`, and `toSuperNova` performs
+the reverse conversion. Both use four bits per component. This only converts the
+numeric layout: it does not adapt world APIs, brightness policies, or arbitrary
+24-bit display RGB. Nonzero padding bits in a SuperNova value are rejected.
 
 For scalar emission/opacity changes without a block-state change, call the ordinary
 `world.checkLight(pos)` on the owning world thread after updating your data.

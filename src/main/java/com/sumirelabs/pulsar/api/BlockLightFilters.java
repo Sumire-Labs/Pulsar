@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.api;
 
 import com.sumirelabs.pulsar.rgb.RgbLight;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
@@ -18,6 +19,23 @@ public final class BlockLightFilters {
     private static final Map<IBlockState, Integer> FILTERS = new IdentityHashMap<>();
     private static volatile Map<IBlockState, Integer> frozen;
     private BlockLightFilters() {}
+
+    /** Register packed 0xRGB minimum absorption for one state, not transmittance. */
+    public static void register(IBlockState state, int absorption) {
+        PackedLightColor.checked(absorption);
+        register(state, absorption >>> 8, absorption >>> 4 & 15, absorption & 15);
+    }
+
+    /** Register minimum absorption for every canonical state of a block.
+     * Later per-state registrations override it; freezing cannot split the operation.
+     */
+    public static synchronized void registerAll(Block block, int absorption) {
+        if (frozen != null) throw new IllegalStateException("RGB filters are frozen after initialization");
+        java.util.Objects.requireNonNull(block, "block");
+        if (block == Blocks.AIR) throw new IllegalArgumentException("Air cannot filter RGB light");
+        PackedLightColor.checked(absorption);
+        for (IBlockState state : block.getBlockState().getValidStates()) register(state, absorption);
+    }
 
     public static synchronized void register(IBlockState state, int r, int g, int b) {
         if (frozen != null) throw new IllegalStateException("RGB filters are frozen after initialization");

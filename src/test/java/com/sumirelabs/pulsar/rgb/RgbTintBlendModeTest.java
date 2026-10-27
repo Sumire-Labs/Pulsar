@@ -10,10 +10,21 @@ class RgbTintBlendModeTest {
             if(mode==RgbTintBlendMode.LEGACY)continue;
             for(int block=0;block<16;block++)for(int sky=0;sky<16;sky++)for(float scale:new float[]{0,.5f,1}) {
                 // RGB_MAX canonical values already equal each lane's maximum.
-                mode.computeTint(block,0,0,0,0,sky*scale,tint);
+                mode.computeTint(block,0,0,0,0,Math.max(0, sky-(15-15*scale)),tint);
                 int actual=mode.tintAbgr(-1,block,0,0,block,0,0,sky,sky,scale);
                 for(int c=0;c<3;c++)assertEquals(Math.round(tint[c]*255),actual>>>(c*8)&255,mode.name());
             }
+        }
+    }
+
+    @Test void filteredSkyBelowNightDarkeningDoesNotRemainColored() {
+        for(var mode:RgbTintBlendMode.values()) {
+            if(mode==RgbTintBlendMode.LEGACY)continue;
+            assertEquals(0x7F123456,mode.tintAbgr(0x7F123456,0,0,0,0,6,0,0,6,4/15f),mode.name());
+            int filtered=mode.tintAbgr(-1,0,0,0,0,6,0,0,15,4/15f);
+            assertEquals(filtered&255,filtered>>>8&255,mode.name());
+            assertEquals(filtered&255,filtered>>>16&255,mode.name());
+            assertTrue((filtered&255)<64,mode.name());
         }
     }
 

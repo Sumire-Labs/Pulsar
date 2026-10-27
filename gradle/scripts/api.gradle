@@ -1,0 +1,60 @@
+// Development names (MCP stable_39); consumers supply their own Cleanroom platform.
+// This artifact is compile-only. Runtime implementations come from the full mod.
+def publicApiTypes = [
+        'BlockLightColors', 'BlockLightFilters', 'ColoredLightSource', 'ColoredTranslucency',
+        'ExtendedChunk', 'ExtendedWorld', 'FaceLightOcclusion', 'LightColors', 'PackedLightColor',
+        'PositionalColoredLightSource', 'PositionalColoredTranslucency', 'RegisterLightPropertiesEvent'
+]
+def apiPath = 'com/sumirelabs/pulsar/api/'
+
+def apiJar = tasks.register('apiJar', Jar) {
+    group = 'build'
+    description = 'Build the compile-only public API jar (development mappings).'
+    archiveClassifier = 'api'
+    from(sourceSets.main.output) {
+        include publicApiTypes.collect { apiPath + it + '.class' }
+    }
+    manifest.attributes('Pulsar-API-Usage': 'compile-only; requires full Pulsar at runtime')
+}
+
+def apiSourcesJar = tasks.register('apiSourcesJar', Jar) {
+    group = 'build'
+    description = 'Build sources for the public API artifact.'
+    archiveClassifier = 'api-sources'
+    from(sourceSets.main.allJava) {
+        include publicApiTypes.collect { apiPath + it + '.java' }
+        include apiPath + 'package-info.java'
+    }
+}
+
+// Compile a real consumer against the packaged API, never main.output or the full mod.
+sourceSets {
+    apiExample {
+        java.srcDir 'src/apiExample/java'
+        compileClasspath = files(apiJar) + sourceSets.main.compileClasspath
+    }
+}
+tasks.named('check') { dependsOn tasks.named('compileApiExampleJava') }
+tasks.named('assemble') { dependsOn apiJar, apiSourcesJar }
+
+publishing {
+    publications {
+        pulsarApi(MavenPublication) {
+            groupId = root_package
+            artifactId = mod_id + '-api'
+            artifact(apiJar) { classifier = null }
+            artifact(apiSourcesJar) { classifier = 'sources' }
+            pom {
+                name = 'Pulsar public API'
+                description = 'Compile-only API in MCP stable_39 names. Requires Cleanroom and the matching full Pulsar mod at runtime.'
+                url = mod_url
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'apiLocal'
+            url = layout.buildDirectory.dir('api-repository')
+        }
+    }
+}

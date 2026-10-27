@@ -6,6 +6,20 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PackedLightColorTest {
+    @Test void superNovaConversionIsLosslessForAllLightColors() {
+        assertEquals(0x0F0803, PackedLightColor.toSuperNova(0xF83));
+        assertEquals(0xF83, PackedLightColor.fromSuperNova(0x0F0803));
+        for (int r = 0; r < 16; r++) for (int g = 0; g < 16; g++) for (int b = 0; b < 16; b++) {
+            int compact = PackedLightColor.pack(r, g, b);
+            int spaced = r << 16 | g << 8 | b;
+            assertEquals(spaced, PackedLightColor.toSuperNova(compact));
+            assertEquals(compact, PackedLightColor.fromSuperNova(spaced));
+        }
+        for (int invalid : new int[] {-1, 0x10, 0x1000, 0x100000, 0x1000000, 0xFF8800})
+            assertThrows(IllegalArgumentException.class, () -> PackedLightColor.fromSuperNova(invalid));
+        assertThrows(IllegalArgumentException.class, () -> PackedLightColor.toSuperNova(0x1000));
+    }
+
     @Test void allValuesMatchEngineEncodingAndFilterConvention() {
         for (int color = 0; color <= 0xFFF; color++) {
             int r = PackedLightColor.red(color);

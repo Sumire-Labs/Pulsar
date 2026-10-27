@@ -5,6 +5,7 @@
 package com.sumirelabs.pulsar.api;
 
 import com.sumirelabs.pulsar.rgb.RgbLight;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import java.util.Collections;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 /** Static, state-specific RGB chromaticity. Register during initialization, before worlds load,
  * preferably in {@link RegisterLightPropertiesEvent}. Registration is per exact canonical
- * block state; iterate the block's valid states to cover all property combinations.
+ * block state; the All methods cover every canonical state of a block.
  * The largest component is normalized to the block's existing contextual scalar emission.
  * Black chromaticity is rejected by register; use disable to suppress RGB emission.
  * Unregistered states emit white. RGB_MAX gameplay brightness follows emitted RGB;
@@ -26,6 +27,40 @@ public final class BlockLightColors {
     private static volatile java.util.Set<IBlockState> frozenAbsolute;
     private static String profile;
     private BlockLightColors() {}
+    /** Register a packed 0xRGB hue for one state. Black is not a hue. */
+    public static void register(IBlockState state, int color) {
+        PackedLightColor.checked(color);
+        register(state, color >>> 8, color >>> 4 & 15, color & 15);
+    }
+    /** Register a packed 0xRGB absolute emission for one state, including black. */
+    public static void registerEmission(IBlockState state, int color) {
+        PackedLightColor.checked(color);
+        registerEmission(state, color >>> 8, color >>> 4 & 15, color & 15);
+    }
+    /** Register a hue for all states. A later per-state registration can override it.
+     * The registry cannot freeze partway through this operation.
+     */
+    public static synchronized void registerAll(Block block, int color) {
+        requireMutableBlock(block);
+        RgbLight.normalize(PackedLightColor.checked(color)); // Validate before any writes.
+        for (IBlockState state : block.getBlockState().getValidStates()) register(state, color);
+    }
+    /** Register actual component strengths for all states, including black. */
+    public static synchronized void registerEmissionAll(Block block, int color) {
+        requireMutableBlock(block);
+        PackedLightColor.checked(color);
+        for (IBlockState state : block.getBlockState().getValidStates()) registerEmission(state, color);
+    }
+    /** Disable RGB emission for all states; VANILLA scalar emission is unchanged. */
+    public static synchronized void disableAll(Block block) {
+        requireMutableBlock(block);
+        for (IBlockState state : block.getBlockState().getValidStates()) disable(state);
+    }
+    private static void requireMutableBlock(Block block) {
+        if (frozen != null) throw new IllegalStateException("RGB colors are frozen after initialization");
+        java.util.Objects.requireNonNull(block, "block");
+        if (block == Blocks.AIR) throw new IllegalArgumentException("Air cannot be an RGB source");
+    }
     public static synchronized void register(IBlockState state, int r, int g, int b) {
         if (frozen != null) throw new IllegalStateException("RGB colors are frozen after initialization");
         if (state.getBlock() == Blocks.AIR) throw new IllegalArgumentException("Air cannot be an RGB source");
@@ -108,6 +143,26 @@ public final class BlockLightColors {
         defaultHue(Blocks.FLOWING_LAVA, 0xFCA);
         defaultHue(Blocks.REDSTONE_TORCH, 0x611);
         defaultHue(Blocks.SEA_LANTERN, 0x9DF); // 1.12.2 source, absent from the 1.7.10 reference.
+        defaultHue(Blocks.LIT_REDSTONE_ORE, 0x511);
+        defaultHue(Blocks.FIRE, 0xEC0);
+        defaultHue(Blocks.END_PORTAL, 0x7FB);
+        defaultHue(Blocks.LIT_PUMPKIN, 0xFDB);
+        defaultHue(Blocks.BREWING_STAND, 0x110);
+        defaultHue(Blocks.ENDER_CHEST, 0x376);
+        defaultHue(Blocks.DRAGON_EGG, 0x111);
+        defaultHue(Blocks.LIT_REDSTONE_LAMP, 0xFCA);
+        defaultHue(Blocks.BEACON, 0xCCC);
+        defaultHue(Blocks.PORTAL, 0x72B);
+        defaultHue(Blocks.BROWN_MUSHROOM, 0x110);
+        defaultHue(Blocks.LIT_FURNACE, 0xDCA);
+        defaultHue(Blocks.POWERED_COMPARATOR, 0x611);
+        defaultHue(Blocks.POWERED_REPEATER, 0x611);
+    }
+    /** Internal lifecycle hook: optional mods have completed post-init by this point. */
+    public static synchronized void modDefaults() {
+        if (frozen != null) throw new IllegalStateException("RGB colors already frozen");
+        com.sumirelabs.pulsar.compat.ModLightColors.registerDefaults((state, color) ->
+                COLORS.putIfAbsent(state, RgbLight.normalize(color)));
     }
     private static void defaultHue(net.minecraft.block.Block block, int color) {
         int normalized = RgbLight.normalize(color);
