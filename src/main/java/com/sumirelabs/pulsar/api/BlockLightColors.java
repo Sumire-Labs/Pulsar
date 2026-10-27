@@ -142,14 +142,15 @@ public final class BlockLightColors {
         // Keep Pulsar's contextual scalar peak; adopt hue without changing source strength.
         defaultHue(Blocks.TORCH, 0xDA8);
         defaultHue(Blocks.GLOWSTONE, 0xFD3);
-        defaultHue(Blocks.LAVA, 0xFCA);
-        defaultHue(Blocks.FLOWING_LAVA, 0xFCA);
+        // Warmer lava hue; retain its contextual emission strength.
+        defaultHue(Blocks.LAVA, 0xF83);
+        defaultHue(Blocks.FLOWING_LAVA, 0xF83);
         defaultHue(Blocks.REDSTONE_TORCH, 0x611);
         defaultHue(Blocks.SEA_LANTERN, 0x9DF); // 1.12.2 source, absent from the 1.7.10 reference.
         defaultHue(Blocks.LIT_REDSTONE_ORE, 0x511);
         defaultHue(Blocks.FIRE, 0xEC0);
         defaultHue(Blocks.END_PORTAL, 0x7FB);
-        defaultHue(Blocks.LIT_PUMPKIN, 0xFDB);
+        defaultHue(Blocks.LIT_PUMPKIN, 0xFB5);
         defaultHue(Blocks.BREWING_STAND, 0x110);
         defaultHue(Blocks.ENDER_CHEST, 0x376);
         defaultHue(Blocks.DRAGON_EGG, 0x111);
@@ -157,7 +158,7 @@ public final class BlockLightColors {
         defaultHue(Blocks.BEACON, 0xCCC);
         defaultHue(Blocks.PORTAL, 0x72B);
         defaultHue(Blocks.BROWN_MUSHROOM, 0x110);
-        defaultHue(Blocks.LIT_FURNACE, 0xDCA);
+        defaultHue(Blocks.LIT_FURNACE, 0xFA5);
         defaultHue(Blocks.POWERED_COMPARATOR, 0x611);
         defaultHue(Blocks.POWERED_REPEATER, 0x611);
     }
