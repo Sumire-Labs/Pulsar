@@ -113,6 +113,7 @@ public final class LightDataSerializer {
         // Serialize a single visible-light generation. Server publication uses
         // this monitor through updateVisible; onUnload uses it while detaching.
         synchronized (chunk) {
+            final int paletteGeneration = com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().generation;
             event.getData().removeTag(TAG_ROOT);
             final PulsarChunk pc = (PulsarChunk) chunk;
             if (!pc.pulsar$isLightReady()) {
@@ -178,11 +179,14 @@ public final class LightDataSerializer {
                     com.sumirelabs.pulsar.rgb.RgbPersistence.save(root, skySnapshot, true);
                 }
             }
+            // Async save integrations must not label old planes with a new palette.
+            if (paletteGeneration != com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().generation) return;
             event.getData().setTag(TAG_ROOT, root);
         }
     }
 
     private void loadLight(final ChunkDataEvent.Load event) {
+        final int paletteGeneration = com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().generation;
         final NBTTagCompound data = event.getData();
         if (!data.hasKey(TAG_ROOT, Constants.NBT.TAG_COMPOUND)) {
             return;
@@ -238,6 +242,9 @@ public final class LightDataSerializer {
         final PulsarChunk pc = (PulsarChunk) event.getChunk();
         pc.pulsar$setBlockNibbles(blockNibbles);
         pc.pulsar$setSkyNibbles(skyNibbles);
+        if (paletteGeneration != com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().generation) return;
+        if (event.getChunk() instanceof com.sumirelabs.pulsar.rgb.RgbChunk rgb)
+            rgb.pulsar$setSavedPaletteGeneration(paletteGeneration);
         pc.pulsar$setSavedLightValid(true);
     }
 }

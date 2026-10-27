@@ -25,7 +25,6 @@ public final class BlockLightColors {
     private static volatile Map<IBlockState, Integer> frozen;
     private static final java.util.Set<IBlockState> ABSOLUTE = Collections.newSetFromMap(new IdentityHashMap<>());
     private static volatile java.util.Set<IBlockState> frozenAbsolute;
-    private static String profile;
     private BlockLightColors() {}
     /** Register a packed 0xRGB hue for one state. Black is not a hue. */
     public static void register(IBlockState state, int color) {
@@ -91,25 +90,29 @@ public final class BlockLightColors {
         }
     }
     public static String profile() {
-        if (profile == null) {
+        var palette = com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current();
+        if (palette.profile == null) {
             java.util.List<String> rows = new java.util.ArrayList<>();
             rows.add("gameplay:" + com.sumirelabs.pulsar.rgb.RgbSettings.profile());
-            Map<IBlockState, Integer> colors = frozen;
-            if (colors == null) throw new IllegalStateException("RGB colors not initialized");
+            if (frozen == null) throw new IllegalStateException("RGB colors not initialized");
+            Map<IBlockState, Integer> colors = new IdentityHashMap<>(frozen);
+            colors.putAll(palette.values.colors());
             for (var entry : colors.entrySet()) rows.add(entry.getKey().toString() + "=" + entry.getValue());
-            for (IBlockState state : frozenAbsolute) rows.add("absolute:" + state);
-            BlockLightFilters.appendProfile(rows);
+            for (IBlockState state : frozenAbsolute) if (!palette.values.colors().containsKey(state)) rows.add("absolute:" + state);
+            Map<IBlockState,Integer> filters = new IdentityHashMap<>(BlockLightFilters.frozenFilters());
+            filters.putAll(palette.values.filters());
+            for (var entry : filters.entrySet()) rows.add("filter:" + entry.getKey() + "=" + entry.getValue());
             for (IBlockState state : net.minecraft.block.Block.BLOCK_STATE_IDS) {
-                int dynamic = RgbStateProperties.of(state) & RgbStateProperties.DYNAMIC;
+                int dynamic = RgbStateProperties.compute(state,palette) & RgbStateProperties.DYNAMIC;
                 if (dynamic != 0) rows.add("dynamic:" + state + ":" + state.getBlock().getClass().getName() + "=" + dynamic);
             }
             java.util.Collections.sort(rows);
             try {
                 byte[] digest = java.security.MessageDigest.getInstance("SHA-256").digest(String.join("\n", rows).getBytes(java.nio.charset.StandardCharsets.UTF_8));
-                profile = java.util.HexFormat.of().formatHex(digest);
+                palette.profile = java.util.HexFormat.of().formatHex(digest);
             } catch (java.security.NoSuchAlgorithmException impossible) { throw new AssertionError(impossible); }
         }
-        return profile;
+        return palette.profile;
     }
     public static int emission(IBlockState state, int scalar) {
         return com.sumirelabs.pulsar.rgb.RgbLightAccess.effectiveEmission(RgbStateProperties.of(state), scalar,

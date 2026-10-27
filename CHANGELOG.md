@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add transactional `/pulsar reload` for source/filter palettes, with strict
+  validation, rollback, versioned caches and automatic loaded-chunk relighting.
+- Expand Botania presets and add verified Twilight Forest / Thaumcraft 6 presets
+  plus a positional ProjectRed block-lamp adapter that preserves power state.
 - Add conservative Botania 1.12.2 source-color presets for shiny flowers, pylons
   and blaze blocks, preserving mod-provided RGB APIs and explicit overrides.
 - Add opt-in GPU rendering tests for the shipped GLSL, and document the verified
@@ -63,6 +67,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reject light-cache saves/loads crossing a palette reload and revalidate delayed
+  chunk registration; replay dynamic-source notifications after cached chunk loading.
 - Subtract night-time sky darkening per RGB component instead of scaling weak
   filtered skylight; correct mixed-hue attenuation in the shader lightmap path too.
 - Center current-chunk and radius relights correctly at negative fractional coordinates.

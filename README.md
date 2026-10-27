@@ -58,24 +58,52 @@ flag the GPU test is explicitly skipped, while the normal tests still run.
 
 Common vanilla light sources now have SuperNova-derived hues, including fire,
 portals, furnaces, ender chests and redstone sources. Presets retain the original
-contextual emission strength. Botania 1.12.2 shiny flowers, the three pylon variants
-and blaze blocks have optional defaults verified against its `1.12-final` source.
-Missing blocks, unknown state layouts and blocks implementing Pulsar's own RGB
-source API are left alone. Explicit API registrations and user palette files take
-precedence. Botania's complete mod/runtime interaction has not been certified by
-the preset unit tests.
+contextual emission strength. Optional presets are ported by verified 1.12.2
+registry IDs and named state properties, not by blindly reusing 1.7.10 metadata:
 
-Pulsar does not yet port SuperNova's entire mod-preset catalogue or its live
-palette dump/reload commands. Runtime registry replacement needs coordinated
-worker/cache invalidation; use the documented restart workflow for now. Public
-relight-completion futures and general compatibility with OptiFine remain outside
-the verified release-candidate scope.
+| Mod | Source-color coverage |
+| --- | --- |
+| Botania (`1.12-final`) | Shiny/floating flowers, buried petals, mushrooms, glimmering livingwood, pylons, blaze blocks, mana/elf glass and panes, bifrost and other neutral sources |
+| Twilight Forest (`1.12.x`) | Fireflies/jars, portal, lit cinder furnace, trollberries, mushgloom and five force-field colors across their axis states |
+| Thaumcraft 6.1.BETA26 | Six primal crystal types, 16 candles and 16 nitor colors |
+| ProjectRed Illumination (`1.12.x`) | Normal/inverted block lamps via their TileEntity color and current contextual emission; multipart lights are not included |
+
+Missing blocks, unknown layouts and blocks providing their own RGB source API
+are left alone by the static presets. ProjectRed's adapter uses the positional
+API on the world thread; workers never inspect its TileEntity. Off lamps stay
+off. Explicit API registrations and user palette files take precedence. Presets
+adopt hues while retaining each mod's contextual brightness, rather than copying
+SuperNova's absolute light strengths. Source/binary checks and adapter tests do
+not certify every combination of the full mods or their addons.
+
+The entire SuperNova mod catalogue and palette-dump command are not yet ported.
+Public relight-completion futures and general OptiFine rendering compatibility
+remain outside the verified release-candidate scope.
 
 Select `RGB` or `SCALAR` using `general.lightingMode` in `config/pulsar.cfg`.
 Changing the engine or gameplay-light policy requires restarting Minecraft and
 the server. RGB source colors and filters can be customized in
-`config/pulsar-colors.cfg` and `config/pulsar-filters.cfg`; restart the server
-after editing these files.
+`config/pulsar-colors.cfg` and `config/pulsar-filters.cfg`. After editing the
+**server's** files, an operator can run `/pulsar reload` without restarting.
+
+Both files are validated as one transaction. Missing files, invalid values,
+unknown block/state selectors or files larger than 2 MiB reject the reload and
+retain the current palette. Removing an override restores the original preset
+or mod/API registration, including dynamic callbacks; it does not turn registration
+back on after initialization. Startup still logs/skips invalid rows as before.
+
+The coordinator waits for running RGB tasks on a separate thread, then updates
+the palette and contextual samples on the world thread. State/section caches are
+versioned, old saved-light profiles are invalidated, and **all currently loaded
+server chunks** are queued for relighting. Clients receive normal authoritative
+light updates, including shader fields. The success message means applied/queued,
+not that every chunk or client frame has already finished. Large worlds or slow
+mod callbacks can cause a temporary sampling/relighting load. If sampling fails,
+the old palette and its actual samples are restored; details are logged.
+
+Only these two RGB palette files are reloaded. `pulsar.cfg` engine/gameplay policy
+changes still require restarting. In RGB_MAX, changed transmitted light also
+changes gameplay brightness; VANILLA retains its independent scalar light.
 
 Stained glass and panes use SuperNova's dedicated light-transmittance palette,
 not the block texture's dye/albedo values. Red, green and blue glass preserve

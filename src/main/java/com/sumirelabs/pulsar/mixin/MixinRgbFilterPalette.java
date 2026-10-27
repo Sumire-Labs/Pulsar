@@ -39,17 +39,19 @@ public abstract class MixinRgbFilterPalette implements RgbFilterPalette {
     @Unique private int pulsar$rgbPaletteFlags() {
         if (((Object)this).getClass() != BlockStateContainer.class) return RgbFilterPaletteChecks.ALL;
         long revision = pulsar$filterRevision;
+        int paletteGeneration = RgbPaletteOverrides.current().generation;
         if ((revision & 1) != 0) return RgbFilterPaletteChecks.ALL;
         IBlockStatePalette palette = this.palette;
         BitArray storage = this.storage;
         Cache cached = pulsar$filterCache;
-        if (cached != null && cached.revision() == revision && cached.palette() == palette && cached.storage() == storage)
-            return pulsar$filterRevision == revision ? cached.flags() : RgbFilterPaletteChecks.ALL;
+        if (cached != null && cached.paletteGeneration() == paletteGeneration && cached.revision() == revision && cached.palette() == palette && cached.storage() == storage)
+            return pulsar$filterRevision == revision && RgbPaletteOverrides.current().generation == paletteGeneration
+                    ? cached.flags() : RgbFilterPaletteChecks.ALL;
         int flags;
         try { flags = RgbFilterPaletteChecks.flags(palette, storage); }
         catch (IndexOutOfBoundsException resizing) { return RgbFilterPaletteChecks.ALL; }
-        if (pulsar$filterRevision != revision) return RgbFilterPaletteChecks.ALL;
-        pulsar$filterCache = new Cache(revision, palette, storage, flags);
+        if (pulsar$filterRevision != revision || RgbPaletteOverrides.current().generation != paletteGeneration) return RgbFilterPaletteChecks.ALL;
+        pulsar$filterCache = new Cache(revision, palette, storage, flags, paletteGeneration);
         return flags;
     }
 }

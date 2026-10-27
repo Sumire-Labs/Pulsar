@@ -15,6 +15,7 @@
     "MixinRgbChunk",
     "MixinRgbFilterPalette",
     "MixinRgbStateProperties",
+    "MixinRgbProjectRedLamp",
     "MixinRgbChunkSend",
     "MixinChunkSectionChanges",
     "MixinChunkVanillaLighting",

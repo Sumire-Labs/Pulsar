@@ -139,6 +139,17 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     @Inject(method = "onLoad", at = @At("HEAD"), require = 0)
     private void pulsar$onLoad(final CallbackInfo ci) {
         final Chunk self = (Chunk) (Object) this;
+        // Disk I/O can finish before a palette reload but register the chunk afterward.
+        if (!this.world.isRemote && com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
+                && self instanceof com.sumirelabs.pulsar.rgb.RgbChunk rgb) {
+            if (this.pulsar$savedLightValid && rgb.pulsar$getSavedPaletteGeneration()
+                    != com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().generation)
+                this.pulsar$savedLightValid = false;
+            if (!this.pulsar$savedLightValid) {
+                rgb.pulsar$setRgbStorage(null); rgb.pulsar$setRgbSkyStorage(null);
+                rgb.pulsar$setRgbSnapshot(null); rgb.pulsar$setRgbSkySnapshot(null);
+            }
+        }
 
         // Restored SWMR nibbles contain boundary sections and state markers
         // that cannot be reconstructed from vanilla storage.

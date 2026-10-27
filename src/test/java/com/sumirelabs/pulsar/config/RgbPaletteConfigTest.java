@@ -7,10 +7,29 @@ import net.minecraft.init.Bootstrap;
 import net.minecraft.item.EnumDyeColor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RgbPaletteConfigTest {
+    @TempDir java.nio.file.Path directory;
+    @Test void runtimeReadStagesBothFilesAndRejectsBadOrMissingInputWithoutPublication() throws Exception {
+        var before=com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current();
+        java.nio.file.Files.writeString(directory.resolve("pulsar-colors.cfg"),"minecraft:torch = 8,4,2\n");
+        java.nio.file.Files.writeString(directory.resolve("pulsar-filters.cfg"),"minecraft:glass = 0,15,15\n");
+        var values=RgbPaletteConfig.prepareReload(directory);
+        assertEquals(0xF84,values.colors().get(Blocks.TORCH.getDefaultState()));
+        assertEquals(0x0FF,values.filters().get(Blocks.GLASS.getDefaultState()));
+        assertSame(before,com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current());
+        java.nio.file.Files.writeString(directory.resolve("pulsar-filters.cfg"),"minecraft:glass = 0,15,15\nmissing:block = 1,2,3\n");
+        assertThrows(IllegalArgumentException.class,()->RgbPaletteConfig.prepareReload(directory));
+        assertSame(before,com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current());
+        java.nio.file.Files.delete(directory.resolve("pulsar-filters.cfg"));
+        assertThrows(java.io.IOException.class,()->RgbPaletteConfig.prepareReload(directory));
+        java.nio.file.Files.writeString(directory.resolve("pulsar-filters.cfg"),"");
+        java.nio.file.Files.writeString(directory.resolve("pulsar-colors.cfg"),"");
+        assertTrue(RgbPaletteConfig.prepareReload(directory).colors().isEmpty());
+    }
     @BeforeAll static void bootstrap() { Bootstrap.register(); }
     @Test void registryAndStateSelectorsSupportAllStatesAndLegacyMetadata() {
         assertEquals(Blocks.STAINED_GLASS.getBlockState().getValidStates(), RgbPaletteConfig.select("minecraft:stained_glass"));
@@ -41,8 +60,9 @@ class RgbPaletteConfigTest {
         List<String> warnings = new ArrayList<>();
         Map<IBlockState, Integer> applied = new HashMap<>();
         RgbPaletteConfig.parse("# comment", true, (s, c) -> fail(), warnings::add);
+        RgbPaletteConfig.parse("\uFEFF# UTF-8 BOM comment", true, (s,c)->fail(),warnings::add);
         RgbPaletteConfig.parse(" ", true, (s, c) -> fail(), warnings::add);
-        RgbPaletteConfig.parse("minecraft:torch = 0,0,0", true, applied::put, warnings::add);
+        RgbPaletteConfig.parse("\uFEFFminecraft:torch = 0,0,0", true, applied::put, warnings::add);
         assertFalse(applied.isEmpty()); assertTrue(applied.values().stream().allMatch(c -> c == 0));
         assertTrue(warnings.isEmpty());
     }

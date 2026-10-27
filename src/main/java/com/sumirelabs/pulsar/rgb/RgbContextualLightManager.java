@@ -80,6 +80,17 @@ public final class RgbContextualLightManager {
     }
     public void clear() { requireOwner(); chunks.clear(); pending.clear(); tracked.clear(); }
 
+    /** Replay captured dynamic positions after registration/readiness. A worker may
+     * have claimed the first capture's notifications before the chunk was registered.
+     * No second world/TileEntity scan is needed. */
+    public void recheckLoadedChunk(int cx,int cz,WorldLightManager manager) {
+        requireOwner();
+        Entry entry=chunks.get(CoordinateUtils.getChunkKey(cx,cz));
+        if(entry==null)return;
+        for(int key:entry.dynamic.toIntArray())
+            manager.queueSampledBlockChange((cx<<4)+(key&15),key>>8,(cz<<4)+(key>>>4&15));
+    }
+
     public void load(Chunk chunk, WorldLightManager manager) {
         requireOwner(); unload(chunk.x, chunk.z);
         Entry entry = new Entry(chunk);

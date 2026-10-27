@@ -51,7 +51,7 @@ public final class WorldLightManager {
     private final World world;
     private final WorldHeightContext heightContext;
     private final ContextualLightManager contextualLight;
-    private final com.sumirelabs.pulsar.rgb.RgbContextualLightManager rgbContextualLight;
+    private volatile com.sumirelabs.pulsar.rgb.RgbContextualLightManager rgbContextualLight;
 
     private final SnapshotChunkMap loadedChunkMap = new SnapshotChunkMap();
     // Only accessed by server-thread packet/update callbacks, never by workers.
@@ -226,6 +226,7 @@ public final class WorldLightManager {
     public void queueChunkLoadInit(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
         if (this.skyQueue != null) this.skyQueue.queueChunkLoadInit(cx, cz, chunk, emptySections);
         if (this.blockQueue != null) this.blockQueue.queueChunkLoadInit(cx, cz, chunk, emptySections);
+        if (this.rgbContextualLight != null) this.rgbContextualLight.recheckLoadedChunk(cx,cz,this);
     }
 
     public void removeChunkFromQueues(final int cx, final int cz) {
@@ -413,6 +414,10 @@ public final class WorldLightManager {
     }
 
     private void processWithGate(final ChunkTasks task, final PulsarEngine engine, final boolean sky) {
+        // Thin clients run scalar work only, or accept authoritative snapshots.
+        // Do not stall the render thread behind a server palette transaction.
+        boolean paletteGuard = !this.world.isRemote && com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled();
+        if (paletteGuard) com.sumirelabs.pulsar.rgb.RgbReloadBarrier.enterLighting();
         // Range relights only run on server worlds; clients have one consumer.
         if (!this.world.isRemote) this.lightingGate.readLock().lock();
         try {
@@ -485,6 +490,7 @@ public final class WorldLightManager {
             }
         } finally {
             if (!this.world.isRemote) this.lightingGate.readLock().unlock();
+            if (paletteGuard) com.sumirelabs.pulsar.rgb.RgbReloadBarrier.exitLighting();
         }
     }
 
@@ -762,6 +768,35 @@ public final class WorldLightManager {
         return true;
     }
 
+    /** Reload coordinator only: caller owns the world thread while RGB workers are stopped. */
+    public int queuePaletteRelights() {
+        if(this.world.isRemote || !this.contextualLight.isOwnerThread())throw new IllegalStateException("Palette relight requires server world thread");
+        int count=0;
+        for(Chunk chunk:this.loadedChunkMap.valuesSnapshot()) {
+            final long key=CoordinateUtils.getChunkKey(chunk.x,chunk.z);
+            if(this.loadedChunkMap.get(key)!=chunk)continue;
+            var completion=this.initialLighting.queue(chunk.x,chunk.z,chunk,PulsarEngine.getEmptySectionsForChunk(chunk));
+            this.refreshAfterRelight(key,completion);++count;
+        }
+        return count;
+    }
+
+    public void refreshPaletteSamples() {
+        if(this.world.isRemote || !this.contextualLight.isOwnerThread())throw new IllegalStateException("Palette samples require server world thread");
+        var replacement=com.sumirelabs.pulsar.api.RgbStateProperties.hasDynamicStates()
+                ? new com.sumirelabs.pulsar.rgb.RgbContextualLightManager(this.world,this.heightContext):null;
+        // Scalar properties are unchanged by a color/filter overlay. Retain their
+        // samples and keep the old RGB snapshot intact until every new sample succeeds.
+        if(replacement!=null)for(Chunk chunk:this.loadedChunkMap.valuesSnapshot())
+            if(this.loadedChunkMap.get(CoordinateUtils.getChunkKey(chunk.x,chunk.z))==chunk)replacement.load(chunk,this);
+        this.rgbContextualLight=replacement;
+    }
+
+    public void restorePaletteSamples(com.sumirelabs.pulsar.rgb.RgbContextualLightManager previous) {
+        if(this.world.isRemote || !this.contextualLight.isOwnerThread())throw new IllegalStateException("Palette samples require server world thread");
+        this.rgbContextualLight=previous;
+    }
+
     /** Loaded chunks only; insertion order should grow outward from the requested center. */
     public int forceRelightChunks(final Collection<Long> coordinates) {
         if (this.world.isRemote) throw new IllegalStateException("Range relight requires a server world");
@@ -799,6 +834,8 @@ public final class WorldLightManager {
 
     private void processRangeRelight(final Map<Long, Chunk> targets, final Map<Long, Chunk> available,
                                     final Map<Long, ChunkTasks> tasks) {
+        boolean paletteGuard = com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled();
+        if (paletteGuard) com.sumirelabs.pulsar.rgb.RgbReloadBarrier.enterLighting();
         this.lightingGate.writeLock().lock();
         try {
             java.util.function.LongPredicate current = key -> this.loadedChunkMap.get(key) == targets.get(key)
@@ -836,7 +873,10 @@ public final class WorldLightManager {
                 if (this.blockQueue != null) this.blockQueue.queueChunkLight(task.initialLightChunk.x,
                         task.initialLightChunk.z, task.initialLightChunk, empty, task.initialLightGeneration);
             }
-        } finally { this.lightingGate.writeLock().unlock(); }
+        } finally {
+            this.lightingGate.writeLock().unlock();
+            if (paletteGuard) com.sumirelabs.pulsar.rgb.RgbReloadBarrier.exitLighting();
+        }
     }
 
     private void refreshAfterRelight(final long key, final ChunkLightCompletion completion) {

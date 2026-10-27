@@ -1,8 +1,6 @@
 package com.sumirelabs.pulsar.config;
 
 import com.sumirelabs.pulsar.Pulsar;
-import com.sumirelabs.pulsar.api.BlockLightColors;
-import com.sumirelabs.pulsar.api.BlockLightFilters;
 import com.sumirelabs.pulsar.rgb.RgbLight;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
@@ -21,42 +19,55 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-/** User overrides are applied after mod initialization, before registries freeze. */
+/** Config overlays are staged independently of frozen mod/API registration defaults. */
 public final class RgbPaletteConfig {
     private RgbPaletteConfig() {}
 
     public static void load(Path directory) {
         try {
             Files.createDirectories(directory);
-            load(directory.resolve("pulsar-colors.cfg"), true, (state, r, g, b) -> {
-                if ((r | g | b) == 0) BlockLightColors.disable(state);
-                else BlockLightColors.register(state, r, g, b);
-            });
-            load(directory.resolve("pulsar-filters.cfg"), false, BlockLightFilters::register);
+            com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.install(read(directory,true));
         } catch (IOException e) {
             throw new IllegalStateException("Cannot read Pulsar RGB palettes in " + directory, e);
         }
     }
 
-    private static void load(Path file, boolean colors, ColorConsumer apply) throws IOException {
-        if (!Files.exists(file)) {
+    /** Parse both files before changing anything. Runtime errors reject the entire reload. */
+    public static com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.Values prepareReload(Path directory) throws IOException {
+        return read(directory,false);
+    }
+    private static com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.Values read(Path directory, boolean startup) throws IOException {
+        Map<IBlockState,Integer> colors=new java.util.IdentityHashMap<>(),filters=new java.util.IdentityHashMap<>();
+        List<String> errors=new ArrayList<>();
+        Consumer<String> warning=startup ? message -> Pulsar.LOGGER.warn(message) : errors::add;
+        load(directory.resolve("pulsar-colors.cfg"),true,(state,r,g,b)-> {
+            int color=RgbLight.pack(r,g,b);colors.put(state,color==0?0:RgbLight.normalize(color));
+        },warning,startup);
+        load(directory.resolve("pulsar-filters.cfg"),false,(state,r,g,b)->filters.put(state,RgbLight.pack(r,g,b)),warning,startup);
+        if(!errors.isEmpty())throw new IllegalArgumentException(String.join("; ",errors.subList(0,Math.min(8,errors.size()))));
+        return new com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.Values(colors,filters);
+    }
+
+    private static void load(Path file, boolean colors, ColorConsumer apply, Consumer<String> warning, boolean create) throws IOException {
+        if (create && !Files.exists(file)) {
             String description = colors
                     ? "# Source chromaticity: the maximum is scaled to contextual scalar emission; 0,0,0 disables RGB emission.\n"
                     : "# Minimum absorption: 0 adds no absorption; 15 blocks the component.\n";
             Files.writeString(file, "# Pulsar RGB " + (colors ? "source colors" : "filters") + "\n"
-                    + description + "# Restart the server to apply. User overrides take precedence over built-in/mod registrations.\n"
+                    + description + "# Use /pulsar reload to apply both palettes, or restart. User overrides take precedence over built-in/mod registrations.\n"
                     + "# Later lines override earlier lines. These files are not reset by the main config version.\n"
                     + "# Format: namespace:block[property=value,...] = red, green, blue (0..15).\n"
                     + "# Omit properties to match all states; namespace:block:meta also matches legacy metadata.\n"
                     + (colors ? "# minecraft:torch = 15, 8, 3\n" : "# minecraft:stained_glass[color=red] = 0, 15, 15\n"),
                     StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
         }
+        if(Files.size(file)>2*1024*1024)throw new IOException("RGB palette exceeds 2 MiB: "+file.getFileName());
         int lineNumber = 0;
         for (String line : Files.readAllLines(file, StandardCharsets.UTF_8)) {
             final int number = ++lineNumber;
             parse(line, colors, (state, rgb) -> apply.accept(state,
                             RgbLight.channel(rgb, 0), RgbLight.channel(rgb, 1), RgbLight.channel(rgb, 2)),
-                    warning -> Pulsar.LOGGER.warn("{}:{}: {}", file.getFileName(), number, warning));
+                    message -> warning.accept(file.getFileName()+":"+number+": "+message));
         }
     }
 
@@ -66,6 +77,7 @@ public final class RgbPaletteConfig {
 
     static void parse(String line, boolean colors, BiConsumer<IBlockState, Integer> apply, Consumer<String> warn) {
         line = line.trim();
+        if(line.startsWith("\uFEFF"))line=line.substring(1).trim();
         if (line.isEmpty() || line.startsWith("#")) return;
         try {
             int equals = line.lastIndexOf('=');

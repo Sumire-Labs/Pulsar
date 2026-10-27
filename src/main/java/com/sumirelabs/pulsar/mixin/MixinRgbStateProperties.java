@@ -6,16 +6,18 @@ import net.minecraft.block.state.IBlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-/** Excluded entirely in SCALAR. Frozen registry values are deterministic;
- * concurrent first reads may repeat computation, but publish one atomic int. */
+/** Excluded entirely in SCALAR. One atomic long carries palette epoch + properties;
+ * a late computation from an old epoch cannot poison a new palette's cache. */
 @Mixin(targets = "net.minecraft.block.state.BlockStateContainer$StateImplementation")
 public abstract class MixinRgbStateProperties implements RgbCachedState {
-    @Unique private int pulsar$rgbProperties;
+    @Unique private volatile long pulsar$rgbProperties;
     public int pulsar$rgbProperties() {
-        int value = pulsar$rgbProperties;
-        if (value != 0) return value;
-        value = RgbStateProperties.compute((IBlockState)(Object)this);
-        if (RgbStateProperties.cacheable(value)) pulsar$rgbProperties = value;
+        var palette = com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current();
+        long cached = pulsar$rgbProperties;
+        int value = (int) cached;
+        if (value != 0 && (int)(cached >>> 32) == palette.generation) return value;
+        value = RgbStateProperties.compute((IBlockState)(Object)this,palette);
+        if (RgbStateProperties.cacheable(value)) pulsar$rgbProperties = (long)palette.generation << 32 | value & 0xFFFFFFFFL;
         return value;
     }
 }

@@ -41,4 +41,5 @@ public final class SnapshotChunkMap {
     }
 
     public void clear() { this.map.clear(); }
+    public java.util.List<Chunk> valuesSnapshot() { return java.util.List.copyOf(this.map.values()); }
 }

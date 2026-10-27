@@ -7,6 +7,9 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(Chunk.class)
 public abstract class MixinRgbChunk implements RgbChunk {
+    @Unique private volatile int pulsar$savedPaletteGeneration = -1;
+    public int pulsar$getSavedPaletteGeneration() { return pulsar$savedPaletteGeneration; }
+    public void pulsar$setSavedPaletteGeneration(int generation) { pulsar$savedPaletteGeneration = generation; }
     @Unique private volatile RgbStorage pulsar$rgbStorage;
     @Unique private volatile RgbSnapshot pulsar$rgbSnapshot;
     public RgbStorage pulsar$getRgbStorage() { return pulsar$rgbStorage; }
