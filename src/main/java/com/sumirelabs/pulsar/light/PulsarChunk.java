@@ -13,6 +13,9 @@ import com.sumirelabs.pulsar.api.ExtendedChunk;
  * scalar contract.
  */
 public interface PulsarChunk extends ExtendedChunk {
+    /** Server light publication and serialization hold the chunk monitor. */
+    void pulsar$markLightDirty();
+    void pulsar$clearLightDirty();
 
     /**
      * Sync Pulsar SWMR visible data → vanilla {@code blockLight}/{@code skyLight}

@@ -10,6 +10,15 @@ import java.util.HashSet;
 
 /** Keeps the same real BFS buffers across power/color changes, including decreases. */
 public final class MultipartPropagation {
+    public static void publishNeighbour(World world, net.minecraft.world.chunk.Chunk chunk, int level) {
+        var engine = new ScalarBlockEngine(world, WorldHeightContext.VANILLA);
+        engine.setupEncodeOffset(chunk.x * 16 + 7, 64, chunk.z * 16 + 7);
+        engine.setChunkInCache(chunk.x, chunk.z, chunk);
+        var nibble = ((com.sumirelabs.pulsar.light.PulsarChunk)chunk).pulsar$getBlockNibbles()[5];
+        nibble.setNonNull(); nibble.set(0,0,0,level);
+        int idx=chunk.x+5*chunk.z+100+engine.chunkSectionIndexOffset;
+        engine.publishCacheNibble(idx,nibble,false);
+    }
     private final ScalarBlockEngine scalar;
     private final RgbPackedBlockChannelEngine rgb;
     public MultipartPropagation(World world, ExtendedBlockStorage section, boolean colored) {

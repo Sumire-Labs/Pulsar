@@ -156,6 +156,7 @@ public final class RgbSkyEngine extends ScalarSkyEngine {
                 if (RgbSettings.projectsGameplayLight()) RgbCanonicalLight.install(chunk, next, true, storage.empty[0], heightContext);
             }
             if (previous == null || !previous.sameLightData(next)) {
+                ((com.sumirelabs.pulsar.light.PulsarChunk)chunk).pulsar$markLightDirty();
                 rgb.pulsar$setRgbSkySnapshot(next);
                 RgbNetwork.changed(chunk, previous == null || !previous.sameCanonical(next));
             }

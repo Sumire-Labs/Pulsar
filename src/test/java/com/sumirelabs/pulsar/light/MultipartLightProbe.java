@@ -164,6 +164,7 @@ public final class MultipartLightProbe {
         reads=world.reads;
         for(int i=0;i<10;i++)world.manager.publishContextualLight();
         check(world.reads==reads,"Polling subset did not empty after part replacement");
+        LightSaveProbe.verify(world,rgb);
         world.manager.shutdown();
         System.out.println("MULTIPART_PASS mode="+System.getProperty("pulsar.multipartMode")+" stationaryTicks=100 tileReads=0 baselineTileReads="+baselineReads);
     }

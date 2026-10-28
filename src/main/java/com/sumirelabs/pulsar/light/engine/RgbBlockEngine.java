@@ -101,6 +101,7 @@ public final class RgbBlockEngine extends ScalarBlockEngine {
                     ((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$getBlockNibbles(), previous);
             if (RgbSettings.projectsGameplayLight()) RgbCanonicalLight.install(chunk, next, false, storage.empty[0], heightContext);
             if (previous == null || !previous.sameLightData(next)) {
+                ((com.sumirelabs.pulsar.light.PulsarChunk)chunk).pulsar$markLightDirty();
                 rgb.pulsar$setRgbSnapshot(next);
                 RgbNetwork.changed(chunk, previous == null || !previous.sameCanonical(next));
             }

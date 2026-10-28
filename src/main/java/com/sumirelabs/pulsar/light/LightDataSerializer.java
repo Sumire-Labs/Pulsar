@@ -182,6 +182,9 @@ public final class LightDataSerializer {
             // Async save integrations must not label old planes with a new palette.
             if (paletteGeneration != com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().generation) return;
             event.getData().setTag(TAG_ROOT, root);
+            // Clear only after a valid snapshot was serialized, while publication
+            // is excluded. Later worker writes survive vanilla's modified=false.
+            pc.pulsar$clearLightDirty();
         }
     }
 

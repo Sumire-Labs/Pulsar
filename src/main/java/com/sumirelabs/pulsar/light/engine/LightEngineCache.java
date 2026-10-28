@@ -284,6 +284,8 @@ abstract class LightEngineCache {
                     chunk.x, chunk.z) != chunk) {
                 return;
             }
+            if (nibble != null && nibble.isDirty())
+                ((com.sumirelabs.pulsar.light.PulsarChunk)chunk).pulsar$markLightDirty();
             this.publishVisibleNibble(index, nibble, notify);
         }
     }

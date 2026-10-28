@@ -63,6 +63,15 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     private volatile boolean pulsar$lightUsable;
     @Unique
     private volatile boolean pulsar$savedLightValid;
+    @Unique private volatile boolean pulsar$lightDirty;
+
+    public void pulsar$markLightDirty() { this.pulsar$lightDirty = true; }
+    public void pulsar$clearLightDirty() { this.pulsar$lightDirty = false; }
+
+    @Inject(method = "needsSaving", at = @At("RETURN"), cancellable = true)
+    private void pulsar$savePublishedLight(boolean all, CallbackInfoReturnable<Boolean> cir) {
+        if (!this.world.isRemote && this.pulsar$lightDirty) cir.setReturnValue(true);
+    }
     @Unique
     private WorldHeightContext pulsar$heightContext;
 
