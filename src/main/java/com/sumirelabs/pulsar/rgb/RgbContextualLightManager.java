@@ -7,6 +7,8 @@ import com.sumirelabs.pulsar.light.WorldLightManager;
 import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSets;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -21,19 +23,22 @@ public final class RgbContextualLightManager {
     private static final class Entry {
         final Chunk chunk;
         final ContextualLightSnapshot<IBlockState> snapshot = new ContextualLightSnapshot<>();
-        final IntOpenHashSet dynamic = new IntOpenHashSet(); // owner thread only
+        IntSet dynamic = IntSets.EMPTY_SET; // owner thread only, sparse allocation
         // Notification-only chunks need no polling set or per-tick enumeration.
         // If every dynamic cell needs polling, alias dynamic instead of retaining
         // a second copy of all its coordinates. Mixed chunks use a separate subset.
-        IntOpenHashSet polled;
+        IntSet polled;
         volatile com.sumirelabs.pulsar.light.LightSampleRetries retries;
         Entry(Chunk chunk) { this.chunk = chunk; }
 
         void track(int key, boolean present, boolean poll) {
             boolean shared = polled == dynamic;
-            if (present) dynamic.add(key); else dynamic.remove(key);
+            if (present) {
+                if(dynamic==IntSets.EMPTY_SET)dynamic=new IntOpenHashSet(4);
+                dynamic.add(key);
+            } else if(dynamic!=IntSets.EMPTY_SET) dynamic.remove(key);
             if (poll) {
-                if (polled == null) polled = new IntOpenHashSet();
+                if (polled == null) polled = dynamic.size()==1 ? dynamic : new IntOpenHashSet(4);
                 polled.add(key);
             } else {
                 if (shared && present) polled = new IntOpenHashSet(dynamic);
@@ -43,6 +48,7 @@ public final class RgbContextualLightManager {
                 if (polled.isEmpty()) polled = null;
                 else if (polled.size() == dynamic.size()) polled = dynamic;
             }
+            if(dynamic.isEmpty())dynamic=IntSets.EMPTY_SET;
         }
     }
     private final World world;

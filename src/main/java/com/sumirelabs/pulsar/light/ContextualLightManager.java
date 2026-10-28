@@ -31,7 +31,7 @@ public final class ContextualLightManager {
     private static final class Entry {
         final Chunk chunk;
         final ContextualLightSnapshot<IBlockState> snapshot;
-        final Set<BlockPos> tracked = new HashSet<>();
+        Set<BlockPos> tracked = java.util.Collections.emptySet();
         boolean active = true;
         volatile LightSampleRetries retries;
         Entry(Chunk chunk, ContextualLightSnapshot<IBlockState> snapshot) {
@@ -145,7 +145,7 @@ public final class ContextualLightManager {
             TrackedSource source = this.trackedSources.get(pos);
             if (source != null && source.entry == entry) this.trackedSources.update(pos, null);
         }
-        entry.tracked.clear();
+        entry.tracked = java.util.Collections.emptySet();
     }
 
     public int read(final int info, final IBlockState state, final int x, final int y, final int z) {
@@ -331,12 +331,14 @@ public final class ContextualLightManager {
             final TrackedSource previous = this.trackedSources.get(pos);
             if (previous == null || previous.entry != entry || previous.tile != tile) {
                 final BlockPos retained = pos.toImmutable();
+                if(entry.tracked.isEmpty())entry.tracked=new HashSet<>();
                 entry.tracked.add(retained);
                 this.trackedSources.update(retained, new TrackedSource(entry, tile));
                 if (tile != null) this.discoverDependentNeighbours(retained);
             }
         } else {
             entry.tracked.remove(pos);
+            if(entry.tracked.isEmpty())entry.tracked=java.util.Collections.emptySet();
             final TrackedSource previous = this.trackedSources.get(pos);
             if (previous != null && previous.entry == entry) this.trackedSources.update(pos, null);
         }

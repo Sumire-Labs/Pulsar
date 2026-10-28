@@ -16,20 +16,20 @@ public final class ContextualLightSnapshot<S> {
     public static final int BOTH_CHANGED = BLOCK_CHANGED | SKY_CHANGED;
     private record Cell<S>(S block, int blockInfo, S fluid, int fluidInfo) {}
 
-    private final ConcurrentHashMap<Integer, Cell<S>> cells = new ConcurrentHashMap<>();
+    private volatile ConcurrentHashMap<Integer, Cell<S>> cells;
     private final PendingLightPositions pending = new PendingLightPositions();
-    private final Set<Integer> missed = ConcurrentHashMap.newKeySet();
+    private volatile Set<Integer> missed;
     private final Thread owner = Thread.currentThread();
 
     public int read(final int position, final S state, final int fallback) {
-        final Cell<S> cell = this.cells.get(position);
+        final Cell<S> cell = this.cell(position);
         if (cell != null) {
             if (cell.block == state) return cell.blockInfo;
             if (cell.fluid == state) return cell.fluidInfo;
         }
         // A worker can observe a newly placed block before the end-of-tick
         // publication. Use the static value temporarily and request correction.
-        this.missed.add(position);
+        this.misses().add(position);
         this.pending.add(position);
         return fallback;
     }
@@ -37,6 +37,25 @@ public final class ContextualLightSnapshot<S> {
     public void publish(final int position, final S block, final int blockInfo,
                         final S fluid, final int fluidInfo) {
         this.publishChanges(position, block, blockInfo, fluid, fluidInfo, 0);
+    }
+
+    private Cell<S> cell(int position) {
+        final var current=this.cells;
+        return current==null?null:current.get(position);
+    }
+    private void put(int position,Cell<S> cell) {
+        // Only the owning world thread writes cells. The volatile map reference
+        // publishes its initialization to readers; values use CHM publication.
+        if(this.cells==null)this.cells=new ConcurrentHashMap<>();
+        this.cells.put(position,cell);
+    }
+    private Set<Integer> misses() {
+        Set<Integer> current=this.missed;
+        if(current!=null)return current;
+        synchronized(this) {
+            if(this.missed==null)this.missed=ConcurrentHashMap.newKeySet();
+            return this.missed;
+        }
     }
 
     /**
@@ -50,7 +69,7 @@ public final class ContextualLightSnapshot<S> {
             throw new IllegalStateException("Only the world thread may initialize contextual light");
         }
         if (block != null || fluid != null) {
-            this.cells.put(position, new Cell<>(block, blockInfo, fluid, fluidInfo));
+            this.put(position, new Cell<>(block, blockInfo, fluid, fluidInfo));
         }
     }
 
@@ -63,7 +82,7 @@ public final class ContextualLightSnapshot<S> {
         if (Thread.currentThread() != this.owner) {
             throw new IllegalStateException("Only the world thread may publish contextual light");
         }
-        final Cell<S> previous = this.cells.get(position);
+        final Cell<S> previous = this.cell(position);
         final boolean changed = previous == null ? block != null || fluid != null
                 : previous.block != block || previous.fluid != fluid
                 || (block != null && previous.blockInfo != blockInfo)
@@ -71,11 +90,12 @@ public final class ContextualLightSnapshot<S> {
         if (block == null && fluid == null) {
             if (previous != null) this.cells.remove(position);
         } else if (changed) {
-            this.cells.put(position, new Cell<>(block, blockInfo, fluid, fluidInfo));
+            this.put(position, new Cell<>(block, blockInfo, fluid, fluidInfo));
         }
         // A worker may have used a static fallback even when capture returns
         // to the previously sampled state. That miss still needs a correction.
-        final boolean correction = !this.missed.isEmpty() && this.missed.remove(position);
+        final Set<Integer> misses=this.missed;
+        final boolean correction = misses!=null && !misses.isEmpty() && misses.remove(position);
         if (correction) return BOTH_CHANGED;
         if (!changed) return 0;
         if (previous == null || previous.block != block || previous.fluid != fluid) return BOTH_CHANGED;
@@ -85,31 +105,32 @@ public final class ContextualLightSnapshot<S> {
     }
 
     public boolean contains(final int position) {
-        return this.cells.containsKey(position);
+        return this.cell(position)!=null;
     }
 
     public boolean contains(final int position, final S state) {
-        Cell<S> cell=this.cells.get(position);
+        Cell<S> cell=this.cell(position);
         return state!=null && cell!=null && (cell.block==state || cell.fluid==state);
     }
 
-    boolean isEmpty() { return this.cells.isEmpty(); }
+    boolean isEmpty() { return this.cells==null || this.cells.isEmpty(); }
 
     /** Invalidate only already-published sources in a heightmap-affected column. */
     public void requestColumn(final int localX, final int localZ, final int minY, final int maxY) {
-        if (minY > maxY || this.cells.isEmpty()) return;
+        final var cells=this.cells;
+        if (minY > maxY || cells==null || cells.isEmpty()) return;
         final int column = (localX & 15) | ((localZ & 15) << 4);
         // A densely contextual chunk must not pay a whole-chunk scan for each
         // column. Bound work by the smaller of its source count and height span.
-        if ((long) maxY - minY + 1L < this.cells.size()) {
+        if ((long) maxY - minY + 1L < cells.size()) {
             for (int y = minY;; y++) {
                 final int position = (y << 8) | column;
-                if (this.cells.containsKey(position)) this.pending.add(position);
+                if (cells.containsKey(position)) this.pending.add(position);
                 if (y == maxY) break;
             }
             return;
         }
-        for (final int position : this.cells.keySet()) {
+        for (final int position : cells.keySet()) {
             final int y = position >> 8;
             if ((position & 255) == column && y >= minY && y <= maxY) this.pending.add(position);
         }
