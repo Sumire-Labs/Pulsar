@@ -29,7 +29,7 @@ class MemoryFootprintTest {
             if(!process.waitFor(60,TimeUnit.SECONDS)){process.destroyForcibly();fail("Memory probe timeout");}
             String output=new String(Files.readAllBytes(log),java.nio.charset.StandardCharsets.UTF_8);
             assertEquals(0,process.exitValue(),output);
-            output.lines().filter(line->line.startsWith("MEMORY ")||line.startsWith("PUBLICATION ")).forEach(System.out::println);
+            output.lines().filter(line->line.startsWith("MEMORY ")||line.startsWith("PUBLICATION ")||line.startsWith("SKY_IMPORT ")||line.startsWith("CLIENT_SKY ")).forEach(System.out::println);
         }
     }
 }
