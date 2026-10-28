@@ -28,6 +28,8 @@ import java.util.Arrays;
  * scheduler relies on this distinction when sharing read halos.
  */
 abstract class LightEngineCache {
+    // Opt-in until whole-world workloads confirm the accessor benchmark result.
+    private static final boolean EMPTY_SECTION_FAST_PATH = Boolean.getBoolean("pulsar.light.emptySectionFastPath");
 
     // index = x + (z * 5) + (y * 25), with x/z relative to the center chunk
     protected final ExtendedBlockStorage[] sectionCache;
@@ -383,7 +385,8 @@ abstract class LightEngineCache {
     protected final IBlockState getBlockStateFast(final int sectionIndex,
                                                   final int x, final int y, final int z) {
         final ExtendedBlockStorage section = this.sectionCache[sectionIndex];
-        return section == null ? Blocks.AIR.getDefaultState() : section.get(x, y, z);
+        return section == null || EMPTY_SECTION_FAST_PATH && section.getClass() == ExtendedBlockStorage.class && section.isEmpty()
+                ? Blocks.AIR.getDefaultState() : section.get(x, y, z);
     }
 
     protected int getLightLevel(final int worldX, final int worldY, final int worldZ) {
