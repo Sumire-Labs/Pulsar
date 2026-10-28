@@ -71,8 +71,8 @@ class InitialSkyFrontierTest {
                 int x = random.nextInt(16), z = random.nextInt(16), y = random.nextInt(384) - 64;
                 if (y <= stops[x | (z << 4)]) continue;
                 long original = seed(engine, chunkX * 16 + x, y, -chunkX * 16 + z);
-                engine.increaseQueue[0] = original;
-                engine.increaseQueueInitialLength = 1;
+                engine.increaseQueueInitialLength = 0;
+                assertTrue(engine.appendToIncreaseQueue(original));
                 trim(engine, 0);
                 int retained = engine.increaseQueueInitialLength == 0 ? 0
                         : (int) (engine.increaseQueue[0] >>> PulsarEngine.DIRECTION_SHIFT) & 63;

@@ -65,6 +65,7 @@ public abstract class PulsarEngine extends LightEngineCache {
     // 16 * 16 * 16 — matches Starlight (StarLightEngine.java:1023). The base
     // queues grow on demand via resize{Increase,Decrease}Queue up to MAX_QUEUE_SIZE.
     protected static final int INITIAL_QUEUE_SIZE = 1 << 12; // 4096
+    private static final long[] EMPTY_QUEUE = new long[0];
     protected static final int MAX_QUEUE_SIZE = 1 << 20; // ~8MB per queue
     protected static final AxisDirection[][] OLD_CHECK_DIRECTIONS = new AxisDirection[1 << 6][];
     protected static final int ALL_DIRECTIONS_BITSET = (1 << 6) - 1;
@@ -86,9 +87,9 @@ public abstract class PulsarEngine extends LightEngineCache {
     public int lastBfsIncreaseTotal;
     public int lastBfsDecreaseTotal;
     public int lastPositionsProcessed;
-    protected long[] increaseQueue = new long[INITIAL_QUEUE_SIZE];
+    protected long[] increaseQueue = EMPTY_QUEUE;
     protected int increaseQueueInitialLength;
-    protected long[] decreaseQueue = new long[INITIAL_QUEUE_SIZE];
+    protected long[] decreaseQueue = EMPTY_QUEUE;
     protected int decreaseQueueInitialLength;
     protected boolean queueOverflowWarned;
     protected boolean queueOverflowed;
@@ -481,11 +482,11 @@ public abstract class PulsarEngine extends LightEngineCache {
     }
 
     protected final long[] resizeIncreaseQueue() {
-        return this.increaseQueue = Arrays.copyOf(this.increaseQueue, Math.min(this.increaseQueue.length * 2, MAX_QUEUE_SIZE));
+        return this.increaseQueue = Arrays.copyOf(this.increaseQueue, Math.max(INITIAL_QUEUE_SIZE, Math.min(this.increaseQueue.length * 2, MAX_QUEUE_SIZE)));
     }
 
     protected final long[] resizeDecreaseQueue() {
-        return this.decreaseQueue = Arrays.copyOf(this.decreaseQueue, Math.min(this.decreaseQueue.length * 2, MAX_QUEUE_SIZE));
+        return this.decreaseQueue = Arrays.copyOf(this.decreaseQueue, Math.max(INITIAL_QUEUE_SIZE, Math.min(this.decreaseQueue.length * 2, MAX_QUEUE_SIZE)));
     }
 
     /**

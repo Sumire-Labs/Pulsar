@@ -28,6 +28,7 @@ import java.util.Arrays;
  * scheduler relies on this distinction when sharing read halos.
  */
 abstract class LightEngineCache {
+    private static final long[] NO_RENDER_BOUNDS = new long[0];
     // Opt-in until whole-world workloads confirm the accessor benchmark result.
     private static final boolean EMPTY_SECTION_FAST_PATH = Boolean.getBoolean("pulsar.light.emptySectionFastPath");
 
@@ -79,7 +80,7 @@ abstract class LightEngineCache {
         this.sectionCache = new ExtendedBlockStorage[cacheSize];
         this.nibbleCache = new SWMRNibbleArray[cacheSize];
         this.notifyUpdateCache = new boolean[cacheSize];
-        this.notifyBoundsCache = new long[cacheSize];
+        this.notifyBoundsCache = this.isClientSide ? new long[cacheSize] : NO_RENDER_BOUNDS;
     }
 
     public void setStats(final LightStats stats) {
