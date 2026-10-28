@@ -2,7 +2,7 @@ repositories {
     maven {
         name = 'Covers1624'
         url = 'https://maven.covers1624.net'
-        content { includeGroup 'codechicken' }
+        content { includeGroup 'codechicken'; includeGroup 'mrtjp' }
     }
     // Other repositories described by default:
     // CleanroomMC: https://maven.cleanroommc.com
@@ -27,6 +27,8 @@ dependencies {
     testImplementation('codechicken:ForgeMultipart:1.12.2-2.6.2.83:deobf') { transitive = false }
     testImplementation('codechicken:CodeChickenLib:1.12.2-3.2.3.358:deobf') { transitive = false }
     testImplementation 'org.scala-lang:scala-library:2.11.12'
+    testImplementation('mrtjp:ProjectRed:1.12.2-4.9.3.118:deobf') { transitive = false }
+    testImplementation('mrtjp:MrTJPCore:1.12.2-2.1.4.43:deobf') { transitive = false }
     // Fluidlogged API: soft dependency — FluidLightBridge merges the stored
     // fluid's opacity/emission into the engine's light reads when installed.
     compileOnly "maven.modrinth:fluidlogged-api:3.3.3"

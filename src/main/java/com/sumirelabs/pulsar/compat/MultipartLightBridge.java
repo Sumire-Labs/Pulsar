@@ -67,7 +67,11 @@ public final class MultipartLightBridge {
                 if (access.light == null) return -1;
                 int level = Math.max(0, Math.min(15, ((Number) access.light.invoke(part)).intValue()));
                 if (level == 0) continue;
-                IBlockState material = access.material == null ? null : state(access.material.invoke(part));
+                Object materialObject = access.material == null ? null : access.material.invoke(part);
+                int adapted = ProjectRedPartColors.color(part,level);
+                if(adapted<0)adapted=ProjectRedPartColors.color(materialObject,level);
+                if(adapted>=0){result=max(result,adapted);continue;}
+                IBlockState material = state(materialObject);
                 // A material is not a block placed at this position. Never invoke its
                 // positional API against the host tile or substitute its static strength.
                 int color = material == null || (RgbStateProperties.of(material) & RgbStateProperties.DYNAMIC_SOURCE) != 0
