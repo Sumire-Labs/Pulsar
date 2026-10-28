@@ -958,6 +958,15 @@ public final class WorldLightManager {
         return false;
     }
 
+    /** Retry backoff must not hide chunks from players, but degraded samples are
+     * not a valid disk cache. Keep this separate from packet/readiness gates. */
+    public boolean hasFailedLightSamplesNear(int cx,int cz) {
+        for(int dz=-1;dz<=1;dz++)for(int dx=-1;dx<=1;dx++)
+            if(this.contextualLight.hasFailedSamples(cx+dx,cz+dz)
+                    || this.rgbContextualLight!=null && this.rgbContextualLight.hasFailedSamples(cx+dx,cz+dz))return true;
+        return false;
+    }
+
     /**
      * Wait briefly for all queued or in-flight work touching a chunk. Returns
      * {@code false} on timeout/interruption so unload can invalidate the saved

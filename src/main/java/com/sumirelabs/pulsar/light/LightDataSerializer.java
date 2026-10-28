@@ -129,7 +129,7 @@ public final class LightDataSerializer {
             // Any queued work in the 3x3 light cache can still update this
             // chunk's seam nibbles. Do not persist a mixed generation.
             final WorldLightManager mgr = ((PulsarWorld) chunk.getWorld()).pulsar$getLightManager();
-            if (mgr != null && mgr.hasPendingLightWorkNear(chunk.x, chunk.z)) {
+            if (mgr != null && (mgr.hasPendingLightWorkNear(chunk.x, chunk.z) || mgr.hasFailedLightSamplesNear(chunk.x, chunk.z))) {
                 return;
             }
             final boolean hasSky = chunk.getWorld().provider.hasSkyLight();

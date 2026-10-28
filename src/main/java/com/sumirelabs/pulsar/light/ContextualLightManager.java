@@ -190,7 +190,12 @@ public final class ContextualLightManager {
 
     public boolean hasPending(final int x, final int z) {
         final Entry entry = this.chunks.get(CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(x, z)));
-        return entry != null && (entry.retries != null || entry.snapshot.hasPending());
+        return entry != null && entry.snapshot.hasPending();
+    }
+
+    public boolean hasFailedSamples(int x,int z) {
+        Entry entry=this.chunks.get(CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(x,z)));
+        return entry!=null && entry.retries!=null;
     }
 
     public void flush(final WorldLightManager manager) {
@@ -406,6 +411,7 @@ public final class ContextualLightManager {
                 if (!entry.active) return 0;
                 if (entry.retries == null) entry.retries = new LightSampleRetries();
                 entry.retries.failed(key, this.sampleTick); this.retrying.add(entry);
+                if(entry.chunk instanceof PulsarChunk pc)synchronized(entry.chunk){pc.pulsar$markLightDirty();}
                 if (initial) entry.snapshot.initialize(key, block, block == null ? 0 : LightInfo.of(block),
                         fluid, fluid == null ? 0 : LightInfo.of(fluid));
                 return 0;

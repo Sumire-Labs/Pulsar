@@ -119,7 +119,8 @@ class ContextualLightManagerCaptureTest {
         int before=block.calls;
         for(int i=0;i<100;i++)manager.flushSamples((x,y,z,lanes)->fail("Failed sample replaced valid light"));
         assertTrue(block.calls-before<12,"Permanent failure must not run every tick");
-        assertTrue(manager.hasPending(0,0),"Fallback light must not be saved as valid");
+        assertTrue(manager.hasFailedSamples(0,0),"Fallback light must not be saved as valid");
+        assertFalse(manager.hasPending(0,0),"Retry backoff must not block chunk sending");
         assertEquals(8,LightInfo.emission(manager.read(LightInfo.of(block.getDefaultState()),block.getDefaultState(),0,64,0)));
         block.failure=null;block.emission=12;
         var changes=new java.util.ArrayList<Integer>();
@@ -133,7 +134,7 @@ class ContextualLightManagerCaptureTest {
         var chunk=tileChunk(block,0,1);chunk.getTileEntityMap().clear();
         PulsarConfig.features.trackTileEntityLight=false;
         var manager=new ContextualLightManager(null,WorldHeightContext.VANILLA);
-        manager.load(chunk);assertTrue(manager.hasPending(0,0));
+        manager.load(chunk);assertTrue(manager.hasFailedSamples(0,0));
         block.failure=null;block.emission=9;
         manager.flushSamples((x,y,z,lanes)->{});
         assertEquals(9,LightInfo.emission(manager.read(LightInfo.of(block.getDefaultState()),block.getDefaultState(),0,64,0)));

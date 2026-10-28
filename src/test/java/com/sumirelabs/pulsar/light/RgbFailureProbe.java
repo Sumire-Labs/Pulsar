@@ -16,13 +16,19 @@ final class RgbFailureProbe {
             calls++;if(broken)throw new NullPointerException("missing tile");return color;
         }
     }
-    static void verify(MultipartLightProbe.ProbeWorld world) {
+    static void verify(MultipartLightProbe.ProbeWorld world) throws Exception {
         var source=new Source();var state=source.getDefaultState();
         world.chunk.getBlockStorageArray()[4].set(8,0,8,state);
         world.manager.queueBlockChange(8,64,8);world.manager.publishContextualLight();
         check((RgbContextualLightManager.properties(world,state,8,64,8)&0xFFF)==0,"Failed replacement became full white");
         for(int i=0;i<100;i++)world.manager.publishContextualLight();
         check(source.calls<12,"RGB callback was retried every tick");
+        MultipartLightProbe.clearQueues(world.manager);
+        ((PulsarChunk)world.chunk).pulsar$setLightReady(true);
+        check(world.manager.canSendUpdatedChunkLight(0,0),"Permanent callback failure hid the chunk from players");
+        var saved=new net.minecraft.nbt.NBTTagCompound();
+        new LightDataSerializer().onChunkSave(new net.minecraftforge.event.world.ChunkDataEvent.Save(world.chunk,saved));
+        check(!saved.hasKey("PulsarLight"),"Degraded sample persisted as a valid cache");
         source.broken=false;
         for(int i=0;i<33;i++)world.manager.publishContextualLight();
         check((RgbContextualLightManager.properties(world,state,8,64,8)&0xFFF)==0x900,"RGB source did not recover");

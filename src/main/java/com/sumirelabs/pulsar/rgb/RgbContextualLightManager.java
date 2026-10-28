@@ -94,7 +94,11 @@ public final class RgbContextualLightManager {
     }
     public boolean hasPending(int cx, int cz) {
         Entry entry = chunks.get(CoordinateUtils.getChunkKey(cx, cz));
-        return entry != null && (entry.retries != null || entry.snapshot.hasPending());
+        return entry != null && entry.snapshot.hasPending();
+    }
+    public boolean hasFailedSamples(int cx,int cz) {
+        Entry entry=chunks.get(CoordinateUtils.getChunkKey(cx,cz));
+        return entry!=null && entry.retries!=null;
     }
     public void unload(int cx, int cz) {
         requireOwner();
@@ -169,9 +173,11 @@ public final class RgbContextualLightManager {
             for (int key : entry.snapshot.takePending()) {
                 int x = key & 15, z = key >>> 4 & 15, y = key >> 8;
                 int lanes = capture(entry, x, y, z, pos);
+                if(chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x,entry.chunk.z))!=entry)break;
                 if (lanes != 0) changes.changed((entry.chunk.x << 4) + x, y,
                         (entry.chunk.z << 4) + z, lanes);
             }
+            if(chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x,entry.chunk.z))!=entry)continue;
             if (entry.polled == null) tracked.remove(entry); else tracked.add(entry);
             if (entry.snapshot.hasPending()) pending.add(entry);
         }
@@ -196,6 +202,7 @@ public final class RgbContextualLightManager {
             if(chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x,entry.chunk.z))!=entry)return 0;
             if(entry.retries==null)entry.retries=new com.sumirelabs.pulsar.light.LightSampleRetries();
             entry.retries.failed(key,sampleTick);retrying.add(entry);
+            if(entry.chunk instanceof com.sumirelabs.pulsar.light.PulsarChunk pc)synchronized(entry.chunk){pc.pulsar$markLightDirty();}
             // Seed zero for an unseen dynamic source instead of the default white
             // hue, which would otherwise be interpreted as absolute full emission.
             if(block!=null && !entry.snapshot.contains(key,block) || fluid!=null && !entry.snapshot.contains(key,fluid))

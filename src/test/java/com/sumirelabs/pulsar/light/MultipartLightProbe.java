@@ -192,7 +192,7 @@ public final class MultipartLightProbe {
     private static LightQueue queue(WorldLightManager manager,String name) throws Exception {
         var field=WorldLightManager.class.getDeclaredField(name);field.setAccessible(true);return (LightQueue)field.get(manager);
     }
-    private static void clearQueues(WorldLightManager manager) throws Exception {
+    static void clearQueues(WorldLightManager manager) throws Exception {
         for(String name: new String[]{"skyQueue","blockQueue"}) {
             LightQueue queue=queue(manager,name);ChunkTasks task;
             while((task=queue.claimChunk(0))!=null)queue.completeTask(task);
