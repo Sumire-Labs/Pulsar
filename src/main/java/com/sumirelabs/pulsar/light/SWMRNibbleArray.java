@@ -55,6 +55,8 @@ public final class SWMRNibbleArray {
     // Public byte-array constructors may wrap vanilla's live client storage.
     // Such arrays must keep their identity when a full section is published.
     private final boolean retainVisibleStorage;
+    // Borrowed immutable RGB publication; detach before any visible byte reuse.
+    private boolean visibleShared;
     // Fast section state flags
     private boolean fullFlag;
     private boolean zeroFlag;
@@ -81,6 +83,15 @@ public final class SWMRNibbleArray {
 
     public SWMRNibbleArray(final byte[] bytes, final int state) {
         this(bytes, state, bytes != null);
+    }
+
+    /** Internal copy-on-write view. The caller must own an immutable array and
+     * never modify it; use ordinary constructors for vanilla's mutable storage. */
+    public static SWMRNibbleArray fromImmutable(final byte[] bytes) {
+        SWMRNibbleArray result = new SWMRNibbleArray(bytes,
+                bytes == null ? INIT_STATE_UNINIT : INIT_STATE_INIT, false);
+        result.visibleShared = bytes != null;
+        return result;
     }
 
     private SWMRNibbleArray(final byte[] bytes, final int state, final boolean retainVisibleStorage) {
@@ -355,12 +366,12 @@ public final class SWMRNibbleArray {
                 // The old visible array is never pooled: concurrent readers
                 // may still hold it. Only unpublished working bytes are reusable.
                 if (this.updatingDirty && this.storageUpdating != null) freeBytes(this.storageUpdating);
-                if (this.storageVisible != null && this.storageVisible != FULL_BYTES) {
+                if (!this.visibleShared && this.storageVisible != null && this.storageVisible != FULL_BYTES) {
                     this.reusableVisible = this.storageVisible;
                 }
                 this.storageUpdating = this.storageVisible = FULL_BYTES;
             } else {
-                if (this.storageVisible == null || this.storageVisible == FULL_BYTES) {
+                if (this.storageVisible == null || this.storageVisible == FULL_BYTES || this.visibleShared && this.updatingDirty) {
                     if (this.reusableVisible != null) {
                         System.arraycopy(this.storageUpdating, 0, this.reusableVisible, 0, ARRAY_SIZE);
                         this.storageVisible = this.reusableVisible;
@@ -378,6 +389,8 @@ public final class SWMRNibbleArray {
                 }
                 this.storageUpdating = this.storageVisible;
             }
+            if (this.updatingDirty || this.stateUpdating == INIT_STATE_NULL || this.stateUpdating == INIT_STATE_UNINIT)
+                this.visibleShared = false;
             this.updatingDirty = false;
             this.updatingWritable = false;
             this.stateVisible = this.stateUpdating;
@@ -413,6 +426,7 @@ public final class SWMRNibbleArray {
      * if the state is null or uninitialised. The caller must not
      * mutate the returned array.
      */
+    /** Read-only view; may be shared with immutable snapshots or constant planes. */
     public byte[] getVisibleData() {
         return this.storageVisible;
     }
@@ -449,7 +463,8 @@ public final class SWMRNibbleArray {
 
     public byte[] getUpdatingStorage() {
         // A caller may write directly into this array; never expose the constant.
-        if (this.storageUpdating == FULL_BYTES) this.swapUpdatingAndMarkDirty();
+        if (this.storageUpdating == FULL_BYTES || this.visibleShared && this.storageUpdating == this.storageVisible)
+            this.swapUpdatingAndMarkDirty();
         return this.storageUpdating;
     }
 

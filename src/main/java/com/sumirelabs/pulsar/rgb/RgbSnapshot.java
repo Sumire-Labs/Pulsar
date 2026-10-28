@@ -4,6 +4,10 @@ package com.sumirelabs.pulsar.rgb;
 public final class RgbSnapshot {
     private static final byte[] FULL = new byte[2048];
     static { java.util.Arrays.fill(FULL, (byte)0xFF); }
+    // Immutable constant planes are shared across chunks, never live SWMR storage.
+    private static final java.util.concurrent.atomic.AtomicReferenceArray<byte[]> CONSTANTS =
+            new java.util.concurrent.atomic.AtomicReferenceArray<>(16);
+    static { CONSTANTS.set(15,FULL); }
     static byte[] saturatedPlane() { return FULL; }
     public final int minSection;
     public final long revision;
@@ -61,16 +65,18 @@ public final class RgbSnapshot {
         this.minSection = minSection;
         this.revision = revision;
         if (canonical.length != data[0].length) throw new IllegalArgumentException("Invalid canonical section count");
-        this.canonical = new byte[canonical.length][];
+        this.canonical = copy ? new byte[canonical.length][] : canonical;
         for (int s = 0; s < canonical.length; s++) if (canonical[s] != null) {
             if (canonical[s].length != 2048) throw new IllegalArgumentException("Invalid canonical nibble length");
-            this.canonical[s] = copy ? canonical[s].clone() : canonical[s];
+            if (copy) this.canonical[s] = s>0 && canonical[s]==canonical[s-1]
+                    ? this.canonical[s-1] : retain(canonical[s], null);
         }
-        this.data = new byte[3][data[0].length][];
+        this.data = copy ? new byte[3][data[0].length][] : data;
         for (int c = 0; c < 3; c++) for (int s = 0; s < data[c].length; s++) {
             if (data[c][s] == null) continue;
             if (data[c][s].length != 2048) throw new IllegalArgumentException("Invalid RGB nibble length");
-            this.data[c][s] = copy ? data[c][s].clone() : data[c][s];
+            if (copy) this.data[c][s] = s>0 && data[c][s]==data[c][s-1]
+                    ? this.data[c][s-1] : share(data[c][s], this.canonical[s], this.data, c, s, null);
         }
     }
     /** Reuse only immutable bytes owned by a previous publication. Live worker bytes
@@ -81,9 +87,10 @@ public final class RgbSnapshot {
         byte[][][] owned = new byte[3][scalar.length][];
         byte[][] canonical = new byte[scalar.length][];
         for (int s = 0; s < scalar.length; s++) {
-            canonical[s] = retain(scalar[s], compatible ? previous.canonical[s] : null);
-            for (int c = 0; c < 3; c++) owned[c][s] = live[c][s] == scalar[s] ? canonical[s]
-                    : retain(live[c][s], compatible ? previous.data[c][s] : null);
+            canonical[s] = s>0 && scalar[s]==scalar[s-1] ? canonical[s-1]
+                    : retain(scalar[s], compatible ? previous.canonical[s] : null);
+            for (int c = 0; c < 3; c++) owned[c][s] = s>0 && live[c][s]==live[c][s-1] ? owned[c][s-1]
+                    : share(live[c][s], canonical[s], owned, c, s, compatible ? previous.data[c][s] : null);
         }
         return new RgbSnapshot(minSection, revision, owned, canonical, false);
     }
@@ -96,8 +103,9 @@ public final class RgbSnapshot {
         for (int s = 0; s < count; s++) {
             boolean unchanged = compatible && previous.maxProjection;
             for (int c = 0; c < 3; c++) {
-                owned[c][s] = compatible && java.util.Arrays.equals(live[c][s], previous.canonical[s])
-                        ? previous.canonical[s] : retain(live[c][s], compatible ? previous.data[c][s] : null);
+                owned[c][s] = s>0 && live[c][s]==live[c][s-1] ? owned[c][s-1]
+                        : share(live[c][s], compatible ? previous.canonical[s] : null, owned, c, s,
+                                compatible ? previous.data[c][s] : null);
                 unchanged &= compatible && owned[c][s] == previous.data[c][s];
             }
             if (unchanged) canonical[s] = previous.canonical[s];
@@ -115,7 +123,10 @@ public final class RgbSnapshot {
                         projected[i] = (byte)(Math.max(rv & 15, Math.max(gv & 15, bv & 15))
                                 | Math.max(rv & 240, Math.max(gv & 240, bv & 240)));
                     }
-                    canonical[s] = retain(projected, compatible ? previous.canonical[s] : null);
+                    canonical[s] = java.util.Arrays.equals(projected,r) ? r
+                            : java.util.Arrays.equals(projected,g) ? g
+                            : java.util.Arrays.equals(projected,b) ? b
+                            : retain(projected, compatible ? previous.canonical[s] : null);
                 }
             }
         }
@@ -123,8 +134,27 @@ public final class RgbSnapshot {
     }
     private static byte[] retain(byte[] live, byte[] previous) {
         if (java.util.Arrays.equals(live, previous)) return previous;
-        if (isFull(live)) return FULL;
-        return live == null ? null : live.clone();
+        if (live == null) return null;
+        int value=live[0]&255;
+        if((value&15)==value>>>4) {
+            boolean constant=true;
+            for(byte b:live)if((b&255)!=value){constant=false;break;}
+            if(constant) {
+                int level=value&15;
+                byte[] cached=CONSTANTS.get(level);
+                if(cached!=null)return cached;
+                byte[] owned=live.clone();
+                return CONSTANTS.compareAndSet(level,null,owned) ? owned : CONSTANTS.get(level);
+            }
+        }
+        return live.clone();
+    }
+    /** Deduplicate only against immutable planes in this publication or its predecessor.
+     * No global content map, no retained old snapshots, and no aliases to mutable input. */
+    private static byte[] share(byte[] live,byte[] canonical,byte[][][] owned,int channel,int section,byte[] previous) {
+        if(java.util.Arrays.equals(live,canonical))return canonical;
+        for(int c=0;c<channel;c++)if(java.util.Arrays.equals(live,owned[c][section]))return owned[c][section];
+        return retain(live,previous);
     }
     private static boolean isFull(byte[] bytes) {
         if (bytes == null) return false;
@@ -172,6 +202,11 @@ public final class RgbSnapshot {
         return result;
     }
     public byte[] canonicalSection(int s) { return canonical[s] == null ? null : canonical[s].clone(); }
+    boolean canonicalAbsent(int s) { return canonical[s] == null; }
+    boolean matchesCanonical(int s,byte[] visible) { return java.util.Arrays.equals(canonical[s],visible); }
+    com.sumirelabs.pulsar.light.SWMRNibbleArray canonicalNibble(int s) {
+        return com.sumirelabs.pulsar.light.SWMRNibbleArray.fromImmutable(canonical[s]);
+    }
     public boolean canonicalFull(int s) { return isFull(canonical[s]); }
     public void copyCanonicalTo(int s, byte[] target) {
         if (target.length != 2048) throw new IllegalArgumentException("Invalid canonical target");

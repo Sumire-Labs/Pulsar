@@ -4,7 +4,6 @@ import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import net.minecraft.world.chunk.Chunk;
-import java.util.Arrays;
 
 /** Install a completed RGB maximum under the caller's chunk monitor. No propagation is needed. */
 public final class RgbCanonicalLight {
@@ -22,13 +21,12 @@ public final class RgbCanonicalLight {
                 if (previous != null && previous.isFullVisible()) continue;
                 value = new SWMRNibbleArray(); value.setFull(); value.updateVisible();
             } else {
-                byte[] bytes = snapshot.canonicalSection(s); // Defensive copy: SWMR may later reuse its visible storage.
-                if (bytes == null) {
+                if (snapshot.canonicalAbsent(s)) {
                     if (previous != null && previous.isZeroVisible() && !previous.isNullNibbleVisible()) continue;
                     value = new SWMRNibbleArray(); // UNINIT zero, never NULL sky extrusion.
                 } else {
-                    if (previous != null && Arrays.equals(bytes, previous.getVisibleData())) continue;
-                    value = new SWMRNibbleArray(bytes);
+                    if (previous != null && snapshot.matchesCanonical(s, previous.getVisibleData())) continue;
+                    value = snapshot.canonicalNibble(s);
                 }
             }
             if (next == old) next = old.clone();
