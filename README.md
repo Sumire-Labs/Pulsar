@@ -34,6 +34,7 @@ It offers a non-colored SCALAR lighting mode like Starlight and a full RGB color
 - SpongeForge: Includes compatibility support for asynchronous lighting.
 - Fluidlogged API: Accounts for the opacity and light emission of fluids stored inside blocks.
 - CBMultipart: Standard microblocks inherit their materials' light source colors. Custom parts retain neutral emission unless handled by a dedicated integration.
+- ProjectRed: RGB emission for full-block lamps, multipart fixtures, light buttons, and light microblock materials, preserving their actual brightness and power state.
 - Depths Update: Supports extended world height ranges.
 - Thaumcraft: Adds smooth lighting to crystals.
 - Celeritas: Supports its rendering pipeline.
@@ -56,6 +57,8 @@ Pulsar completely replaces the lighting engine and is incompatible with other li
 - `config/pulsar.cfg`: Selects the lighting mode and configures additional features.
   - `lightingMode`: `RGB` (default, RGB colored lighting) or `SCALAR` (conventional, non-colored lighting).
   - `rgbGameplayLight`: `RGB_MAX` (default, uses the brightest RGB component as gameplay brightness; per-channel attenuation affects light checks such as mob spawning) or `VANILLA` (calculates non-colored lighting separately for gameplay light checks).
+  - `rgbBlendMode`: Includes an optional `MAXIMUM` mode that combines block and sky light by taking the brightest value per channel. Full daylight stays neutral around colored sources. This controls normal rendering; shader packs handle their own shading.
+  - `debug.traceLightUpdates`: Opt-in diagnostics for lighting queues, render requests, and Celeritas rebuilds. Logs a bounded summary every 200 client ticks; caller and position samples cover 1 in 64 requests.
 - `config/pulsar-colors.cfg`: Defines light source colors.
 - `config/pulsar-filters.cfg`: Defines attenuation for each RGB channel.
 
@@ -77,6 +80,8 @@ See the [API documentation](src/main/java/com/sumirelabs/pulsar/api/package-info
 ## Benchmarks
 
 Benchmarks for 0.6.0-Dev.27 will be added later.
+
+See [lighting validation notes](docs/lighting-validation.md) for compatibility probes and the opt-in empty-section experiment.
 
 ## Credits
 

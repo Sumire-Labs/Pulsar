@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add optional MAXIMUM RGB blending, preserving neutral full daylight.
+- Add bounded, opt-in lighting/render origin tracing and Celeritas build counts/timing.
+- Extend Multipart RGB emission to ProjectRed fixtures, buttons and light microblock materials.
+- Add pinned compatibility probes for IC2 Experimental 2.8.222, IC2 Classic 1.5.15,
+  and Ender IO 5.3.72, isolated where their classes conflict.
+- Add an opt-in empty-section accessor experiment and isolated JVM benchmarks.
 - Add optional CBMultipart 1.12.2 lighting integration: standard block materials
   inherit Pulsar source colors, while unknown parts retain neutral emission.
 - Add real CBMultipart/Mixin regression probes for scalar and RGB snapshots,
@@ -81,6 +87,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Persist light-only updates on otherwise untouched chunks, including neighbouring
+  chunks; later worker publications survive vanilla's post-save dirty reset.
+- Retain previous/static light samples when mod callbacks fail, with bounded logging
+  and exponential retry. Do not persist degraded samples as valid caches or block
+  chunk visibility while a callback is waiting to retry.
 - Reject light-cache saves/loads crossing a palette reload and revalidate delayed
   chunk registration; replay dynamic-source notifications after cached chunk loading.
 - Subtract night-time sky darkening per RGB component instead of scaling weak
