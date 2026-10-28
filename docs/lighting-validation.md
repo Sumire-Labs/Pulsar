@@ -2,6 +2,10 @@
 
 ## Scope
 
+In-game visual inspection is pending and will be performed by the user later.
+The [memory audit](memory-audit.md) tracks measured reductions and the pending
+whole-world comparison against Alfheim.
+
 The fork-inspired changes retain Pulsar's world-owned snapshots. No dimension-global
 tile-light map or off-thread TileEntity access was added.
 

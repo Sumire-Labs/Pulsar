@@ -60,6 +60,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Share immutable RGB/canonical planes and use copy-on-write canonical nibbles.
+- Allocate BFS queues and contextual tracking structures on demand, and omit
+  client render bounds from server engines. Add reproducible memory/allocation probes.
 - Coalesce contextual scalar/RGB notifications until both samples are published,
   and defer Multipart light checks until part callbacks have settled at tick end.
 - Stop polling standard constant-material Multipart sources; retain polling for
