@@ -27,6 +27,7 @@ public final class ModLightColors {
     }
 
     static void registerDefaults(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register) {
+        registerAdditionalDefaults(lookup, register);
         for(String name:new String[]{"shinyFlower","miniIsland","buriedPetals","mushroom"})
             register(lookup,register,name,state->{
                 EnumDyeColor dye=dye(state);
@@ -86,6 +87,55 @@ public final class ModLightColors {
             register(lookup,register,"thaumcraft:candle_"+suffix,state->candle);
             register(lookup,register,"thaumcraft:nitor_"+suffix,state->RgbDefaultPalette.glassTransmittance(color));
         }
+    }
+
+    /** 1.12 ports of SuperNova MiscColors, NaturaColors and ChiselColors.
+     * Verified registry/state mappings are recorded in README.md. */
+    private static void registerAdditionalDefaults(Function<ResourceLocation, Block> lookup,
+                                                   BiConsumer<IBlockState, Integer> register) {
+        register(lookup, register, "tconstruct:stone_torch", state -> 0xDA8);
+        register(lookup, register, "biomesoplenty:crystal", state -> 0x0BF);
+        // In 1.12 glowshroom moved from flowers2 metadata to mushroom[variant=glowshroom].
+        register(lookup, register, "biomesoplenty:mushroom", state ->
+                "glowshroom".equals(namedProperty(state, "variant")) ? 0x940 : null);
+        register(lookup, register, "appliedenergistics2:quartz_vibrant_glass", state -> 0xFFF);
+        register(lookup, register, "appliedenergistics2:quartz_fixture", state -> 0xEEE);
+        register(lookup, register, "natura:nether_glowshroom", state -> {
+            String type = namedProperty(state, "type");
+            if (type == null) return null;
+            return switch (type) {
+                case "green" -> 0x091;
+                case "blue" -> 0x039;
+                case "purple" -> 0x708;
+                case "amber" -> 0xFA3; // Natura Legacy addition; warm amber, original brightness.
+                default -> null;
+            };
+        });
+        register(lookup, register, "natura:nether_green_large_glowshroom", state -> 0x091);
+        register(lookup, register, "natura:nether_blue_large_glowshroom", state -> 0x039);
+        register(lookup, register, "natura:nether_purple_large_glowshroom", state -> 0x708);
+        register(lookup, register, "natura:nether_amber_large_glowshroom", state -> 0xFA3);
+        // Rekindled: named dye states, not a single color for all Mage Lights.
+        register(lookup, register, "arsmagica2:block_mage_light", state -> {
+            EnumDyeColor color = dye(state);
+            return color == null ? null : RgbDefaultPalette.glassTransmittance(color);
+        });
+        // Torch particles are (0.69, 0.89, 1.0); aura renderer is (1, 0, 0.75).
+        register(lookup, register, "arsmagica2:vinteum_torch", state -> 0xADF);
+        register(lookup, register, "arsmagica2:warding_candle", state -> 0xDA8);
+        register(lookup, register, "arsmagica2:otherworld_aura", state -> 0xF0B);
+        register(lookup, register, "arsmagica2:celestial_prism", state -> 0xFFF);
+        // Chisel splits 33 variants over three registry entries; never guess a metadata color.
+        for (String name : new String[]{"glowstone", "glowstone1", "glowstone2"})
+            register(lookup, register, "chisel:" + name, state -> 0xFD3);
+    }
+
+    private static String namedProperty(IBlockState state, String name) {
+        for (var entry : state.getProperties().entrySet()) {
+            if (entry.getKey().getName().equals(name) && entry.getValue() instanceof IStringSerializable value)
+                return value.getName();
+        }
+        return null;
     }
 
     private static EnumDyeColor dye(IBlockState state) {

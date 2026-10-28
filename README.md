@@ -67,6 +67,33 @@ registry IDs and named state properties, not by blindly reusing 1.7.10 metadata:
 | Twilight Forest (`1.12.x`) | Fireflies/jars, portal, lit cinder furnace, trollberries, mushgloom and five force-field colors across their axis states |
 | Thaumcraft 6.1.BETA26 | Six primal crystal types, 16 candles and 16 nitor colors |
 | ProjectRed Illumination (`1.12.x`) | Normal/inverted block lamps via their TileEntity color and current contextual emission; multipart lights are not included |
+| Tinkers' Construct (`1.12`) | Stone torches, retaining their original light level |
+| Biomes O' Plenty (`1.12.x`) | Crystal blocks and only the glowshroom variant of mushrooms |
+| Natura (`1.12`) | Green, blue and purple glowshrooms, including their large mushroom blocks |
+| Chisel (`1.12/dev`) | All glowstone variants across `glowstone`, `glowstone1` and `glowstone2` |
+| Applied Energistics 2 (`rv6-1.12`) | Quartz vibrant glass and quartz fixtures; neutral white presets |
+| Natura Legacy (`1.12`) | Existing Natura sources plus amber glowshrooms and large amber glowshroom blocks |
+| Ars Magica 2: Rekindled (`1.12.2`) | All 16 Mage Light dye states, vinteum torches, warding candles, Otherworld Aura and celestial prisms |
+
+The additional mappings were checked against the upstream 1.12 sources:
+[Tinkers' Construct](https://github.com/SlimeKnights/TinkersConstruct/tree/c01173c0408352c50a2e8c5017552323ce42f5b4),
+[Biomes O' Plenty](https://github.com/Glitchfiend/BiomesOPlenty/tree/5ad77116382bec782a023926b8dab17a6ea5599d),
+[Natura](https://github.com/progwml6/Natura/tree/d5b4bdd1767176dfb17da2298c5f9458f1839588),
+[Chisel](https://github.com/Chisel-Team/Chisel/tree/a0df1047a979bc55b3c81d5875e6890c21063bec), and
+[AE2](https://github.com/AppliedEnergistics/Applied-Energistics-2/tree/5554ba903e74c2980b2e395c78555b40fc379e80).
+Natura colors use the named `type` property, since its metadata order changed.
+BoP glowshrooms use `mushroom[variant=glowshroom]`, not the old `flowers2` ID.
+Non-emitting Chisel lavastone and old-only targets are not assigned invented light levels.
+These additions have registry/state-selection tests; full modpack runtime validation is pending.
+
+Natura Legacy mappings were checked at [d3ff86b](https://github.com/Elite-Modding-Team/NaturaLegacy/tree/d3ff86b4dc31a3d2b95fa8db53f6518a4ed55fe8),
+and Rekindled at [0031912](https://github.com/WinDanesz/ArsMagica2/tree/00319125d18ae89d4a403e7b3661aefc166509c4).
+Amber uses a Pulsar-selected warm hue `(15,10,3)`. Rekindled torch/aura hues follow
+their particle/renderer colors; candles use warm amber, prisms neutral white, and
+Mage Light uses the existing bright dye palette. These are source-color presets,
+not changes to particles or spell rendering. Mana-battery power colors, flicker
+affinities, crystal-marker variants and other unlisted Rekindled sources do not
+yet have dedicated RGB presets.
 
 Missing blocks, unknown layouts and blocks providing their own RGB source API
 are left alone by the static presets. ProjectRed's adapter uses the positional

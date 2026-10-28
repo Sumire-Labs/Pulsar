@@ -19,7 +19,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class ModLightColorsTest {
     private static final PropertyEnum<EnumDyeColor> COLOR=PropertyEnum.create("color",EnumDyeColor.class);
     private static final PropertyEnum<Variant> VARIANT=PropertyEnum.create("variant",Variant.class);
-    enum Variant implements IStringSerializable { MANA,NATURA,GAIA,UNKNOWN,GLIMMERING;public String getName(){return name().toLowerCase(Locale.ROOT);} }
+    enum Variant implements IStringSerializable { MANA,NATURA,GAIA,UNKNOWN,GLIMMERING,GLOWSHROOM;public String getName(){return name().toLowerCase(Locale.ROOT);} }
+    enum MushroomType implements IStringSerializable {
+        GREEN,BLUE,PURPLE,AMBER,UNKNOWN;
+        public String getName(){return name().toLowerCase(Locale.ROOT);}
+    }
+    private static final PropertyEnum<MushroomType> TYPE=PropertyEnum.create("type",MushroomType.class);
+    static class Mushroom extends Block {
+        Mushroom(){super(Material.PLANTS);}
+        protected BlockStateContainer createBlockState(){return new BlockStateContainer(this,TYPE);}
+    }
     static class Flower extends Block {
         Flower(){super(Material.PLANTS);}
         protected BlockStateContainer createBlockState(){return new BlockStateContainer(this,COLOR);}
@@ -72,5 +81,70 @@ class ModLightColorsTest {
         Map<IBlockState,Integer> output=new IdentityHashMap<>();ModLightColors.registerDefaults(blocks::get,output::put);
         assertEquals(3,output.size());assertEquals(0x070,output.get(crystal.getDefaultState()));
         assertEquals(0x68C,output.get(candle.getDefaultState()));assertEquals(0xF00,output.get(nitor.getDefaultState()));
+    }
+    @Test void naturaUsesNamesNotTheOldGreenPurpleBlueMetadataOrder(){
+        Mushroom mushroom=new Mushroom();Map<IBlockState,Integer> output=new IdentityHashMap<>();
+        ModLightColors.registerDefaults(id->id.equals(new ResourceLocation("natura:nether_glowshroom"))?mushroom:null,output::put);
+        assertEquals(4,output.size());
+        assertEquals(0x091,output.get(mushroom.getDefaultState().withProperty(TYPE,MushroomType.GREEN)));
+        assertEquals(0x039,output.get(mushroom.getDefaultState().withProperty(TYPE,MushroomType.BLUE)));
+        assertEquals(0x708,output.get(mushroom.getDefaultState().withProperty(TYPE,MushroomType.PURPLE)));
+        assertEquals(0xFA3,output.get(mushroom.getDefaultState().withProperty(TYPE,MushroomType.AMBER)));
+        assertFalse(output.containsKey(mushroom.getDefaultState().withProperty(TYPE,MushroomType.UNKNOWN)));
+    }
+    @Test void bopColorsOnlyGlowshroomAndSkipsMissingOrWrongProperties(){
+        Pylon variants=new Pylon();Map<IBlockState,Integer> output=new IdentityHashMap<>();
+        ResourceLocation id=new ResourceLocation("biomesoplenty:mushroom");
+        ModLightColors.registerDefaults(key->key.equals(id)?variants:null,output::put);
+        assertEquals(Map.of(variants.getDefaultState().withProperty(VARIANT,Variant.GLOWSHROOM),0x940),output);
+        output.clear();
+        ModLightColors.registerDefaults(key->key.equals(id)?new Mushroom():null,output::put);
+        assertTrue(output.isEmpty());
+        ModLightColors.registerDefaults(key->key.equals(new ResourceLocation("natura:nether_glowshroom"))?variants:null,output::put);
+        assertTrue(output.isEmpty());
+    }
+    @Test void renamedSourcesAndSplitChiselBlocksUseExplicitIdsWithoutChangingBrightness(){
+        Map<String,Integer> expected=Map.ofEntries(
+                Map.entry("tconstruct:stone_torch",0xDA8), Map.entry("biomesoplenty:crystal",0x0BF),
+                Map.entry("appliedenergistics2:quartz_vibrant_glass",0xFFF), Map.entry("appliedenergistics2:quartz_fixture",0xEEE),
+                Map.entry("natura:nether_green_large_glowshroom",0x091), Map.entry("natura:nether_blue_large_glowshroom",0x039),
+                Map.entry("natura:nether_purple_large_glowshroom",0x708),
+                Map.entry("chisel:glowstone",0xFD3), Map.entry("chisel:glowstone1",0xFD3), Map.entry("chisel:glowstone2",0xFD3));
+        Map<ResourceLocation,Block> blocks=new HashMap<>();
+        expected.keySet().forEach(id->blocks.put(new ResourceLocation(id),new Plain()));
+        blocks.put(new ResourceLocation("chisel:lavastone"),new Plain());
+        Map<IBlockState,Integer> output=new IdentityHashMap<>();
+        ModLightColors.registerDefaults(blocks::get,output::put);
+        assertEquals(expected.size(),output.size());
+        expected.forEach((id,hue)->assertEquals(hue,output.get(blocks.get(new ResourceLocation(id)).getDefaultState())));
+        blocks.values().forEach(block->assertEquals(0,block.getDefaultState().getLightValue(),"Registering a hue must not turn a block into a light source"));
+        assertFalse(output.containsKey(blocks.get(new ResourceLocation("chisel:lavastone")).getDefaultState()));
+    }
+    @Test void rekindledMageLightFollowsAllDyeStatesAndSkipsUnknownLayouts(){
+        Flower light=new Flower();Map<IBlockState,Integer> output=new IdentityHashMap<>();
+        ResourceLocation id=new ResourceLocation("arsmagica2:block_mage_light");
+        ModLightColors.registerDefaults(key->key.equals(id)?light:null,output::put);
+        assertEquals(16,output.size());
+        for(var state:light.getBlockState().getValidStates())
+            assertEquals(RgbDefaultPalette.glassTransmittance(state.getValue(COLOR)),output.get(state));
+        output.clear();
+        ModLightColors.registerDefaults(key->key.equals(id)?new Plain():null,output::put);
+        assertTrue(output.isEmpty());
+        ModLightColors.registerDefaults(key->key.equals(id)?new CustomFlower():null,output::put);
+        assertTrue(output.isEmpty());
+    }
+    @Test void legacyAmberAndRekindledFixedSourcesPreserveOriginalLightLevels(){
+        Map<String,Integer> expected=Map.of(
+                "natura:nether_amber_large_glowshroom",0xFA3,
+                "arsmagica2:vinteum_torch",0xADF,"arsmagica2:warding_candle",0xDA8,
+                "arsmagica2:otherworld_aura",0xF0B,"arsmagica2:celestial_prism",0xFFF);
+        Map<ResourceLocation,Block> blocks=new HashMap<>();
+        expected.keySet().forEach(id->blocks.put(new ResourceLocation(id),new Plain().setLightLevel(0.6f)));
+        Map<IBlockState,Integer> output=new IdentityHashMap<>();ModLightColors.registerDefaults(blocks::get,output::put);
+        assertEquals(expected.size(),output.size());
+        expected.forEach((id,hue)->{
+            IBlockState state=blocks.get(new ResourceLocation(id)).getDefaultState();
+            assertEquals(hue,output.get(state));assertEquals(9,state.getLightValue());
+        });
     }
 }

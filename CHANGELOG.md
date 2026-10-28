@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add Natura Legacy amber glowshroom colors and Ars Magica 2: Rekindled presets
+  for dyeable Mage Lights, vinteum torches, warding candles, aura and celestial prisms.
+- Add 1.12 RGB source presets for Tinkers' Construct, Biomes O' Plenty, Natura,
+  Chisel and Applied Energistics 2, preserving contextual brightness and API overrides.
 - Add transactional `/pulsar reload` for source/filter palettes, with strict
   validation, rollback, versioned caches and automatic loaded-chunk relighting.
 - Expand Botania presets and add verified Twilight Forest / Thaumcraft 6 presets
