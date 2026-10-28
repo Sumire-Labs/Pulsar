@@ -33,6 +33,7 @@ public final class ContextualLightManager {
         final ContextualLightSnapshot<IBlockState> snapshot;
         final Set<BlockPos> tracked = new HashSet<>();
         boolean active = true;
+        volatile LightSampleRetries retries;
         Entry(Chunk chunk, ContextualLightSnapshot<IBlockState> snapshot) {
             this.chunk = chunk; this.snapshot = snapshot;
         }
@@ -48,6 +49,8 @@ public final class ContextualLightManager {
     private final Thread owner = Thread.currentThread();
     private final ConcurrentHashMap<Long, Entry> chunks = new ConcurrentHashMap<>();
     private final Set<Entry> pendingChunks = ConcurrentHashMap.newKeySet();
+    private final Set<Entry> retrying = new HashSet<>();
+    private long sampleTick;
     private final TrackedLightSources<BlockPos, TrackedSource> trackedSources = new TrackedLightSources<>();
 
     public ContextualLightManager(final World world, final WorldHeightContext height) {
@@ -136,6 +139,7 @@ public final class ContextualLightManager {
     }
 
     private void untrack(final Entry entry) {
+        this.retrying.remove(entry);
         entry.active = false;
         for (BlockPos pos : entry.tracked) {
             TrackedSource source = this.trackedSources.get(pos);
@@ -186,7 +190,7 @@ public final class ContextualLightManager {
 
     public boolean hasPending(final int x, final int z) {
         final Entry entry = this.chunks.get(CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(x, z)));
-        return entry != null && entry.snapshot.hasPending();
+        return entry != null && (entry.retries != null || entry.snapshot.hasPending());
     }
 
     public void flush(final WorldLightManager manager) {
@@ -195,6 +199,11 @@ public final class ContextualLightManager {
 
     public void flushSamples(final LightChanges changes) {
         this.requireOwner();
+        ++this.sampleTick;
+        for (Entry entry : this.retrying) {
+            entry.retries.ready(this.sampleTick, entry.snapshot::request);
+            if (entry.snapshot.hasPending()) this.pendingChunks.add(entry);
+        }
         if (!this.pendingChunks.isEmpty()) this.flushPending(changes);
         this.pollTracked(changes);
     }
@@ -379,6 +388,8 @@ public final class ContextualLightManager {
                         final boolean initial, final BlockPos.MutableBlockPos samplePos) {
         final int worldX = (entry.chunk.x << 4) + (x & 15);
         final int worldZ = (entry.chunk.z << 4) + (z & 15);
+        final int key = pack(x, y, z);
+        if (entry.retries != null && entry.retries.waiting(key, this.sampleTick)) return 0;
         IBlockState block = entry.chunk.getBlockState(x, y, z);
         IBlockState fluid = FluidLightBridge.LOADED ? FluidLightBridge.stateAt(entry.chunk, worldX, y, worldZ) : null;
         int blockInfo = LightInfo.of(block);
@@ -387,10 +398,23 @@ public final class ContextualLightManager {
         if (!LightInfo.hasContextualValues(fluidInfo)) fluid = null;
         if (block != null || fluid != null) {
             this.hasContextualSources = true;
-            if (block != null) blockInfo = LightInfo.resolveContextual(blockInfo, block, this.world, samplePos, worldX, y, worldZ);
-            if (fluid != null) fluidInfo = LightInfo.resolveContextual(fluidInfo, fluid, this.world, samplePos, worldX, y, worldZ);
+            try {
+                if (block != null) blockInfo = LightInfo.sampleContextual(blockInfo, block, this.world, samplePos, worldX, y, worldZ);
+                if (fluid != null) fluidInfo = LightInfo.sampleContextual(fluidInfo, fluid, this.world, samplePos, worldX, y, worldZ);
+            } catch (RuntimeException | LinkageError failure) {
+                LightCallbackFailures.report((block != null ? block : fluid).getBlock(), failure);
+                if (!entry.active) return 0;
+                if (entry.retries == null) entry.retries = new LightSampleRetries();
+                entry.retries.failed(key, this.sampleTick); this.retrying.add(entry);
+                if (initial) entry.snapshot.initialize(key, block, block == null ? 0 : LightInfo.of(block),
+                        fluid, fluid == null ? 0 : LightInfo.of(fluid));
+                return 0;
+            }
         }
-        final int key = pack(x, y, z);
+        if (entry.retries != null) {
+            entry.retries.succeeded(key);
+            if (entry.retries.isEmpty()) { entry.retries = null; this.retrying.remove(entry); }
+        }
         if (initial) {
             entry.snapshot.initialize(key, block, blockInfo, fluid, fluidInfo);
             return 0;

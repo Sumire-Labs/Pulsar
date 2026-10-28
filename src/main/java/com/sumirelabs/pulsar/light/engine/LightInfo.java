@@ -166,6 +166,18 @@ public final class LightInfo {
             }
         }
 
+        try { return sampleContextual(info, state, access, pos, x, y, z); }
+        catch (RuntimeException | LinkageError failure) {
+            com.sumirelabs.pulsar.light.LightCallbackFailures.report(state.getBlock(), failure);
+            return info;
+        }
+    }
+
+    /** Owner-thread capture uses the throwing form so it can retain its previous
+     * snapshot and retry; direct client queries use the guarded static fallback. */
+    public static int sampleContextual(int info, IBlockState state, IBlockAccess access,
+                                      BlockPos.MutableBlockPos pos, int x, int y, int z) {
+        int flags = info & CONTEXT_MASK;
         int opacity = opacity(info);
         int emission = emission(info);
         if ((flags & CONTEXT_OPACITY) != 0) {

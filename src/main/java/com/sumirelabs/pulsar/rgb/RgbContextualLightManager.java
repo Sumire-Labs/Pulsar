@@ -26,6 +26,7 @@ public final class RgbContextualLightManager {
         // If every dynamic cell needs polling, alias dynamic instead of retaining
         // a second copy of all its coordinates. Mixed chunks use a separate subset.
         IntOpenHashSet polled;
+        volatile com.sumirelabs.pulsar.light.LightSampleRetries retries;
         Entry(Chunk chunk) { this.chunk = chunk; }
 
         void track(int key, boolean present, boolean poll) {
@@ -50,6 +51,8 @@ public final class RgbContextualLightManager {
     private final ConcurrentHashMap<Long, Entry> chunks = new ConcurrentHashMap<>();
     private final Set<Entry> pending = ConcurrentHashMap.newKeySet();
     private final Set<Entry> tracked = new HashSet<>();
+    private final Set<Entry> retrying = new HashSet<>();
+    private long sampleTick;
 
     public RgbContextualLightManager(World world, WorldHeightContext height) {
         this.world = world; this.height = height;
@@ -91,14 +94,14 @@ public final class RgbContextualLightManager {
     }
     public boolean hasPending(int cx, int cz) {
         Entry entry = chunks.get(CoordinateUtils.getChunkKey(cx, cz));
-        return entry != null && entry.snapshot.hasPending();
+        return entry != null && (entry.retries != null || entry.snapshot.hasPending());
     }
     public void unload(int cx, int cz) {
         requireOwner();
         Entry old = chunks.remove(CoordinateUtils.getChunkKey(cx, cz));
-        if (old != null) { pending.remove(old); tracked.remove(old); }
+        if (old != null) { pending.remove(old); tracked.remove(old); retrying.remove(old); }
     }
-    public void clear() { requireOwner(); chunks.clear(); pending.clear(); tracked.clear(); }
+    public void clear() { requireOwner(); chunks.clear(); pending.clear(); tracked.clear(); retrying.clear(); }
 
     /** Replay captured dynamic positions after registration/readiness. A worker may
      * have claimed the first capture's notifications before the chunk was registered.
@@ -149,6 +152,11 @@ public final class RgbContextualLightManager {
 
     public void flushSamples(com.sumirelabs.pulsar.light.ContextualLightManager.LightChanges changes) {
         requireOwner();
+        ++sampleTick;
+        for(Entry entry:retrying) {
+            entry.retries.ready(sampleTick,entry.snapshot::request);
+            if(entry.snapshot.hasPending())pending.add(entry);
+        }
         if (tracked.isEmpty() && pending.isEmpty()) return;
         for (Entry entry : new HashSet<>(tracked)) {
             for (int key : entry.polled.toIntArray()) entry.snapshot.request(key);
@@ -170,15 +178,38 @@ public final class RgbContextualLightManager {
     }
 
     private int capture(Entry entry, int x, int y, int z, BlockPos.MutableBlockPos pos) {
+        int key = key(x, y, z);
+        if(entry.retries!=null && entry.retries.waiting(key,sampleTick))return 0;
         int wx = (entry.chunk.x << 4) + (x & 15), wz = (entry.chunk.z << 4) + (z & 15);
         IBlockState block = entry.chunk.getBlockState(x, y, z);
         IBlockState fluid = FluidLightBridge.LOADED ? FluidLightBridge.stateAt(entry.chunk, wx, y, wz) : null;
         if (!dynamic(block)) block = null;
         if (fluid != null && !dynamic(fluid)) fluid = null;
         pos.setPos(wx, y, wz);
-        int blockProperties = block == null ? 0 : sample(block, pos);
-        int fluidProperties = fluid == null ? 0 : sample(fluid, pos);
-        int key = key(x, y, z);
+        int blockProperties, fluidProperties;
+        try {
+            blockProperties = block == null ? 0 : sample(block, pos);
+            pos.setPos(wx,y,wz);
+            fluidProperties = fluid == null ? 0 : sample(fluid, pos);
+        } catch(RuntimeException | LinkageError failure) {
+            com.sumirelabs.pulsar.light.LightCallbackFailures.report((block!=null?block:fluid).getBlock(),failure);
+            if(chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x,entry.chunk.z))!=entry)return 0;
+            if(entry.retries==null)entry.retries=new com.sumirelabs.pulsar.light.LightSampleRetries();
+            entry.retries.failed(key,sampleTick);retrying.add(entry);
+            // Seed zero for an unseen dynamic source instead of the default white
+            // hue, which would otherwise be interpreted as absolute full emission.
+            if(block!=null && !entry.snapshot.contains(key,block) || fluid!=null && !entry.snapshot.contains(key,fluid))
+                return entry.snapshot.publishChanges(key,block,
+                    block==null?0:RgbStateProperties.of(block)&~0xFFF,fluid,
+                    fluid==null?0:RgbStateProperties.of(fluid)&~0xFFF,0xFFF);
+            return 0;
+        }
+        if(chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x,entry.chunk.z))!=entry)return 0;
+        if(entry.retries!=null) {
+            entry.retries.succeeded(key);
+            if(entry.retries.isEmpty()){entry.retries=null;retrying.remove(entry);}
+        }
+        pos.setPos(wx,y,wz);
         entry.track(key, block != null || fluid != null, fluid != null || block != null
                 && com.sumirelabs.pulsar.compat.MultipartLightBridge.needsPolling(entry.chunk.getTileEntityMap().get(pos)));
         return entry.snapshot.publishChanges(key, block, blockProperties, fluid, fluidProperties, 0xFFF);

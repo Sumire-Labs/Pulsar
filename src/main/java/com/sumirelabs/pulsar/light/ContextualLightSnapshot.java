@@ -88,6 +88,11 @@ public final class ContextualLightSnapshot<S> {
         return this.cells.containsKey(position);
     }
 
+    public boolean contains(final int position, final S state) {
+        Cell<S> cell=this.cells.get(position);
+        return state!=null && cell!=null && (cell.block==state || cell.fluid==state);
+    }
+
     boolean isEmpty() { return this.cells.isEmpty(); }
 
     /** Invalidate only already-published sources in a heightmap-affected column. */

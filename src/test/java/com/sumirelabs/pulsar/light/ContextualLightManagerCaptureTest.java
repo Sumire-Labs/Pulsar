@@ -75,12 +75,14 @@ class ContextualLightManagerCaptureTest {
     }
 
     private static final class TileLightBlock extends Block {
+        RuntimeException failure;
         int emission, opacity = 255, calls;
         Runnable callback;
         java.util.Set<BlockPos> visited;
         TileLightBlock() { super(Material.ROCK); }
         @Override public int getLightValue(IBlockState state, IBlockAccess access, BlockPos pos) {
             calls++;
+            if(failure!=null)throw failure;
             if (visited != null) visited.add(pos.toImmutable());
             if (callback != null) { Runnable action = callback; callback = null; action.run(); }
             return emission;
@@ -104,6 +106,38 @@ class ContextualLightManagerCaptureTest {
         PulsarConfig.features.trackTileEntityLight = true;
         PulsarConfig.performance.tileEntityLightSamplesPerTick = count;
         PulsarConfig.performance.tileEntityLightBudgetMicros = 50000;
+    }
+
+    @Test void callbackFailuresKeepPreviousLightBackOffAndRecover() {
+        pollingLimit(10);
+        var block=new TileLightBlock();block.emission=8;
+        var chunk=tileChunk(block,0,1);
+        var manager=new ContextualLightManager(null,WorldHeightContext.VANILLA);
+        manager.load(chunk);
+        block.failure=new NullPointerException("Tile not installed yet");
+        manager.request(0,64,0);
+        int before=block.calls;
+        for(int i=0;i<100;i++)manager.flushSamples((x,y,z,lanes)->fail("Failed sample replaced valid light"));
+        assertTrue(block.calls-before<12,"Permanent failure must not run every tick");
+        assertTrue(manager.hasPending(0,0),"Fallback light must not be saved as valid");
+        assertEquals(8,LightInfo.emission(manager.read(LightInfo.of(block.getDefaultState()),block.getDefaultState(),0,64,0)));
+        block.failure=null;block.emission=12;
+        var changes=new java.util.ArrayList<Integer>();
+        for(int i=0;i<33;i++)manager.flushSamples((x,y,z,lanes)->changes.add(lanes));
+        assertEquals(12,LightInfo.emission(manager.read(LightInfo.of(block.getDefaultState()),block.getDefaultState(),0,64,0)));
+        assertFalse(manager.hasPending(0,0));assertFalse(changes.isEmpty());
+    }
+
+    @Test void firstCaptureFailureRetriesEvenWithoutATileOrPolling() {
+        var block=new TileLightBlock();block.failure=new IllegalStateException("forming");
+        var chunk=tileChunk(block,0,1);chunk.getTileEntityMap().clear();
+        PulsarConfig.features.trackTileEntityLight=false;
+        var manager=new ContextualLightManager(null,WorldHeightContext.VANILLA);
+        manager.load(chunk);assertTrue(manager.hasPending(0,0));
+        block.failure=null;block.emission=9;
+        manager.flushSamples((x,y,z,lanes)->{});
+        assertEquals(9,LightInfo.emission(manager.read(LightInfo.of(block.getDefaultState()),block.getDefaultState(),0,64,0)));
+        manager.unload(0,0);manager.flushSamples((x,y,z,lanes)->fail("Unloaded retry survived"));
     }
 
     @Test void boundedPollingIsFairAndStationarySourcesCreateNoQueuedWork() {
