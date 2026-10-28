@@ -85,7 +85,11 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     private void pulsar$requestTileSample(final BlockPos pos) {
         if (this.world.isRemote) return;
         final WorldLightManager manager = ((PulsarWorld) this.world).pulsar$getLightManager();
-        if (manager != null) manager.contextualLight().tileEntityChanged(pos);
+        if (manager != null) {
+            manager.contextualLight().tileEntityChanged(pos);
+            if (manager.rgbContextualLight() != null)
+                manager.rgbContextualLight().request(pos.getX(), pos.getY(), pos.getZ());
+        }
     }
 
     @Unique

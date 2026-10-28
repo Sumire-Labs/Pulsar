@@ -22,7 +22,27 @@ public final class RgbContextualLightManager {
         final Chunk chunk;
         final ContextualLightSnapshot<IBlockState> snapshot = new ContextualLightSnapshot<>();
         final IntOpenHashSet dynamic = new IntOpenHashSet(); // owner thread only
+        // Notification-only chunks need no polling set or per-tick enumeration.
+        // If every dynamic cell needs polling, alias dynamic instead of retaining
+        // a second copy of all its coordinates. Mixed chunks use a separate subset.
+        IntOpenHashSet polled;
         Entry(Chunk chunk) { this.chunk = chunk; }
+
+        void track(int key, boolean present, boolean poll) {
+            boolean shared = polled == dynamic;
+            if (present) dynamic.add(key); else dynamic.remove(key);
+            if (poll) {
+                if (polled == null) polled = new IntOpenHashSet();
+                polled.add(key);
+            } else {
+                if (shared && present) polled = new IntOpenHashSet(dynamic);
+                if (polled != null) polled.remove(key);
+            }
+            if (polled != null) {
+                if (polled.isEmpty()) polled = null;
+                else if (polled.size() == dynamic.size()) polled = dynamic;
+            }
+        }
     }
     private final World world;
     private final WorldHeightContext height;
@@ -120,14 +140,18 @@ public final class RgbContextualLightManager {
             int x = key & 15, z = key >>> 4 & 15;
             if (capture(entry, x, y, z, pos) != 0) manager.queueSampledBlockChange((chunk.x << 4) + x, y, (chunk.z << 4) + z);
         }
-        if (!entry.dynamic.isEmpty()) tracked.add(entry);
+        if (entry.polled != null) tracked.add(entry);
     }
 
     public void flush(WorldLightManager manager) {
+        flushSamples(manager::queueSampledRgbChange);
+    }
+
+    public void flushSamples(com.sumirelabs.pulsar.light.ContextualLightManager.LightChanges changes) {
         requireOwner();
         if (tracked.isEmpty() && pending.isEmpty()) return;
         for (Entry entry : new HashSet<>(tracked)) {
-            for (int key : entry.dynamic.toIntArray()) entry.snapshot.request(key);
+            for (int key : entry.polled.toIntArray()) entry.snapshot.request(key);
             if (entry.snapshot.hasPending()) pending.add(entry);
         }
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
@@ -136,11 +160,11 @@ public final class RgbContextualLightManager {
             if (chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x, entry.chunk.z)) != entry) continue;
             for (int key : entry.snapshot.takePending()) {
                 int x = key & 15, z = key >>> 4 & 15, y = key >> 8;
-                int changes = capture(entry, x, y, z, pos);
-                if (changes != 0) manager.queueSampledRgbChange((entry.chunk.x << 4) + x, y,
-                        (entry.chunk.z << 4) + z, changes);
+                int lanes = capture(entry, x, y, z, pos);
+                if (lanes != 0) changes.changed((entry.chunk.x << 4) + x, y,
+                        (entry.chunk.z << 4) + z, lanes);
             }
-            if (entry.dynamic.isEmpty()) tracked.remove(entry); else tracked.add(entry);
+            if (entry.polled == null) tracked.remove(entry); else tracked.add(entry);
             if (entry.snapshot.hasPending()) pending.add(entry);
         }
     }
@@ -155,7 +179,8 @@ public final class RgbContextualLightManager {
         int blockProperties = block == null ? 0 : sample(block, pos);
         int fluidProperties = fluid == null ? 0 : sample(fluid, pos);
         int key = key(x, y, z);
-        if (block != null || fluid != null) entry.dynamic.add(key); else entry.dynamic.remove(key);
+        entry.track(key, block != null || fluid != null, fluid != null || block != null
+                && com.sumirelabs.pulsar.compat.MultipartLightBridge.needsPolling(entry.chunk.getTileEntityMap().get(pos)));
         return entry.snapshot.publishChanges(key, block, blockProperties, fluid, fluidProperties, 0xFFF);
     }
     private int sample(IBlockState state, BlockPos pos) {

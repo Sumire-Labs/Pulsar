@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add optional CBMultipart 1.12.2 lighting integration: standard block materials
+  inherit Pulsar source colors, while unknown parts retain neutral emission.
+- Add real CBMultipart/Mixin regression probes for scalar and RGB snapshots,
+  propagation, part changes, removal, reload and worker-thread safety.
+
 - Add Natura Legacy amber glowshroom colors and Ars Magica 2: Rekindled presets
   for dyeable Mage Lights, vinteum torches, warding candles, aura and celestial prisms.
 - Add 1.12 RGB source presets for Tinkers' Construct, Biomes O' Plenty, Natura,
@@ -48,6 +53,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Retain SCALAR without RGB chunk/state/buffer fields or renderer hooks.
 
 ### Changed
+
+- Coalesce contextual scalar/RGB notifications until both samples are published,
+  and defer Multipart light checks until part callbacks have settled at tick end.
+- Stop polling standard constant-material Multipart sources; retain polling for
+  custom parts/materials and neighbouring context-dependent blocks.
 
 - Extend SuperNova-derived default hues to the remaining common vanilla light
   sources while retaining their contextual source strength.

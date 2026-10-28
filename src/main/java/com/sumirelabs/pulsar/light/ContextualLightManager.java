@@ -41,7 +41,7 @@ public final class ContextualLightManager {
     private record TrackedSource(Entry entry, TileEntity tile) {}
 
     @FunctionalInterface
-    interface LightChanges { void changed(int x, int y, int z, int lanes); }
+    public interface LightChanges { void changed(int x, int y, int z, int lanes); }
 
     private final World world;
     private final WorldHeightContext height;
@@ -193,7 +193,7 @@ public final class ContextualLightManager {
         this.flushSamples((x, y, z, lanes) -> manager.queueSampledBlockChange(x, y, z, lanes));
     }
 
-    void flushSamples(final LightChanges changes) {
+    public void flushSamples(final LightChanges changes) {
         this.requireOwner();
         if (!this.pendingChunks.isEmpty()) this.flushPending(changes);
         this.pollTracked(changes);
@@ -306,7 +306,9 @@ public final class ContextualLightManager {
     private void track(final Entry entry, final BlockPos pos) {
         TileEntity tile = entry.chunk.getTileEntityMap().get(pos);
         if (tile != null && tile.isInvalid()) tile = null;
-        final boolean contextual = this.height.containsBlockY(pos.getY())
+        final boolean notified = tile != null && !com.sumirelabs.pulsar.compat.MultipartLightBridge.needsPolling(tile)
+                && !FluidLightBridge.LOADED;
+        final boolean contextual = !notified && this.height.containsBlockY(pos.getY())
                 && entry.snapshot.contains(pack(pos.getX(), pos.getY(), pos.getZ()))
                 && (tile != null || this.hasTrackedNeighbour(pos));
         // Mutable lookup keys are safe for removal; only retained keys must
@@ -324,12 +326,20 @@ public final class ContextualLightManager {
             final TrackedSource previous = this.trackedSources.get(pos);
             if (previous != null && previous.entry == entry) this.trackedSources.update(pos, null);
         }
+        // A notification-only tile can still be an input to a neighbouring
+        // mod's contextual getter. Those neighbours retain their fallback poll.
+        if (notified) this.discoverDependentNeighbours(pos);
     }
 
     private boolean hasTrackedNeighbour(final BlockPos pos) {
         for (final EnumFacing face : EnumFacing.VALUES) {
-            final TrackedSource neighbour = this.trackedSources.get(pos.offset(face));
-            if (neighbour != null && neighbour.tile != null && !neighbour.tile.isInvalid()) return true;
+            final BlockPos adjacent = pos.offset(face);
+            final Entry entry = this.chunks.get(CoordinateUtils.mixChunkKey(
+                    CoordinateUtils.getChunkKey(adjacent.getX() >> 4, adjacent.getZ() >> 4)));
+            if (entry == null) continue;
+            final TileEntity tile = entry.chunk.getTileEntityMap().get(adjacent);
+            if (tile != null && !tile.isInvalid()
+                    && entry.snapshot.contains(pack(adjacent.getX(), adjacent.getY(), adjacent.getZ()))) return true;
         }
         return false;
     }
@@ -354,11 +364,11 @@ public final class ContextualLightManager {
             final Entry neighbour = this.chunks.get(CoordinateUtils.mixChunkKey(
                     CoordinateUtils.getChunkKey(entry.chunk.x + face.getXOffset(), entry.chunk.z + face.getZOffset())));
             if (neighbour == null) continue;
-            for (final BlockPos pos : neighbour.tracked) {
+            for (final BlockPos pos : new HashSet<>(neighbour.chunk.getTileEntityMap().keySet())) {
                 final BlockPos adjacent = pos.offset(face.getOpposite());
                 if ((adjacent.getX() >> 4) != entry.chunk.x || (adjacent.getZ() >> 4) != entry.chunk.z) continue;
-                final TrackedSource source = this.trackedSources.get(pos);
-                if (source != null && source.tile != null
+                final TileEntity tile = neighbour.chunk.getTileEntityMap().get(pos);
+                if (tile != null && !tile.isInvalid()
                         && entry.snapshot.contains(pack(adjacent.getX(), adjacent.getY(), adjacent.getZ()))
                         && entry.chunk.getTileEntityMap().get(adjacent) == null) this.track(entry, adjacent);
             }

@@ -51,6 +51,7 @@ public final class WorldLightManager {
     private final World world;
     private final WorldHeightContext heightContext;
     private final ContextualLightManager contextualLight;
+    private final DeferredLightChecks<Chunk> deferredLightChecks = new DeferredLightChecks<>();
     private volatile com.sumirelabs.pulsar.rgb.RgbContextualLightManager rgbContextualLight;
 
     private final SnapshotChunkMap loadedChunkMap = new SnapshotChunkMap();
@@ -121,6 +122,7 @@ public final class WorldLightManager {
     }
 
     public void unregisterChunk(final int cx, final int cz) {
+        this.deferredLightChecks.removeChunk(cx, cz);
         this.clientRenderUpdates.remove(CoordinateUtils.getChunkKey(cx, cz));
         this.deferredChunkUpdates.remove(CoordinateUtils.getChunkKey(cx,cz));
         if(this.deferredInitialChunkSends!=null)this.deferredInitialChunkSends.remove(CoordinateUtils.getChunkKey(cx,cz));
@@ -140,8 +142,12 @@ public final class WorldLightManager {
         if (!this.world.isRemote) {
             final boolean measure = PulsarConfig.debug.enableDebugStats;
             final long start = measure ? System.nanoTime() : 0L;
-            this.contextualLight.flush(this);
-            if (this.rgbContextualLight != null) this.rgbContextualLight.flush(this);
+            ContextualLightManager.LightChanges collect = (x, y, z, lanes) ->
+                    this.deferredLightChecks.add(this.getLoadedChunk(x >> 4, z >> 4), x, y, z, lanes);
+            this.contextualLight.flushSamples(collect);
+            if (this.rgbContextualLight != null) this.rgbContextualLight.flushSamples(collect);
+            this.deferredLightChecks.drain((pos, chunk) -> this.getLoadedChunk(pos.getX() >> 4, pos.getZ() >> 4) == chunk,
+                    this::queueSampledBlockChange);
             if (measure) this.stats.recordSampleFlush(System.nanoTime() - start);
         }
     }
@@ -180,6 +186,16 @@ public final class WorldLightManager {
     public void queueLightCheck(final EnumSkyBlock lightType, final int x, final int y, final int z) {
         if (!this.world.isRemote) this.contextualLight.request(x, y, z);
         if (this.rgbContextualLight != null) this.rgbContextualLight.request(x, y, z);
+        if (com.sumirelabs.pulsar.compat.MultipartLightBridge.PRESENT
+                && !this.world.isRemote && this.contextualLight.isOwnerThread()) {
+            final Chunk chunk = this.getLoadedChunk(x >> 4, z >> 4);
+            if (chunk != null && this.heightContext.containsBlockY(y)
+                    && chunk.getBlockState(x & 15, y, z & 15).getBlock() instanceof com.sumirelabs.pulsar.compat.MultipartLightBlock) {
+                this.deferredLightChecks.add(chunk, x, y, z, lightType == EnumSkyBlock.SKY
+                        ? ContextualLightSnapshot.SKY_CHANGED : ContextualLightSnapshot.BLOCK_CHANGED);
+                return;
+            }
+        }
         final LightQueue queue = lightType == EnumSkyBlock.SKY ? this.skyQueue : this.blockQueue;
         if (queue != null) queue.queueBlockChange(x, y, z);
     }
@@ -234,6 +250,7 @@ public final class WorldLightManager {
     }
 
     public boolean hasUpdates() {
+        if (this.deferredLightChecks.hasPending()) return true;
         if (this.skyQueue == null) return this.blockQueue != null && this.blockQueue.hasWork();
         if (this.blockQueue == null) return this.skyQueue.hasWork();
         // Initial completion in one lane can enqueue edge work in the other.
@@ -246,7 +263,9 @@ public final class WorldLightManager {
     }
 
     public boolean hasChunkPendingLight(final int cx, final int cz) {
-        return (this.skyQueue != null && this.skyQueue.hasPendingWork(cx, cz))
+        return this.contextualLight.hasPending(cx, cz)
+                || this.rgbContextualLight != null && this.rgbContextualLight.hasPending(cx, cz)
+                || (this.skyQueue != null && this.skyQueue.hasPendingWork(cx, cz))
                 || (this.blockQueue != null && this.blockQueue.hasPendingWork(cx, cz));
     }
 
@@ -1015,6 +1034,7 @@ public final class WorldLightManager {
     public void shutdown() {
         // Late jobs must fail the same registration checks as chunk unload.
         this.loadedChunkMap.clear();
+        this.deferredLightChecks.clear();
         this.clientRenderUpdates.clear();
         this.deferredChunkUpdates.clear();
         if(this.deferredInitialChunkSends!=null)this.deferredInitialChunkSends.clear();

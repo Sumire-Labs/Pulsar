@@ -57,6 +57,7 @@ class GlobalLightCompletionTest {
     private static WorldLightManager manager(LightQueue sky,LightQueue block)throws Exception {
         Class<?> u=Class.forName("sun.misc.Unsafe");var f=u.getDeclaredField("theUnsafe");f.setAccessible(true);
         var m=(WorldLightManager)u.getMethod("allocateInstance",Class.class).invoke(f.get(null),WorldLightManager.class);
+        var deferred=WorldLightManager.class.getDeclaredField("deferredLightChecks");deferred.setAccessible(true);deferred.set(m,new DeferredLightChecks<>());
         for(String name:new String[]{"skyQueue","blockQueue"}){var field=WorldLightManager.class.getDeclaredField(name);field.setAccessible(true);field.set(m,name.equals("skyQueue")?sky:block);}
         return m;
     }
