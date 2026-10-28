@@ -149,6 +149,8 @@ public final class RgbSnapshot {
         }
         return live.clone();
     }
+    /** Internal immutable scalar capture; no unused RGB container. */
+    static byte[] copyPlane(byte[] live,byte[] previous) { return retain(live,previous); }
     /** Deduplicate only against immutable planes in this publication or its predecessor.
      * No global content map, no retained old snapshots, and no aliases to mutable input. */
     private static byte[] share(byte[] live,byte[] canonical,byte[][][] owned,int channel,int section,byte[] previous) {

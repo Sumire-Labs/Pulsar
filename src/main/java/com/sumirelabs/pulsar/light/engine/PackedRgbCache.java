@@ -23,15 +23,16 @@ final class PackedRgbCache {
     private final Map<Long, Owned> building = new HashMap<>();
     private final SWMRNibbleArray[][] planes;
     private final int[][] packed;
-    private final int[] dirtyMin, dirtyMax;
+    // Cells are 0..4095; 4096/-1 are the empty-range sentinels.
+    private final short[] dirtyMin, dirtyMax;
     private final boolean[] boundChunks = new boolean[25];
 
     PackedRgbCache(PulsarEngine engine, boolean sky, Set<Chunk> touched) {
         this.engine = engine; this.sky = sky; this.touched = touched;
         int count = engine.nibbleCache.length;
         planes = new SWMRNibbleArray[3][count]; packed = new int[count][];
-        dirtyMin = new int[count]; dirtyMax = new int[count];
-        Arrays.fill(dirtyMin, 4096); Arrays.fill(dirtyMax, -1);
+        dirtyMin = new short[count]; dirtyMax = new short[count];
+        Arrays.fill(dirtyMin, (short)4096); Arrays.fill(dirtyMax, (short)-1);
     }
     RgbStorage storage(Chunk chunk) {
         Owned privateEntry = building.get(CoordinateUtils.getChunkKey(chunk.x, chunk.z));
@@ -126,7 +127,7 @@ final class PackedRgbCache {
     /** Read-only views: full constants must not be made writable merely to pack them. */
     private static byte[] partialBytes(SWMRNibbleArray nibble) {
         return nibble == null || nibble.isZeroUpdating() || nibble.isFullUpdating()
-                ? null : nibble.getUpdatingStorage();
+                ? null : nibble.getUpdatingData();
     }
     static void packPlanes(SWMRNibbleArray r, SWMRNibbleArray g, SWMRNibbleArray b, int[] values) {
         byte[] rb = partialBytes(r), gb = partialBytes(g), bb = partialBytes(b);
@@ -149,7 +150,7 @@ final class PackedRgbCache {
     /** Caller already resolved this section/cell and proved the value changes. */
     void writeChanged(int idx, int cell, int rgb) {
         materialize(idx)[cell] = rgb;
-        dirtyMin[idx] = Math.min(dirtyMin[idx], cell); dirtyMax[idx] = Math.max(dirtyMax[idx], cell);
+        dirtyMin[idx] = (short)Math.min(dirtyMin[idx], cell); dirtyMax[idx] = (short)Math.max(dirtyMax[idx], cell);
         engine.postLightUpdate(idx, cell & 15, cell >> 8, cell >> 4 & 15);
     }
     void initBlock(int cx, int cy, int cz, boolean initRemoved) {

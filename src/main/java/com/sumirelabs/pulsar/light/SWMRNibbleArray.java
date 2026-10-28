@@ -94,6 +94,20 @@ public final class SWMRNibbleArray {
         return result;
     }
 
+    /** Transfer exclusive ownership of bytes, as opposed to wrapping vanilla storage. */
+    public static SWMRNibbleArray fromOwned(final byte[] bytes, final int state) {
+        return new SWMRNibbleArray(bytes,state,false);
+    }
+    public boolean canShareVisibleData() { return !this.retainVisibleStorage; }
+    /** Freeze engine-owned visible bytes for readers; subsequent writes detach.
+     * Call only while holding the lighting reservation for this section. */
+    public synchronized byte[] shareVisibleData() {
+        if(this.retainVisibleStorage)throw new IllegalStateException("Cannot freeze externally owned vanilla storage");
+        this.visibleShared=this.storageVisible!=null;
+        if(this.storageUpdating==this.storageVisible)this.updatingWritable=false;
+        return this.storageVisible;
+    }
+
     private SWMRNibbleArray(final byte[] bytes, final int state, final boolean retainVisibleStorage) {
         if (bytes != null && bytes.length != ARRAY_SIZE) {
             throw new IllegalArgumentException("Data of wrong length: " + bytes.length);
@@ -370,8 +384,13 @@ public final class SWMRNibbleArray {
                     this.reusableVisible = this.storageVisible;
                 }
                 this.storageUpdating = this.storageVisible = FULL_BYTES;
+            } else if (this.visibleShared && this.updatingDirty) {
+                // The detached working buffer is exclusively ours. Transfer its
+                // ownership to visible storage instead of cloning it again. It
+                // is now published and must never be returned to the scratch pool.
+                this.storageVisible = this.storageUpdating;
             } else {
-                if (this.storageVisible == null || this.storageVisible == FULL_BYTES || this.visibleShared && this.updatingDirty) {
+                if (this.storageVisible == null || this.storageVisible == FULL_BYTES) {
                     if (this.reusableVisible != null) {
                         System.arraycopy(this.storageUpdating, 0, this.reusableVisible, 0, ARRAY_SIZE);
                         this.storageVisible = this.reusableVisible;
@@ -467,6 +486,10 @@ public final class SWMRNibbleArray {
             this.swapUpdatingAndMarkDirty();
         return this.storageUpdating;
     }
+
+    /** Internal read-only view for packing; unlike getUpdatingStorage, this
+     * must not detach a shared immutable plane or mark it dirty. */
+    public byte[] getUpdatingData() { return this.storageUpdating; }
 
     public void set(final int index, final int value) {
         if (!this.updatingWritable) this.prepareScalarWrite();

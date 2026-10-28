@@ -8,6 +8,21 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PackedRgbCacheTest {
+    @Test void packingBorrowedPlanesDoesNotDetachOrDirtyThem() {
+        byte[] shared=new byte[2048];Arrays.fill(shared,(byte)0x37);
+        var red=SWMRNibbleArray.fromImmutable(shared);
+        var green=SWMRNibbleArray.fromImmutable(shared);
+        var blue=SWMRNibbleArray.fromImmutable(shared);
+        int[] values=new int[4096];
+        PackedRgbCache.packPlanes(red,green,blue,values);
+        for(var plane:new SWMRNibbleArray[]{red,green,blue}) {
+            assertFalse(plane.isDirty());assertSame(shared,plane.getUpdatingData());
+        }
+        values[4095]=PackedRgbLight.pack(3,12,3);
+        PackedRgbCache.unpackPlane(green,values,4095,4095,8);green.updateVisible();
+        assertEquals(12,green.getVisible(4095));assertEquals(3,red.getVisible(4095));
+        assertEquals(0x37,shared[2047]&255);
+    }
     @Test void packsEveryCellWithoutDirtyingPublishedPlanes() {
         var random = new Random(9231);
         SWMRNibbleArray[] planes = new SWMRNibbleArray[3];

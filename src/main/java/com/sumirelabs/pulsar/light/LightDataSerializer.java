@@ -81,7 +81,7 @@ public final class LightDataSerializer {
             throw new IllegalStateException("Light nibble of wrong length: " + raw.length);
         }
         // clone: the NBT object owns the parsed array
-        return new SWMRNibbleArray(raw == null ? null : raw.clone(), state);
+        return SWMRNibbleArray.fromOwned(raw == null ? null : raw.clone(), state);
     }
 
     @SubscribeEvent

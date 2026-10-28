@@ -5,6 +5,23 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ImmutableNibbleTest {
+    @Test void freezingVisibleDataDoesNotPublishOrCorruptPendingWrites() {
+        byte[] bytes=new byte[2048];Arrays.fill(bytes,(byte)0x77);
+        var owner=SWMRNibbleArray.fromOwned(bytes,SWMRNibbleArray.INIT_STATE_INIT);
+        owner.set(0,3);var reader=SWMRNibbleArray.fromImmutable(owner.shareVisibleData());
+        assertEquals(7,reader.getVisible(0));owner.updateVisible();
+        assertEquals(3,owner.getVisible(0));assertEquals(7,reader.getVisible(0));
+        owner.setFull();owner.updateVisible();assertEquals(7,reader.getVisible(0));
+    }
+    @Test void firstWriteTransfersPrivateBufferWithoutPublishingOrPoolingTheBorrowedPlane() {
+        byte[] original=new byte[2048];Arrays.fill(original,(byte)0x77);
+        var nibble=SWMRNibbleArray.fromImmutable(original);nibble.set(0,3);
+        byte[] privateBytes=nibble.getUpdatingData();
+        assertNotSame(original,privateBytes);assertSame(original,nibble.getVisibleData());
+        nibble.updateVisible();assertSame(privateBytes,nibble.getVisibleData());
+        assertEquals(7,original[0]&15);assertEquals(3,nibble.getVisible(0));
+        for(byte[] pooled:SWMRNibbleArray.WORKING_BYTES_POOL.get())assertNotSame(privateBytes,pooled);
+    }
     @Test void savingDuringAnUnpublishedWriteStillReadsThePreviousGeneration() {
         byte[] original=new byte[2048];Arrays.fill(original,(byte)0x66);
         var nibble=SWMRNibbleArray.fromImmutable(original);

@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /** Main-thread installs; mesh workers only read immutable copies, never live World data. */
 public final class RgbClient {
+    private static final byte[][] NO_FALLBACK_SKY = new byte[0][];
     record View(Chunk chunk, RgbSnapshot rgb, RgbSnapshot skyRgb, byte[][] sky) {}
     private static final ConcurrentHashMap<Long, View> VIEWS = new ConcurrentHashMap<>();
     private static World owner;
@@ -108,29 +109,14 @@ public final class RgbClient {
         RgbSnapshot rgb = ((RgbChunk) chunk).pulsar$getRgbSnapshot();
         RgbSnapshot skyRgb = ((RgbChunk) chunk).pulsar$getRgbSkySnapshot();
         if (rgb == null && skyRgb == null) return;
-        RgbSnapshot layout = rgb == null ? skyRgb : rgb;
         SWMRNibbleArray[] sky = ((PulsarChunk) chunk).pulsar$getSkyNibbles();
-        byte[][] copy = new byte[layout.sectionCount()][];
-        if (skyRgb == null && chunk.getWorld().provider.hasSkyLight() && sky != null) for (int i = 0; i < Math.min(copy.length, sky.length); i++) {
-            SWMRNibbleArray nibble = sky[i];
-            if (nibble != null && !nibble.isNullNibbleVisible()) {
-                byte[] bytes = nibble.getVisibleData();
-                if (bytes != null) copy[i] = bytes.clone();
-                continue;
-            }
-            // Match Pulsar's extrusion for absent sections, including shadows from above.
-            byte[] bytes = new byte[2048];
-            int y = (layout.minSection + i) << 4;
-            var height = WorldUtil.getHeightContext(chunk.getWorld());
-            for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++) {
-                int index = x | z << 4;
-                int value = com.sumirelabs.pulsar.light.ChunkLightHelper.getSkyLight(height, sky, x, y, z);
-                bytes[index >> 1] |= (byte) (value << ((index & 1) * 4));
-            }
-            for (int row = 1; row < 16; row++) System.arraycopy(bytes, 0, bytes, row * 128, 128);
-            copy[i] = bytes;
+        long key=CoordinateUtils.getChunkKey(chunk.x,chunk.z);
+        byte[][] copy=NO_FALLBACK_SKY;
+        if(skyRgb==null && chunk.getWorld().provider.hasSkyLight() && sky!=null) {
+            View previous=VIEWS.get(key);
+            copy=RgbStorage.snapshotSky(sky,previous!=null && previous.chunk==chunk?previous.sky:null);
         }
-        VIEWS.put(CoordinateUtils.getChunkKey(chunk.x, chunk.z), new View(chunk, rgb, skyRgb, copy));
+        VIEWS.put(key, new View(chunk, rgb, skyRgb, copy));
     }
     /** Prototype vertex modulation retains vanilla AO and the scalar lightmap.
      * Sky and a small ambient term desaturate color; it is not shader-level RGB lightmaps.
