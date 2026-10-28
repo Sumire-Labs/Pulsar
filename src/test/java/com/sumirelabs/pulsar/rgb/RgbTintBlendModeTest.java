@@ -4,6 +4,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RgbTintBlendModeTest {
+    @Test void maximumKeepsDaylightNeutralAndRevealsColorAtNight() {
+        var mode=RgbTintBlendMode.MAXIMUM;
+        assertEquals(0x7F123456,mode.tintAbgr(0x7F123456,15,2,1,15,15,15,15,15,1));
+        int night=mode.tintAbgr(-1,15,0,0,15,15,15,15,15,0);
+        assertEquals(255,night&255);assertEquals(0,night>>>8&255);assertEquals(0,night>>>16&255);
+        float[] tint=new float[3];
+        mode.computeTint(15,0,0,0,0,7.5f,tint);
+        assertArrayEquals(new float[]{1,0,.5f},tint,.00001f);
+    }
     @Test void projectedMixedHuesReceiveOnlyTheReferenceTintNotAnotherBrightnessPenalty() {
         float[] tint=new float[3];
         for(var mode:RgbTintBlendMode.values()) {

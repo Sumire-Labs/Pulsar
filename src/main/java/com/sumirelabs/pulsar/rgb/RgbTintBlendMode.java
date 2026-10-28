@@ -24,6 +24,15 @@ public enum RgbTintBlendMode {
         }
     },
 
+    MAXIMUM {
+        @Override protected void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out) {
+            float r=Math.max(br,sr), g=Math.max(bg,sg), b=Math.max(bb,sb);
+            float peak=Math.max(r,Math.max(g,b));
+            if(peak<.5f){out[0]=out[1]=out[2]=1f;return;}
+            out[0]=r/peak;out[1]=g/peak;out[2]=b/peak;
+        }
+    },
+
     ADDITIVE {
         @Override
         protected void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out) {
