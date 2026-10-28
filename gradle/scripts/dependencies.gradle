@@ -1,4 +1,6 @@
 repositories {
+    maven { url = 'https://maven.ic2.player.to'; content { includeGroup 'net.industrial-craft' } }
+    maven { url = 'https://modmaven.dev'; content { includeGroup 'com.enderio'; includeGroup 'com.enderio.core' } }
     maven {
         name = 'Covers1624'
         url = 'https://maven.covers1624.net'
@@ -23,6 +25,10 @@ repositories {
 }
 
 dependencies {
+    testImplementation('net.industrial-craft:industrialcraft-2:2.8.222-ex112:dev') { transitive = false }
+    testImplementation('com.enderio.core:EnderCore:1.12.2-0.5.78:deobf') { transitive = false }
+    compatTestMods('com.enderio:EnderIO:1.12.2-5.3.72') { transitive = false }
+    classicTestMods('maven.modrinth:ic2classic:1.5.15') { transitive = false }
     // Exercise the real 1.12.2 multipart API without making it a runtime dependency.
     testImplementation('codechicken:ForgeMultipart:1.12.2-2.6.2.83:deobf') { transitive = false }
     testImplementation('codechicken:CodeChickenLib:1.12.2-3.2.3.358:deobf') { transitive = false }

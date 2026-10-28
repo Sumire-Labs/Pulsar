@@ -42,6 +42,9 @@ configurations {
     modRuntimeOnly
     runtimeOnly.extendsFrom(modRuntimeOnly)
     gpuTestRuntime
+    compatTestMods
+    classicTestMods
+    testImplementation.extendsFrom(compatTestMods)
 }
 
 def remapTaskName = enable_shadow.toBoolean() ? "remapShadowJar" : "remapJar"
@@ -91,6 +94,8 @@ unimined.minecraft {
     mods {
         remap(configurations.modCompileOnly)
         remap(configurations.modRuntimeOnly)
+        remap(configurations.compatTestMods)
+        remap(configurations.classicTestMods)
     }
 }
 
@@ -244,9 +249,12 @@ test {
     // Switching the optional renderer must invalidate the previous test result.
     inputs.property('celeritasTestClasspath', project.findProperty('celeritasTestClasspath') ?: '')
     inputs.property('pulsarGpuTests', project.findProperty('pulsarGpuTests') ?: 'false')
+    inputs.property('pulsarEmptySectionBenchmark', project.findProperty('pulsarEmptySectionBenchmark') ?: 'false')
     doFirst {
         systemProperty 'pulsar.test.classpath', classpath.asPath
+        systemProperty 'pulsar.test.classicClasspath', configurations.classicTestMods.asPath
         systemProperty 'pulsar.test.gpu', project.findProperty('pulsarGpuTests') ?: 'false'
+        systemProperty 'pulsar.test.emptySectionBenchmark', project.findProperty('pulsarEmptySectionBenchmark') ?: 'false'
         if ((project.findProperty('pulsarGpuTests') ?: 'false').toBoolean())
             systemProperty 'pulsar.test.gpuClasspath', configurations.gpuTestRuntime.asPath
         if (project.hasProperty('celeritasTestClasspath')) {
