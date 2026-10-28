@@ -44,6 +44,7 @@ configurations {
     gpuTestRuntime
     compatTestMods
     classicTestMods
+    rendererTestMods
     testImplementation.extendsFrom(compatTestMods)
 }
 
@@ -96,6 +97,7 @@ unimined.minecraft {
         remap(configurations.modRuntimeOnly)
         remap(configurations.compatTestMods)
         remap(configurations.classicTestMods)
+        remap(configurations.rendererTestMods)
     }
 }
 
@@ -258,7 +260,7 @@ test {
         if ((project.findProperty('pulsarGpuTests') ?: 'false').toBoolean())
             systemProperty 'pulsar.test.gpuClasspath', configurations.gpuTestRuntime.asPath
         if (project.hasProperty('celeritasTestClasspath')) {
-            systemProperty 'pulsar.test.celeritasClasspath', project.property('celeritasTestClasspath')
+            systemProperty 'pulsar.test.celeritasClasspath', configurations.rendererTestMods.asPath
         }
     }
     useJUnitPlatform()

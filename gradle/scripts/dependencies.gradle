@@ -25,6 +25,42 @@ repositories {
 }
 
 dependencies {
+    if (project.hasProperty('celeritasTestClasspath')) {
+        // Unimined remaps module artifacts, not bare file dependencies. A local
+        // artifact-only Ivy repository lets it remap the supplied release jar.
+        project.property('celeritasTestClasspath').toString().split(java.util.regex.Pattern.quote(File.pathSeparator)).eachWithIndex { path, index ->
+            def rendererJar = file(path)
+            // The optional headless probes do not use renderer GL access wideners.
+            // Unimined currently assumes intermediary for these files even in a
+            // searge jar. Strip only AW metadata in a disposable validation copy;
+            // leave the user's jar and all bytecode untouched before remapping.
+            def digest = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance('SHA-256').digest(rendererJar.bytes))
+            def prepared = layout.buildDirectory.file("renderer-validation/${digest}/${rendererJar.name}").get().asFile
+            if (!prepared.exists()) {
+                prepared.parentFile.mkdirs()
+                new java.util.zip.ZipFile(rendererJar).withCloseable { source ->
+                    new java.util.zip.ZipOutputStream(new FileOutputStream(prepared)).withCloseable { output ->
+                        source.entries().each { entry ->
+                            if (!entry.name.endsWith('.accesswidener')) {
+                                output.putNextEntry(new java.util.zip.ZipEntry(entry.name))
+                                if (!entry.directory) source.getInputStream(entry).withCloseable { it.transferTo(output) }
+                                output.closeEntry()
+                            }
+                        }
+                    }
+                }
+            }
+            def artifactName = rendererJar.name.replaceFirst(/\.jar$/, '')
+            repositories.ivy {
+                name = "PulsarRenderer${index}"
+                url = prepared.parentFile.toURI()
+                patternLayout { artifact '[artifact].[ext]' }
+                metadataSources { artifact() }
+                content { includeModule 'pulsar.test.renderer', artifactName }
+            }
+            rendererTestMods("pulsar.test.renderer:${artifactName}:${digest.substring(0, 12)}") { transitive = false }
+        }
+    }
     testImplementation('net.industrial-craft:industrialcraft-2:2.8.222-ex112:dev') { transitive = false }
     testImplementation('com.enderio.core:EnderCore:1.12.2-0.5.78:deobf') { transitive = false }
     compatTestMods('com.enderio:EnderIO:1.12.2-5.3.72') { transitive = false }
