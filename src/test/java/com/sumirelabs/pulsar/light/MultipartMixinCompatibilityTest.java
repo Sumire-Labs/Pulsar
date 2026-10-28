@@ -17,6 +17,7 @@ class MultipartMixinCompatibilityTest {
             Files.writeString(home.resolve("config/pulsar.cfg"), "general {\nI:configVersion=2\nS:lightingMode="
                     + (mode.equals("SCALAR") ? "SCALAR" : "RGB") + "\n}\n");
             Path log = home.resolve("probe.log");
+            String renderer=System.getProperty("pulsar.test.celeritasClasspath","");
             Path mixins = home.resolve("mixins.jar");
             try(var jar = new java.util.jar.JarOutputStream(Files.newOutputStream(mixins));
                 var input = getClass().getResourceAsStream("/pulsar-multipart-test.mixins.json")) {
@@ -26,7 +27,9 @@ class MultipartMixinCompatibilityTest {
             }
             var command = List.of(Path.of(System.getProperty("java.home"), "bin", "java").toString(),
                     "-Dfoundation.loadsall=true", "-Dpulsar.multipartProbe=true", "-Dpulsar.multipartMode=" + mode,
-                    "-cp", mixins + System.getProperty("path.separator") + System.getProperty("pulsar.test.classpath"),
+                    "-Dpulsar.traceRenderer="+!renderer.isEmpty(),
+                    "-cp", mixins + System.getProperty("path.separator") + System.getProperty("pulsar.test.classpath")
+                            + (renderer.isEmpty()?"":System.getProperty("path.separator")+renderer),
                     "top.outlands.foundation.boot.Foundation", "--gameDir", home.toString(),
                     "--tweakClass", "com.sumirelabs.pulsar.light.nativeprobe.CornerLightTweaker",
                     "--tweakClass", "org.spongepowered.asm.launch.MixinTweaker");

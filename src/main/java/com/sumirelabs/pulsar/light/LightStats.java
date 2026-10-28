@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * {@code logs/pulsar-stats.log} at the configured tick interval (default 20).
  */
 public final class LightStats {
+    int dimension() { return this.dimension; }
 
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
     private final Thread owner = Thread.currentThread();

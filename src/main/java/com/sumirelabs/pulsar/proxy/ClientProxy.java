@@ -60,6 +60,7 @@ public class ClientProxy extends CommonProxy {
     public void onClientTick(final TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         final Minecraft mc = Minecraft.getMinecraft();
+        com.sumirelabs.pulsar.light.LightUpdateTracer.tick(mc.world!=null);
         com.sumirelabs.pulsar.rgb.CanonicalLightClient.tick();
         if (mc.world == null) return;
         final WorldLightManager mgr = ((PulsarWorld) mc.world).pulsar$getLightManager();

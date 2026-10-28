@@ -101,6 +101,7 @@ public final class LightQueue {
     }
 
     public synchronized void queueBlockChange(final int x, final int y, final int z) {
+        LightUpdateTracer.record(LightUpdateTracer.Kind.LIGHT_ENQUEUE,this.stats==null?Integer.MIN_VALUE:this.stats.dimension(),x,y,z);
         final long key = CoordinateUtils.getChunkKey(x >> 4, z >> 4);
         final ChunkTasks tasks = this.getOrCreate(key);
         if (tasks.changedPositions == null) {

@@ -55,6 +55,14 @@ public final class MultipartLightProbe {
     }
     public static void main(String[] args) throws Exception {
         Bootstrap.register();
+        check(java.util.Arrays.stream(World.class.getDeclaredMethods()).anyMatch(m->m.getName().contains("pulsar$traceRender")),"Missing render trace hook");
+        if(Boolean.getBoolean("pulsar.traceRenderer")) {
+            var loader=MultipartLightProbe.class.getClassLoader();
+            var renderer=Class.forName("org.taumc.celeritas.impl.render.terrain.VintageRenderSectionManager",false,loader);
+            check(java.util.Arrays.stream(renderer.getDeclaredMethods()).anyMatch(m->m.getName().contains("pulsar$traceSchedule")),"Missing Celeritas trace hook");
+            var build=Class.forName("org.taumc.celeritas.impl.render.terrain.compile.task.ChunkBuilderMeshingTask",false,loader);
+            check(java.util.Arrays.stream(build.getDeclaredFields()).anyMatch(f->f.getName().equals("pulsar$traceStarted")),"Missing build timer");
+        }
         set(net.minecraftforge.fml.relauncher.FMLInjectionData.class,null,"minecraftHome",net.minecraft.launchwrapper.Launch.minecraftHome);
         boolean rgb = RgbMixinSelection.rgbEnabled();
         var named = Loader.class.getDeclaredField("namedMods"); named.setAccessible(true);

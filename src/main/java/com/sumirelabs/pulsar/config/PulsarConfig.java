@@ -30,7 +30,8 @@ public class PulsarConfig {
     @Config.RequiresMcRestart
     public static LightingMode lightingMode = LightingMode.RGB;
 
-    @Config.Comment({"Client RGB blend: ADDITIVE, SQUARED_WEIGHT, LINEAR_WEIGHT, OKLAB or VIVID.",
+    @Config.Comment({"Client RGB blend: MAXIMUM, ADDITIVE, SQUARED_WEIGHT, LINEAR_WEIGHT, OKLAB or VIVID.",
+            "MAXIMUM uses the brightest value per channel; full daylight stays neutral around colored sources.",
             "LEGACY retains the original prototype appearance for comparisons.",
             "Applies in-game without a restart; existing terrain is rebuilt when the mode changes.",
             "Ignored in SCALAR mode. This client blend setting does not change gameplay brightness."})
@@ -215,6 +216,10 @@ public class PulsarConfig {
     }
 
     public static class Debug {
+        @Config.Comment({"Trace lighting/render update origins and Celeritas rebuilds in the normal game log.",
+                "Opt-in diagnostics: exact counts, 1/64 sampled positions/callers, bounded maps, one summary per 200 client ticks.",
+                "Celeritas positions are section coordinates; other positions are block coordinates."})
+        public volatile boolean traceLightUpdates = false;
 
         @Config.Comment("Emit per-tick stats to logs/pulsar-stats.log.")
         public boolean enableDebugStats = false;
