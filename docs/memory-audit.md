@@ -2,6 +2,9 @@
 
 ## Goal and pending user validation
 
+The [second round](memory-round2.md) records additional sky-memory reductions and
+the user's selected E2EE comparison pack.
+
 Prioritize RGB at its existing default settings, and improve SCALAR as well.
 Preserve light correctness and avoid trading memory for slower propagation.
 The user will perform the in-game visual checks later. Whole-world comparison

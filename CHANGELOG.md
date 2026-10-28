@@ -60,6 +60,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Capture canonical sky once when initializing RGB channels, with copy-on-write
+  channel isolation and read-only packing that preserves shared storage.
+- Share fallback client skylight/extrusion, retain unchanged immutable sections,
+  and avoid fallback arrays when authoritative RGB sky is already available.
+- Store packed RGB dirty bounds as shorts (cell range 0..4095).
 - Share immutable RGB/canonical planes and use copy-on-write canonical nibbles.
 - Allocate BFS queues and contextual tracking structures on demand, and omit
   client render bounds from server engines. Add reproducible memory/allocation probes.
