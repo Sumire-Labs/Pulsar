@@ -25,7 +25,16 @@ public final class BenchMetrics extends CommandBase {
     }
     public void execute(MinecraftServer server,ICommandSender sender,String[] args)throws CommandException {
         if(args.length<2 || !args[1].matches("[A-Za-z0-9_.-]{1,64}"))throw new WrongUsageException(getUsage(sender));
-        if(args[0].equals("snapshot")) {
+        if(args[0].equals("audit")) {
+            JsonObject result=snapshot(server);JsonArray chunks=new JsonArray();
+            for(var world:server.worlds)for(var chunk:world.getChunkProvider().getLoadedChunks()) {
+                JsonObject item=new JsonObject();item.addProperty("dimension",world.provider.getDimension());
+                item.addProperty("x",chunk.x);item.addProperty("z",chunk.z);
+                item.addProperty("terrain_sha256",GenerationAudit.terrainHash(chunk));chunks.add(item);
+            }
+            result.add("chunks",chunks);
+            try{write(server,args[1],result);}catch(Exception e){throw new CommandException(e.toString());}
+        } else if(args[0].equals("snapshot")) {
             try { LightProbe.create(sender.getEntityWorld()).drainLight(); write(server,args[1],snapshot(server)); }
             catch(Exception e){throw new CommandException(e.toString());}
         } else if(args[0].equals("ticks") && args.length==3) {

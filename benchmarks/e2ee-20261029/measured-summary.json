@@ -1,0 +1,1627 @@
+{
+  "idle_terrain_equal": true,
+  "idle_world_counts_equal": true,
+  "nonengine_mods_equal": true,
+  "runs": [
+    {
+      "name": "alfheim-shared-1",
+      "variant": "alfheim",
+      "pilot": false,
+      "world_source": "D:\\Github\\SumireLabs\\Pulsar\\benchmarks\\e2ee-20261029\\runs\\alfheim-pilot\\BBOP-Extended",
+      "started_utc": "2026-10-30T05:27:20Z",
+      "pid": 38428,
+      "startup_s": 99.1710000000021,
+      "completed": true,
+      "exit_code": 0,
+      "finished_utc": "2026-10-30T05:30:38Z",
+      "engine": "alfheim",
+      "audit_valid": true,
+      "gen_seconds": 10.0745934,
+      "chunks_per_second": 50.324611611620966,
+      "submitted_chunks": 507,
+      "idle_live_bytes": 1240630616,
+      "idle_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 625,
+          "entities": 22,
+          "tiles": 3157,
+          "world_time": 1837
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1837
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1837
+        }
+      ],
+      "post-generation_live_bytes": 1262989832,
+      "post-generation_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 1324,
+          "entities": 1412,
+          "tiles": 18519,
+          "world_time": 2604
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2604
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2604
+        }
+      ],
+      "idle-ticks": {
+        "tick_p50_ns": 1039700,
+        "tick_p95_ns": 1353700,
+        "tick_p99_ns": 1568900,
+        "elapsed_wall_ns": 20000457000,
+        "process_cpu_ns": 2718750000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 625,
+            "entities": 22,
+            "tiles": 3157,
+            "world_time": 2277
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2277
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2277
+          }
+        ]
+      },
+      "loaded-ticks": {
+        "tick_p50_ns": 1237600,
+        "tick_p95_ns": 1584900,
+        "tick_p99_ns": 1769700,
+        "elapsed_wall_ns": 19998594700,
+        "process_cpu_ns": 3937500000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 1324,
+            "entities": 1412,
+            "tiles": 18519,
+            "world_time": 3014
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3014
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3014
+          }
+        ]
+      },
+      "peak_working_set": 8499322880,
+      "peak_private_bytes": 9819123712,
+      "memory_phases": {
+        "gc-snapshot": {
+          "working_set": 8413990912.0,
+          "private_bytes": 9694466048.0
+        },
+        "generation": {
+          "working_set": 8432646144.0,
+          "private_bytes": 9717190656.0
+        },
+        "idle-ticks": {
+          "working_set": 8414121984,
+          "private_bytes": 9694380032
+        },
+        "loaded-ticks": {
+          "working_set": 8468762624,
+          "private_bytes": 9745321984
+        },
+        "save": {
+          "working_set": 8470644736.0,
+          "private_bytes": 9746669568.0
+        },
+        "settle": {
+          "working_set": 8390668288,
+          "private_bytes": 9693863936
+        },
+        "settle-after-generation": {
+          "working_set": 8467787776.0,
+          "private_bytes": 9744592896.0
+        },
+        "shutdown": {
+          "working_set": 8470687744,
+          "private_bytes": 9746964480
+        },
+        "startup": {
+          "working_set": 7114698752,
+          "private_bytes": 9351131136
+        }
+      },
+      "hashes_sha256": "3a614fbfa0f5cd542cac5039af4ba78122494cd8a796f9160c76d6ddd656aa04",
+      "idle_terrain_sha256": "0137530eeae13e15642f844c953b3d5b1076ed2f24ceaf0776bbcd7e87edae6c",
+      "nonengine_mods_sha256": "b6057479e79544d0880348ed034efb5a7ad6c4f88a016a99774d533666798626"
+    },
+    {
+      "name": "alfheim-shared-2",
+      "variant": "alfheim",
+      "pilot": false,
+      "world_source": "D:\\Github\\SumireLabs\\Pulsar\\benchmarks\\e2ee-20261029\\runs\\alfheim-pilot\\BBOP-Extended",
+      "started_utc": "2026-10-30T05:40:54Z",
+      "pid": 22492,
+      "startup_s": 90.14100000000326,
+      "completed": true,
+      "exit_code": 0,
+      "finished_utc": "2026-10-30T05:44:02Z",
+      "engine": "alfheim",
+      "audit_valid": true,
+      "gen_seconds": 8.8553447,
+      "chunks_per_second": 57.25355897213126,
+      "submitted_chunks": 507,
+      "idle_live_bytes": 1241989096,
+      "idle_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 625,
+          "entities": 22,
+          "tiles": 3157,
+          "world_time": 1837
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1837
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1837
+        }
+      ],
+      "post-generation_live_bytes": 1259088208,
+      "post-generation_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 1316,
+          "entities": 1394,
+          "tiles": 18416,
+          "world_time": 2618
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2618
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2618
+        }
+      ],
+      "idle-ticks": {
+        "tick_p50_ns": 978000,
+        "tick_p95_ns": 1414600,
+        "tick_p99_ns": 1610300,
+        "elapsed_wall_ns": 20001866300,
+        "process_cpu_ns": 3015625000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 625,
+            "entities": 22,
+            "tiles": 3157,
+            "world_time": 2277
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2277
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2277
+          }
+        ]
+      },
+      "loaded-ticks": {
+        "tick_p50_ns": 1237900,
+        "tick_p95_ns": 1640500,
+        "tick_p99_ns": 1871000,
+        "elapsed_wall_ns": 20000363300,
+        "process_cpu_ns": 3875000000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 1316,
+            "entities": 1394,
+            "tiles": 18416,
+            "world_time": 3028
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3028
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3028
+          }
+        ]
+      },
+      "peak_working_set": 8482164736,
+      "peak_private_bytes": 9763926016,
+      "memory_phases": {
+        "gc-snapshot": {
+          "working_set": 8373618688.0,
+          "private_bytes": 9666635776.0
+        },
+        "generation": {
+          "working_set": 8426283008,
+          "private_bytes": 9709391872
+        },
+        "idle-ticks": {
+          "working_set": 8380356608.0,
+          "private_bytes": 9675042816.0
+        },
+        "loaded-ticks": {
+          "working_set": 8410361856,
+          "private_bytes": 9693892608
+        },
+        "save": {
+          "working_set": 8430727168,
+          "private_bytes": 9715679232
+        },
+        "settle": {
+          "working_set": 8323219456.0,
+          "private_bytes": 9648295936.0
+        },
+        "settle-after-generation": {
+          "working_set": 8415109120,
+          "private_bytes": 9715073024
+        },
+        "shutdown": {
+          "working_set": 8430751744.0,
+          "private_bytes": 9715632128.0
+        },
+        "startup": {
+          "working_set": 7189710848.0,
+          "private_bytes": 9343375360.0
+        }
+      },
+      "hashes_sha256": "2c040386da19a06a60f048b3cf0ff3d2b4150243037aa9acd9e61f2775144c1b",
+      "idle_terrain_sha256": "0137530eeae13e15642f844c953b3d5b1076ed2f24ceaf0776bbcd7e87edae6c",
+      "nonengine_mods_sha256": "b6057479e79544d0880348ed034efb5a7ad6c4f88a016a99774d533666798626"
+    },
+    {
+      "name": "alfheim-shared-3",
+      "variant": "alfheim",
+      "pilot": false,
+      "world_source": "D:\\Github\\SumireLabs\\Pulsar\\benchmarks\\e2ee-20261029\\runs\\alfheim-pilot\\BBOP-Extended",
+      "started_utc": "2026-10-30T05:54:11Z",
+      "pid": 52452,
+      "startup_s": 94.2039999999979,
+      "completed": true,
+      "exit_code": 0,
+      "finished_utc": "2026-10-30T05:57:23Z",
+      "engine": "alfheim",
+      "audit_valid": true,
+      "gen_seconds": 9.0043967,
+      "chunks_per_second": 56.30582668575674,
+      "submitted_chunks": 507,
+      "idle_live_bytes": 1243076904,
+      "idle_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 625,
+          "entities": 22,
+          "tiles": 3157,
+          "world_time": 1845
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1845
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1845
+        }
+      ],
+      "post-generation_live_bytes": 1260897912,
+      "post-generation_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 1316,
+          "entities": 1403,
+          "tiles": 18415,
+          "world_time": 2621
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2621
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2621
+        }
+      ],
+      "idle-ticks": {
+        "tick_p50_ns": 1065900,
+        "tick_p95_ns": 1517600,
+        "tick_p99_ns": 1742000,
+        "elapsed_wall_ns": 19999876200,
+        "process_cpu_ns": 3484375000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 625,
+            "entities": 22,
+            "tiles": 3157,
+            "world_time": 2285
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2285
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2285
+          }
+        ]
+      },
+      "loaded-ticks": {
+        "tick_p50_ns": 1245700,
+        "tick_p95_ns": 1690300,
+        "tick_p99_ns": 1878600,
+        "elapsed_wall_ns": 20000476500,
+        "process_cpu_ns": 3453125000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 1316,
+            "entities": 1403,
+            "tiles": 18415,
+            "world_time": 3031
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3031
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3031
+          }
+        ]
+      },
+      "peak_working_set": 8487186432,
+      "peak_private_bytes": 9783046144,
+      "memory_phases": {
+        "gc-snapshot": {
+          "working_set": 8432533504,
+          "private_bytes": 9709084672
+        },
+        "generation": {
+          "working_set": 8447946752.0,
+          "private_bytes": 9717174272.0
+        },
+        "idle-ticks": {
+          "working_set": 8439185408.0,
+          "private_bytes": 9709084672.0
+        },
+        "loaded-ticks": {
+          "working_set": 8438407168.0,
+          "private_bytes": 9712873472.0
+        },
+        "save": {
+          "working_set": 8459184128.0,
+          "private_bytes": 9732030464.0
+        },
+        "settle": {
+          "working_set": 8409055232.0,
+          "private_bytes": 9708556288.0
+        },
+        "settle-after-generation": {
+          "working_set": 8422533120.0,
+          "private_bytes": 9698492416.0
+        },
+        "shutdown": {
+          "working_set": 8402968576,
+          "private_bytes": 9671467008
+        },
+        "startup": {
+          "working_set": 7135971328.0,
+          "private_bytes": 9351053312.0
+        }
+      },
+      "hashes_sha256": "e6eaaee35b4ed8be6b0bdb8a044555b994a17f7dd5a226f11398402647d7f5c2",
+      "idle_terrain_sha256": "0137530eeae13e15642f844c953b3d5b1076ed2f24ceaf0776bbcd7e87edae6c",
+      "nonengine_mods_sha256": "b6057479e79544d0880348ed034efb5a7ad6c4f88a016a99774d533666798626"
+    },
+    {
+      "name": "rgb-shared-1",
+      "variant": "rgb",
+      "pilot": false,
+      "world_source": "D:\\Github\\SumireLabs\\Pulsar\\benchmarks\\e2ee-20261029\\runs\\alfheim-pilot\\BBOP-Extended",
+      "started_utc": "2026-10-30T05:34:03Z",
+      "pid": 49956,
+      "startup_s": 98.15599999998813,
+      "completed": true,
+      "exit_code": 0,
+      "finished_utc": "2026-10-30T05:37:21Z",
+      "engine": "pulsar",
+      "audit_valid": true,
+      "gen_seconds": 10.7709588,
+      "chunks_per_second": 47.07101841295688,
+      "submitted_chunks": 507,
+      "idle_live_bytes": 1248653656,
+      "idle_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 625,
+          "entities": 22,
+          "tiles": 3157,
+          "world_time": 1840
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1840
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1840
+        }
+      ],
+      "post-generation_live_bytes": 1326662280,
+      "post-generation_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 1318,
+          "entities": 1407,
+          "tiles": 18451,
+          "world_time": 2614
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2614
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2614
+        }
+      ],
+      "idle-ticks": {
+        "tick_p50_ns": 2144400,
+        "tick_p95_ns": 2501200,
+        "tick_p99_ns": 2822500,
+        "elapsed_wall_ns": 20000149500,
+        "process_cpu_ns": 3328125000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 625,
+            "entities": 22,
+            "tiles": 3157,
+            "world_time": 2280
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2280
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2280
+          }
+        ]
+      },
+      "loaded-ticks": {
+        "tick_p50_ns": 2305200,
+        "tick_p95_ns": 2639300,
+        "tick_p99_ns": 2825900,
+        "elapsed_wall_ns": 19999233300,
+        "process_cpu_ns": 4281250000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 1318,
+            "entities": 1407,
+            "tiles": 18451,
+            "world_time": 3025
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3025
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3025
+          }
+        ]
+      },
+      "peak_working_set": 8449642496,
+      "peak_private_bytes": 9798148096,
+      "memory_phases": {
+        "gc-snapshot": {
+          "working_set": 8389935104,
+          "private_bytes": 9726332928
+        },
+        "generation": {
+          "working_set": 8404275200.0,
+          "private_bytes": 9732980736.0
+        },
+        "idle-ticks": {
+          "working_set": 8397922304.0,
+          "private_bytes": 9726111744.0
+        },
+        "loaded-ticks": {
+          "working_set": 8376033280,
+          "private_bytes": 9703792640
+        },
+        "save": {
+          "working_set": 8411250688,
+          "private_bytes": 9739829248
+        },
+        "settle": {
+          "working_set": 8367935488,
+          "private_bytes": 9723875328
+        },
+        "settle-after-generation": {
+          "working_set": 8382447616,
+          "private_bytes": 9733304320
+        },
+        "shutdown": {
+          "working_set": 8411666432.0,
+          "private_bytes": 9740263424.0
+        },
+        "startup": {
+          "working_set": 7226916864,
+          "private_bytes": 9363263488
+        }
+      },
+      "hashes_sha256": "70147c57fefd76dc2ba4debfe248820c5ba45d2e1264515ba8fcf4a5c26663c5",
+      "idle_terrain_sha256": "0137530eeae13e15642f844c953b3d5b1076ed2f24ceaf0776bbcd7e87edae6c",
+      "nonengine_mods_sha256": "b6057479e79544d0880348ed034efb5a7ad6c4f88a016a99774d533666798626"
+    },
+    {
+      "name": "rgb-shared-2",
+      "variant": "rgb",
+      "pilot": false,
+      "world_source": "D:\\Github\\SumireLabs\\Pulsar\\benchmarks\\e2ee-20261029\\runs\\alfheim-pilot\\BBOP-Extended",
+      "started_utc": "2026-10-30T05:37:26Z",
+      "pid": 44016,
+      "startup_s": 101.70299999997951,
+      "completed": true,
+      "exit_code": 0,
+      "finished_utc": "2026-10-30T05:40:49Z",
+      "engine": "pulsar",
+      "audit_valid": true,
+      "gen_seconds": 11.9688314,
+      "chunks_per_second": 42.36002522351514,
+      "submitted_chunks": 507,
+      "idle_live_bytes": 1251031104,
+      "idle_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 625,
+          "entities": 22,
+          "tiles": 3157,
+          "world_time": 1832
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1832
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1832
+        }
+      ],
+      "post-generation_live_bytes": 1334599040,
+      "post-generation_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 1325,
+          "entities": 1400,
+          "tiles": 18522,
+          "world_time": 2600
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2600
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2600
+        }
+      ],
+      "idle-ticks": {
+        "tick_p50_ns": 2097500,
+        "tick_p95_ns": 2431500,
+        "tick_p99_ns": 2679400,
+        "elapsed_wall_ns": 19999818500,
+        "process_cpu_ns": 3578125000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 625,
+            "entities": 22,
+            "tiles": 3157,
+            "world_time": 2272
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2272
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2272
+          }
+        ]
+      },
+      "loaded-ticks": {
+        "tick_p50_ns": 2358700,
+        "tick_p95_ns": 2717400,
+        "tick_p99_ns": 3050700,
+        "elapsed_wall_ns": 20001691400,
+        "process_cpu_ns": 4468750000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 1325,
+            "entities": 1400,
+            "tiles": 18522,
+            "world_time": 3010
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3010
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3010
+          }
+        ]
+      },
+      "peak_working_set": 8464834560,
+      "peak_private_bytes": 9816854528,
+      "memory_phases": {
+        "gc-snapshot": {
+          "working_set": 8358916096,
+          "private_bytes": 9690468352
+        },
+        "generation": {
+          "working_set": 8390701056.0,
+          "private_bytes": 9722460160.0
+        },
+        "idle-ticks": {
+          "working_set": 8359276544.0,
+          "private_bytes": 9689681920.0
+        },
+        "loaded-ticks": {
+          "working_set": 8410763264.0,
+          "private_bytes": 9750460416.0
+        },
+        "save": {
+          "working_set": 8429381632.0,
+          "private_bytes": 9761208320.0
+        },
+        "settle": {
+          "working_set": 8330498048,
+          "private_bytes": 9688768512
+        },
+        "settle-after-generation": {
+          "working_set": 8382373888,
+          "private_bytes": 9742622720
+        },
+        "shutdown": {
+          "working_set": 8431038464,
+          "private_bytes": 9761636352
+        },
+        "startup": {
+          "working_set": 7217500160,
+          "private_bytes": 9363558400
+        }
+      },
+      "hashes_sha256": "b62efadb17bde60cf5910b328e864994dbe88dd4aeb081298b27915022d652f6",
+      "idle_terrain_sha256": "0137530eeae13e15642f844c953b3d5b1076ed2f24ceaf0776bbcd7e87edae6c",
+      "nonengine_mods_sha256": "b6057479e79544d0880348ed034efb5a7ad6c4f88a016a99774d533666798626"
+    },
+    {
+      "name": "rgb-shared-3",
+      "variant": "rgb",
+      "pilot": false,
+      "world_source": "D:\\Github\\SumireLabs\\Pulsar\\benchmarks\\e2ee-20261029\\runs\\alfheim-pilot\\BBOP-Extended",
+      "started_utc": "2026-10-30T05:50:52Z",
+      "pid": 4864,
+      "startup_s": 95.28200000000652,
+      "completed": true,
+      "exit_code": 0,
+      "finished_utc": "2026-10-30T05:54:07Z",
+      "engine": "pulsar",
+      "audit_valid": true,
+      "gen_seconds": 10.3720852,
+      "chunks_per_second": 48.881202788422904,
+      "submitted_chunks": 507,
+      "idle_live_bytes": 1251476376,
+      "idle_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 625,
+          "entities": 22,
+          "tiles": 3157,
+          "world_time": 1832
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1832
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1832
+        }
+      ],
+      "post-generation_live_bytes": 1328211944,
+      "post-generation_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 1318,
+          "entities": 1395,
+          "tiles": 18447,
+          "world_time": 2601
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2601
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2601
+        }
+      ],
+      "idle-ticks": {
+        "tick_p50_ns": 2074600,
+        "tick_p95_ns": 2404400,
+        "tick_p99_ns": 2724600,
+        "elapsed_wall_ns": 20000015500,
+        "process_cpu_ns": 3562500000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 625,
+            "entities": 22,
+            "tiles": 3157,
+            "world_time": 2272
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2272
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2272
+          }
+        ]
+      },
+      "loaded-ticks": {
+        "tick_p50_ns": 2221800,
+        "tick_p95_ns": 2608200,
+        "tick_p99_ns": 2815400,
+        "elapsed_wall_ns": 19999569700,
+        "process_cpu_ns": 4390625000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 1318,
+            "entities": 1395,
+            "tiles": 18447,
+            "world_time": 3011
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3011
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3011
+          }
+        ]
+      },
+      "peak_working_set": 8441978880,
+      "peak_private_bytes": 9765756928,
+      "memory_phases": {
+        "gc-snapshot": {
+          "working_set": 8377102336,
+          "private_bytes": 9692127232
+        },
+        "generation": {
+          "working_set": 8396132352,
+          "private_bytes": 9710346240
+        },
+        "idle-ticks": {
+          "working_set": 8377409536,
+          "private_bytes": 9692172288
+        },
+        "loaded-ticks": {
+          "working_set": 8370425856.0,
+          "private_bytes": 9692180480.0
+        },
+        "save": {
+          "working_set": 8410120192.0,
+          "private_bytes": 9725560832.0
+        },
+        "settle": {
+          "working_set": 8340172800.0,
+          "private_bytes": 9691045888.0
+        },
+        "settle-after-generation": {
+          "working_set": 8423141376.0,
+          "private_bytes": 9737572352.0
+        },
+        "shutdown": {
+          "working_set": 8411500544.0,
+          "private_bytes": 9726785536.0
+        },
+        "startup": {
+          "working_set": 7139407872.0,
+          "private_bytes": 9349531648.0
+        }
+      },
+      "hashes_sha256": "74e56ae85b338e17812e6df40f5255072cf2bc969f70bb2de7aff79546dcb9e4",
+      "idle_terrain_sha256": "0137530eeae13e15642f844c953b3d5b1076ed2f24ceaf0776bbcd7e87edae6c",
+      "nonengine_mods_sha256": "b6057479e79544d0880348ed034efb5a7ad6c4f88a016a99774d533666798626"
+    },
+    {
+      "name": "scalar-shared-1",
+      "variant": "scalar",
+      "pilot": false,
+      "world_source": "D:\\Github\\SumireLabs\\Pulsar\\benchmarks\\e2ee-20261029\\runs\\alfheim-pilot\\BBOP-Extended",
+      "started_utc": "2026-10-30T05:30:43Z",
+      "pid": 3872,
+      "startup_s": 97.15700000000652,
+      "completed": true,
+      "exit_code": 0,
+      "finished_utc": "2026-10-30T05:33:59Z",
+      "engine": "pulsar",
+      "audit_valid": true,
+      "gen_seconds": 9.9745796,
+      "chunks_per_second": 50.82920988469529,
+      "submitted_chunks": 507,
+      "idle_live_bytes": 1207888488,
+      "idle_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 625,
+          "entities": 22,
+          "tiles": 3157,
+          "world_time": 1835
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1835
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1835
+        }
+      ],
+      "post-generation_live_bytes": 1265877704,
+      "post-generation_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 1312,
+          "entities": 1400,
+          "tiles": 18415,
+          "world_time": 2609
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2609
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2609
+        }
+      ],
+      "idle-ticks": {
+        "tick_p50_ns": 2265600,
+        "tick_p95_ns": 2556100,
+        "tick_p99_ns": 2808000,
+        "elapsed_wall_ns": 19999681700,
+        "process_cpu_ns": 3546875000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 625,
+            "entities": 22,
+            "tiles": 3157,
+            "world_time": 2275
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2275
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2275
+          }
+        ]
+      },
+      "loaded-ticks": {
+        "tick_p50_ns": 2389100,
+        "tick_p95_ns": 2761100,
+        "tick_p99_ns": 2938300,
+        "elapsed_wall_ns": 19999907900,
+        "process_cpu_ns": 4500000000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 1312,
+            "entities": 1400,
+            "tiles": 18415,
+            "world_time": 3019
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3019
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3019
+          }
+        ]
+      },
+      "peak_working_set": 8465309696,
+      "peak_private_bytes": 9800589312,
+      "memory_phases": {
+        "gc-snapshot": {
+          "working_set": 8356497408.0,
+          "private_bytes": 9680244736.0
+        },
+        "generation": {
+          "working_set": 8424335360.0,
+          "private_bytes": 9737158656.0
+        },
+        "idle-ticks": {
+          "working_set": 8366198784,
+          "private_bytes": 9688702976
+        },
+        "loaded-ticks": {
+          "working_set": 8398462976.0,
+          "private_bytes": 9709955072.0
+        },
+        "save": {
+          "working_set": 8422696960.0,
+          "private_bytes": 9736413184.0
+        },
+        "settle": {
+          "working_set": 8310841344.0,
+          "private_bytes": 9666338816.0
+        },
+        "settle-after-generation": {
+          "working_set": 8413847552,
+          "private_bytes": 9726377984
+        },
+        "shutdown": {
+          "working_set": 8424349696,
+          "private_bytes": 9738113024
+        },
+        "startup": {
+          "working_set": 7145783296,
+          "private_bytes": 9356525568
+        }
+      },
+      "hashes_sha256": "fc595e7c78cda36356167b7f2c056262d76a531ada5cb51fa94ab56e08e8c2fb",
+      "idle_terrain_sha256": "0137530eeae13e15642f844c953b3d5b1076ed2f24ceaf0776bbcd7e87edae6c",
+      "nonengine_mods_sha256": "b6057479e79544d0880348ed034efb5a7ad6c4f88a016a99774d533666798626"
+    },
+    {
+      "name": "scalar-shared-2",
+      "variant": "scalar",
+      "pilot": false,
+      "world_source": "D:\\Github\\SumireLabs\\Pulsar\\benchmarks\\e2ee-20261029\\runs\\alfheim-pilot\\BBOP-Extended",
+      "started_utc": "2026-10-30T05:44:07Z",
+      "pid": 24064,
+      "startup_s": 98.70300000000861,
+      "completed": true,
+      "exit_code": 0,
+      "finished_utc": "2026-10-30T05:47:24Z",
+      "engine": "pulsar",
+      "audit_valid": true,
+      "gen_seconds": 10.9086472,
+      "chunks_per_second": 46.47689037005431,
+      "submitted_chunks": 507,
+      "idle_live_bytes": 1207817360,
+      "idle_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 625,
+          "entities": 22,
+          "tiles": 3157,
+          "world_time": 1832
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1832
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1832
+        }
+      ],
+      "post-generation_live_bytes": 1273801120,
+      "post-generation_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 1325,
+          "entities": 1397,
+          "tiles": 18519,
+          "world_time": 2597
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2597
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2597
+        }
+      ],
+      "idle-ticks": {
+        "tick_p50_ns": 2118300,
+        "tick_p95_ns": 2497100,
+        "tick_p99_ns": 3125500,
+        "elapsed_wall_ns": 20000293800,
+        "process_cpu_ns": 3765625000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 625,
+            "entities": 22,
+            "tiles": 3157,
+            "world_time": 2272
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2272
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2272
+          }
+        ]
+      },
+      "loaded-ticks": {
+        "tick_p50_ns": 2323000,
+        "tick_p95_ns": 2710000,
+        "tick_p99_ns": 2851000,
+        "elapsed_wall_ns": 20000303800,
+        "process_cpu_ns": 4031250000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 1325,
+            "entities": 1397,
+            "tiles": 18519,
+            "world_time": 3007
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3007
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3007
+          }
+        ]
+      },
+      "peak_working_set": 8480387072,
+      "peak_private_bytes": 9788125184,
+      "memory_phases": {
+        "gc-snapshot": {
+          "working_set": 8379375616,
+          "private_bytes": 9693351936
+        },
+        "generation": {
+          "working_set": 8408203264.0,
+          "private_bytes": 9720840192.0
+        },
+        "idle-ticks": {
+          "working_set": 8379502592.0,
+          "private_bytes": 9692622848.0
+        },
+        "loaded-ticks": {
+          "working_set": 8415709184.0,
+          "private_bytes": 9738469376.0
+        },
+        "save": {
+          "working_set": 8428263424.0,
+          "private_bytes": 9746411520.0
+        },
+        "settle": {
+          "working_set": 8342302720,
+          "private_bytes": 9690480640
+        },
+        "settle-after-generation": {
+          "working_set": 8383377408.0,
+          "private_bytes": 9709035520.0
+        },
+        "shutdown": {
+          "working_set": 8429441024.0,
+          "private_bytes": 9745694720.0
+        },
+        "startup": {
+          "working_set": 7161954304,
+          "private_bytes": 9371332608
+        }
+      },
+      "hashes_sha256": "b6b0f4f4fb384fb61b6d22aef24ee7007c175fad9d0243c8adc3d23e5f80a200",
+      "idle_terrain_sha256": "0137530eeae13e15642f844c953b3d5b1076ed2f24ceaf0776bbcd7e87edae6c",
+      "nonengine_mods_sha256": "b6057479e79544d0880348ed034efb5a7ad6c4f88a016a99774d533666798626"
+    },
+    {
+      "name": "scalar-shared-3",
+      "variant": "scalar",
+      "pilot": false,
+      "world_source": "D:\\Github\\SumireLabs\\Pulsar\\benchmarks\\e2ee-20261029\\runs\\alfheim-pilot\\BBOP-Extended",
+      "started_utc": "2026-10-30T05:47:29Z",
+      "pid": 44148,
+      "startup_s": 99.67199999999139,
+      "completed": true,
+      "exit_code": 0,
+      "finished_utc": "2026-10-30T05:50:48Z",
+      "engine": "pulsar",
+      "audit_valid": true,
+      "gen_seconds": 9.9690041,
+      "chunks_per_second": 50.85763782562793,
+      "submitted_chunks": 507,
+      "idle_live_bytes": 1208346712,
+      "idle_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 625,
+          "entities": 22,
+          "tiles": 3157,
+          "world_time": 1835
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1835
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 1835
+        }
+      ],
+      "post-generation_live_bytes": 1266161088,
+      "post-generation_worlds": [
+        {
+          "dimension": 0,
+          "seed": "20261029",
+          "chunks": 1312,
+          "entities": 1389,
+          "tiles": 18414,
+          "world_time": 2607
+        },
+        {
+          "dimension": -343800852,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2607
+        },
+        {
+          "dimension": 2,
+          "seed": "20261029",
+          "chunks": 0,
+          "entities": 0,
+          "tiles": 0,
+          "world_time": 2607
+        }
+      ],
+      "idle-ticks": {
+        "tick_p50_ns": 2138500,
+        "tick_p95_ns": 2452600,
+        "tick_p99_ns": 2696200,
+        "elapsed_wall_ns": 19997679800,
+        "process_cpu_ns": 4031250000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 625,
+            "entities": 22,
+            "tiles": 3157,
+            "world_time": 2275
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2275
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 2275
+          }
+        ]
+      },
+      "loaded-ticks": {
+        "tick_p50_ns": 2329500,
+        "tick_p95_ns": 2728300,
+        "tick_p99_ns": 3062200,
+        "elapsed_wall_ns": 19997323200,
+        "process_cpu_ns": 4421875000,
+        "worlds": [
+          {
+            "dimension": 0,
+            "seed": "20261029",
+            "chunks": 1312,
+            "entities": 1389,
+            "tiles": 18414,
+            "world_time": 3017
+          },
+          {
+            "dimension": -343800852,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3017
+          },
+          {
+            "dimension": 2,
+            "seed": "20261029",
+            "chunks": 0,
+            "entities": 0,
+            "tiles": 0,
+            "world_time": 3017
+          }
+        ]
+      },
+      "peak_working_set": 8460271616,
+      "peak_private_bytes": 9787674624,
+      "memory_phases": {
+        "gc-snapshot": {
+          "working_set": 8359866368.0,
+          "private_bytes": 9687867392.0
+        },
+        "generation": {
+          "working_set": 8386695168,
+          "private_bytes": 9715232768
+        },
+        "idle-ticks": {
+          "working_set": 8359907328,
+          "private_bytes": 9687638016
+        },
+        "loaded-ticks": {
+          "working_set": 8415936512,
+          "private_bytes": 9742942208
+        },
+        "save": {
+          "working_set": 8417505280,
+          "private_bytes": 9744130048
+        },
+        "settle": {
+          "working_set": 8335405056,
+          "private_bytes": 9686683648
+        },
+        "settle-after-generation": {
+          "working_set": 8420921344.0,
+          "private_bytes": 9747513344.0
+        },
+        "shutdown": {
+          "working_set": 8417521664,
+          "private_bytes": 9744150528
+        },
+        "startup": {
+          "working_set": 7155404800,
+          "private_bytes": 9351135232
+        }
+      },
+      "hashes_sha256": "c5d1877d5d9883e9b25b26dd5213ae9e43db23377dc7864323126096a32b888f",
+      "idle_terrain_sha256": "0137530eeae13e15642f844c953b3d5b1076ed2f24ceaf0776bbcd7e87edae6c",
+      "nonengine_mods_sha256": "b6057479e79544d0880348ed034efb5a7ad6c4f88a016a99774d533666798626"
+    }
+  ]
+}

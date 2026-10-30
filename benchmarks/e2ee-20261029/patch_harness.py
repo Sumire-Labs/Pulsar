@@ -21,7 +21,7 @@ new=new.replace('while (this.pulsarHasUpdates.read()) {', '''while (true) {
 assert new!=old and new.count('private final Method pulsarPublishSamples;')==1
 p.write_text(new,encoding='utf-8')
 (ROOT/'lightbench-completion.patch').write_text(''.join(difflib.unified_diff(old.splitlines(True),new.splitlines(True),fromfile='LightProbe.java',tofile='LightProbe.java')),encoding='utf-8')
-p=BASE/'gradle.properties';s=p.read_text(encoding='utf-8');s=s.replace('mod_version = 1.1.0-bench9','mod_version = 1.1.0-bench9-e2ee1');p.write_text(s,encoding='utf-8')
+p=BASE/'gradle.properties';s=p.read_text(encoding='utf-8');s=s.replace('mod_version = 1.1.0-bench9','mod_version = 1.1.0-bench9-e2ee2');p.write_text(s,encoding='utf-8')
 p=BASE/'src/main/java/com/sumirelabs/lightbench/Lightbench.java';s=p.read_text(encoding='utf-8')
 s=s.replace('event.registerServerCommand(new CommandLightbench());','event.registerServerCommand(new CommandLightbench());\n        event.registerServerCommand(new BenchMetrics());')
 s=s.replace('TpsTest.onTickStart();','BenchMetrics.tickStart();\n                TpsTest.onTickStart();')
@@ -34,3 +34,14 @@ s=s.replace('public static class TickHandler {','''public static class TickHandl
         }''')
 p.write_text(s,encoding='utf-8')
 print('HARNESS_PATCHED owner-thread publication included in completion wall time')
+
+# The common source world contains pilot areas at +/-10000. Keep measured areas fresh.
+p=BASE/'src/main/java/com/sumirelabs/lightbench/CommandLightbench.java'
+s=p.read_text(encoding='utf-8').replace('GEN_WARMUP_CENTER = -10000','GEN_WARMUP_CENTER = -20000').replace('GEN_TEST_CENTER = 10000','GEN_TEST_CENTER = 20000').replace(' at -10000; test ', ' at -20000; test ')
+p.write_text(s,encoding='utf-8')
+p=BASE/'src/main/java/com/sumirelabs/lightbench/GenerationAudit.java'
+s=p.read_text(encoding='utf-8').replace('private static String terrainHash(', 'static String terrainHash(')
+p.write_text(s,encoding='utf-8')
+p=BASE/'src/test/java/com/sumirelabs/lightbench/CommandLightbenchTest.java'
+s=p.read_text(encoding='utf-8').replace('final int center = 10000 +','final int center = 20000 +').replace('new ChunkPos(11409, 11409)','new ChunkPos(21409, 21409)')
+p.write_text(s,encoding='utf-8')

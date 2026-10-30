@@ -7,7 +7,7 @@ BASE=ROOT/'server-template'
 JAVA=Path(r'C:\Program Files\Eclipse Adoptium\jdk-25.0.4.101-hotspot\bin\java.exe')
 JCMD=JAVA.with_name('jcmd.exe')
 PULSAR=ROOT.parents[1]/'build/libs/pulsar-0.5.4-dev.50.local.jar'
-HARNESS=ROOT/'tools/lightbench/build/libs/lightbench-1.1.0-bench9-e2ee1.jar'
+HARNESS=ROOT/'tools/lightbench/build/libs/lightbench-1.1.0-bench9-e2ee2.jar'
 FLAGS=['-Xms8G','-Xmx8G','-XX:+UseG1GC','-XX:MaxGCPauseMillis=200','-XX:MetaspaceSize=384M',
        '-Dfile.encoding=UTF-8',r'-Djdk.net.unixdomain.tmpdir=D:\DevCache\pulsar-sockets']
 
@@ -18,7 +18,7 @@ class Memory(ctypes.Structure):
 def sha(path):
     with path.open('rb') as file:return hashlib.file_digest(file,'sha256').hexdigest()
 
-def prepare(name,variant):
+def prepare(name,variant,world_source=None):
     if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,63}',name):raise ValueError('Invalid run name')
     runs_root=(ROOT/'runs').resolve();target=(runs_root/name).resolve()
     if not target.is_relative_to(runs_root):raise ValueError('Run directory escapes benchmark root')
@@ -27,6 +27,11 @@ def prepare(name,variant):
     if not consent.exists() or json.loads(consent.read_text()) .get('accepted') is not True:
         raise RuntimeError('Explicit user EULA consent has not been recorded; server launch is blocked')
     shutil.copytree(BASE,target,ignore=shutil.ignore_patterns('*.log','logs','crash-reports','benchmark-results','start-server.*','server-setup-config.yaml'))
+    if world_source:
+        source=Path(world_source).resolve()
+        shutil.copytree(source,target/'BBOP-Extended',ignore=shutil.ignore_patterns('session.lock','lightbench-results'))
+        (target/'world-source.json').write_text(json.dumps({'source':str(source),'files':{
+            str(p.relative_to(source)):sha(p) for p in sorted(source.rglob('*')) if p.is_file() and 'lightbench-results' not in p.parts and p.name!='session.lock'}},indent=2))
     if variant!='alfheim':
         alf=target/'mods/Alfheim-1.6.jar'
         if not alf.exists():raise RuntimeError('Unexpected Alfheim inventory')
@@ -48,10 +53,10 @@ def prepare(name,variant):
        'pack':'v1.87.3','cleanroom':'0.6.13-alpha','seed':'20261029','view_distance':12},indent=2),encoding='utf-8')
     return target
 
-def run(name,variant,pilot=False):
-    directory=prepare(name,variant)
+def run(name,variant,pilot=False,world_source=None):
+    directory=prepare(name,variant,world_source)
     logpath=directory/'console.log'
-    result={'name':name,'variant':variant,'pilot':pilot,'started_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
+    result={'name':name,'variant':variant,'pilot':pilot,'world_source':world_source,'started_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
     launch_started=time.monotonic()
     with logpath.open('wb') as log:
         process=subprocess.Popen([str(JAVA),*FLAGS,'-jar','cleanroom-0.6.13-alpha.jar','nogui'],cwd=directory,
@@ -105,6 +110,7 @@ def run(name,variant,pilot=False):
         send('time set 6000');send('kill @e')
         phase[0]='settle';time.sleep(15)
         diagnostic('idle')
+        send('benchmetrics audit idle-audit');wait_for('E2EE_METRICS_DONE idle-audit',300)
         phase[0]='idle-ticks';send('benchmetrics ticks idle-ticks 20');wait_for('E2EE_METRICS_DONE idle-ticks',180)
         phase[0]='generation'
         send('lightbench gen 2 1 2' if pilot else 'lightbench gen 4 3 4')
@@ -131,4 +137,5 @@ def run(name,variant,pilot=False):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('name');parser.add_argument('variant',choices=['alfheim','scalar','rgb']);parser.add_argument('--pilot',action='store_true')
-    args=parser.parse_args();run(args.name,args.variant,args.pilot)
+    parser.add_argument('--world-source')
+    args=parser.parse_args();run(args.name,args.variant,args.pilot,args.world_source)
