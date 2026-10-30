@@ -122,3 +122,29 @@ onto an unrelated 1.12 block. These entries remain version-specific gaps.
 - forestry: 72e15b0f08daa25d8293cf28b5d5e1da200f9161
 - bibliocraft: ec4b1dc1d009b0640be225fae5e226035f205506
 - galacticraft: 33af6a3803b6ccc7c5030da13bcfda6c1cec4750
+
+## Extra Utilities 2 adaptation
+
+Extra Utilities 1's chandelier, magnum torch, colored lightgem and colored
+redstone lamp registrations are not copied under guessed XU2 names. XU2 1.9.9
+uses a different block set.
+
+Added `extrautils2:decorativeglass[decorstates=glass_glowstone]` with the `FD3`
+glowstone hue. This is a material-based adaptation, not a direct old-block port.
+Only the glowstone variant emits (15); clear, dark and redstone-producing glass
+remain untouched. The redstone lantern's power output is not a light level.
+Ineffable-glass light fields default to zero and are not forced on.
+
+Verified against the E2EE copy of `extrautils2-1.12-1.9.9.jar` and rwtema's
+Extra-Utilities-2-Source. The 1.12 build reuses its 1.10.2 source directory.
+`PropertyEnumSimple` serializes ordinary enum values under `decorstates`, so the
+preset uses IProperty.getName rather than requiring IStringSerializable or
+assuming metadata order.
+
+The Spotlight uses XU2's ILight/Lighting overlay rather than ordinary block
+emission. No radial colored source is substituted for that directional overlay;
+this change does not add RGB tinting to the Spotlight beam. Full integration of
+that custom lighting system remains a separate task.
+Source commit: 9e478a1f48b559c404747c663cbb29bd8acf93d9
+
+Port validation: 395 tests, 0 failures, 4 opt-in benchmark skips; full build and all eight GPU cases passed. In-game verification of the newly added mod blocks remains pending.

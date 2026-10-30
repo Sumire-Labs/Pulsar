@@ -29,6 +29,8 @@ public final class ModLightColors {
     static void registerDefaults(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register) {
         registerAdditionalDefaults(lookup, register);
         registerLegacyPorts(lookup, register);
+        register(lookup,register,"extrautils2:decorativeglass",state->
+                "glass_glowstone".equals(namedProperty(state,"decorstates"))?0xFD3:null);
         for(String name:new String[]{"shinyFlower","miniIsland"})
             register(lookup,register,name,state->{
                 EnumDyeColor dye=dye(state);

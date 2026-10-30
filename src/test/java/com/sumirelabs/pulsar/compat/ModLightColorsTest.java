@@ -17,6 +17,36 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ModLightColorsTest {
+    // XU2 PropertyEnumSimple serializes ordinary enums, not IStringSerializable.
+    enum GlassVariant { CLEAR,GLOWSTONE,REDSTONE,DARK }
+    private static final net.minecraft.block.properties.PropertyHelper<GlassVariant> DECOR=
+            new net.minecraft.block.properties.PropertyHelper<>("decorstates",GlassVariant.class) {
+                public Collection<GlassVariant> getAllowedValues(){return List.of(GlassVariant.values());}
+                public String getName(GlassVariant value){return switch(value){
+                    case CLEAR->"glass";case GLOWSTONE->"glass_glowstone";
+                    case REDSTONE->"glass_redstone";case DARK->"darkglass";};}
+                public com.google.common.base.Optional<GlassVariant> parseValue(String value){
+                    for(var variant:GlassVariant.values())if(getName(variant).equals(value))
+                        return com.google.common.base.Optional.of(variant);
+                    return com.google.common.base.Optional.absent();
+                }
+            };
+    static class DecorativeGlass extends Block {
+        DecorativeGlass(){super(Material.GLASS);}
+        protected BlockStateContainer createBlockState(){return new BlockStateContainer(this,DECOR);}
+        public int getLightValue(IBlockState state){return state.getValue(DECOR)==GlassVariant.GLOWSTONE?15:0;}
+    }
+    @Test void extraUtilitiesTwoUsesSerializedVariantAndDoesNotTreatRedstoneGlassAsALight(){
+        DecorativeGlass glass=new DecorativeGlass();Map<IBlockState,Integer> output=new IdentityHashMap<>();
+        var id=new ResourceLocation("extrautils2:decorativeglass");
+        ModLightColors.registerDefaults(key->key.equals(id)?glass:null,output::put);
+        assertEquals(Map.of(glass.getDefaultState().withProperty(DECOR,GlassVariant.GLOWSTONE),0xFD3),output);
+        for(var state:glass.getBlockState().getValidStates())if(state.getValue(DECOR)!=GlassVariant.GLOWSTONE)
+            assertEquals(0,state.getLightValue());
+        output.clear();
+        ModLightColors.registerDefaults(key->key.equals(id)?new Plain():null,output::put);
+        assertTrue(output.isEmpty());
+    }
     enum AlloyType implements IStringSerializable { LUMIUM,STEEL;public String getName(){return name().toLowerCase(Locale.ROOT);} }
     private static final PropertyEnum<AlloyType> ALLOY=PropertyEnum.create("type",AlloyType.class);
     static class Alloy extends Block {
