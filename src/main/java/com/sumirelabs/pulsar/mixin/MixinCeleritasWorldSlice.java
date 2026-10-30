@@ -72,10 +72,23 @@ public abstract class MixinCeleritasWorldSlice {
             }
 
             int opacity = info.pulsar$getLightOpacity(facing, self, pos);
-            final int neighborLight = this.getLightFor(lightType,
+            int neighborLight = this.getLightFor(lightType,
                     relX + facing.getXOffset(),
                     relY + facing.getYOffset(),
                     relZ + facing.getZOffset());
+            if (neighborLight <= lightLevel) {
+                continue;
+            }
+
+            // Match MixinBlockFaceLight: light stored in a partial block's
+            // open cavity must not be borrowed through its closed face.
+            // State/geometry lookups use world coordinates, not slice-relative ones.
+            final BlockPos neighborPos = pos.offset(facing);
+            final IBlockState neighbor = self.getBlockState(neighborPos);
+            if (neighbor.getLightOpacity(self, neighborPos) >= 15
+                    && neighbor.isSideSolid(self, neighborPos, facing.getOpposite())) {
+                neighborLight = lightType == EnumSkyBlock.BLOCK ? neighbor.getLightValue(self, neighborPos) : 0;
+            }
 
             if (opacity == 0
                     && (lightType != EnumSkyBlock.SKY || neighborLight != EnumSkyBlock.SKY.defaultLightValue)) {

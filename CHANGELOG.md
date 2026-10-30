@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Prevent Celeritas from borrowing light through closed stair and slab faces,
+  fixing light leaks around carpets and flowers underneath them (#20).
 - Prevent non-legacy RGB tinting from adding white components back to light
   filtered through colored glass. Apply the same correction to the generic
   shader lightmap bridge.

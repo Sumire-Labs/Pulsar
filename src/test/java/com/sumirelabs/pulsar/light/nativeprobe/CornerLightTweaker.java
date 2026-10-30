@@ -38,6 +38,11 @@ public final class CornerLightTweaker implements ITweaker {
         MixinBootstrap.init();
         MixinExtrasBootstrap.init();
         MixinEnvironment.getDefaultEnvironment().setSide(MixinEnvironment.Side.CLIENT);
+        if (Boolean.getBoolean("issue20.worldSlice")) {
+            Mixins.addConfiguration("pulsar-stair-wall-core.mixins.json");
+            Mixins.addConfiguration("pulsar-celeritas-worldslice-test.mixins.json");
+            return;
+        }
         if (Boolean.getBoolean("pulsar.multipartProbe")) {
             Mixins.addConfiguration("pulsar-multipart-test.mixins.json");
             return;
@@ -77,6 +82,7 @@ public final class CornerLightTweaker implements ITweaker {
     }
 
     public String getLaunchTarget() {
+        if (Boolean.getBoolean("issue20.worldSlice")) return "com.sumirelabs.pulsar.light.nativeprobe.CeleritasWorldSliceProbe";
         if (Boolean.getBoolean("pulsar.multipartProbe")) return "com.sumirelabs.pulsar.light.MultipartLightProbe";
         if (Boolean.getBoolean("pulsar.paletteProbe")) return "com.sumirelabs.pulsar.rgb.RgbPaletteCacheProbe";
         if (Boolean.getBoolean("issue26.probe")) return "com.sumirelabs.pulsar.light.nativeprobe.OptifineRendererProbe";
