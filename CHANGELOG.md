@@ -5,7 +5,7 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.1] - 2026-10-31
 
 ### Added
 
@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Prevent Celeritas from borrowing light through closed stair and slab faces,
+- Prevent Celeritas from borrowing sky or block light through closed stair and slab faces,
   fixing light leaks around carpets and flowers underneath them (#20).
 - Prevent non-legacy RGB tinting from adding white components back to light
   filtered through colored glass. Apply the same correction to the generic
