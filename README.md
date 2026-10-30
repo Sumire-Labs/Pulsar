@@ -75,7 +75,7 @@ Pulsar provides APIs for other mods to define light source colors and light tran
 - `LightColors`: Provides basic color constants.
 - `ExtendedChunk` / `ExtendedWorld`: Query chunk lighting readiness and pending world lighting updates.
 
-See the [API documentation](src/main/java/com/sumirelabs/pulsar/api/package-info.java) and [integration example](src/apiExample/java/example/pulsar/PulsarCompat.java) for details.
+See the [API documentation](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/src/main/java/com/sumirelabs/pulsar/api/package-info.java) and [integration example](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/src/apiExample/java/example/pulsar/PulsarCompat.java) for details.
 
 ## Benchmarks
 
@@ -83,15 +83,15 @@ Measured on 2026-10-30 with Minecraft 1.12.2 / Cleanroom 0.6.13-alpha, comparing
 
 The charts measure dedicated-server latency from a block change through completed lighting, including the completion adapter. Each value is the median of four fresh-JVM run means; whiskers show the minimum and maximum. The CPU is a Ryzen AI MAX+ 395, with Java 25 and a fixed 4 GiB heap. Lower is better; axes use a logarithmic scale.
 
-![Block light update completion times](assets/benchmarks/2026-10-30/block-updates.png)
+![Block light update completion times](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/assets/benchmarks/2026-10-30/block-updates.png)
 
-![Sky light update completion times](assets/benchmarks/2026-10-30/sky-updates.png)
+![Sky light update completion times](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/assets/benchmarks/2026-10-30/sky-updates.png)
 
 Vanilla passes the open-sky block-light test, but fails the roof fixture's initial stored sky-light validation, so no vanilla sky-update time is scored. RGB computes additional colored-light information. These repeated, individually awaited updates do not measure FPS, chunk generation, or concurrent update throughput.
 
-See the [measured values and run ranges](assets/benchmarks/2026-10-30/results.md) and [raw measurement results](assets/benchmarks/2026-10-30/measurement-evidence.zip) for the full comparison.
+See the [measured values and run ranges](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/assets/benchmarks/2026-10-30/results.md) and [raw measurement results](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/assets/benchmarks/2026-10-30/measurement-evidence.zip) for the full comparison.
 
-See [lighting validation notes](docs/lighting-validation.md) for compatibility probes and the opt-in empty-section experiment.
+See [lighting validation notes](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/docs/lighting-validation.md) for compatibility probes and the opt-in empty-section experiment.
 
 ## Credits
 
@@ -108,4 +108,4 @@ LLMs are used to help write some of Pulsar's code and documentation.
 
 ## License
 
-Pulsar is licensed under [LGPL-3.0](LICENSE.md).
+Pulsar is licensed under [LGPL-3.0](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/LICENSE.md).

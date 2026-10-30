@@ -1,25 +1,13 @@
 {
   ".gitattributes": "a3722895515bea977deed4a915ec46ca52a3136903b021d926f9f202cb1b77c6",
-  "algorithm-comparison.md": "f7fc6c37d4a4e4c8ce07d67f48d673c7fbf6eeb7c3ebf408a18d7ab13d2b7b44",
   "diagnostic-raw-data.zip": "54aecc1626036ee3bfac1652653983c13d5bcd9ded5bb74fbc6cd0c81683c2ab",
   "engine-stages.png": "0d3a9de6c0a245f38c4e801e7fd943e75c43e73913953cc64e4ef6d67de2e3c5",
   "engine-stages.svg": "05e623fb2ba980ba7d08b37a7787abada4867427ea9b4c6d222350de0a338b55",
   "manifest.json": "42256339c3c21af63f6cdab1113d5da6cf8418549e972db6e9c3d91f46fa3453",
   "probe-overhead.png": "2e2cab0763bdfc929e5c5fd778e42fade5d02f8468478661a86c4f1932d1f50a",
   "probe-overhead.svg": "58d99d3b43ea50367b5c22eb3b25319885d9c814546c6b3557232e98aeb83a1c",
-  "README.md": "c2fb9b531d5c52059b01e589dc630cdc5c854854a9ccb44b32106733f6af8c23",
+  "results.md": "b21ae0b6a551dc224d44e295364ca92b9a9beefafdab1670bd5fa6a21aa95df2",
   "results.json": "d8bcd30f5b5e688b6a8d5183cec324213bf1991e77103bef4837806df2165f6c",
   "summary.csv": "1a01734982acfbce0ee132e67f1e4436f45e7b6d5ab5e9628119c949d7f16761",
-  "test-summary.json": "8108c60a8c7982c24c90066aeef45b593b16344d509cf81652e287d5ac08513b",
-  "reproduction/.gitattributes": "cb11016dec22be9c1750b7dfeab35e7351f5243effdbc9634fa5bfaf41f41c12",
-  "reproduction/analyze.py": "a9db2bf226e226c334c8014c8c81cd215bf8aa07d8a5f371d6d682fe09d17827",
-  "reproduction/lightbench-instrumentation.patch": "0ef8ed6f638cd6ded8273eac6974d8f3f79a91fa51ee121fd894c9305fe8cd60",
-  "reproduction/package.py": "2c106d7946f98c571e05a14d4677ad51ed943a7d2e9c4d63caaa0eafe2cf56b3",
-  "reproduction/PhaseTiming.java": "1a5fc2801ecf173f7679963495d67c7628e9acb000df83547c2848746f30c752",
-  "reproduction/plot.py": "af10872444272c8575c10f361d0be1de66de441b74e6e0713ed93340964b2244",
-  "reproduction/ProbeSelfTest.java": "bcfbb3e139544ddf4121527afe0745612b8d47545e78296aa91843ea948ca415",
-  "reproduction/pulsar-instrumentation.patch": "d08fc638764059f25013428399d81aefd55bce7ea9211c67b9f8fab54cb19ca1",
-  "reproduction/PulsarTimingBridge.java": "4dbfa46bd578d40fad3145a59205b5c3dd40cba3f6cf8e0d104fbf8fc7f0607a",
-  "reproduction/README.md": "522a9ff991fe1d6c9a4b8f48eb1388079652576232894a291c4cfdb38e359b31",
-  "reproduction/validate.py": "2b50f36abe49481b3597d2c2ee2d16e3ddb2ba3a949d5af8e281fca468333a7d"
+  "test-summary.json": "8108c60a8c7982c24c90066aeef45b593b16344d509cf81652e287d5ac08513b"
 }
