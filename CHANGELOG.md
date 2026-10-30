@@ -5,6 +5,36 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Add RGB source-color presets for end rods and magma blocks.
+- Add Future MC lantern, soul lantern and campfire colors, preserving their
+  original light levels and lit/unlit behavior.
+- Add source-color presets for Thermal Foundation, Thermal Expansion,
+  BuildCraft, Railcraft, Forestry, BiblioCraft, OpenComputers and Galacticraft.
+- Add a glowstone-colored preset for Extra Utilities 2's glowing glass variant.
+  Other decorative glass variants retain their existing behavior.
+
+### Changed
+
+- Align vanilla and supported mod source hues with SuperNova, including
+  glowstone, jack o'lanterns, portals, lanterns and Botania's blaze block.
+  Preserve contextual brightness, mod-provided color APIs and user overrides.
+- Match SuperNova's dim dye palette rounding for Botania buried petals and
+  mushrooms without changing their contextual light levels.
+- Soften dim RGB hues while retaining absorbed color channels at zero.
+  Genuine skylight and other light sources can still mix with filtered light.
+
+### Fixed
+
+- Prevent non-legacy RGB tinting from adding white components back to light
+  filtered through colored glass. Apply the same correction to the generic
+  shader lightmap bridge.
+- Correct the OkLab forward transform to match its inverse, preventing hue
+  shifts in isolated primary colors.
+
 ## [0.6.0] - 2026-10-30 - The Dawn of a World in Color
 
 ### Added
