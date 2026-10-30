@@ -1,0 +1,24 @@
+{
+  "jar": "D:\\Github\\SumireLabs\\Pulsar\\build\\libs\\pulsar-0.5.4-dev.53.local.jar",
+  "sha256": "e881c5146b663d045d57c7222007fecd77b40b53045fa63ca214e40d1e495ac0",
+  "harness": "D:\\Github\\SumireLabs\\Pulsar\\benchmarks\\e2ee-20261029\\tools\\lightbench\\build\\libs\\lightbench-1.1.0-bench9-e2ee2.jar",
+  "harness_sha256": "0e997fe1e0eec0261a97348b8c038674e7e8f69273c18536768f1abebdc1d8f3",
+  "world_source": "D:\\Github\\SumireLabs\\Pulsar\\benchmarks\\e2ee-20261029\\runs\\alfheim-pilot\\BBOP-Extended",
+  "order": [
+    [
+      "alfheim",
+      "scalar",
+      "rgb"
+    ],
+    [
+      "rgb",
+      "alfheim",
+      "scalar"
+    ],
+    [
+      "scalar",
+      "rgb",
+      "alfheim"
+    ]
+  ]
+}

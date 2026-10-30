@@ -1,0 +1,27 @@
+{
+  "tests": {
+    "tests": 377,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 4
+  },
+  "gpu_cases": 7,
+  "source_commit": "c62f162",
+  "bedrock_checks": {
+    "rgb-final-check": {
+      "passed": true,
+      "engine": "PULSAR",
+      "assertions": 11
+    },
+    "scalar-final-check": {
+      "passed": true,
+      "engine": "PULSAR",
+      "assertions": 11
+    },
+    "rgb-vanilla-final-check": {
+      "passed": true,
+      "engine": "PULSAR",
+      "assertions": 11
+    }
+  }
+}

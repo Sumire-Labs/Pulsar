@@ -21,7 +21,7 @@ new=new.replace('while (this.pulsarHasUpdates.read()) {', '''while (true) {
 assert new!=old and new.count('private final Method pulsarPublishSamples;')==1
 p.write_text(new,encoding='utf-8')
 (ROOT/'lightbench-completion.patch').write_text(''.join(difflib.unified_diff(old.splitlines(True),new.splitlines(True),fromfile='LightProbe.java',tofile='LightProbe.java')),encoding='utf-8')
-p=BASE/'gradle.properties';s=p.read_text(encoding='utf-8');s=s.replace('mod_version = 1.1.0-bench9','mod_version = 1.1.0-bench9-e2ee2');p.write_text(s,encoding='utf-8')
+p=BASE/'gradle.properties';s=p.read_text(encoding='utf-8');s=s.replace('mod_version = 1.1.0-bench9','mod_version = 1.1.0-bench9-e2ee3');p.write_text(s,encoding='utf-8')
 p=BASE/'src/main/java/com/sumirelabs/lightbench/Lightbench.java';s=p.read_text(encoding='utf-8')
 s=s.replace('event.registerServerCommand(new CommandLightbench());','event.registerServerCommand(new CommandLightbench());\n        event.registerServerCommand(new BenchMetrics());')
 s=s.replace('TpsTest.onTickStart();','BenchMetrics.tickStart();\n                TpsTest.onTickStart();')

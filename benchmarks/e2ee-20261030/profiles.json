@@ -1,0 +1,55 @@
+{
+  "rgb-profile-before": {
+    "server_thread_samples": 511,
+    "contextual_tracking_samples": 285,
+    "tracked_source_objects": 3072,
+    "top_frame_counts": {
+      "java/util/HashMap.getNode": 141,
+      "java/util/concurrent/ConcurrentHashMap.get": 119,
+      "com/sumirelabs/pulsar/light/engine/LightInfo.of": 29,
+      "net/minecraft/block/state/BlockStateContainer$StateImplementation.func_185891_c": 13,
+      "net/minecraft/block/state/BlockStateContainer$StateImplementation.handler$zpp000$universaltwe$utGetLightValue": 12,
+      "net/minecraft/server/MinecraftServer.run": 7,
+      "net/minecraft/server/MinecraftServer.func_71190_q": 6,
+      "net/minecraftforge/fml/common/eventhandler/ASMEventHandler.invoke": 5,
+      "net/minecraft/world/World.func_82737_E": 3,
+      "com/sumirelabs/pulsar/light/ContextualLightManager.lambda$pollTracked$0": 3,
+      "vazkii/quark/tweaks/feature/ImprovedSleeping.isEveryoneAsleep": 3,
+      "com/sumirelabs/pulsar/light/ContextualLightManager.capture": 2,
+      "java/util/HashMap.putVal": 2,
+      "CrafttweakerReloadabledo\\Night_infusion0.handle": 2,
+      "blusunrize/immersiveengineering/common/EventHandler.onWorldTick": 2
+    },
+    "jfr_sha256": "ed9c141a0aa6788740d5175806c5fb1567958707f2264721fcc7179066d4d13e",
+    "pulsar_jars": {
+      "pulsar-0.5.4-dev.50.local.jar": "2b972c9c8eb2173e95d9c1f2b5e61f898e9cd0cd6e3f018b2935110468b2effa"
+    }
+  },
+  "rgb-final-check": {
+    "server_thread_samples": 209,
+    "contextual_tracking_samples": 2,
+    "tracked_source_objects": 25,
+    "top_frame_counts": {
+      "java/util/HashMap.getNode": 6,
+      "net/minecraft/server/MinecraftServer.run": 5,
+      "net/minecraftforge/fml/common/eventhandler/ASMEventHandler.invoke": 5,
+      "it/unimi/dsi/fastutil/ints/Int2ObjectLinkedOpenHashMap.get": 4,
+      "java/lang/Integer.equals": 4,
+      "net/minecraft/world/World.func_82737_E": 4,
+      "net/minecraft/server/MinecraftServer.func_71190_q": 3,
+      "java/util/Objects.requireNonNull": 3,
+      "java/util/HashMap$HashIterator.<init>": 3,
+      "com/rwtema/extrautils2/power/player/PlayerPowerManager.tick": 2,
+      "java/lang/Thread.threadState": 2,
+      "com/google/common/collect/AbstractMapBasedMultimap.clear": 2,
+      "vazkii/quark/tweaks/feature/ImprovedSleeping.getPlayerCounts": 2,
+      "java/util/stream/Sink$ChainedReference.end": 2,
+      "it/unimi/dsi/fastutil/objects/ObjectLinkedOpenHashSet.<init>": 2
+    },
+    "jfr_sha256": "33e52884602d7433ea56115c346c552b67522b03631fd7079f8673a018bebbfe",
+    "pulsar_jars": {
+      "pulsar-0.5.4-dev.52.local.dirty.jar": "843912b7066780c87121b07f936fcdf974a26cad14650dcbc5f6edaccb986fba"
+    }
+  },
+  "notes": "20-second idle windows, 1 ms JFR ExecutionSample period. Sampling evidence only; excluded from final unprofiled medians."
+}
