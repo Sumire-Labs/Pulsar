@@ -17,6 +17,49 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ModLightColorsTest {
+    enum AlloyType implements IStringSerializable { LUMIUM,STEEL;public String getName(){return name().toLowerCase(Locale.ROOT);} }
+    private static final PropertyEnum<AlloyType> ALLOY=PropertyEnum.create("type",AlloyType.class);
+    static class Alloy extends Block {
+        Alloy(){super(Material.IRON);}
+        protected BlockStateContainer createBlockState(){return new BlockStateContainer(this,ALLOY);}
+    }
+    @Test void legacyPortsUseVerifiedTwelveIdsAndPreserveOffStates(){
+        Map<String,Integer> expected=Map.ofEntries(
+                Map.entry("thermalfoundation:fluid_glowstone",0xFC7),Map.entry("thermalexpansion:cell",0x800),
+                Map.entry("buildcraftcore:marker_volume",0x037),Map.entry("buildcraftcore:marker_path",0x070),
+                Map.entry("railcraft:lantern",0xDA8),Map.entry("forestry:beehives",0x431),
+                Map.entry("bibliocraft:lanterngold",0xFED),Map.entry("bibliocraft:lanterniron",0xFED),
+                Map.entry("bibliocraft:lampgold",0xFFF),Map.entry("bibliocraft:lampiron",0xFFF),Map.entry("bibliocraft:desk",0x775),
+                Map.entry("opencomputers:assembler",0x055),Map.entry("opencomputers:capacitor",0x052),
+                Map.entry("opencomputers:carpetedcapacitor",0x052),Map.entry("opencomputers:geolyzer",0x320),
+                Map.entry("opencomputers:powerdistributor",0x550),Map.entry("opencomputers:hologram1",0xFFF),
+                Map.entry("opencomputers:hologram2",0xFFF),Map.entry("opencomputers:screen1",0xFFF),
+                Map.entry("opencomputers:screen2",0xFFF),Map.entry("opencomputers:screen3",0xFFF),
+                Map.entry("galacticraftcore:arclamp",0xFFF),Map.entry("galacticraftcore:bright_air",0xFFF),
+                Map.entry("galacticraftcore:bright_breathable_air",0xFFF),
+                Map.entry("galacticraftcore:unlit_torch_lit",0xDA8),Map.entry("galacticraftcore:unlit_torch_stone_lit",0xDA8),
+                Map.entry("galacticraftcore:unlit_torch",0x321),Map.entry("galacticraftcore:unlit_torch_stone",0x321),
+                Map.entry("galacticraftcore:glowstone_torch",0xFD3));
+        Map<ResourceLocation,Block> blocks=new HashMap<>();
+        expected.keySet().forEach(id->blocks.put(new ResourceLocation(id),new Plain()));
+        Map<IBlockState,Integer> output=new IdentityHashMap<>();
+        ModLightColors.registerDefaults(blocks::get,output::put);
+        assertEquals(expected.size(),output.size());
+        expected.forEach((id,hue)->{
+            var state=blocks.get(new ResourceLocation(id)).getDefaultState();
+            assertEquals(hue,output.get(state));
+            assertEquals(0,com.sumirelabs.pulsar.rgb.RgbLightAccess.effectiveEmission(
+                    com.sumirelabs.pulsar.rgb.RgbLight.normalize(hue),0,true));
+        });
+    }
+    @Test void lumiumSelectsNamedAlloyWithoutColoringOtherMetalsOrGuessingMetadata(){
+        Alloy alloy=new Alloy();Map<IBlockState,Integer> output=new IdentityHashMap<>();
+        ModLightColors.registerDefaults(id->id.equals(new ResourceLocation("thermalfoundation:storage_alloy"))?alloy:null,output::put);
+        assertEquals(Map.of(alloy.getDefaultState().withProperty(ALLOY,AlloyType.LUMIUM),0xFF0),output);
+        output.clear();
+        ModLightColors.registerDefaults(id->id.equals(new ResourceLocation("thermalfoundation:storage_alloy"))?new Plain():null,output::put);
+        assertTrue(output.isEmpty());
+    }
     private static final PropertyEnum<EnumDyeColor> COLOR=PropertyEnum.create("color",EnumDyeColor.class);
     private static final PropertyEnum<Variant> VARIANT=PropertyEnum.create("variant",Variant.class);
     enum Variant implements IStringSerializable { MANA,NATURA,GAIA,UNKNOWN,GLIMMERING,GLOWSHROOM;public String getName(){return name().toLowerCase(Locale.ROOT);} }

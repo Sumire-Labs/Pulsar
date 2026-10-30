@@ -147,6 +147,8 @@ public final class BlockLightColors {
         defaultHue(Blocks.FLOWING_LAVA, 0xFCA);
         defaultHue(Blocks.REDSTONE_TORCH, 0x611);
         defaultHue(Blocks.SEA_LANTERN, 0xAFF);
+        defaultHue(Blocks.END_ROD, 0xFAF);
+        defaultHue(Blocks.MAGMA, 0x510);
         defaultHue(Blocks.LIT_REDSTONE_ORE, 0x511);
         defaultHue(Blocks.FIRE, 0xEC0);
         defaultHue(Blocks.END_PORTAL, 0x7FB);

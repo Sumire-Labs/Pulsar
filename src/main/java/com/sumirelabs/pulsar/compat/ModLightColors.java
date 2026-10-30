@@ -28,6 +28,7 @@ public final class ModLightColors {
 
     static void registerDefaults(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register) {
         registerAdditionalDefaults(lookup, register);
+        registerLegacyPorts(lookup, register);
         for(String name:new String[]{"shinyFlower","miniIsland"})
             register(lookup,register,name,state->{
                 EnumDyeColor dye=dye(state);
@@ -147,12 +148,49 @@ public final class ModLightColors {
             register(lookup, register, "chisel:" + name, state -> 0xFD3);
     }
 
+    /** SuperNova counterparts verified against the 1.12 sources/released jars.
+     * See docs/natural-lighting.md for registry changes and intentionally absent ports. */
+    private static void registerLegacyPorts(Function<ResourceLocation, Block> lookup,
+                                            BiConsumer<IBlockState, Integer> register) {
+        register(lookup,register,"thermalfoundation:fluid_glowstone",state->0xFC7);
+        register(lookup,register,"thermalexpansion:cell",state->0x800);
+        register(lookup,register,"thermalfoundation:storage_alloy",state->
+                "lumium".equals(namedProperty(state,"type"))?0xFF0:null);
+        register(lookup,register,"buildcraftcore:marker_volume",state->0x037);
+        register(lookup,register,"buildcraftcore:marker_path",state->0x070);
+        // Railcraft 1.12 merges stone/metal lanterns into material variants.
+        register(lookup,register,"railcraft:lantern",state->0xDA8);
+        register(lookup,register,"forestry:beehives",state->0x431);
+        for(String name:new String[]{"lanterngold","lanterniron"})
+            register(lookup,register,"bibliocraft:"+name,state->0xFED);
+        for(String name:new String[]{"lampgold","lampiron"})
+            register(lookup,register,"bibliocraft:"+name,state->0xFFF);
+        register(lookup,register,"bibliocraft:desk",state->0x775);
+        register(lookup,register,"opencomputers:assembler",state->0x055);
+        for(String name:new String[]{"capacitor","carpetedcapacitor"})
+            register(lookup,register,"opencomputers:"+name,state->0x052);
+        register(lookup,register,"opencomputers:geolyzer",state->0x320);
+        register(lookup,register,"opencomputers:powerdistributor",state->0x550);
+        for(String name:new String[]{"hologram1","hologram2","screen1","screen2","screen3"})
+            register(lookup,register,"opencomputers:"+name,state->0xFFF);
+        for(String name:new String[]{"arclamp","bright_air","bright_breathable_air"})
+            register(lookup,register,"galacticraftcore:"+name,state->0xFFF);
+        for(String name:new String[]{"unlit_torch_lit","unlit_torch_stone_lit"})
+            register(lookup,register,"galacticraftcore:"+name,state->0xDA8);
+        for(String name:new String[]{"unlit_torch","unlit_torch_stone"})
+            register(lookup,register,"galacticraftcore:"+name,state->0x321);
+        register(lookup,register,"galacticraftcore:glowstone_torch",state->0xFD3);
+    }
+
     private static String namedProperty(IBlockState state, String name) {
-        for (var entry : state.getProperties().entrySet()) {
-            if (entry.getKey().getName().equals(name) && entry.getValue() instanceof IStringSerializable value)
-                return value.getName();
-        }
+        for (var property : state.getPropertyKeys())
+            if(property.getName().equals(name))return propertyName(state,property);
         return null;
+    }
+
+    private static <T extends Comparable<T>> String propertyName(IBlockState state,
+            net.minecraft.block.properties.IProperty<T> property) {
+        return property.getName(state.getValue(property));
     }
 
     private static EnumDyeColor dye(IBlockState state) {

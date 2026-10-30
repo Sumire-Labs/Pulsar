@@ -85,3 +85,40 @@ SuperNova reference `22d8559c3064d77d115e58523c58cde824f4e214`.
 No glass transmittance, source intensity, runtime tint curve or user/API override
 precedence is changed by this audit. The existing 15-source screenshot gallery
 predates these additional Botania adjustments; these blocks need in-game review.
+
+## Additional 1.12.2 source ports
+
+The next group adds hue presets only; contextual emission remains authoritative.
+No optional-mod classes are linked and missing blocks are ignored.
+
+| Mod | 1.12.2 mapping / hue |
+|---|---|
+| Vanilla | End rod `FAF`, magma `510` (Et Futurum counterparts) |
+| Thermal Foundation 2.6.7.1 | `fluid_glowstone` `FC7`; `storage_alloy[type=lumium]` `FF0` |
+| Thermal Expansion 5.5.7.1 | `cell` `800` |
+| BuildCraft | `buildcraftcore:marker_volume` `037`, `marker_path` `070` |
+| Railcraft | `lantern` material variants `DA8` |
+| Forestry 5.8.2.427 | `beehives` `431`, respecting configured light level |
+| BiblioCraft 2.4.6 | `lanterngold/lanterniron` `FED`, `lampgold/lampiron` white, `desk` `775` |
+| OpenComputers 1.8.10 | assembler `055`, capacitors `052`, geolyzer `320`, power distributor `550`, screens/holograms white |
+| Galacticraft | arclamp/bright air white; lit torches `DA8`, unlit torches `321` if emissive, glowstone torch `FD3` |
+
+Thermal/BiblioCraft/OpenComputers IDs were cross-checked against the released
+JARs already present in the E2EE server template. Thermal lumium is selected by
+serialized property name rather than the old Storage metadata 11. The normal
+SuperNova hues remain normalized to each source's 1.12 contextual intensity.
+
+Source references: BuildCraft `8.0.x-1.12.2`, Railcraft `mc-1.12.2`,
+ForestryMC `mc-1.12`, Nuchaz/BiblioCraft-Source, micdoodle8/Galacticraft `MC1.12`.
+Exact checked-out commits are recorded below. Property selection uses Forge's
+IProperty serializer, supporting enums that do not implement IStringSerializable.
+
+Old BuildCraft construction markers and Railcraft firestone recharge blocks
+have no direct verified match in these source trees. They are not registered
+under speculative names. Thermal's old Glass metadata is likewise not copied
+onto an unrelated 1.12 block. These entries remain version-specific gaps.
+- buildcraft: 7c86626d09c4569fb2e0f458a16aaf8c3148ebaf
+- railcraft: 34416755a312fd0ba6813d9a80169fe56dab369f
+- forestry: 72e15b0f08daa25d8293cf28b5d5e1da200f9161
+- bibliocraft: ec4b1dc1d009b0640be225fae5e226035f205506
+- galacticraft: 33af6a3803b6ccc7c5030da13bcfda6c1cec4750
