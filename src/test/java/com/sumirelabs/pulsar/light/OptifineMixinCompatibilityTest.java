@@ -19,7 +19,7 @@ class OptifineMixinCompatibilityTest {
                 boolean replaced = !renderer.equals("vanilla");
                 Path home = Files.createDirectories(directory.resolve(mode + "-" + renderer));
                 Files.createDirectories(home.resolve("config"));
-                Files.writeString(home.resolve("config/pulsar.cfg"), "I:configVersion=2\nS:lightingMode=" + mode + "\n");
+                Files.writeString(home.resolve("config/pulsar.cfg"), "general {\nI:configVersion=2\nS:lightingMode=" + mode + "\n}\n");
                 Path config = home.resolve("mixins.jar");
                 try (var jar = new JarOutputStream(Files.newOutputStream(config))) {
                     String resource = "pulsar-optifine-test.mixins.json";

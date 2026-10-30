@@ -26,9 +26,14 @@ public class PulsarConfig {
     @Config.Comment({"RGB block and sky light. SCALAR preserves the original engine and memory layout.",
             "RGB adds server-authoritative color; rgbGameplayLight selects gameplay brightness behavior.",
             "Requires Pulsar on both sides for color. Restart Minecraft and the server to apply.",
-            "RGB is the default; existing explicit SCALAR settings are retained."})
+            "SCALAR is the default; existing explicit RGB settings are retained."})
     @Config.RequiresMcRestart
-    public static LightingMode lightingMode = LightingMode.RGB;
+    public static LightingMode lightingMode = LightingMode.SCALAR;
+
+    @Config.Comment({"Whether the client has completed the one-time lighting mode selection for this instance.",
+            "False opens the selection screen at the next main menu. Dedicated servers do not show this screen.",
+            "Modpacks can set this to true to keep their configured lighting mode without prompting."})
+    public static boolean lightingModeSelected = false;
 
     @Config.Comment({"Client RGB blend: MAXIMUM, ADDITIVE, SQUARED_WEIGHT, LINEAR_WEIGHT, OKLAB or VIVID.",
             "MAXIMUM uses the brightest value per channel; full daylight stays neutral around colored sources.",
@@ -49,7 +54,7 @@ public class PulsarConfig {
 
 
     @Config.Ignore
-    public static final int CURRENT_CONFIG_VERSION = 2;
+    public static final int CURRENT_CONFIG_VERSION = 3;
 
     // ASM discovery can initialize this class before mod preInit. Do the migration
     // before either that injection or our explicit ConfigManager registration.
@@ -59,11 +64,11 @@ public class PulsarConfig {
             try {
                 if (PulsarConfigVersion.prepare(file, CURRENT_CONFIG_VERSION)) {
                     LogManager.getLogger("Pulsar Config").info(
-                            "Config version missing or mismatched; regenerating Pulsar Config Version {} with defaults",
+                            "Prepared Pulsar Config Version {}",
                             CURRENT_CONFIG_VERSION);
                 }
             } catch (final IOException exception) {
-                throw new IllegalStateException("Cannot regenerate Pulsar config: " + file, exception);
+                throw new IllegalStateException("Cannot migrate Pulsar config: " + file, exception);
             }
         }
     }
@@ -71,7 +76,8 @@ public class PulsarConfig {
     @Config.Comment({
             "Pulsar Config Version " + CURRENT_CONFIG_VERSION,
             "Do not edit this version. Managed by Pulsar.",
-            "A missing or mismatched version resets this entire config to current defaults at startup."
+            "Version changes preserve existing settings; missing options use current defaults.",
+            "Malformed config syntax regenerates the main config with current defaults."
     })
     @Config.RangeInt(min = CURRENT_CONFIG_VERSION, max = CURRENT_CONFIG_VERSION)
     @Config.RequiresMcRestart

@@ -11,6 +11,16 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class ClientProxy extends CommonProxy {
+    @SubscribeEvent(priority = net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST)
+    public void selectInitialLightingMode(net.minecraftforge.client.event.GuiOpenEvent event) {
+        if (!com.sumirelabs.pulsar.config.PulsarConfig.lightingModeSelected
+                && event.getGui() instanceof net.minecraft.client.gui.GuiMainMenu) {
+            // Intercept the vanilla menu before menu-replacement mods. Returning to
+            // it after selection lets those mods install their usual menu normally.
+            event.setGui(new com.sumirelabs.pulsar.client.GuiLightingModeSelection(event.getGui()));
+        }
+    }
+
     @SubscribeEvent public void rgbWorldUnload(net.minecraftforge.event.world.WorldEvent.Unload event) {
         if (event.getWorld().isRemote) com.sumirelabs.pulsar.rgb.RgbClient.unload(event.getWorld());
     }

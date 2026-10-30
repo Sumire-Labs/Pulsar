@@ -21,7 +21,15 @@ public final class CornerLightTweaker implements ITweaker {
         Launch.blackboard.put("forgeLaunchArgs", new HashMap<String, String>());
     }
 
-    public void acceptOptions(List<String> args, File game, File assets, String version) {}
+    public void acceptOptions(List<String> args, File game, File assets, String version) {
+        // The minimal launcher omits Forge's normal injection-data setup.
+        // Config validation now also runs before Mixin selection.
+        try {
+            var home = net.minecraftforge.fml.relauncher.FMLInjectionData.class.getDeclaredField("minecraftHome");
+            home.setAccessible(true);
+            home.set(null, game == null ? Launch.minecraftHome : game);
+        } catch (ReflectiveOperationException failure) { throw new IllegalStateException(failure); }
+    }
 
     public void injectIntoClassLoader(LaunchClassLoader loader) {
         if (Boolean.getBoolean("issue26.replacedRenderer")) {

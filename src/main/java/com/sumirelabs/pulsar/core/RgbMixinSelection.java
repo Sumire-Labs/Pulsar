@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 /** Reads the restart-only switch before mixin application. SCALAR gets no RGB chunk fields or renderer hooks. */
 public final class RgbMixinSelection implements IMixinConfigPlugin {
-    private boolean rgb = true;
+    private boolean rgb;
     private boolean optifine;
     private static boolean enabled;
     public static boolean rgbEnabled() { return enabled; }
@@ -23,15 +23,19 @@ public final class RgbMixinSelection implements IMixinConfigPlugin {
         try {
             var home = Launch.minecraftHome == null ? new java.io.File(".") : Launch.minecraftHome;
             var path = home.toPath().resolve("config/pulsar.cfg");
-            if (Files.isRegularFile(path)) rgb = selectsRgb(Files.readString(path));
+            // Repair before selecting Mixins: a malformed file mentioning RGB
+            // must not select RGB hooks while Forge subsequently defaults to SCALAR.
+            // The version constant is inlined; do not initialize PulsarConfig here.
+            com.sumirelabs.pulsar.config.PulsarConfigVersion.prepare(path.toFile(),
+                    com.sumirelabs.pulsar.config.PulsarConfig.CURRENT_CONFIG_VERSION);
+            rgb = Files.isRegularFile(path) && selectsRgb(Files.readString(path));
             enabled = rgb;
         } catch (Exception e) { throw new IllegalStateException("Cannot read Pulsar RGB mode", e); }
     }
     public static boolean selectsRgb(String config) {
-        // Missing/old versions are regenerated before Forge reads settings. Match
-        // that new-file default here, before any RGB mixins can be selected.
-        if (!Pattern.compile("(?m)^\\s*I:configVersion=2\\s*$").matcher(config).find()) return true;
-        return !Pattern.compile("(?m)^\\s*S:lightingMode=SCALAR\\s*$").matcher(config).find();
+        // Migration preserves explicit mode choices, including versionless files.
+        // Do not initialize PulsarConfig/Forge here: Minecraft targets are not ready yet.
+        return Pattern.compile("(?m)^\\s*S:lightingMode=RGB\\s*$").matcher(config).find();
     }
     public boolean shouldApplyMixin(String target, String mixin) {
         String name = mixin.substring(mixin.lastIndexOf('.') + 1);

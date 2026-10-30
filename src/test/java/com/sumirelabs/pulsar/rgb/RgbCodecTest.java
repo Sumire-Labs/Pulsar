@@ -284,12 +284,17 @@ class RgbCodecTest {
             assertThrows(IllegalArgumentException.class, () -> new RgbPacket().fromBytes(buffer));
         } finally { buffer.release(); }
     }
-    @Test void scalarHasNoRgbMixinHooksAndOldConfigsCannotEnableThem() {
+    @Test void explicitLightingModeSurvivesConfigVersionMigration() {
         assertFalse(RgbMixinSelection.selectsRgb("I:configVersion=2\nS:lightingMode=SCALAR\n"));
         assertTrue(RgbMixinSelection.selectsRgb("I:configVersion=1\nS:lightingMode=RGB\n"));
         assertTrue(RgbMixinSelection.selectsRgb("  I:configVersion=2\n  S:lightingMode=RGB\n"));
-        assertTrue(RgbMixinSelection.selectsRgb("# S:lightingMode=RGB\nI:configVersion=2\n"));
-        assertTrue(RgbMixinSelection.selectsRgb(""));
-        assertTrue(RgbMixinSelection.selectsRgb("I:configVersion=1\nS:lightingMode=SCALAR\n"));
+        assertFalse(RgbMixinSelection.selectsRgb("# S:lightingMode=RGB\nI:configVersion=2\n"));
+        assertTrue(RgbMixinSelection.selectsRgb("S:lightingMode=RGB\n"));
+        assertTrue(RgbMixinSelection.selectsRgb("I:configVersion=3\nS:lightingMode=RGB\n"));
+        assertFalse(RgbMixinSelection.selectsRgb("I:configVersion=3\nS:lightingMode=SCALAR\n"));
+        assertFalse(RgbMixinSelection.selectsRgb(""));
+        assertFalse(RgbMixinSelection.selectsRgb("I:configVersion=2\n"));
+        assertFalse(RgbMixinSelection.selectsRgb("I:configVersion=2\nS:lightingMode=invalid\n"));
+        assertFalse(RgbMixinSelection.selectsRgb("I:configVersion=1\nS:lightingMode=SCALAR\n"));
     }
 }

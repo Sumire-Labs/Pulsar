@@ -5,122 +5,63 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.0] - 2026-10-30 - The Dawn of a World in Color
 
 ### Added
 
-- Add optional MAXIMUM RGB blending, preserving neutral full daylight.
-- Add bounded, opt-in lighting/render origin tracing and Celeritas build counts/timing.
-- Extend Multipart RGB emission to ProjectRed fixtures, buttons and light microblock materials.
-- Add pinned compatibility probes for IC2 Experimental 2.8.222, IC2 Classic 1.5.15,
-  and Ender IO 5.3.72, isolated where their classes conflict.
-- Add an opt-in empty-section accessor experiment and isolated JVM benchmarks.
-- Add optional CBMultipart 1.12.2 lighting integration: standard block materials
-  inherit Pulsar source colors, while unknown parts retain neutral emission.
-- Add real CBMultipart/Mixin regression probes for scalar and RGB snapshots,
-  propagation, part changes, removal, reload and worker-thread safety.
-
-- Add Natura Legacy amber glowshroom colors and Ars Magica 2: Rekindled presets
-  for dyeable Mage Lights, vinteum torches, warding candles, aura and celestial prisms.
-- Add 1.12 RGB source presets for Tinkers' Construct, Biomes O' Plenty, Natura,
-  Chisel and Applied Energistics 2, preserving contextual brightness and API overrides.
-- Add transactional `/pulsar reload` for source/filter palettes, with strict
-  validation, rollback, versioned caches and automatic loaded-chunk relighting.
-- Expand Botania presets and add verified Twilight Forest / Thaumcraft 6 presets
-  plus a positional ProjectRed block-lamp adapter that preserves power state.
-- Add conservative Botania 1.12.2 source-color presets for shiny flowers, pylons
-  and blaze blocks, preserving mod-provided RGB APIs and explicit overrides.
-- Add opt-in GPU rendering tests for the shipped GLSL, and document the verified
-  Demonica 0.9.0 / Complementary Reimagined r5.9.3 development/production-client combination.
-- Add whole-block RGB registration, packed-value overloads, basic color constants
-  and validated conversion to/from SuperNova's light-value layout.
-- Build compile-only API/source jars and a local Maven publication, with a consumer
-  example compiled against the API artifact during checks.
-- Add a Forge light-property registration event and validated public RGB value
-  helpers, with integration examples and explicit registration/threading contracts.
-- Add optional RGB shader lighting for tested Demonica/Actinium loaders and
-  Complementary, BSL, Photon, Solas, Pastel and Tea packs, with a bounded sparse
-  GPU light field and shader-owned material rendering.
-- Support GLSM emulated texture-combiner state when returning to normal rendering.
-
-- Add server-authoritative RGB block and sky lighting with packed propagation,
-  per-component filters, immutable snapshots and persistent color caches.
-- Color terrain, fluids, entities, normal/Fast TESRs, particles and held items in
-  Vanilla/Forge and Celeritas, preserving alpha, full-bright effects and render state.
-- Add static and positional RGB emission/transmittance APIs. Sample positional
-  callbacks on the world thread, including color-only changes each tick.
-- Add validated state/property and legacy metadata overrides in
-  `pulsar-colors.cfg` and `pulsar-filters.cfg`, with cache-profile invalidation.
-- Add SuperNova's additive, squared-weight, linear-weight, OkLab and vivid blends
-  with runtime terrain refresh; retain LEGACY for the earlier appearance.
-- Add RGB_MAX gameplay light derived from the brightest color component and an
-  independent VANILLA option. Compatible SCALAR clients receive authoritative
-  canonical light without RGB render buffers.
-- Retain SCALAR without RGB chunk/state/buffer fields or renderer hooks.
+- Add optional RGB block and sky lighting for terrain, fluids, entities,
+  particles, held items and tile entities in Vanilla/Forge and Celeritas.
+- Add a one-time SCALAR/RGB selection screen with English and Japanese text.
+  Save the choice per instance and request a restart when changing the active mode.
+- Add RGB_MAX gameplay brightness and an independent VANILLA lighting policy.
+  Compatible SCALAR clients can receive authoritative gameplay light from RGB servers.
+- Add additive, squared-weight, linear-weight, OkLab, vivid and MAXIMUM RGB blends.
+  MAXIMUM preserves neutral full daylight; LEGACY retains the earlier appearance.
+- Add source-color presets for Botania, Twilight Forest, Thaumcraft 6,
+  Tinkers' Construct, Biomes O' Plenty, Natura, Natura Legacy, Chisel,
+  Applied Energistics 2 and Ars Magica 2: Rekindled.
+- Add CBMultipart lighting integration and RGB support for ProjectRed lamps,
+  fixtures, buttons and light microblocks, preserving brightness and power state.
+- Add configurable source colors and per-channel filters in `pulsar-colors.cfg`
+  and `pulsar-filters.cfg`. `/pulsar reload` validates changes, rolls back failures
+  and relights loaded chunks automatically.
+- Add optional RGB shader lighting, tested with Demonica and Complementary Reimagined.
+- Add public static/positional lighting APIs, a Forge registration event,
+  API/source artifacts and conversion helpers for SuperNova light values.
+- Add opt-in lighting/render tracing and Celeritas rebuild diagnostics.
 
 ### Changed
 
-- Capture canonical sky once when initializing RGB channels, with copy-on-write
-  channel isolation and read-only packing that preserves shared storage.
-- Share fallback client skylight/extrusion, retain unchanged immutable sections,
-  and avoid fallback arrays when authoritative RGB sky is already available.
-- Store packed RGB dirty bounds as shorts (cell range 0..4095).
-- Share immutable RGB/canonical planes and use copy-on-write canonical nibbles.
-- Allocate BFS queues and contextual tracking structures on demand, and omit
-  client render bounds from server engines. Add reproducible memory/allocation probes.
-- Coalesce contextual scalar/RGB notifications until both samples are published,
-  and defer Multipart light checks until part callbacks have settled at tick end.
-- Stop polling standard constant-material Multipart sources; retain polling for
-  custom parts/materials and neighbouring context-dependent blocks.
-
-- Extend SuperNova-derived default hues to the remaining common vanilla light
-  sources while retaining their contextual source strength.
-- Deprecate the legacy no-op light flush API and clarify readiness query semantics.
-- Match stained-glass/pane transmission to SuperNova's dedicated light palette
-  instead of dye texture colors. Align common source hues while retaining their
-  contextual emission strength and explicit palette overrides.
-- Reduce initial skylight BFS work by pruning directions into columns already
-  filled with direct sky, preserving chunk boundaries, attenuating surfaces,
-  contextual and fluid opacity lookups, and sided-block handling.
-- Default new or regenerated configurations to RGB, squared-weight blending and
-  RGB_MAX gameplay light. Retain valid explicit SCALAR configurations. Engine
-  and gameplay policy changes require a restart.
-- Share RGB queues and reuse bounded worker scratch, frozen state metadata,
-  immutable snapshot sections and sampler chunk views.
-- Skip redundant RGB sky work in verified filter-free neighborhoods, preserving
-  contextual, sided and Fluidlogged behavior.
-- RGB_MAX servers require compatible Pulsar clients; unsupported clients receive
-  an explanatory disconnect after a capability-handshake grace period. SCALAR
-  servers retain ordinary client compatibility.
+- Default to SCALAR. RGB uses squared-weight blending and RGB_MAX gameplay light
+  by default; existing explicit mode choices are preserved.
+- Upgrade the config schema to version 3, preserving existing settings and filling
+  missing options with current defaults.
+- Reduce lighting memory use and allocation through shared immutable data,
+  lazy buffers and worker reuse.
+- Reduce redundant skylight work during chunk generation and updates.
+- Batch contextual light notifications and avoid unnecessary polling of constant
+  Multipart light sources.
+- Align vanilla source hues and stained-glass/pane filtering with SuperNova's
+  lighting palette while retaining contextual brightness and explicit overrides.
+- Deprecate the legacy no-op light flush API and clarify lighting readiness queries.
+- Require compatible Pulsar clients for RGB_MAX servers. SCALAR servers retain
+  ordinary client compatibility.
 
 ### Fixed
 
-- Persist light-only updates on otherwise untouched chunks, including neighbouring
-  chunks; later worker publications survive vanilla's post-save dirty reset.
-- Retain previous/static light samples when mod callbacks fail, with bounded logging
-  and exponential retry. Do not persist degraded samples as valid caches or block
-  chunk visibility while a callback is waiting to retry.
-- Reject light-cache saves/loads crossing a palette reload and revalidate delayed
-  chunk registration; replay dynamic-source notifications after cached chunk loading.
-- Subtract night-time sky darkening per RGB component instead of scaling weak
-  filtered skylight; correct mixed-hue attenuation in the shader lightmap path too.
-- Center current-chunk and radius relights correctly at negative fractional coordinates.
-- Avoid an extra brightness penalty when block and sky light have different hues
-  in RGB_MAX; retain independent scalar-light attenuation in VANILLA and LEGACY output.
-- Avoid the OptiFine G5 startup crash from the vanilla-only partial-face renderer
-  mixin (#26). With OptiFine, leave that correction to its renderer; other Pulsar
-  lighting hooks remain enabled. Full OptiFine rendering/RGB compatibility is not certified.
-- Keep the global pending-light query consistent while initial Sky and Block
-  lighting hand work to their final edge passes, preventing premature idle reports.
-- Order Forge's initial PLAY transition after queued LOGIN packet writes,
-  preventing intermittent login-success encoding failures in RGB and SCALAR.
-
-- Retry completed deferred chunk updates before fresh server-tick work in both
-  SCALAR and RGB, preventing large edits from remaining unsent to clients.
-- Retry lighting-deferred initial chunk sends before fresh server-tick work,
-  retaining readiness checks and cancelling stale or unloaded entries.
-- Handle RGB logout with absent or stale connections without removing live peers.
-- Preserve RGB modulation for negative signed lightmap coordinates.
+- Save light-only changes on otherwise untouched chunks, including neighbouring chunks.
+- Keep lighting usable when mod callbacks fail, retaining previous/static samples
+  without blocking chunk visibility or saving degraded light as a valid cache.
+- Prevent stale light caches and missed dynamic-source updates around palette reloads
+  and cached chunk loading.
+- Correct night-time sky attenuation, mixed-hue brightness and signed lightmap
+  coordinate handling in RGB rendering.
+- Center manual relights correctly at negative fractional coordinates.
+- Avoid the OptiFine G5 startup crash (#26). Full OptiFine rendering/RGB compatibility
+  remains unsupported.
+- Prevent premature lighting-completion reports and missing chunk updates after
+  large edits or during initial chunk loading.
+- Fix intermittent login packet encoding errors and RGB disconnection handling.
 
 ## [0.5.3]
 

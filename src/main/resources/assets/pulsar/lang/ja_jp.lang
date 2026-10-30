@@ -1,0 +1,10 @@
+pulsar.mode.title=Pulsar：照明モードを選択
+pulsar.mode.intro=このインスタンスで使うモードを選んでください。後からMod設定で変更できます。
+pulsar.mode.scalar=SCALARを使う
+pulsar.mode.scalar.description=色のない通常の照明です。デフォルトのモードです。
+pulsar.mode.rgb=RGBを使う
+pulsar.mode.rgb.description=ブロック光と天空光をカラーで計算します。サーバー側にもPulsarが必要です。モード変更には再起動が必要です。
+pulsar.mode.restart=選択を保存しました。%sの照明を使うにはMinecraftを再起動してください。
+pulsar.mode.relaunch=終了後、ランチャーからこのインスタンスを起動し直してください。
+pulsar.mode.quit=Minecraftを終了
+pulsar.mode.saveFailed=選択を保存できませんでした。ログを確認して再試行してください。

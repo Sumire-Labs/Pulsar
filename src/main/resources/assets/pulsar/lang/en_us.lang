@@ -1,0 +1,10 @@
+pulsar.mode.title=Pulsar: Choose your lighting mode
+pulsar.mode.intro=Choose a mode for this Minecraft instance. You can change it later in Mod Options.
+pulsar.mode.scalar=Use SCALAR
+pulsar.mode.scalar.description=Conventional lighting without colors. The default mode.
+pulsar.mode.rgb=Use RGB
+pulsar.mode.rgb.description=Colored block and sky lighting. Requires Pulsar on the server too. Changing modes requires a restart.
+pulsar.mode.restart=Your choice has been saved. Restart Minecraft to use %s lighting.
+pulsar.mode.relaunch=Quit, then launch this instance again from your launcher.
+pulsar.mode.quit=Quit Minecraft
+pulsar.mode.saveFailed=Could not save the selection. Check the log and try again.

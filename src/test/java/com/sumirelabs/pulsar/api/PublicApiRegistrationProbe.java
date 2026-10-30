@@ -45,8 +45,10 @@ public final class PublicApiRegistrationProbe {
         Path home = Path.of(args[0]);
         Files.createDirectories(home.resolve("config"));
         net.minecraft.launchwrapper.Launch.minecraftHome = home.toFile();
+        var injectionHome = net.minecraftforge.fml.relauncher.FMLInjectionData.class.getDeclaredField("minecraftHome");
+        injectionHome.setAccessible(true); injectionHome.set(null, home.toFile());
         Files.writeString(home.resolve("config/pulsar.cfg"),
-                "I:configVersion=2\nS:lightingMode=" + args[1] + "\n");
+                "general {\nI:configVersion=2\nS:lightingMode=" + args[1] + "\n}\n");
         new RgbMixinSelection().onLoad("com.sumirelabs.pulsar.mixin");
         Bootstrap.register();
         BlockLightColors.defaults();

@@ -55,7 +55,8 @@ Pulsar completely replaces the lighting engine and is incompatible with other li
 ## Configuration
 
 - `config/pulsar.cfg`: Selects the lighting mode and configures additional features.
-  - `lightingMode`: `RGB` (default, RGB colored lighting) or `SCALAR` (conventional, non-colored lighting).
+  - `lightingMode`: `SCALAR` (default, conventional, non-colored lighting) or `RGB` (RGB colored lighting).
+  - `lightingModeSelected`: `false` by default. On the first client launch, choose SCALAR or RGB once for this instance; the selection sets this to `true`. Changing the active mode requires restarting Minecraft. Modpacks can set this to `true` to skip the prompt; dedicated servers use `lightingMode` directly.
   - `rgbGameplayLight`: `RGB_MAX` (default, uses the brightest RGB component as gameplay brightness; per-channel attenuation affects light checks such as mob spawning) or `VANILLA` (calculates non-colored lighting separately for gameplay light checks).
   - `rgbBlendMode`: Includes an optional `MAXIMUM` mode that combines block and sky light by taking the brightest value per channel. Full daylight stays neutral around colored sources. This controls normal rendering; shader packs handle their own shading.
   - `debug.traceLightUpdates`: Opt-in diagnostics for lighting queues, render requests, and Celeritas rebuilds. Logs a bounded summary every 200 client ticks; caller and position samples cover 1 in 64 requests.

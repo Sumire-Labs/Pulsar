@@ -10,6 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class RgbPaletteCacheTest {
     @TempDir Path directory;
     @Test void reloadInvalidatesRealStateAndSectionCachesAndRestoresDefaults() throws Exception {
+        // RGB-specific probes must opt in; also exercise preservation of a v2 mode choice.
+        Files.createDirectories(directory.resolve("config"));
+        Files.writeString(directory.resolve("config/pulsar.cfg"),
+                "general {\n I:configVersion=2\n S:lightingMode=RGB\n}\n");
         Path config=directory.resolve("palette-probe.jar");
         try(var jar=new JarOutputStream(Files.newOutputStream(config));var input=getClass().getResourceAsStream("/pulsar-palette-test.mixins.json")) {
             assertNotNull(input);jar.putNextEntry(new JarEntry("pulsar-palette-test.mixins.json"));input.transferTo(jar);jar.closeEntry();
