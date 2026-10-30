@@ -79,12 +79,13 @@ vec4 pulsarLightmap(vec4 original, vec3 relativePosition, vec2 coordinates) {
     if (!pulsarSample(relativePosition, blockLight, skyLight)) return original;
     float skyDarkening = 15.0 - 15.0 * pulsarSkyScale;
     vec3 effectiveSky = max(vec3(0.0), skyLight.rgb - vec3(skyDarkening));
-    vec3 combined = vec3(0.6) + blockLight.rgb + effectiveSky;
+    // Ambient brightness must not restore channels removed by colored glass.
+    vec3 combined = blockLight.rgb + effectiveSky;
     float peak = pulsarPeak(combined);
-    if (peak <= 0.0) return vec4(vec3(0.0), original.a);
     float canonical = 0.6 + blockLight.a + max(0.0, skyLight.a - skyDarkening);
-    vec3 tint = combined / peak;
     float attenuation = min(1.0, (0.6 + pulsarPeak(blockLight.rgb) + pulsarPeak(effectiveSky)) / max(0.6, canonical));
+    if (peak <= 0.0) return vec4(original.rgb * attenuation, original.a);
+    vec3 tint = combined / peak;
     if (all(greaterThanEqual(tint, vec3(0.999)))) return vec4(original.rgb * attenuation, original.a);
     return vec4(max(0.0, pulsarPeak(original.rgb)) * tint * attenuation, original.a);
 }

@@ -4,6 +4,19 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RgbTintBlendModeTest {
+    @Test void absorbedPrimariesStayAbsentAcrossLightLevelsAndMaterialColors() {
+        for (var mode : RgbTintBlendMode.values()) {
+            if (mode == RgbTintBlendMode.LEGACY) continue;
+            for (int level = 1; level <= 15; level++) for (int lane = 0; lane < 3; lane++) {
+                int[] rgb = new int[3]; rgb[lane] = level;
+                int actual = mode.tintAbgr(0x7FABCDEF, rgb[0], rgb[1], rgb[2], level, 0, 0, 0, 0, 0);
+                assertEquals(0x7F, actual >>> 24);
+                for (int c = 0; c < 3; c++) if (c != lane)
+                    assertEquals(0, actual >>> (8*c) & 255, mode.name()+" level="+level);
+            }
+        }
+    }
+
     @Test void oklabDoesNotIntroduceOtherHuesIntoAnIsolatedPrimary() {
         for(int channel=0;channel<3;channel++) {
             float[] source=new float[3],actual=new float[3];source[channel]=15;
@@ -11,14 +24,14 @@ class RgbTintBlendModeTest {
             for(int c=0;c<3;c++)assertEquals(c==channel?1f:0f,actual[c],.00001f);
         }
     }
-    @Test void dimColoredLightKeepsNaturalHueWithoutBecomingAlmostWhite() {
+    @Test void dimFilteredLightNeverReintroducesAbsorbedChannels() {
         for(var mode:RgbTintBlendMode.values()) {
             if(mode==RgbTintBlendMode.LEGACY)continue;
             float[] tint=new float[3];
             mode.computeTint(7,0,0,0,0,0,tint);
             assertTrue(tint[0]>.99f,mode.name());
-            assertTrue(tint[1]>.4f && tint[1]<.6f,mode.name());
-            assertTrue(tint[2]>.4f && tint[2]<.6f,mode.name());
+            assertEquals(0f,tint[1],.00001f,mode.name());
+            assertEquals(0f,tint[2],.00001f,mode.name());
             mode.computeTint(12,0,0,0,0,0,tint);
             assertTrue(tint[1]<.25f && tint[2]<.25f,mode.name()+java.util.Arrays.toString(tint));
             int dark=mode.tintAbgr(-1,0,0,0,15,0,0,0,0,0);

@@ -21,7 +21,7 @@ class RgbShaderGpuTest {
         if(!process.waitFor(60,TimeUnit.SECONDS)){process.destroyForcibly();fail("GPU probe timeout");}
         String output=Files.readString(log);
         assertEquals(0,process.exitValue(),output);
-        assertTrue(output.contains("RGB_GPU_PASS cases=7"),output);
+        assertTrue(output.contains("RGB_GPU_PASS cases=8"),output);
         System.out.println(output);
     }
 }

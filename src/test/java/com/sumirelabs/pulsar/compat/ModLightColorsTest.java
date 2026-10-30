@@ -64,7 +64,7 @@ class ModLightColorsTest {
             for(boolean lit:new boolean[]{false,true}) {
                 var state=fire.getDefaultState().withProperty(LIT,lit);
                 int value=com.sumirelabs.pulsar.rgb.RgbLightAccess.effectiveEmission(output.get(state),state.getLightValue(),projected);
-                assertEquals(lit?0xFA6:0,value);
+                assertEquals(lit?0xFCA:0,value);
             }
         }
     }
@@ -135,7 +135,7 @@ class ModLightColorsTest {
                 Map.entry("appliedenergistics2:quartz_vibrant_glass",0xFFF), Map.entry("appliedenergistics2:quartz_fixture",0xEEE),
                 Map.entry("natura:nether_green_large_glowshroom",0x091), Map.entry("natura:nether_blue_large_glowshroom",0x039),
                 Map.entry("natura:nether_purple_large_glowshroom",0x708),
-                Map.entry("chisel:glowstone",0xFCA), Map.entry("chisel:glowstone1",0xFCA), Map.entry("chisel:glowstone2",0xFCA));
+                Map.entry("chisel:glowstone",0xFD3), Map.entry("chisel:glowstone1",0xFD3), Map.entry("chisel:glowstone2",0xFD3));
         Map<ResourceLocation,Block> blocks=new HashMap<>();
         expected.keySet().forEach(id->blocks.put(new ResourceLocation(id),new Plain()));
         blocks.put(new ResourceLocation("chisel:lavastone"),new Plain());

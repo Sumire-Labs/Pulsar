@@ -57,7 +57,7 @@ public final class ModLightColors {
         });
         register(lookup,register,"twilightforest:firefly",state->0xFCA);
         register(lookup,register,"twilightforest:firefly_jar",state->0xFCA);
-        register(lookup,register,"twilightforest:twilight_portal",state->0xA4F);
+        register(lookup,register,"twilightforest:twilight_portal",state->0xA0F);
         register(lookup,register,"twilightforest:cinder_furnace_lit",state->0xDCA);
         register(lookup,register,"twilightforest:trollber",state->0xFEC);
         register(lookup,register,"twilightforest:huge_mushgloom",state->0x420);
@@ -95,9 +95,9 @@ public final class ModLightColors {
                                                    BiConsumer<IBlockState, Integer> register) {
         // Future MC 0.2.21: FBlocks registry IDs and CampfireBlock's lit-dependent
         // emission verified from the released jar. Hues never force an unlit fire on.
-        register(lookup, register, "futuremc:lantern", state -> 0xFB7);
-        register(lookup, register, "futuremc:campfire", state -> 0xFA6);
-        register(lookup, register, "futuremc:soul_fire_lantern", state -> 0x8DF);
+        register(lookup, register, "futuremc:lantern", state -> 0xFC5);
+        register(lookup, register, "futuremc:campfire", state -> 0xFCA);
+        register(lookup, register, "futuremc:soul_fire_lantern", state -> 0x9EF);
         register(lookup, register, "tconstruct:stone_torch", state -> 0xDA8);
         register(lookup, register, "biomesoplenty:crystal", state -> 0x0BF);
         // In 1.12 glowshroom moved from flowers2 metadata to mushroom[variant=glowshroom].
@@ -132,7 +132,7 @@ public final class ModLightColors {
         register(lookup, register, "arsmagica2:celestial_prism", state -> 0xFFF);
         // Chisel splits 33 variants over three registry entries; never guess a metadata color.
         for (String name : new String[]{"glowstone", "glowstone1", "glowstone2"})
-            register(lookup, register, "chisel:" + name, state -> 0xFCA);
+            register(lookup, register, "chisel:" + name, state -> 0xFD3);
     }
 
     private static String namedProperty(IBlockState state, String name) {

@@ -45,15 +45,16 @@ public final class RgbShaderGpuProbe {
             glUniform1i(location("pulsarHasSky"),1);glUniform1i(location("pulsarLightEnabled"),1);
             glUniform1f(location("pulsarSkyScale"),1);glUniform3f(location("position"),8,8,8);glUniform2f(location("coordinates"),.5f,.5f);
             field(0xF00,0x00F,15,15);
-            expect("mixed RGB_MAX",.8f,.8f*.6f/15.6f,.8f,.25f);
+            expect("mixed RGB_MAX",.8f,0,.8f,.25f);
             glUniform1i(location("pulsarLightEnabled"),0);expect("disabled",.8f,.7f,.6f,.25f);
             glUniform1i(location("pulsarLightEnabled"),1);glUniform2f(location("coordinates"),1,1);expect("fullbright",.8f,.7f,.6f,.25f);
             glUniform2f(location("coordinates"),.5f,.5f);glUniform3f(location("position"),-8,8,8);expect("unloaded neighbour",.8f,.7f,.6f,.25f);
             glUniform3f(location("position"),8,8,8);field(0,0,15,0);expect("absorbed VANILLA",.8f*.6f/15.6f,.7f*.6f/15.6f,.6f*.6f/15.6f,.25f);
             field(0xFFF,0xFFF,15,15);expect("white",.8f,.7f,.6f,.25f);
+            field(0x700,0,7,0);expect("dim red glass",.8f,0,0,.25f);
             field(0,0x600,0,6);glUniform1f(location("pulsarSkyScale"),4/15f);expect("filtered night sky",.8f,.7f,.6f,.25f);
             if(glGetError()!=GL_NO_ERROR)throw new AssertionError("OpenGL error");
-            System.out.println("RGB_GPU_PASS cases=7");
+            System.out.println("RGB_GPU_PASS cases=8");
         } finally {if(window!=0)glfwDestroyWindow(window);glfwTerminate();}
     }
     private static int compile(int type,String text){int shader=glCreateShader(type);glShaderSource(shader,text);glCompileShader(shader);if(glGetShaderi(shader,GL_COMPILE_STATUS)==0)throw new AssertionError(glGetShaderInfoLog(shader));return shader;}

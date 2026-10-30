@@ -141,26 +141,26 @@ public final class BlockLightColors {
         // SuperNova DefaultColors/LightColors, commit 22d8559c3064d77d115e58523c58cde824f4e214.
         // Keep Pulsar's contextual scalar peak; adopt hue without changing source strength.
         defaultHue(Blocks.TORCH, 0xDA8);
-        defaultHue(Blocks.GLOWSTONE, 0xFCA);
+        defaultHue(Blocks.GLOWSTONE, 0xFD3);
         // Warmer lava hue; retain its contextual emission strength.
-        defaultHue(Blocks.LAVA, 0xF83);
-        defaultHue(Blocks.FLOWING_LAVA, 0xF83);
-        defaultHue(Blocks.REDSTONE_TORCH, 0xF11); // Red ember; retain the original level 7.
-        defaultHue(Blocks.SEA_LANTERN, 0xBDF); // Soft cool white.
-        defaultHue(Blocks.LIT_REDSTONE_ORE, 0xF11);
-        defaultHue(Blocks.FIRE, 0xFB6);
+        defaultHue(Blocks.LAVA, 0xFCA);
+        defaultHue(Blocks.FLOWING_LAVA, 0xFCA);
+        defaultHue(Blocks.REDSTONE_TORCH, 0x611);
+        defaultHue(Blocks.SEA_LANTERN, 0xAFF);
+        defaultHue(Blocks.LIT_REDSTONE_ORE, 0x511);
+        defaultHue(Blocks.FIRE, 0xEC0);
         defaultHue(Blocks.END_PORTAL, 0x7FB);
-        defaultHue(Blocks.LIT_PUMPKIN, 0xF95); // Soft pumpkin-orange.
+        defaultHue(Blocks.LIT_PUMPKIN, 0xFDB);
         defaultHue(Blocks.BREWING_STAND, 0x110);
         defaultHue(Blocks.ENDER_CHEST, 0x376);
         defaultHue(Blocks.DRAGON_EGG, 0x111);
         defaultHue(Blocks.LIT_REDSTONE_LAMP, 0xFCA);
         defaultHue(Blocks.BEACON, 0xCCC);
-        defaultHue(Blocks.PORTAL, 0xB4F); // Soft violet, original brightness.
+        defaultHue(Blocks.PORTAL, 0x72B);
         defaultHue(Blocks.BROWN_MUSHROOM, 0x110);
-        defaultHue(Blocks.LIT_FURNACE, 0xFA7);
-        defaultHue(Blocks.POWERED_COMPARATOR, 0xF11);
-        defaultHue(Blocks.POWERED_REPEATER, 0xF11);
+        defaultHue(Blocks.LIT_FURNACE, 0xDCA);
+        defaultHue(Blocks.POWERED_COMPARATOR, 0x611);
+        defaultHue(Blocks.POWERED_REPEATER, 0x611);
     }
     /** Internal lifecycle hook: optional mods have completed post-init by this point. */
     public static synchronized void modDefaults() {

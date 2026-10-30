@@ -205,13 +205,12 @@ public enum RgbTintBlendMode {
     public static volatile RgbTintBlendMode current = LEGACY;
 
     /**
-     * Gently fade hue near darkness to hide 4-bit quantization, without applying
-     * vanilla's nonlinear brightness curve a second time to color saturation.
+     * SuperNova's vanilla brightness curve controls dim-hue softening.
      * Brightness itself remains the responsibility of the lightmap/canonical light.
      */
     static float hueConfidence(float maxLight) {
         final float l = Math.min(15f, Math.max(0f, maxLight));
-        return l / 15f;
+        return l / (60f - 3f * l);
     }
 
     static void linearRgbToOkLab(float r, float g, float b, float[] out, int offset) {
@@ -230,9 +229,13 @@ public enum RgbTintBlendMode {
         final float maxLight = Math.max(Math.max(br, Math.max(bg, bb)), Math.max(sr, Math.max(sg, sb)));
         final float w = hueConfidence(maxLight);
         if (w >= 1f) return;
-        out[0] = 1f + (out[0] - 1f) * w;
-        out[1] = 1f + (out[1] - 1f) * w;
-        out[2] = 1f + (out[2] - 1f) * w;
+        // Soften dim hues without adding energy to an absent channel. Mixing
+        // toward white made red-filtered light acquire green and blue again.
+        // This bounded polynomial retains zero/one endpoints and neutral light.
+        for (int c = 0; c < 3; c++) {
+            float value = out[c];
+            out[c] = value + value * (1f - value) * (1f - w);
+        }
     }
 
     public int tintAbgr(int color, int r, int g, int b, int canonical,

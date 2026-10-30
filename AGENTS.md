@@ -1,9 +1,9 @@
 # RGB visual direction
 
-The user's standing preference is natural, restrained colored lighting across
-all existing and future RGB-supported blocks. Colors should remain identifiable
-and a little more expressive than very muted SuperNova-style defaults, without
-Gleam-like neon intensity or uniformly high saturation.
+The user's standing preference is SuperNova-like source colors and brightness
+with natural, restrained rendering across existing and future RGB blocks.
+Suppress the white appearance of colored-glass light: softening dim hues must
+not restore absorbed RGB components. Avoid Gleam-like neon intensity.
 
 - Match each source's material and identity with soft, believable hues.
 - Preserve source light levels and lit/unlit behavior unless explicitly requested.

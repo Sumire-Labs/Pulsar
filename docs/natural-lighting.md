@@ -1,78 +1,62 @@
-# Natural RGB lighting direction
+# SuperNova-like RGB lighting
 
-The standing visual target is natural, restrained color across all supported
-blocks: identifiable hues with a little more presence than muted defaults,
-without uniformly saturated or neon-looking lighting. See [AGENTS.md](../AGENTS.md).
-The user's Gleam reference is visual inspiration, not a target for identical rendering.
+The visual target is SuperNova-like source colors and brightness, with restrained
+rendering and less whitening through colored glass. This supersedes the earlier
+Gleam-inspired palette. Source strength and lit/unlit semantics remain contextual:
+Pulsar does not raise Future MC soul lanterns from level 10 to 15 merely to match
+SuperNova's different backport. User overrides and mod color APIs retain priority.
 
-## Source palette adjustments
+## Palette
 
-These are 4-bit RGB hues, normalized to each source's existing light level.
-They do not add emission to blocks that are off or non-emissive.
+Hues follow SuperNova DefaultColors, LightColors, EtFuturumColors and
+CampfireBackportColors (reference commit 22d8559c3064d77d115e58523c58cde824f4e214).
+Values are normalized to the existing source level in Pulsar.
 
-| Source | Hue | Direction |
-|---|---|---|
-| Redstone torch / lit ore / powered repeater and comparator | `F11` | Red ember |
-| Jack o'lantern | `F95` | Soft pumpkin orange |
-| Glowstone and Chisel glowstone variants | `FCA` | Warm white |
-| Fire | `FB6` | Warm amber |
-| Lit furnace | `FA7` | Soft orange |
-| Sea lantern | `BDF` | Cool white |
-| Nether portal | `B4F` | Soft violet |
-| Twilight Forest portal | `A4F` | Slightly cooler violet |
-| Future MC lantern | `FB7` | Warm lantern light |
-| Future MC campfire | `FA6` | Warm flame |
-| Future MC soul fire lantern | `8DF` | Pale cyan |
-| Botania blaze block | `FC6` | Warm amber |
+| Source | Hue |
+|---|---|
+| Torch | `DA8` |
+| Glowstone / Chisel glowstone | `FD3` |
+| Lava / lit redstone lamp | `FCA` |
+| Redstone torch / powered repeater and comparator | `611` |
+| Lit redstone ore | `511` |
+| Fire | `EC0` |
+| Jack o'lantern | `FDB` |
+| Lit furnace | `DCA` |
+| Sea lantern | `AFF` |
+| Nether portal | `72B` |
+| Twilight Forest portal | `A0F` |
+| Future MC lantern | `FC5` |
+| Future MC campfire | `FCA` |
+| Future MC soul fire lantern | `9EF` |
 
-Future MC 0.2.21's installed JAR was inspected: the IDs are `futuremc:lantern`,
-`futuremc:campfire`, and `futuremc:soul_fire_lantern`. Lanterns retain level 15,
-soul lanterns level 10, and campfires retain their `lit`-dependent 15/0 behavior.
-This agrees with the upstream [registry](https://github.com/thedarkcolour/Future-MC/blob/58406daa6d7de87917b66d45b66afd8614fe6679/src/main/java/thedarkcolour/futuremc/registry/FBlocks.kt)
-and [campfire implementation](https://github.com/thedarkcolour/Future-MC/blob/58406daa6d7de87917b66d45b66afd8614fe6679/src/main/java/thedarkcolour/futuremc/block/villagepillage/CampfireBlock.kt).
-No Future MC classes are linked into Pulsar's preset registration path.
+## Dim light and glass
 
-User palette overrides and mod-provided color APIs retain their precedence.
-Other dye/aspect-specific presets retain their identifying hues. The common
-render-tint adjustment below also applies to those RGB light sources.
+The non-legacy renderer uses SuperNova's `L / (60 - 3L)` curve as a softening
+weight. Instead of interpolating each normalized tint component `t` toward white,
+it uses `t + t * (1 - t) * (1 - weight)`. This keeps zero components at zero,
+softens intermediate components without exceeding one, and retains neutral light.
+It applies to all supported sources without filter-provenance storage or extra
+world lookups. Genuine white sky/light can still mix with colored light.
 
-## Low-light tint
+The generic shader lightmap bridge also stops adding its neutral `0.6` term to
+RGB hue. That term remains in canonical brightness attenuation. Named shader
+adapters already preserve missing color components. LEGACY is retained as the
+original comparison mode and does not receive this change.
 
-The normal non-legacy tint path previously used `L / (60 - 3L)` as its hue weight,
-pulling partially attenuated colors strongly toward neutral white. It now uses
-`L / 15`, retaining a gradual fade near darkness without maximizing saturation.
-At levels 7 and 12 the weights change from approximately 0.18/0.50 to 0.47/0.80.
-The default blend mode stays `SQUARED_WEIGHT`; the legacy render path is retained.
+These rendering changes address an identified whitening mechanism. They do not
+prove that every reported pale area has the same cause. An open roof permits
+unfiltered light to travel around glass, and vertex sampling can mix nearby light.
+The production-engine fixture checks closed, open and reclosed red-glass shells
+and compares packed propagation with independent channel propagation.
 
-This tint curve does not modify propagated or gameplay light. Changing source
-hues can still change brightness *after colored filters* in RGB_MAX, as intended
-by that mode. Maximum source strength and unfiltered reach are preserved.
+## Validation and use
 
-The OKLAB forward matrix was also corrected to match its existing inverse,
-following the [linear sRGB/Oklab definition](https://bottosson.github.io/posts/oklab/).
-Isolated primaries now round-trip without introducing another hue.
+Regression tests cover absent primary channels at levels 1–15, material alpha,
+neutral light, mixed sky, all tint modes, and the actual GLSL on a GPU. Palette
+tests retain campfire off states and soul-lantern level 10.
 
-## Glass observation
-
-A production-engine fixture with four red-glass sides, a red-glass roof and an
-opaque floor gives `C00` outside: no green or blue block-light component escapes.
-Opening the roof gives `C74` through an unfiltered air route; closing it restores
-`C00`. Roof removal also matches a freshly computed open enclosure over all cells.
-The existing 35 closed-shell filter cases remain checked for both engine paths.
-
-The supplied screenshot does not establish the exact cause of the visible pale
-halo. Possible contributions include an open route, sky light and render tint.
-The old low-light whitening is a confirmed render behavior, not a failure of the
-red-glass absorption rule. Some intentional soft fading and sky mixing remain.
-Actual appearance still needs the user's in-game visual check; no running instance
-or save was modified during this work.
-
-## Validation and applying the change
-
-Full build with GPU tests: 390 tests, 386 passed, four opt-in benchmark tests skipped.
-Seven GPU rendering cases passed. Preset tests check soul-light strength and
-campfire off states; tint tests cover natural low-light color and OKLAB primaries.
-
-Install the rebuilt Pulsar JAR and restart Minecraft. `/pulsar reload` reads palette
-files, not new Java defaults or renderer code. Explicit `pulsar-colors.cfg` overrides
-continue to win over the new built-ins.
+Install the rebuilt JAR and restart Minecraft; `/pulsar reload` alone does not
+replace renderer code. Existing `pulsar-colors.cfg` overrides still take priority.
+Visual equivalence across Minecraft 1.12.2 and 1.7.10 is approximate and requires
+in-game review; the earlier screenshot gallery shows the build before this change.
+Validation: full build passed; 391 tests, 387 passed, four opt-in benchmarks skipped. All eight actual-GPU cases passed.
