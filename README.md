@@ -33,6 +33,7 @@ It offers a non-colored SCALAR lighting mode like Starlight and a full RGB color
 - JSON Paintings: Applies smooth lighting to paintings added by the mod.
 - SpongeForge: Includes compatibility support for asynchronous lighting.
 - Fluidlogged API: Accounts for the opacity and light emission of fluids stored inside blocks.
+- Future MC: Warm lanterns and campfires, and pale cyan soul lanterns, retaining their original brightness and lit/unlit behavior.
 - CBMultipart: Standard microblocks inherit their materials' light source colors. Custom parts retain neutral emission unless handled by a dedicated integration.
 - ProjectRed: RGB emission for full-block lamps, multipart fixtures, light buttons, and light microblock materials, preserving their actual brightness and power state.
 - Depths Update: Supports extended world height ranges.

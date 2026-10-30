@@ -55,6 +55,39 @@ public final class RgbGlassProbe {
             }
         }
         System.out.println("GLASS_BFS_PASS legacy=" + legacy + " cases=35");
+        if (!legacy) testRoofBypass();
+    }
+
+    private static void testRoofBypass() throws Exception {
+        var height=WorldHeightContext.contiguous(0,0);
+        var engine=new RgbPackedBlockChannelEngine(world(),height,new HashSet<>());
+        setupCross(engine,true);
+        engine.checkBlock(8,8,8);engine.performLightIncrease();
+        int closed=PackedRgbLight.toCompact(engine.getLightLevel(10,8,8));
+        if(closed!=0xC00)throw new AssertionError("Closed red enclosure leaked unfiltered components: "+closed);
+        var section=engine.getChunkSection(0,0,0);
+        section.set(8,9,8,Blocks.AIR.getDefaultState());
+        engine.resetTaskState();engine.checkBlock(8,9,8);engine.performLightDecrease();
+        int open=PackedRgbLight.toCompact(engine.getLightLevel(10,8,8));
+        if((open&0xFF)==0)throw new AssertionError("Open roof did not allow the unfiltered air route");
+        var fresh=new RgbPackedBlockChannelEngine(world(),height,new HashSet<>());
+        setupCross(fresh,false);fresh.checkBlock(8,8,8);fresh.performLightIncrease();
+        for(int x=0;x<16;x++)for(int y=0;y<16;y++)for(int z=0;z<16;z++)
+            if(engine.getLightLevel(x,y,z)!=fresh.getLightLevel(x,y,z))throw new AssertionError("Roof removal differs from fresh open enclosure");
+        section.set(8,9,8,Blocks.STAINED_GLASS.getStateFromMeta(EnumDyeColor.RED.getMetadata()));
+        engine.resetTaskState();engine.checkBlock(8,9,8);engine.performLightDecrease();
+        if(PackedRgbLight.toCompact(engine.getLightLevel(10,8,8))!=closed)
+            throw new AssertionError("Closing the roof left unfiltered light behind");
+        System.out.printf("GLASS_ENCLOSURE_PASS closed=%03X open=%03X reclosed=%03X%n",closed,open,closed);
+    }
+
+    private static void setupCross(RgbPackedBlockChannelEngine engine,boolean roof) {
+        setup(engine,Blocks.AIR.getDefaultState());
+        var section=engine.getChunkSection(0,0,0);
+        for(int x=0;x<16;x++)for(int z=0;z<16;z++)section.set(x,7,z,Blocks.STONE.getDefaultState());
+        var red=Blocks.STAINED_GLASS.getStateFromMeta(EnumDyeColor.RED.getMetadata());
+        section.set(7,8,8,red);section.set(9,8,8,red);section.set(8,8,7,red);section.set(8,8,9,red);
+        if(roof)section.set(8,9,8,red);
     }
 
     private static void test(String name, IBlockState shell, int source, boolean legacy) throws Exception {

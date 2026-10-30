@@ -23,7 +23,8 @@ class RgbGlassLightingTest {
             assertEquals(0,child.exitValue(),output);
             assertTrue(output.contains("GLASS_BFS_PASS legacy="+legacy+" cases=35"),output);
             assertTrue(output.contains(legacy?"type=red source=E96 outside=800":"type=red source=EB8 outside=C00"),output);
-            output.lines().filter(line->line.startsWith("GLASS ")).forEach(System.out::println);
+            if(!legacy)assertTrue(output.contains("GLASS_ENCLOSURE_PASS closed=C00 open="),output);
+            output.lines().filter(line->line.startsWith("GLASS ")||line.startsWith("GLASS_ENCLOSURE")).forEach(System.out::println);
         }
     }
 }

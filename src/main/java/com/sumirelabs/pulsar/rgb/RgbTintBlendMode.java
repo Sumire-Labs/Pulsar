@@ -205,18 +205,20 @@ public enum RgbTintBlendMode {
     public static volatile RgbTintBlendMode current = LEGACY;
 
     /**
-     * 0 (neutral white) to 1 (full saturation): hue is normalized against the channel max, so at low levels it is 4-bit quantization noise.
-     * Curve is vanilla's own {@code WorldProvider.generateLightBrightnessTable}.
+     * Gently fade hue near darkness to hide 4-bit quantization, without applying
+     * vanilla's nonlinear brightness curve a second time to color saturation.
+     * Brightness itself remains the responsibility of the lightmap/canonical light.
      */
     static float hueConfidence(float maxLight) {
         final float l = Math.min(15f, Math.max(0f, maxLight));
-        return l / (60f - 3f * l);
+        return l / 15f;
     }
 
     static void linearRgbToOkLab(float r, float g, float b, float[] out, int offset) {
+        // Paired with the inverse above: https://bottosson.github.io/posts/oklab/
         float l = 0.4122214708f * r + 0.5363325363f * g + 0.0514459929f * b;
-        float m = 0.2119034982f * r + 0.7159317017f * g + 0.0721750003f * b;
-        float s = 0.1615319361f * r + 0.0882119793f * g + 0.7501670696f * b;
+        float m = 0.2119034982f * r + 0.6806995451f * g + 0.1073969566f * b;
+        float s = 0.0883024619f * r + 0.2817188376f * g + 0.6299787005f * b;
         float l_ = (float) Math.cbrt(l), m_ = (float) Math.cbrt(m), s_ = (float) Math.cbrt(s);
         out[offset] = 0.2104542553f * l_ + 0.7936177850f * m_ - 0.0040720468f * s_;
         out[offset + 1] = 1.9779984951f * l_ - 2.4285922050f * m_ + 0.4505937099f * s_;

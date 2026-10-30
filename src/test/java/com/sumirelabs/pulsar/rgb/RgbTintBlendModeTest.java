@@ -4,6 +4,32 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RgbTintBlendModeTest {
+    @Test void oklabDoesNotIntroduceOtherHuesIntoAnIsolatedPrimary() {
+        for(int channel=0;channel<3;channel++) {
+            float[] source=new float[3],actual=new float[3];source[channel]=15;
+            RgbTintBlendMode.OKLAB.computeTint(source[0],source[1],source[2],0,0,0,actual);
+            for(int c=0;c<3;c++)assertEquals(c==channel?1f:0f,actual[c],.00001f);
+        }
+    }
+    @Test void dimColoredLightKeepsNaturalHueWithoutBecomingAlmostWhite() {
+        for(var mode:RgbTintBlendMode.values()) {
+            if(mode==RgbTintBlendMode.LEGACY)continue;
+            float[] tint=new float[3];
+            mode.computeTint(7,0,0,0,0,0,tint);
+            assertTrue(tint[0]>.99f,mode.name());
+            assertTrue(tint[1]>.4f && tint[1]<.6f,mode.name());
+            assertTrue(tint[2]>.4f && tint[2]<.6f,mode.name());
+            mode.computeTint(12,0,0,0,0,0,tint);
+            assertTrue(tint[1]<.25f && tint[2]<.25f,mode.name()+java.util.Arrays.toString(tint));
+            int dark=mode.tintAbgr(-1,0,0,0,15,0,0,0,0,0);
+            assertTrue((dark&255)<16,mode.name());
+        }
+        float previous=0;
+        for(int step=0;step<=150;step++) {
+            float weight=RgbTintBlendMode.hueConfidence(step/10f);
+            assertTrue(weight>=previous && weight<=1);previous=weight;
+        }
+    }
     @Test void maximumKeepsDaylightNeutralAndRevealsColorAtNight() {
         var mode=RgbTintBlendMode.MAXIMUM;
         assertEquals(0x7F123456,mode.tintAbgr(0x7F123456,15,2,1,15,15,15,15,15,1));

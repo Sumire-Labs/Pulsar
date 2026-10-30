@@ -38,10 +38,36 @@ class ModLightColorsTest {
         protected BlockStateContainer createBlockState(){return new BlockStateContainer(this,VARIANT);}
     }
     static class Plain extends Block { Plain(){super(Material.ROCK);} }
+    private static final net.minecraft.block.properties.PropertyBool LIT=net.minecraft.block.properties.PropertyBool.create("lit");
+    static class Campfire extends Block {
+        Campfire(){super(Material.WOOD);}
+        protected BlockStateContainer createBlockState(){return new BlockStateContainer(this,LIT);}
+        public int getLightValue(IBlockState state){return state.getValue(LIT)?15:0;}
+    }
     static class CustomFlower extends Flower implements ColoredLightSource {
         public int getColoredLightEmission(IBlockState state){throw new AssertionError("Preset must not call mod APIs");}
     }
     @BeforeAll static void bootstrap(){Bootstrap.register();}
+    @Test void futureMcHuesKeepSoulBrightnessAndExtinguishedCampfiresDark(){
+        Plain lantern=new Plain(),soul=new Plain();Campfire fire=new Campfire();
+        lantern.setLightLevel(1f);soul.setLightLevel(10f/15f);
+        var blocks=Map.of(new ResourceLocation("futuremc:lantern"),(Block)lantern,
+                new ResourceLocation("futuremc:soul_fire_lantern"),soul,
+                new ResourceLocation("futuremc:campfire"),fire);
+        Map<IBlockState,Integer> output=new IdentityHashMap<>();
+        ModLightColors.registerDefaults(blocks::get,output::put);
+        assertEquals(4,output.size());
+        for(boolean projected:new boolean[]{false,true}) {
+            int warm=com.sumirelabs.pulsar.rgb.RgbLightAccess.effectiveEmission(output.get(lantern.getDefaultState()),15,projected);
+            int cool=com.sumirelabs.pulsar.rgb.RgbLightAccess.effectiveEmission(output.get(soul.getDefaultState()),10,projected);
+            assertEquals(15,warm>>>8);assertEquals(10,cool&15);assertTrue((cool&15)>(cool>>>8));
+            for(boolean lit:new boolean[]{false,true}) {
+                var state=fire.getDefaultState().withProperty(LIT,lit);
+                int value=com.sumirelabs.pulsar.rgb.RgbLightAccess.effectiveEmission(output.get(state),state.getLightValue(),projected);
+                assertEquals(lit?0xFA6:0,value);
+            }
+        }
+    }
     @Test void optionalMissingModsAndUnknownStatesStayUntouched(){
         Map<IBlockState,Integer> output=new IdentityHashMap<>();
         ModLightColors.registerDefaults(id->null,output::put);assertTrue(output.isEmpty());
@@ -109,7 +135,7 @@ class ModLightColorsTest {
                 Map.entry("appliedenergistics2:quartz_vibrant_glass",0xFFF), Map.entry("appliedenergistics2:quartz_fixture",0xEEE),
                 Map.entry("natura:nether_green_large_glowshroom",0x091), Map.entry("natura:nether_blue_large_glowshroom",0x039),
                 Map.entry("natura:nether_purple_large_glowshroom",0x708),
-                Map.entry("chisel:glowstone",0xFD3), Map.entry("chisel:glowstone1",0xFD3), Map.entry("chisel:glowstone2",0xFD3));
+                Map.entry("chisel:glowstone",0xFCA), Map.entry("chisel:glowstone1",0xFCA), Map.entry("chisel:glowstone2",0xFCA));
         Map<ResourceLocation,Block> blocks=new HashMap<>();
         expected.keySet().forEach(id->blocks.put(new ResourceLocation(id),new Plain()));
         blocks.put(new ResourceLocation("chisel:lavastone"),new Plain());
