@@ -1,0 +1,20 @@
+{
+  "source_commit": "3f67e36059114e97a0390d7e91228148fd269889",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "cpu": "AMD Ryzen AI MAX+ 395 w/ Radeon 8060S",
+  "logical_processors": 32,
+  "java": "Temurin 25.0.4.1+1-LTS",
+  "jvm_heap": "-Xms4G -Xmx4G",
+  "collector": "G1",
+  "harness": "Lightbench 1.1.0-bench9-e2ee3",
+  "pulsar": "0.5.4-dev.54",
+  "report_python": "3.13.16",
+  "report_matplotlib": "3.11.2",
+  "artifacts": {
+    "pulsar-0.5.4-dev.54.jar": "4b4ef527196e62d2f061ef0bb106da42ead92898ec674a2e3b64e5e0792f5373",
+    "lightbench-1.1.0-bench9-e2ee3.jar": "120c027ec43c3823a987edb623dc9fc0f35b978f73fbb6dc3097b298826c8818",
+    "lightbench-1.1.0-bench9-e2ee3-sources.jar": "9899bd2d55ac754926a9fc82dccf9f9fb3c8563ec241af18378a87965aa2230e",
+    "cleanroom-0.6.13-alpha.jar": "c6c7e45d1b9b378979bcc6fda56f6911341a317ee400bdde4318cd570789fa31",
+    "minecraft_server.1.12.2.jar": "fe1f9274e6dad9191bf6e6e8e36ee6ebc737f373603df0946aafcded0d53167e"
+  }
+}

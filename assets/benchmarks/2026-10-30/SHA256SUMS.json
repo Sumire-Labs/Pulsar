@@ -1,0 +1,13 @@
+{
+  ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+  "block-updates.png": "c3b378a058e95364a77a75787b84fe831f9d921a094b313a1a8e41434bedcf62",
+  "block-updates.svg": "7b9f52c0738663df64da58f8a21c07c2a32988c5a4fd4fe266dcde3cb1179e67",
+  "evidence-sha256.json": "2f4a6c3c2d3d4689c84bbeb72e159d151eb6f6ceacc2b3cfbf936cd195f41e1f",
+  "inputs.json": "3d1e0ab686b6ee89df7c9173ba77cee589f6d12f575261e15da4b095ff393605",
+  "measurement-evidence.zip": "2adf7cee2dc89ed48290a69bd343c1002bca97727fa58d15207633f2a75527f4",
+  "per-run.csv": "371c264cfa9744a3a84ad0f47ee6e311a5df4e0114fdff32cc3513c79c5313f7",
+  "results.md": "6b95b09dda3ff83abcdf8ac45e7d3e92e8236794dcd637ee02d0150e22cb7ecc",
+  "sky-updates.png": "82230c75dc70d1fdf1fd18e9cb6678e0ce8a5c60b30fab9ee11d1551ef2b7980",
+  "sky-updates.svg": "26c9dfade1f307e2ce07a44a81a6f3d0a9cae78f49de6b433681479fb8b52c77",
+  "summary.json": "d1cfbf4f6dcd0c55d63b44ce023336de38e1f055a6f98c869bf05a3f9ae5c4b8"
+}

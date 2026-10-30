@@ -16,6 +16,11 @@ test-fixtures/
 # Keep local benchmark tools, reports and raw measurement data out of new commits.
 /benchmarks/
 
+# Benchmark tooling and supporting documents stay local.
+/assets/benchmarks/**/README.md
+/assets/benchmarks/**/*.py
+/assets/benchmarks/**/harness-source.zip
+
 # Ignore Gradle GUI config
 gradle-app.setting
 

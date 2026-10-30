@@ -89,7 +89,7 @@ The charts measure dedicated-server latency from a block change through complete
 
 Vanilla passes the open-sky block-light test, but fails the roof fixture's initial stored sky-light validation, so no vanilla sky-update time is scored. RGB computes additional colored-light information. These repeated, individually awaited updates do not measure FPS, chunk generation, or concurrent update throughput.
 
-See the [method, limitations, raw data, and reproduction scripts](assets/benchmarks/2026-10-30/README.md) for the full comparison.
+See the [measured values and run ranges](assets/benchmarks/2026-10-30/results.md) and [raw measurement results](assets/benchmarks/2026-10-30/measurement-evidence.zip) for the full comparison.
 
 See [lighting validation notes](docs/lighting-validation.md) for compatibility probes and the opt-in empty-section experiment.
 
