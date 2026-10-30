@@ -57,7 +57,7 @@ public final class LightInfo {
             | REGISTRY | DYNAMIC | SIDED | CONTEXT_MASK | (FACE_MASK << FACE_SHIFT);
 
     /**
-     * Reflection runs once per concrete block class, never per state lookup.
+     * Method classification runs once per concrete block class, never per state lookup.
      * Forge-added method names are stable in both MCP and Searge jars. A
      * failed probe takes the conservative compatibility path for both values.
      */

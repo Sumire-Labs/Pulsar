@@ -2,7 +2,6 @@ package com.sumirelabs.pulsar.light;
 
 import net.minecraft.world.chunk.NibbleArray;
 
-import java.util.ArrayDeque;
 import java.util.Arrays;
 
 /**
@@ -33,14 +32,14 @@ public final class SWMRNibbleArray {
 
     public static final int ARRAY_SIZE = 16 * 16 * 16 / 2; // 2048 bytes
 
-    // Keep reuse for extended-height/bulk jobs too; cap retained payload at
-    // 4 MiB per worker rather than reallocating every wide batch after a burst.
+    // Reuse up to 4 MiB during a burst, but retain only 128 KiB per idle worker
+    // across GC. The weak overflow owns only detached scratch buffers.
     static final int MAX_POOLED_WORKING_BYTES = 2048;
     private static final byte[] FULL_BYTES = new byte[ARRAY_SIZE];
     static { Arrays.fill(FULL_BYTES, (byte) 0xFF); }
 
-    static final ThreadLocal<ArrayDeque<byte[]>> WORKING_BYTES_POOL =
-            ThreadLocal.withInitial(ArrayDeque::new);
+    static final ThreadLocal<WorkingBytesPool> WORKING_BYTES_POOL =
+            ThreadLocal.withInitial(() -> new WorkingBytesPool(MAX_POOLED_WORKING_BYTES));
     private int stateUpdating;
     private volatile int stateVisible;
     private byte[] storageUpdating;
@@ -108,6 +107,20 @@ public final class SWMRNibbleArray {
         return this.storageVisible;
     }
 
+    /** Adopt an equal immutable publication without touching unpublished working
+     * changes. Caller owns the lighting reservation and must never mutate bytes. */
+    public synchronized void adoptImmutableVisibleData(final byte[] bytes) {
+        if (this.retainVisibleStorage || bytes == null || this.storageVisible == null) return;
+        if (!Arrays.equals(bytes, this.storageVisible)) throw new IllegalArgumentException("Different visible light");
+        if (this.storageUpdating == this.storageVisible && !this.updatingDirty) {
+            this.storageUpdating = bytes;
+            this.updatingWritable = false;
+        }
+        this.storageVisible = bytes;
+        this.visibleShared = true;
+        this.reusableVisible = null;
+    }
+
     private SWMRNibbleArray(final byte[] bytes, final int state, final boolean retainVisibleStorage) {
         if (bytes != null && bytes.length != ARRAY_SIZE) {
             throw new IllegalArgumentException("Data of wrong length: " + bytes.length);
@@ -133,8 +146,7 @@ public final class SWMRNibbleArray {
 
     private static void freeBytes(final byte[] bytes) {
         if (bytes == FULL_BYTES) return;
-        final ArrayDeque<byte[]> pool = WORKING_BYTES_POOL.get();
-        if (pool.size() < MAX_POOLED_WORKING_BYTES) pool.addFirst(bytes);
+        WORKING_BYTES_POOL.get().addFirst(bytes);
     }
 
     public static SWMRNibbleArray fromVanilla(final NibbleArray nibble) {

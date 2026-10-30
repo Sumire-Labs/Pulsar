@@ -140,7 +140,8 @@ class SWMRNibbleArrayTest {
             batch[i] = new SWMRNibbleArray(); batch[i].set(0, 1);
         }
         for (SWMRNibbleArray n : batch) n.updateVisible();
-        assertEquals(SWMRNibbleArray.MAX_POOLED_WORKING_BYTES, SWMRNibbleArray.WORKING_BYTES_POOL.get().size());
+        assertTrue(SWMRNibbleArray.WORKING_BYTES_POOL.get().size() <= SWMRNibbleArray.MAX_POOLED_WORKING_BYTES);
+        assertTrue(SWMRNibbleArray.WORKING_BYTES_POOL.get().size() >= WorkingBytesPool.HOT_LIMIT);
         final SWMRNibbleArray full = full();
         full.setNull(); full.updateVisible();
         for (byte[] bytes : SWMRNibbleArray.WORKING_BYTES_POOL.get()) assertNotSame(full().getVisibleData(), bytes);

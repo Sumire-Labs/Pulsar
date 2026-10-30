@@ -15,7 +15,7 @@ def one(directory, pattern):
 
 def collect(directory):
     row = read(directory/'trial-status.json')
-    if not row.get('completed'):
+    if not row.get('completed') or row.get('compat_only'):
         return row
     results = directory/'BBOP-Extended/lightbench-results'
     reports = [read(p) for p in results.glob('*.json')]
@@ -58,6 +58,8 @@ if __name__ == '__main__':
     rows = [collect(p.parent) for p in sorted((ROOT/'runs').glob('*/trial-status.json'))]
     (ROOT/'summary.json').write_text(json.dumps(rows,indent=2),encoding='utf-8')
     for r in rows:
+        if r.get('completed') and r.get('compat_only'):
+            print(r['name'],'COMPATIBILITY_ONLY');continue
         if not r.get('completed'):
             print(r['name'], 'FAILED', r.get('error')); continue
         print(r['name'], 'valid',r['audit_valid'], 'gen_s',round(r['gen_seconds'],3),

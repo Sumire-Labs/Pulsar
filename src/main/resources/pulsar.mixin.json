@@ -18,6 +18,7 @@
     "MixinRgbProjectRedLamp",
     "MixinMultipartLightBlock",
     "MixinMultipartLightTile",
+    "MixinBedrockOreLightTile",
     "MixinRgbMultipartLight",
     "MixinRgbChunkSend",
     "MixinChunkSectionChanges",

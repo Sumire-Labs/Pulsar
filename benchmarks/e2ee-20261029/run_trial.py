@@ -8,6 +8,7 @@ JAVA=Path(r'C:\Program Files\Eclipse Adoptium\jdk-25.0.4.101-hotspot\bin\java.ex
 JCMD=JAVA.with_name('jcmd.exe')
 PULSAR=ROOT.parents[1]/'build/libs/pulsar-0.5.4-dev.50.local.jar'
 HARNESS=ROOT/'tools/lightbench/build/libs/lightbench-1.1.0-bench9-e2ee2.jar'
+GAMEPLAY_LIGHT='RGB_MAX'
 FLAGS=['-Xms8G','-Xmx8G','-XX:+UseG1GC','-XX:MaxGCPauseMillis=200','-XX:MetaspaceSize=384M',
        '-Dfile.encoding=UTF-8',r'-Djdk.net.unixdomain.tmpdir=D:\DevCache\pulsar-sockets']
 
@@ -46,17 +47,19 @@ def prepare(name,variant,world_source=None):
         value=cfg.read_text(encoding='utf-8');value=re.sub(r'(?m)^(\s*S:lightingMode=).*$',r'\g<1>'+mode,value)
     else:
         value='general {\n I:configVersion=2\n S:lightingMode='+mode+'\n S:rgbGameplayLight=RGB_MAX\n features {\n I:thaumcraftCrystalLightLevel=0\n }\n}\n'
+    value=re.sub(r'(?m)^(\s*S:rgbGameplayLight=).*$',r'\g<1>'+GAMEPLAY_LIGHT,value)
     cfg.write_text(value,encoding='utf-8')
     (target/'eula.txt').write_text('eula=true\n',encoding='ascii')
     inventory={file.name:sha(file) for file in sorted((target/'mods').iterdir()) if file.is_file()}
     (target/'benchmark-inventory.json').write_text(json.dumps({'variant':variant,'mods':inventory,'java':str(JAVA),'flags':FLAGS,
-       'pack':'v1.87.3','cleanroom':'0.6.13-alpha','seed':'20261029','view_distance':12},indent=2),encoding='utf-8')
+       'pack':'v1.87.3','cleanroom':'0.6.13-alpha','seed':'20261029','view_distance':12,'gameplay_light':GAMEPLAY_LIGHT},indent=2),encoding='utf-8')
     return target
 
-def run(name,variant,pilot=False,world_source=None):
+def run(name,variant,pilot=False,world_source=None,profile=False,check_bedrock=False,compat_only=False):
     directory=prepare(name,variant,world_source)
     logpath=directory/'console.log'
     result={'name':name,'variant':variant,'pilot':pilot,'world_source':world_source,'started_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
+    result.update(profile=profile,check_bedrock=check_bedrock,compat_only=compat_only)
     launch_started=time.monotonic()
     with logpath.open('wb') as log:
         process=subprocess.Popen([str(JAVA),*FLAGS,'-jar','cleanroom-0.6.13-alpha.jar','nogui'],cwd=directory,
@@ -109,15 +112,29 @@ def run(name,variant,pilot=False,world_source=None):
         send('gamerule doMobSpawning false');send('gamerule randomTickSpeed 0');send('gamerule doDaylightCycle false');send('gamerule doWeatherCycle false')
         send('time set 6000');send('kill @e')
         phase[0]='settle';time.sleep(15)
+        if compat_only:
+            phase[0]='compatibility-check';send('benchmetrics bedrock bedrock-check')
+            checked=wait_for('E2EE_BEDROCK_(PASS|FAIL)',300)
+            if 'E2EE_BEDROCK_FAIL' in checked:raise RuntimeError('Bedrock Ores light transition check failed')
+            result['completed']=True
+            return
         diagnostic('idle')
         send('benchmetrics audit idle-audit');wait_for('E2EE_METRICS_DONE idle-audit',300)
+        if profile:
+            subprocess.run([str(JCMD),str(process.pid),'JFR.start','name=pulsar-idle','settings=profile','jdk.ExecutionSample#period=1ms'],check=True)
         phase[0]='idle-ticks';send('benchmetrics ticks idle-ticks 20');wait_for('E2EE_METRICS_DONE idle-ticks',180)
+        if profile:
+            subprocess.run([str(JCMD),str(process.pid),'JFR.stop','name=pulsar-idle','filename='+str(directory/'idle.jfr')],check=True)
         phase[0]='generation'
         send('lightbench gen 2 1 2' if pilot else 'lightbench gen 4 3 4')
         wait_for('raw result saved:',1200)
         phase[0]='settle-after-generation';send('kill @e');time.sleep(15)
         diagnostic('post-generation')
         phase[0]='loaded-ticks';send('benchmetrics ticks loaded-ticks 20');wait_for('E2EE_METRICS_DONE loaded-ticks',180)
+        if check_bedrock:
+            phase[0]='compatibility-check';send('benchmetrics bedrock bedrock-check')
+            checked=wait_for('E2EE_BEDROCK_(PASS|FAIL)',300)
+            if 'E2EE_BEDROCK_FAIL' in checked:raise RuntimeError('Bedrock Ores light transition check failed')
         phase[0]='save';send('save-all flush');time.sleep(5)
         result['completed']=True
     except Exception as error:
@@ -132,10 +149,20 @@ def run(name,variant,pilot=False,world_source=None):
         result['exit_code']=process.returncode;result['finished_utc']=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
         if(process.returncode!=0):result['completed']=False;result.setdefault('error','Nonzero server exit')
         (directory/'trial-status.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
-    if not result['completed']:raise SystemExit(1)
+        if not result['completed']:raise SystemExit(1)
     print(name,'COMPLETE',flush=True)
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('name');parser.add_argument('variant',choices=['alfheim','scalar','rgb']);parser.add_argument('--pilot',action='store_true')
     parser.add_argument('--world-source')
-    args=parser.parse_args();run(args.name,args.variant,args.pilot,args.world_source)
+    parser.add_argument('--profile',action='store_true')
+    parser.add_argument('--pulsar-jar',type=Path)
+    parser.add_argument('--harness-jar',type=Path)
+    parser.add_argument('--check-bedrock',action='store_true')
+    parser.add_argument('--compat-only',action='store_true')
+    parser.add_argument('--gameplay-light',choices=['RGB_MAX','VANILLA'],default='RGB_MAX')
+    args=parser.parse_args()
+    if args.pulsar_jar:PULSAR=args.pulsar_jar.resolve()
+    if args.harness_jar:HARNESS=args.harness_jar.resolve()
+    GAMEPLAY_LIGHT=args.gameplay_light
+    run(args.name,args.variant,args.pilot,args.world_source,args.profile,args.check_bedrock,args.compat_only)

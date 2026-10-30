@@ -96,6 +96,13 @@ public final class RgbSnapshot {
     }
     /** Build canonical light from RGB, without another propagation pass. Retain only owned immutable bytes. */
     static RgbSnapshot captureMax(int minSection, long revision, byte[][][] live, RgbSnapshot previous) {
+        return captureMax(minSection, revision, live, previous, false);
+    }
+    /** All input planes have been frozen by their owner or are fresh owned extrusions. */
+    static RgbSnapshot captureFrozenMax(int minSection, long revision, byte[][][] live, RgbSnapshot previous) {
+        return captureMax(minSection, revision, live, previous, true);
+    }
+    private static RgbSnapshot captureMax(int minSection, long revision, byte[][][] live, RgbSnapshot previous, boolean frozen) {
         int count = live[0].length;
         boolean compatible = previous != null && previous.minSection == minSection && previous.sectionCount() == count;
         byte[][][] owned = new byte[3][count][];
@@ -105,7 +112,7 @@ public final class RgbSnapshot {
             for (int c = 0; c < 3; c++) {
                 owned[c][s] = s>0 && live[c][s]==live[c][s-1] ? owned[c][s-1]
                         : share(live[c][s], compatible ? previous.canonical[s] : null, owned, c, s,
-                                compatible ? previous.data[c][s] : null);
+                                compatible ? previous.data[c][s] : null, frozen);
                 unchanged &= compatible && owned[c][s] == previous.data[c][s];
             }
             if (unchanged) canonical[s] = previous.canonical[s];
@@ -126,13 +133,16 @@ public final class RgbSnapshot {
                     canonical[s] = java.util.Arrays.equals(projected,r) ? r
                             : java.util.Arrays.equals(projected,g) ? g
                             : java.util.Arrays.equals(projected,b) ? b
-                            : retain(projected, compatible ? previous.canonical[s] : null);
+                            : retain(projected, compatible ? previous.canonical[s] : null, true);
                 }
             }
         }
         return new RgbSnapshot(minSection, revision, owned, canonical, false, true);
     }
     private static byte[] retain(byte[] live, byte[] previous) {
+        return retain(live, previous, false);
+    }
+    private static byte[] retain(byte[] live, byte[] previous, boolean frozen) {
         if (java.util.Arrays.equals(live, previous)) return previous;
         if (live == null) return null;
         int value=live[0]&255;
@@ -143,21 +153,26 @@ public final class RgbSnapshot {
                 int level=value&15;
                 byte[] cached=CONSTANTS.get(level);
                 if(cached!=null)return cached;
-                byte[] owned=live.clone();
+                byte[] owned=frozen ? live : live.clone();
                 return CONSTANTS.compareAndSet(level,null,owned) ? owned : CONSTANTS.get(level);
             }
         }
-        return live.clone();
+        return frozen ? live : live.clone();
     }
     /** Internal immutable scalar capture; no unused RGB container. */
     static byte[] copyPlane(byte[] live,byte[] previous) { return retain(live,previous); }
     /** Deduplicate only against immutable planes in this publication or its predecessor.
      * No global content map, no retained old snapshots, and no aliases to mutable input. */
     private static byte[] share(byte[] live,byte[] canonical,byte[][][] owned,int channel,int section,byte[] previous) {
+        return share(live,canonical,owned,channel,section,previous,false);
+    }
+    private static byte[] share(byte[] live,byte[] canonical,byte[][][] owned,int channel,int section,byte[] previous,boolean frozen) {
         if(java.util.Arrays.equals(live,canonical))return canonical;
         for(int c=0;c<channel;c++)if(java.util.Arrays.equals(live,owned[c][section]))return owned[c][section];
-        return retain(live,previous);
+        return retain(live,previous,frozen);
     }
+    /** Internal read-only view for engine copy-on-write adoption. */
+    byte[] ownedSection(int channel, int section) { return data[channel][section]; }
     private static boolean isFull(byte[] bytes) {
         if (bytes == null) return false;
         if (bytes == FULL) return true;

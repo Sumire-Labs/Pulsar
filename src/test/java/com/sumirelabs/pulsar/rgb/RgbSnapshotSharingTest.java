@@ -5,6 +5,39 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RgbSnapshotSharingTest {
+    @Test void engineAndSnapshotShareEqualPlanesButSubsequentChannelWritesDetach()throws Exception {
+        var storage=new RgbStorage(0,1);
+        for(int c=0;c<3;c++)storage.channels[c][0]=com.sumirelabs.pulsar.light.SWMRNibbleArray.fromOwned(gradient(),2);
+        var first=storage.maximumSnapshot(1,false,null);
+        byte[] shared=data(first)[0][0];
+        for(int c=0;c<3;c++)assertSame(shared,storage.channels[c][0].getVisibleData());
+        int original=first.get(2,0,0);
+        storage.channels[0][0].set(2,12);storage.channels[0][0].updateVisible();
+        var next=storage.maximumSnapshot(2,false,first);
+        assertEquals(original,first.get(2,0,0));
+        assertEquals((original&255)|0xC00,next.get(2,0,0));
+        assertSame(shared,storage.channels[1][0].getVisibleData());
+        assertNotSame(shared,storage.channels[0][0].getVisibleData());
+    }
+    @Test void adoptingPublishedPlanesPreservesPendingWorkingChanges() {
+        var storage=new RgbStorage(0,1);
+        for(int c=0;c<3;c++)storage.channels[c][0]=com.sumirelabs.pulsar.light.SWMRNibbleArray.fromOwned(gradient(),2);
+        storage.channels[1][0].set(2,13);
+        var visible=storage.maximumSnapshot(1,false,null);
+        assertEquals(0x111,visible.get(2,0,0));
+        assertEquals(13,storage.channels[1][0].getUpdating(2));
+        storage.channels[1][0].updateVisible();
+        assertEquals(0x1D1,storage.maximumSnapshot(2,false,visible).get(2,0,0));
+        assertEquals(0x111,visible.get(2,0,0));
+    }
+    @Test void externalVanillaBuffersAreStillCopiedAndRetainTheirIdentity() {
+        var storage=new RgbStorage(0,1);byte[] external=gradient();
+        for(int c=0;c<3;c++)storage.channels[c][0]=new com.sumirelabs.pulsar.light.SWMRNibbleArray(external);
+        var visible=storage.maximumSnapshot(1,false,null);
+        assertSame(external,storage.channels[0][0].getVisibleData());
+        external[1]=0x77;
+        assertEquals(0x111,visible.get(2,0,0));
+    }
     @Test void repeatedExtrudedSkyPlanesReuseOneImmutableCopy()throws Exception {
         byte[] sky=gradient();byte[][] column=new byte[18][];Arrays.fill(column,sky);
         var snapshot=RgbSnapshot.capture(-1,1,new byte[][][]{column,column,column},column,null);

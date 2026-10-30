@@ -16,10 +16,30 @@ public final class ContextualLightSnapshot<S> {
     public static final int BOTH_CHANGED = BLOCK_CHANGED | SKY_CHANGED;
     private record Cell<S>(S block, int blockInfo, S fluid, int fluidInfo) {}
 
-    private volatile ConcurrentHashMap<Integer, Cell<S>> cells;
+    /** Bounded, owner-thread cache: equal immutable samples may serve many positions. */
+    static final class Samples<S> {
+        private final Cell<?>[] recent = new Cell<?>[256];
+        @SuppressWarnings("unchecked")
+        Cell<S> sample(S block, int blockInfo, S fluid, int fluidInfo) {
+            int hash = System.identityHashCode(block) * 31 + System.identityHashCode(fluid);
+            hash = hash * 31 + blockInfo; hash = hash * 31 + fluidInfo;
+            int index = (hash ^ (hash >>> 16)) & (recent.length - 1);
+            Cell<S> cell = (Cell<S>) recent[index];
+            if (cell == null || cell.block != block || cell.fluid != fluid
+                    || cell.blockInfo != blockInfo || cell.fluidInfo != fluidInfo) {
+                recent[index] = cell = new Cell<>(block, blockInfo, fluid, fluidInfo);
+            }
+            return cell;
+        }
+    }
+    private volatile PublishedIntTable<Cell<S>> cells;
+    private final Samples<S> samples;
     private final PendingLightPositions pending = new PendingLightPositions();
     private volatile Set<Integer> missed;
     private final Thread owner = Thread.currentThread();
+
+    public ContextualLightSnapshot() { this(new Samples<>()); }
+    ContextualLightSnapshot(Samples<S> samples) { this.samples = samples; }
 
     public int read(final int position, final S state, final int fallback) {
         final Cell<S> cell = this.cell(position);
@@ -45,8 +65,8 @@ public final class ContextualLightSnapshot<S> {
     }
     private void put(int position,Cell<S> cell) {
         // Only the owning world thread writes cells. The volatile map reference
-        // publishes its initialization to readers; values use CHM publication.
-        if(this.cells==null)this.cells=new ConcurrentHashMap<>();
+        // publishes its initialization to readers; slots use release/acquire.
+        if(this.cells==null)this.cells=new PublishedIntTable<>();
         this.cells.put(position,cell);
     }
     private Set<Integer> misses() {
@@ -69,7 +89,7 @@ public final class ContextualLightSnapshot<S> {
             throw new IllegalStateException("Only the world thread may initialize contextual light");
         }
         if (block != null || fluid != null) {
-            this.put(position, new Cell<>(block, blockInfo, fluid, fluidInfo));
+            this.put(position, samples.sample(block, blockInfo, fluid, fluidInfo));
         }
     }
 
@@ -90,7 +110,7 @@ public final class ContextualLightSnapshot<S> {
         if (block == null && fluid == null) {
             if (previous != null) this.cells.remove(position);
         } else if (changed) {
-            this.put(position, new Cell<>(block, blockInfo, fluid, fluidInfo));
+            this.put(position, samples.sample(block, blockInfo, fluid, fluidInfo));
         }
         // A worker may have used a static fallback even when capture returns
         // to the previously sampled state. That miss still needs a correction.
@@ -125,15 +145,15 @@ public final class ContextualLightSnapshot<S> {
         if ((long) maxY - minY + 1L < cells.size()) {
             for (int y = minY;; y++) {
                 final int position = (y << 8) | column;
-                if (cells.containsKey(position)) this.pending.add(position);
+                if (cells.get(position) != null) this.pending.add(position);
                 if (y == maxY) break;
             }
             return;
         }
-        for (final int position : cells.keySet()) {
+        cells.forEachKey(position -> {
             final int y = position >> 8;
             if ((position & 255) == column && y >= minY && y <= maxY) this.pending.add(position);
-        }
+        });
     }
 
     public void request(final int position) {

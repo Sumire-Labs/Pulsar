@@ -51,6 +51,7 @@ public final class ContextualLightManager {
     private final Set<Entry> pendingChunks = ConcurrentHashMap.newKeySet();
     private final Set<Entry> retrying = new HashSet<>();
     private long sampleTick;
+    private final ContextualLightSnapshot.Samples<IBlockState> samples = new ContextualLightSnapshot.Samples<>();
     private final TrackedLightSources<BlockPos, TrackedSource> trackedSources = new TrackedLightSources<>();
 
     public ContextualLightManager(final World world, final WorldHeightContext height) {
@@ -68,7 +69,7 @@ public final class ContextualLightManager {
 
     public void load(final Chunk chunk) {
         this.requireOwner();
-        final Entry entry = new Entry(chunk, new ContextualLightSnapshot<>());
+        final Entry entry = new Entry(chunk, new ContextualLightSnapshot<>(this.samples));
         // Local to this load: callbacks can reenter lighting with their own position.
         final BlockPos.MutableBlockPos samplePos = new BlockPos.MutableBlockPos();
         // Publish only after capture, before the chunk becomes worker-visible.
@@ -320,8 +321,10 @@ public final class ContextualLightManager {
     private void track(final Entry entry, final BlockPos pos) {
         TileEntity tile = entry.chunk.getTileEntityMap().get(pos);
         if (tile != null && tile.isInvalid()) tile = null;
-        final boolean notified = tile != null && !com.sumirelabs.pulsar.compat.MultipartLightBridge.needsPolling(tile)
-                && !FluidLightBridge.LOADED;
+        final boolean notified = tile != null && (!com.sumirelabs.pulsar.compat.MultipartLightBridge.needsPolling(tile)
+                || com.sumirelabs.pulsar.compat.BedrockOreLighting.notified(tile, entry.chunk.getBlockState(pos)))
+                && (!FluidLightBridge.LOADED || FluidLightBridge.stateAt(entry.chunk,
+                        pos.getX(), pos.getY(), pos.getZ()) == null);
         final boolean contextual = !notified && this.height.containsBlockY(pos.getY())
                 && entry.snapshot.contains(pack(pos.getX(), pos.getY(), pos.getZ()))
                 && (tile != null || this.hasTrackedNeighbour(pos));

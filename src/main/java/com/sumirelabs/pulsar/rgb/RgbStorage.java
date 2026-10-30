@@ -22,14 +22,26 @@ public final class RgbStorage {
     public RgbSnapshot maximumSnapshot(long revision, boolean sky, RgbSnapshot previous) {
         byte[][][] data = new byte[3][channels[0].length][];
         for (int c = 0; c < 3; c++) {
-            if (sky) data[c] = resolveSky(channels[c]);
+            if (sky) data[c] = resolveSky(channels[c], true);
             else for (int s = 0; s < data[c].length; s++) {
                 SWMRNibbleArray nibble = channels[c][s];
-                byte[] bytes = nibble == null ? null : nibble.getVisibleData();
+                byte[] bytes = immutableVisible(nibble);
                 if (bytes != null) for (byte value : bytes) if (value != 0) { data[c][s] = bytes; break; }
             }
         }
-        return RgbSnapshot.captureMax(minSection, revision, data, previous);
+        RgbSnapshot snapshot = RgbSnapshot.captureFrozenMax(minSection, revision, data, previous);
+        for (int c = 0; c < 3; c++) for (int s = 0; s < channels[c].length; s++) {
+            SWMRNibbleArray nibble = channels[c][s];
+            if (nibble != null && !nibble.isNullNibbleVisible() && !nibble.isFullVisible())
+                nibble.adoptImmutableVisibleData(snapshot.ownedSection(c, s));
+        }
+        return snapshot;
+    }
+    private static byte[] immutableVisible(SWMRNibbleArray nibble) {
+        if (nibble == null) return null;
+        if (nibble.canShareVisibleData()) return nibble.shareVisibleData();
+        byte[] bytes = nibble.getVisibleData();
+        return bytes == null ? null : bytes.clone();
     }
     public static RgbSnapshot whiteSkySnapshot(int minSection, long revision, SWMRNibbleArray[] canonical, RgbSnapshot previous) {
         byte[][] scalar = resolveSky(canonical);
@@ -69,6 +81,9 @@ public final class RgbStorage {
         return RgbSnapshot.capture(minSection, revision, data, resolveSky(canonical), previous);
     }
     private static byte[][] resolveSky(SWMRNibbleArray[] sky) {
+        return resolveSky(sky, false);
+    }
+    private static byte[][] resolveSky(SWMRNibbleArray[] sky, boolean freeze) {
         byte[][] result = new byte[sky.length][];
         SWMRNibbleArray above = null;
         byte[] extrusion = null;
@@ -82,7 +97,7 @@ public final class RgbStorage {
                 resolved = false;
                 if (nibble.isFullVisible()) result[s] = FULL_SKY;
                 else {
-                    byte[] bytes = nibble.getVisibleData();
+                    byte[] bytes = freeze ? immutableVisible(nibble) : nibble.getVisibleData();
                     if (bytes != null) for (byte value : bytes) if (value != 0) { result[s] = bytes; break; }
                 }
             } else {
