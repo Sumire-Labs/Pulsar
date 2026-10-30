@@ -28,10 +28,22 @@ public final class ModLightColors {
 
     static void registerDefaults(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register) {
         registerAdditionalDefaults(lookup, register);
-        for(String name:new String[]{"shinyFlower","miniIsland","buriedPetals","mushroom"})
+        for(String name:new String[]{"shinyFlower","miniIsland"})
             register(lookup,register,name,state->{
                 EnumDyeColor dye=dye(state);
                 return dye==null?null:RgbDefaultPalette.glassTransmittance(dye);
+            });
+        // SuperNova rounds each DIM_DYE_PALETTE component up while halving.
+        // Preserve those ratios before contextual emission normalizes the hue.
+        for(String name:new String[]{"buriedPetals","mushroom"})
+            register(lookup,register,name,state->{
+                EnumDyeColor dye=dye(state);
+                if(dye==null)return null;
+                int bright=RgbDefaultPalette.glassTransmittance(dye);
+                int r=((bright>>>8)+1)>>1;
+                int g=((bright>>>4&15)+1)>>1;
+                int b=((bright&15)+1)>>1;
+                return r<<8 | g<<4 | b;
             });
         for(String name:new String[]{"manaFlame","manaGlass","manaGlassPane","elfGlass","elfGlassPane",
                 "enchanter","bifrost","bifrostPerm","bifrostPermPane","prism"})
@@ -42,7 +54,7 @@ public final class ModLightColors {
                         &&variant.getName().equals("glimmering"))return 0x480;
             return null;
         });
-        register(lookup, register, "blazeBlock", state -> 0xFC6);
+        register(lookup, register, "blazeBlock", state -> 0xFF0);
         register(lookup, register, "pylon", state -> {
             for (var entry : state.getProperties().entrySet()) {
                 if (entry.getKey().getName().equals("variant") && entry.getValue() instanceof IStringSerializable variant)

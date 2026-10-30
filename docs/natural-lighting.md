@@ -60,3 +60,28 @@ replace renderer code. Existing `pulsar-colors.cfg` overrides still take priorit
 Visual equivalence across Minecraft 1.12.2 and 1.7.10 is approximate and requires
 in-game review; the earlier screenshot gallery shows the build before this change.
 Validation: full build passed; 391 tests, 387 passed, four opt-in benchmarks skipped. All eight actual-GPU cases passed.
+
+## Remaining supported-source audit
+
+The remaining built-in presets were compared against the locally pinned
+SuperNova reference `22d8559c3064d77d115e58523c58cde824f4e214`.
+
+- Botania blaze block: restored `FF0` (yellow), replacing the custom `FC6` amber.
+- Botania buried petals and mushrooms: use SuperNova's dim dye palette, halving
+  each component with `(component + 1) >> 1` before hue normalization. This
+  preserves SuperNova's rounding and color ratios, while retaining the actual
+  block's contextual light strength.
+- Botania shiny flowers, floating flowers, pylons, glimmering livingwood and
+  white sources already use the reference hues.
+- Twilight Forest presets, Thaumcraft candles/crystals, Natura glowshrooms,
+  Biomes O' Plenty crystal/glowshroom, Tinkers' stone torch and AE2 fixtures
+  already match the corresponding reference hues.
+- ProjectRed lamps and multipart lights already use the reference bright dye
+  palette, with contextual power/inversion behavior preserved.
+- Thaumcraft 6 colored nitor, Natura's additional amber variant and Ars Magica
+  Rekindled presets have no direct entry in that pinned SuperNova reference;
+  retain their current dye/material identities rather than invent a match.
+
+No glass transmittance, source intensity, runtime tint curve or user/API override
+precedence is changed by this audit. The existing 15-source screenshot gallery
+predates these additional Botania adjustments; these blocks need in-game review.

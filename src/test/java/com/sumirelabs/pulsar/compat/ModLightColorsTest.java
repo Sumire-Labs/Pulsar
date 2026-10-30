@@ -86,6 +86,30 @@ class ModLightColorsTest {
         assertEquals(0xFAD,output.get(pylons.getDefaultState().withProperty(VARIANT,Variant.GAIA)));
         assertFalse(output.containsKey(pylons.getDefaultState().withProperty(VARIANT,Variant.UNKNOWN)));
     }
+    @Test void remainingBotaniaPresetsMatchSupernovaIncludingDimPaletteRounding(){
+        // Independent SuperNova DIM_DYE_PALETTE values, in wool metadata order.
+        int[] expected={0x888,0x865,0x808,0x048,0x880,0x480,0x845,0x333,
+                0x555,0x088,0x508,0x008,0x420,0x080,0x800,0x111};
+        for(String name:new String[]{"buriedPetals","mushroom"}) {
+            Flower block=new Flower();Map<IBlockState,Integer> output=new IdentityHashMap<>();
+            ModLightColors.registerDefaults(id->id.equals(new ResourceLocation("botania",name))?block:null,output::put);
+            assertEquals(16,output.size());
+            for(var state:block.getBlockState().getValidStates()) {
+                int hue=expected[state.getValue(COLOR).getMetadata()];
+                assertEquals(hue,output.get(state));
+                // A dim palette changes hue ratios, not the contextual light level.
+                for(int level:new int[]{0,7,15}) {
+                    int actual=com.sumirelabs.pulsar.rgb.RgbLightAccess.effectiveEmission(
+                            com.sumirelabs.pulsar.rgb.RgbLight.normalize(output.get(state)),level,true);
+                    assertEquals(level,Math.max(actual>>>8,Math.max(actual>>>4&15,actual&15)));
+                }
+            }
+        }
+        Plain blaze=new Plain();Map<IBlockState,Integer> output=new IdentityHashMap<>();
+        ModLightColors.registerDefaults(id->id.equals(new ResourceLocation("botania:blazeBlock"))?blaze:null,output::put);
+        assertEquals(0xFF0,output.get(blaze.getDefaultState()));
+        assertEquals(0,blaze.getDefaultState().getLightValue());
+    }
     @Test void twilightForceFieldsUseNamedColorsInsteadOfAssumingMetadataOrder(){
         Flower field=new Flower();
         Map<IBlockState,Integer> output=new IdentityHashMap<>();
