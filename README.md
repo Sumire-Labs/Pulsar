@@ -79,7 +79,17 @@ See the [API documentation](src/main/java/com/sumirelabs/pulsar/api/package-info
 
 ## Benchmarks
 
-Benchmarks for 0.6.0-Dev.27 will be added later.
+Measured on 2026-10-30 with Minecraft 1.12.2 / Cleanroom 0.6.13-alpha, comparing vanilla lighting, Alfheim 1.6, and Pulsar `0.6.0` in SCALAR and RGB (`RGB_MAX`) modes.
+
+The charts measure dedicated-server latency from a block change through completed lighting, including the completion adapter. Each value is the median of four fresh-JVM run means; whiskers show the minimum and maximum. The CPU is a Ryzen AI MAX+ 395, with Java 25 and a fixed 4 GiB heap. Lower is better; axes use a logarithmic scale.
+
+![Block light update completion times](assets/benchmarks/2026-10-30/block-updates.png)
+
+![Sky light update completion times](assets/benchmarks/2026-10-30/sky-updates.png)
+
+Vanilla passes the open-sky block-light test, but fails the roof fixture's initial stored sky-light validation, so no vanilla sky-update time is scored. RGB computes additional colored-light information. These repeated, individually awaited updates do not measure FPS, chunk generation, or concurrent update throughput.
+
+See the [method, limitations, raw data, and reproduction scripts](assets/benchmarks/2026-10-30/README.md) for the full comparison.
 
 See [lighting validation notes](docs/lighting-validation.md) for compatibility probes and the opt-in empty-section experiment.
 
