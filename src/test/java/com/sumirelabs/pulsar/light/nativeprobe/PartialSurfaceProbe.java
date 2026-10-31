@@ -183,8 +183,12 @@ public final class PartialSurfaceProbe {
     }
 
     static int[] renderAt(int renderer, IBlockAccess world, IBlockState state, BakedQuad quad, BlockPos origin) throws Exception {
+        return renderAt(renderer,world,state,quad,origin,true);
+    }
+
+    static int[] renderAt(int renderer, IBlockAccess world, IBlockState state, BakedQuad quad, BlockPos origin, boolean smooth) throws Exception {
         SPRITE.setIconWidth(16); SPRITE.setIconHeight(16); SPRITE.initSprite(16, 16, 0, 0, false);
-        if (renderer == 2) return celeritas(world, quad, origin);
+        if (renderer == 2) return celeritas(world, quad, origin,smooth);
         EnumMap<EnumFacing, List<BakedQuad>> faces = new EnumMap<>(EnumFacing.class);
         for (EnumFacing face : EnumFacing.VALUES) faces.put(face, Collections.emptyList());
         IBakedModel model = new SimpleBakedModel(List.of(quad), faces, true, true, SPRITE,
@@ -193,7 +197,8 @@ public final class PartialSurfaceProbe {
         buffer.begin(7, DefaultVertexFormats.BLOCK);
         BlockModelRenderer pipeline = renderer == 0 ? new BlockModelRenderer(new BlockColors())
                 : new ForgeBlockModelRenderer(new BlockColors());
-        pipeline.renderModelSmooth(world, model, state, origin, buffer, false, 0);
+        if(smooth)pipeline.renderModelSmooth(world, model, state, origin, buffer, false, 0);
+        else pipeline.renderModelFlat(world, model, state, origin, buffer, false, 0);
         buffer.finishDrawing();
         if (buffer.getVertexCount() != 4) throw new AssertionError("Quad was not rendered");
         var bytes = buffer.getByteBuffer().order(ByteOrder.nativeOrder());
@@ -206,14 +211,15 @@ public final class PartialSurfaceProbe {
         return result;
     }
 
-    private static int[] celeritas(IBlockAccess world, BakedQuad quad, BlockPos origin) throws Exception {
+    private static int[] celeritas(IBlockAccess world, BakedQuad quad, BlockPos origin, boolean smooth) throws Exception {
         Class<?> access = Class.forName("org.embeddedt.embeddium.impl.model.light.data.LightDataAccess");
         Class<?> cacheClass = Class.forName("org.taumc.celeritas.impl.render.terrain.compile.light.LightDataCache");
         Object cache = cacheClass.getConstructor(IBlockAccess.class).newInstance(world);
         access.getMethod("reset", int.class, int.class, int.class).invoke(cache, origin.getX(), origin.getY(), origin.getZ());
         Class<?> diffuse = Class.forName("org.embeddedt.embeddium.impl.model.light.DiffuseProvider");
         Object shading = Proxy.newProxyInstance(diffuse.getClassLoader(), new Class[]{diffuse}, (proxy, method, args) -> 1f);
-        Class<?> pipeline = Class.forName("org.embeddedt.embeddium.impl.model.light.smooth.SmoothLightPipeline");
+        Class<?> pipeline = Class.forName(smooth?"org.embeddedt.embeddium.impl.model.light.smooth.SmoothLightPipeline"
+                :"org.embeddedt.embeddium.impl.model.light.flat.FlatLightPipeline");
         Object lighter = pipeline.getConstructor(access, diffuse, boolean.class).newInstance(cache, shading, false);
         Class<?> data = Class.forName("org.embeddedt.embeddium.impl.model.light.data.QuadLightData");
         Object output = data.getConstructor().newInstance();
@@ -222,7 +228,7 @@ public final class PartialSurfaceProbe {
         String direction = (quad.getFace().getAxisDirection() == EnumFacing.AxisDirection.POSITIVE ? "POS_" : "NEG_") + quad.getFace().getAxis().name();
         Object normal = facing.getField(direction).get(null);
         pipeline.getMethod("calculate", view, int.class, int.class, int.class, data, facing, facing, boolean.class, boolean.class)
-                .invoke(lighter, quad, origin.getX(), origin.getY(), origin.getZ(), output, null, normal, false, false);
+                .invoke(lighter, quad, origin.getX(), origin.getY(), origin.getZ(), output, smooth?null:normal, normal, false, false);
         return ((int[]) data.getField("lm").get(output)).clone();
     }
 

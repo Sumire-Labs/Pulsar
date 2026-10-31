@@ -5,6 +5,7 @@ import com.sumirelabs.pulsar.api.RawLightAccess;
 import com.sumirelabs.pulsar.light.engine.FaceOcclusion;
 import com.sumirelabs.pulsar.light.engine.StairRoomLight;
 import net.minecraft.block.BlockStairs;
+import net.minecraft.block.BlockSlab;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -69,7 +70,54 @@ public final class StairWallProbe {
             }
         }
         System.out.println("STAIR_WALL_PASS rooms=" + rooms + " legacy=" + legacy);
-        if (!legacy) carpetUnderStair();
+        if (!legacy) { carpetUnderStair(); slabRoof(); }
+    }
+
+    private static void slabRoof() throws Exception {
+        int cases=0;
+        for(var half:BlockSlab.EnumBlockHalf.values())for(int cornice=0;cornice<3;cornice++) {
+            Room world=new Room(EnumFacing.NORTH,BlockStairs.EnumHalf.TOP,true);
+            world.blocks.put(world.stair,Blocks.STONE.getDefaultState());
+            IBlockState slab=Blocks.WOODEN_SLAB.getDefaultState().withProperty(BlockSlab.HALF,half);
+            for(int x=5;x<=9;x++)for(int z=5;z<=9;z++)world.blocks.put(new BlockPos(x,10,z),slab);
+            if(cornice!=0)for(EnumFacing face:EnumFacing.HORIZONTALS)for(int n=5;n<=9;n++) {
+                BlockPos pos=face.getAxis()==EnumFacing.Axis.X?new BlockPos(face==EnumFacing.WEST?4:10,9,n)
+                        :new BlockPos(n,9,face==EnumFacing.NORTH?4:10);
+                world.blocks.put(pos,Blocks.STONE_BRICK_STAIRS.getDefaultState().withProperty(BlockStairs.FACING,face)
+                        .withProperty(BlockStairs.HALF,cornice==1?BlockStairs.EnumHalf.TOP:BlockStairs.EnumHalf.BOTTOM));
+            }
+            world.light=new StairRoomLight(world.blocks);
+            for(int x=5;x<=9;x++)for(int z=5;z<=9;z++)for(int y=5;y<=9;y++)
+                if(world.light.sky(new BlockPos(x,y,z))!=0)throw new AssertionError("Slab roof propagation leak: "+half+" cornice="+cornice);
+            for(int renderer=0;renderer<(Boolean.getBoolean("issue20.celeritas")?3:2);renderer++) {
+                for(int x=4;x<=10;x++)for(int z=4;z<=10;z++)for(int y=9;y<=10;y++) {
+                    BlockPos pos=new BlockPos(x,y,z);IBlockState state=world.getBlockState(pos);
+                    if(state.getBlock()==Blocks.AIR)continue;
+                    for(var quad:PartialSurfaceProbe.bake(state)) {
+                        boolean underside=y==10&&x>=5&&x<=9&&z>=5&&z<=9&&quad.getFace()==EnumFacing.DOWN;
+                        boolean wall=y==9&&(
+                                z>=5&&z<=9&&(x==4&&quad.getFace()==EnumFacing.EAST || x==10&&quad.getFace()==EnumFacing.WEST)
+                                ||x>=5&&x<=9&&(z==4&&quad.getFace()==EnumFacing.SOUTH ||z==10&&quad.getFace()==EnumFacing.NORTH));
+                        if(!underside&&!wall)continue;
+                        for(boolean smooth:new boolean[]{true,false})for(int packed:PartialSurfaceProbe.renderAt(renderer,world,state,quad,pos,smooth))
+                            if(packed!=0)throw new AssertionError("Slab roof render leak: half="+half+" cornice="+cornice+" renderer="+renderer+" smooth="+smooth+" pos="+pos+" face="+quad.getFace()+" light="+Integer.toHexString(packed));
+                    }
+                }
+                cases++;
+            }
+        }
+        // Top slabs over the wall perimeter leave a real half-block-high slot;
+        // the bottom-half placement closes it. Preserve that physical opening.
+        for(var half:BlockSlab.EnumBlockHalf.values()) {
+            Room open=new Room(EnumFacing.NORTH,BlockStairs.EnumHalf.TOP,true);
+            open.blocks.put(open.stair,Blocks.STONE.getDefaultState());
+            for(int x=4;x<=10;x++)for(int z=4;z<=10;z++)open.blocks.put(new BlockPos(x,10,z),
+                    Blocks.WOODEN_SLAB.getDefaultState().withProperty(BlockSlab.HALF,half));
+            open.light=new StairRoomLight(open.blocks);
+            int inside=open.light.sky(new BlockPos(7,9,7));
+            if((inside>0)!=(half==BlockSlab.EnumBlockHalf.TOP))throw new AssertionError("Slab perimeter opening control: "+half+" light="+inside);
+        }
+        System.out.println("SLAB_ROOF_PASS cases="+cases);
     }
 
     private static void carpetUnderStair() throws Exception {

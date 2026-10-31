@@ -48,7 +48,9 @@ class SmoothLightMixinTest {
         assertTrue(previous.contains("STAIR_WALL_PASS rooms=16 legacy=true"), previous);
         assertTrue(candidate.contains("STAIR_WALL_PASS rooms=16 legacy=false"), candidate);
         assertTrue(candidate.contains("CARPET_STAIR_PASS cases=4"), candidate);
-        candidate.lines().filter(line -> line.startsWith("STAIR_WALL")).forEach(System.out::println);
+        assertTrue(candidate.contains("SLAB_ROOF_PASS cases="+
+                (System.getProperty("pulsar.test.celeritasClasspath", "").isEmpty()?12:18)),candidate);
+        candidate.lines().filter(line -> line.startsWith("STAIR_WALL")||line.startsWith("SLAB_ROOF")).forEach(System.out::println);
     }
 
     private Path configurations() throws Exception {
