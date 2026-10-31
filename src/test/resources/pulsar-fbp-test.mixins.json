@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8.7",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.sumirelabs.pulsar.core.RgbMixinSelection",
+  "package": "com.sumirelabs.pulsar.mixin",
+  "mixins": ["MixinRgbDynamicBuffer", "MixinRgbFbpUploader", "MixinRgbFbpLegacyRenderer"],
+  "injectors": {"defaultRequire": 1}
+}

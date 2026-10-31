@@ -45,6 +45,9 @@ configurations {
     compatTestMods
     classicTestMods
     rendererTestMods
+    fbpFancierTestMods
+    fbpFanciestTestMods
+    fbpLegacyTestMods
     testImplementation.extendsFrom(compatTestMods)
 }
 
@@ -98,6 +101,9 @@ unimined.minecraft {
         remap(configurations.compatTestMods)
         remap(configurations.classicTestMods)
         remap(configurations.rendererTestMods)
+        remap(configurations.fbpFancierTestMods)
+        remap(configurations.fbpFanciestTestMods)
+        remap(configurations.fbpLegacyTestMods)
     }
 }
 
@@ -248,6 +254,8 @@ compileTestJava {
 
 test {
     classpath += sourceSets.main.compileClasspath
+    inputs.files(configurations.fbpFancierTestMods, configurations.fbpFanciestTestMods,
+            configurations.fbpLegacyTestMods).withPropertyName('fbpReleaseRenderers')
     // Switching the optional renderer must invalidate the previous test result.
     inputs.property('celeritasTestClasspath', project.findProperty('celeritasTestClasspath') ?: '')
     inputs.property('pulsarGpuTests', project.findProperty('pulsarGpuTests') ?: 'false')
@@ -256,6 +264,9 @@ test {
     doFirst {
         systemProperty 'pulsar.test.classpath', classpath.asPath
         systemProperty 'pulsar.test.classicClasspath', configurations.classicTestMods.asPath
+        systemProperty 'pulsar.test.fbp.fancier', configurations.fbpFancierTestMods.asPath
+        systemProperty 'pulsar.test.fbp.fanciest', configurations.fbpFanciestTestMods.asPath
+        systemProperty 'pulsar.test.fbp.legacy', configurations.fbpLegacyTestMods.asPath
         systemProperty 'pulsar.test.gpu', project.findProperty('pulsarGpuTests') ?: 'false'
         systemProperty 'pulsar.test.emptySectionBenchmark', project.findProperty('pulsarEmptySectionBenchmark') ?: 'false'
         systemProperty 'pulsar.test.memoryBenchmark', project.findProperty('pulsarMemoryBenchmark') ?: 'false'

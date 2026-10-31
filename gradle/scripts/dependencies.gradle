@@ -25,6 +25,10 @@ repositories {
 }
 
 dependencies {
+    // Isolated native probes load one FBP variant per JVM; these are never runtime dependencies.
+    fbpFancierTestMods('curse.maven:fbp-666575:7287527') { transitive = false }
+    fbpFanciestTestMods('curse.maven:fanciest-block-particles-1653899:8655640') { transitive = false }
+    fbpLegacyTestMods('maven.modrinth:fbp:pt2dL0yf') { transitive = false }
     if (project.hasProperty('celeritasTestClasspath')) {
         // Unimined remaps module artifacts, not bare file dependencies. A local
         // artifact-only Ivy repository lets it remap the supplied release jar.

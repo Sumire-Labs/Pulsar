@@ -66,6 +66,8 @@
     "MixinRgbHandRenderer",
     "MixinRgbParticle",
     "MixinRgbParticleManager",
+    "MixinRgbFbpUploader",
+    "MixinRgbFbpLegacyRenderer",
     "MixinRgbDynamicBuffer",
     "MixinRgbVertexUploader",
     "MixinRgbLightmapState",

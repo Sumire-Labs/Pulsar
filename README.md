@@ -30,6 +30,7 @@ It offers a non-colored SCALAR lighting mode like Starlight and a full RGB color
 
 ### Compatibility
 
+- Fancier Block Particles / Fanciest Block Particles: Applies RGB lighting to their 3D particles while preserving material colors, transparency and full-bright effects.
 - JSON Paintings: Applies smooth lighting to paintings added by the mod.
 - SpongeForge: Includes compatibility support for asynchronous lighting.
 - Fluidlogged API: Accounts for the opacity and light emission of fluids stored inside blocks.
