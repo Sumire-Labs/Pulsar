@@ -61,6 +61,18 @@ public final class CeleritasWorldSliceProbe {
                 }
             }
         }
+        for (BlockPos base : List.of(BlockPos.ORIGIN, new BlockPos(-32,48,64), new BlockPos(16,-16,-32))) {
+            BlockPos pos=base.add(8,8,8);
+            IBlockAccess slice=slice(base,new Reference(pos,Blocks.STONE.getDefaultState(),Blocks.AIR.getDefaultState(),EnumSkyBlock.BLOCK,0,0));
+            var worldField=sliceType.getDeclaredField("world");worldField.setAccessible(true);
+            var owner=com.sumirelabs.pulsar.dynamic.DynamicLightClient.class.getDeclaredField("owner");owner.setAccessible(true);owner.set(null,worldField.get(slice));
+            var fields=com.sumirelabs.pulsar.dynamic.DynamicLightClient.class.getDeclaredField("fields");fields.setAccessible(true);
+            fields.set(null,java.util.Map.of(1,new com.sumirelabs.pulsar.dynamic.DynamicLightField(pos.getX(),pos.getY(),pos.getZ(),0,new short[]{(short)0xEEEE})));
+            if ((slice.getCombinedLight(pos,0)>>>4&15)!=14) throw new AssertionError("Dynamic WorldSlice coordinate conversion: "+base);
+            fields.set(null,java.util.Map.of());
+            if ((slice.getCombinedLight(pos,0)>>>4&15)!=0) throw new AssertionError("WorldSlice kept removed dynamic light");
+            owner.set(null,null);
+        }
         System.out.println("CELERITAS_WORLDSLICE_PASS cases=" + cases);
     }
 

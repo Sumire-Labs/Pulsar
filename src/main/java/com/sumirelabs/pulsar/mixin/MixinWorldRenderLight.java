@@ -40,6 +40,8 @@ public abstract class MixinWorldRenderLight implements RawLightAccess {
 
     @Override
     public int pulsar$getRawLight(final EnumSkyBlock lightType, final BlockPos pos) {
-        return this.getLightFor(lightType, pos);
+        int value = this.getLightFor(lightType, pos);
+        return lightType == EnumSkyBlock.BLOCK ? Math.max(value,
+                com.sumirelabs.pulsar.dynamic.DynamicLightClient.light((World) (Object) this, pos.getX(), pos.getY(), pos.getZ())) : value;
     }
 }

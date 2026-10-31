@@ -34,12 +34,15 @@ final class RgbShaderAtlas {
         final Chunk chunk;
         final int[] slots;
         final long[] generations;
+        final long[] dynamicGenerations;
+        final boolean[] dynamic;
         final RgbSnapshot.ShaderSection[] block, sky;
         final byte[][] fallbackSky;
         long seen;
         ChunkView(Chunk chunk, int count) {
             this.chunk = chunk; slots = new int[count]; Arrays.fill(slots, -1);
             generations = new long[count]; block = new RgbSnapshot.ShaderSection[count]; sky = new RgbSnapshot.ShaderSection[count];
+            dynamicGenerations = new long[count]; dynamic = new boolean[count];
             fallbackSky = new byte[count][];
         }
     }
@@ -134,10 +137,13 @@ final class RgbShaderAtlas {
                 if (sky == null || bytes != view.fallbackSky[s]) sky = RgbSnapshot.ShaderSection.white(bytes);
                 view.fallbackSky[s] = bytes;
             }
-            if (block == view.block[s] && sky == view.sky[s] && view.generations[s] == generation) continue;
+            boolean dynamic = com.sumirelabs.pulsar.dynamic.DynamicLightClient.intersects(chunk.x, y, chunk.z);
+            long dynamicGeneration = com.sumirelabs.pulsar.dynamic.DynamicLightClient.generation();
+            if (block == view.block[s] && sky == view.sky[s] && view.generations[s] == generation
+                    && dynamic == view.dynamic[s] && (!dynamic || view.dynamicGenerations[s] == dynamicGeneration)) continue;
             int meta = layout.index(chunk.x, y, chunk.z) * 4;
             int bc = block.constant(), sc = sky.constant();
-            if (bc >= 0 && sc >= 0) {
+            if (bc >= 0 && sc >= 0 && !dynamic) {
                 releaseSlot(view, s);
                 index[meta] = RgbShaderLightData.CONSTANT; index[meta + 1] = RgbShaderLightData.fromCells(bc, sc);
             } else {
@@ -152,13 +158,22 @@ final class RgbShaderAtlas {
                     view.slots[s] = slot;
                 }
                 beginUpload(); if (slot >= capacity) grow(Math.min(LIMIT, capacity * 2));
-                cells.clear(); for (int i = 0; i < 4096; i++) cells.put(RgbShaderLightData.fromCells(block.cell(i), sky.cell(i))); cells.flip();
+                cells.clear();
+                for (int i = 0; i < 4096; i++) {
+                    int value = block.cell(i);
+                    if (dynamic) value = com.sumirelabs.pulsar.dynamic.DynamicLightField.merge(value,
+                            com.sumirelabs.pulsar.dynamic.DynamicLightClient.shaderCell((chunk.x << 4) + (i & 15),
+                                    (y << 4) + (i >>> 8), (chunk.z << 4) + (i >>> 4 & 15)));
+                    cells.put(RgbShaderLightData.fromCells(value, sky.cell(i)));
+                }
+                cells.flip();
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, dataTexture);
                 GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, slot, WIDTH, 1, GL30.GL_RED_INTEGER, GL11.GL_UNSIGNED_INT, cells);
                 index[meta] = slot; index[meta + 1] = 0; ++uploadedSections;
             }
             index[meta + 2] = chunk.x; index[meta + 3] = chunk.z; indexDirty = true;
             view.block[s] = block; view.sky[s] = sky; view.generations[s] = generation;
+            view.dynamic[s] = dynamic; view.dynamicGenerations[s] = dynamicGeneration;
         }
     }
     private void releaseSlot(ChunkView view, int section) {

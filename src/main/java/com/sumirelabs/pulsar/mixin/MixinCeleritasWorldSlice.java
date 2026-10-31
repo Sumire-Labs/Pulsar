@@ -26,6 +26,16 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Pseudo
 @Mixin(targets = "org.taumc.celeritas.impl.world.WorldSlice", remap = false)
 public abstract class MixinCeleritasWorldSlice {
+    @Shadow @org.spongepowered.asm.mixin.Final private net.minecraft.world.World world;
+    @Shadow private int baseX;
+    @Shadow private int baseY;
+    @Shadow private int baseZ;
+
+    @Inject(method = "getLightFor(Lnet/minecraft/world/EnumSkyBlock;III)I", at = @At("RETURN"), cancellable = true, remap = false)
+    private void pulsar$dynamicLight(EnumSkyBlock type, int x, int y, int z, CallbackInfoReturnable<Integer> cir) {
+        if (type == EnumSkyBlock.BLOCK) cir.setReturnValue(Math.max(cir.getReturnValueI(),
+                com.sumirelabs.pulsar.dynamic.DynamicLightClient.light(world, baseX + x, baseY + y, baseZ + z)));
+    }
 
     /** NOTE: coordinates are relative to Celeritas's cloned section table. */
     @Shadow(remap = false)

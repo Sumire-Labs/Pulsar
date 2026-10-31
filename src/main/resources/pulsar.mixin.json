@@ -30,6 +30,7 @@
     "MixinSPacketChunkData",
     "MixinThaumcraftCrystalLight",
     "MixinWorld",
+    "MixinDynamicWorldLight",
     "MixinWorldServer",
     "MixinWorldEntitySpawner"
   ],

@@ -22,6 +22,16 @@ import java.io.IOException;
  */
 @Config(modid = Reference.MOD_ID, name = "pulsar")
 public class PulsarConfig {
+    public static DynamicLights dynamicLights = new DynamicLights();
+    public static class DynamicLights {
+        @Config.Comment({"Server-authoritative mainhand/offhand block light sources and lava buckets.",
+                "OFF disables dynamic lights. VISUAL changes rendering only.",
+                "GAMEPLAY also changes server light queries (for example mob spawning).",
+                "Enabled modes require compatible Pulsar clients. No dynamic light is saved in chunks.",
+                "Disable other dynamic-light mods to avoid duplicate lighting. Restart to apply."})
+        @Config.RequiresMcRestart
+        public com.sumirelabs.pulsar.dynamic.DynamicLights.Mode mode = com.sumirelabs.pulsar.dynamic.DynamicLights.Mode.OFF;
+    }
     public enum LightingMode { SCALAR, RGB }
     @Config.Comment({"RGB block and sky light. SCALAR preserves the original engine and memory layout.",
             "RGB adds server-authoritative color; rgbGameplayLight selects gameplay brightness behavior.",

@@ -24,7 +24,7 @@ public final class RgbClient {
     private static volatile float skyScale = 1;
     private static final ConcurrentHashMap<Long, Chunk> REFRESH = new ConcurrentHashMap<>();
     private RgbClient() {}
-    public static boolean active() { return active; }
+    public static boolean active() { return active || com.sumirelabs.pulsar.dynamic.DynamicLightClient.rgbActive(); }
     public static boolean skyActive() { return skyActive; }
     static float shaderSkyScale() { return skyScale; }
     static void visitShaderViews(java.util.function.BiConsumer<Long, View> visitor) { VIEWS.forEach(visitor); }
@@ -122,7 +122,7 @@ public final class RgbClient {
      * Sky and a small ambient term desaturate color; it is not shader-level RGB lightmaps.
      */
     public static int tintAbgr(int color, double x, double y, double z) {
-        if (!active && !skyActive) return color;
+        if (!active() && !skyActive) return color;
         int r = 0, g = 0, b = 0, sky = 0, canonical = 0, sr = 0, sg = 0, sb = 0;
         boolean found = false;
         int bx = (int) Math.floor(x - .5), by = (int) Math.floor(y - .5), bz = (int) Math.floor(z - .5);
@@ -140,10 +140,18 @@ public final class RgbClient {
                 previousView = view = VIEWS.get(key);
                 havePrevious = true;
             }
-            if (view == null) continue;
-            found = true;
+            if (view != null) found = true;
             for (int dy = 0; dy < 2; dy++) {
                 int yy = by + dy;
+                int dynamic = com.sumirelabs.pulsar.dynamic.DynamicLightClient.sample(xx, yy, zz);
+                if (dynamic != 0) {
+                    found = true;
+                    r = Math.max(r, RgbLight.channel(dynamic, 0));
+                    g = Math.max(g, RgbLight.channel(dynamic, 1));
+                    b = Math.max(b, RgbLight.channel(dynamic, 2));
+                    canonical = Math.max(canonical, com.sumirelabs.pulsar.dynamic.DynamicLightClient.brightness(dynamic));
+                }
+                if (view == null) continue;
                 int rgb = view.rgb == null ? 0 : view.rgb.get(xx, yy, zz);
                 if (view.rgb != null) canonical = Math.max(canonical, view.rgb.canonical(xx, yy, zz));
                 r = Math.max(r, RgbLight.channel(rgb, 0));

@@ -11,6 +11,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class ClientProxy extends CommonProxy {
+    @Override public void receiveDynamicLight(com.sumirelabs.pulsar.dynamic.DynamicLightPacket packet, Object connection) {
+        com.sumirelabs.pulsar.dynamic.DynamicLightClient.receive(packet, connection);
+    }
     @SubscribeEvent(priority = net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST)
     public void selectInitialLightingMode(net.minecraftforge.client.event.GuiOpenEvent event) {
         if (!com.sumirelabs.pulsar.config.PulsarConfig.lightingModeSelected
@@ -25,12 +28,15 @@ public class ClientProxy extends CommonProxy {
         if (event.getWorld().isRemote) com.sumirelabs.pulsar.rgb.RgbClient.unload(event.getWorld());
     }
     @SubscribeEvent public void rgbChannels(net.minecraftforge.fml.common.network.FMLNetworkEvent.CustomPacketRegistrationEvent<?> event) {
+        if (event.getSide() == net.minecraftforge.fml.relauncher.Side.CLIENT && event.getRegistrations().contains("pulsar_dynamic"))
+            com.sumirelabs.pulsar.dynamic.DynamicLightClient.serverHasChannel = event.getOperation().equals("REGISTER");
         if (event.getSide() == net.minecraftforge.fml.relauncher.Side.CLIENT && event.getRegistrations().contains("pulsar_light"))
             com.sumirelabs.pulsar.rgb.CanonicalLightClient.serverHasChannel = event.getOperation().equals("REGISTER");
         if (event.getSide() == net.minecraftforge.fml.relauncher.Side.CLIENT && event.getRegistrations().contains("pulsar_rgb"))
             com.sumirelabs.pulsar.rgb.RgbClient.serverHasRgbChannel = event.getOperation().equals("REGISTER");
     }
     @SubscribeEvent public void rgbDisconnected(net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+        com.sumirelabs.pulsar.dynamic.DynamicLightClient.reset();
         com.sumirelabs.pulsar.rgb.CanonicalLightClient.reset();
         com.sumirelabs.pulsar.rgb.RgbClient.serverHasRgbChannel = false;
     }
@@ -72,6 +78,7 @@ public class ClientProxy extends CommonProxy {
         final Minecraft mc = Minecraft.getMinecraft();
         com.sumirelabs.pulsar.light.LightUpdateTracer.tick(mc.world!=null);
         com.sumirelabs.pulsar.rgb.CanonicalLightClient.tick();
+        com.sumirelabs.pulsar.dynamic.DynamicLightClient.tick();
         if (mc.world == null) return;
         final WorldLightManager mgr = ((PulsarWorld) mc.world).pulsar$getLightManager();
         if (mgr != null) {

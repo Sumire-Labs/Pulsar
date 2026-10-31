@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.Shadow;
  */
 @Mixin(ChunkCache.class)
 public abstract class MixinChunkCacheRenderLight implements RawLightAccess {
+    @Shadow protected net.minecraft.world.World world;
 
     @Shadow
     public abstract int getLightFor(EnumSkyBlock lightType, BlockPos pos);
@@ -38,6 +39,8 @@ public abstract class MixinChunkCacheRenderLight implements RawLightAccess {
 
     @Override
     public int pulsar$getRawLight(final EnumSkyBlock lightType, final BlockPos pos) {
-        return this.getLightFor(lightType, pos);
+        int value = this.getLightFor(lightType, pos);
+        return lightType == EnumSkyBlock.BLOCK ? Math.max(value,
+                com.sumirelabs.pulsar.dynamic.DynamicLightClient.light(world, pos.getX(), pos.getY(), pos.getZ())) : value;
     }
 }
