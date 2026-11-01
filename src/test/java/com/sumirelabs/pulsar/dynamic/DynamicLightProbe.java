@@ -5,6 +5,7 @@ import com.sumirelabs.pulsar.light.engine.FaceOcclusion;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -52,16 +53,17 @@ public final class DynamicLightProbe {
         set(World.class,world,"provider",new WorldProviderSurface());
         set(World.class,world,"worldInfo",new net.minecraft.world.storage.WorldInfo(new net.minecraft.nbt.NBTTagCompound()));
         set(World.class,world,"playerEntities",new ArrayList<>());
+        set(World.class,world,"loadedEntityList",new ArrayList<>());
         world.chunks=inert(Provider.class);world.chunks.loaded=new HashMap<>();world.chunks.owner=Thread.currentThread();
         for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++) {
             var chunk=new Chunk(world,x,z);world.chunks.loaded.put((long)x<<32|z&0xffffffffL,chunk);
             chunk.getBlockStorageArray()[4]=new ExtendedBlockStorage(64,true);
         }
-        int torch=DynamicLightGeometry.held(world,POS,new ItemStack(Blocks.TORCH),true);
+        int torch=DynamicLightGeometry.itemEmission(world,POS,new ItemStack(Blocks.TORCH),true);
         check((torch>>>12)==14,"Torch source level changed");
-        check((DynamicLightGeometry.held(world,POS,new ItemStack(Items.LAVA_BUCKET),false)>>>12)==15,"Lava bucket source missing");
-        check(DynamicLightGeometry.held(world,POS,new ItemStack(Blocks.REDSTONE_LAMP),true)==0,"Unlit lamp emits");
-        check(DynamicLightGeometry.held(world,POS,ItemStack.EMPTY,true)==0,"Empty hand emits");
+        check((DynamicLightGeometry.itemEmission(world,POS,new ItemStack(Items.LAVA_BUCKET),false)>>>12)==15,"Lava bucket source missing");
+        check(DynamicLightGeometry.itemEmission(world,POS,new ItemStack(Blocks.REDSTONE_LAMP),true)==0,"Unlit lamp emits");
+        check(DynamicLightGeometry.itemEmission(world,POS,ItemStack.EMPTY,true)==0,"Empty hand emits");
         var snapshot=DynamicLightGeometry.capture(world,POS,0xFFFF,true);
         var field=java.util.concurrent.CompletableFuture.supplyAsync(snapshot::propagate).get();
         check(field.get(9,72,8)==0xEEEE,"Air attenuation");
@@ -98,6 +100,7 @@ public final class DynamicLightProbe {
         player.main=new ItemStack(Blocks.TORCH);manager.tick(tick);world.playerEntities.clear();manager.tick(tick);
         Thread.sleep(20);manager.tick(tick);
         check(world.getLightFor(EnumSkyBlock.BLOCK,POS)==0,"Late worker resurrected logged-out source");
+        verifyDroppedItems(world,manager,tick,player);
         // Real client query hooks, including the vanilla mesh snapshot cache.
         set(World.class,world,"isRemote",true);set(DynamicLightClient.class,null,"owner",world);
         set(DynamicLightClient.class,null,"fields",Map.of(1,field));
@@ -126,6 +129,58 @@ public final class DynamicLightProbe {
         check(DynamicLightClient.light(world,8,72,8)==0,"Old field resurrected after tombstone");
         DynamicLightClient.reset();
         System.out.println("DYNAMIC_LIGHT_PASS");
+    }
+    private static void verifyDroppedItems(ProbeWorld world, DynamicLights manager, TickEvent.WorldTickEvent tick, Player player)throws Exception {
+        BlockPos pos=new BlockPos(20,72,8);
+        EntityItem torch=new EntityItem(world,20.5,72,8.5,new ItemStack(Blocks.TORCH,64));
+        torch.setEntityId(300);world.loadedEntityList.add(torch);
+        awaitLight(world,manager,tick,pos,14);
+        int colored=DynamicLightGeometry.itemEmission(world,pos,torch.getItem(),true);
+        check((colored&0xFFF)==BlockLightColors.emission(Blocks.TORCH.getDefaultState(),14),"Dropped source lost palette hue");
+        check((DynamicLightGeometry.capture(world,pos,colored,true).propagate().get(20,72,8)&0xFFF)==(colored&0xFFF),"Dropped RGB source changed brightness");
+        torch.getItem().setCount(1);manager.tick(tick);
+        check(world.getLightFor(EnumSkyBlock.BLOCK,pos)==14,"Stack count changed brightness");
+        set(DynamicLights.class,null,"mode",DynamicLights.Mode.VISUAL);
+        manager.tick(tick);check(world.getLightFor(EnumSkyBlock.BLOCK,pos)==0,"Dropped VISUAL light affected gameplay");
+        set(DynamicLights.class,null,"mode",DynamicLights.Mode.OFF);
+        manager.tick(tick);check(world.getLightFor(EnumSkyBlock.BLOCK,pos)==0,"Dropped OFF light affected gameplay");
+        set(DynamicLights.class,null,"mode",DynamicLights.Mode.GAMEPLAY);
+        torch.setPosition(24.5,72,8.5);
+        awaitLight(world,manager,tick,new BlockPos(24,72,8),14);
+        check(world.getLightFor(EnumSkyBlock.BLOCK,pos)==10,"Moving drop retained its old source");
+        torch.setPosition(20.5,72,8.5);awaitLight(world,manager,tick,pos,14);
+        EntityItem glow=new EntityItem(world,20.5,72,8.5,new ItemStack(Blocks.GLOWSTONE));
+        glow.setEntityId(301);world.loadedEntityList.add(glow);awaitLight(world,manager,tick,pos,15);
+        glow.setDead();manager.tick(tick);
+        check(world.getLightFor(EnumSkyBlock.BLOCK,pos)==14,"Removing overlapping drop removed surviving light");
+        torch.setItem(new ItemStack(Blocks.STONE));manager.tick(tick);
+        check(world.getLightFor(EnumSkyBlock.BLOCK,pos)==0,"Non-emitting replacement retained light");
+        torch.setItem(new ItemStack(Items.LAVA_BUCKET));awaitLight(world,manager,tick,pos,15);
+        // Chunk unload can precede removal from loadedEntityList. It must extinguish the source already.
+        Chunk removed=world.chunks.loaded.remove(1L<<32);manager.tick(tick);
+        check(DynamicLights.gameplay(world,20,72,8)==0,"Unloaded drop retained light");
+        world.chunks.loaded.put(1L<<32,removed);awaitLight(world,manager,tick,pos,15);
+        torch.setItem(ItemStack.EMPTY);manager.tick(tick);
+        check(DynamicLights.gameplay(world,20,72,8)==0,"Empty dropped stack retained light");
+        // Pickup transfers the light to a hand; death/despawn/merge share the same live-entity removal path.
+        player.posX=20.5;player.posY=72;player.posZ=8.5;player.main=new ItemStack(Blocks.TORCH);
+        world.playerEntities.add(player);torch.setDead();awaitLight(world,manager,tick,pos,14);
+        world.playerEntities.clear();manager.tick(tick);
+        check(DynamicLights.gameplay(world,20,72,8)==0,"Pickup transfer left a duplicate source");
+        world.loadedEntityList.clear();
+        EntityItem pending=new EntityItem(world,20.5,72,8.5,new ItemStack(Blocks.GLOWSTONE));
+        pending.setEntityId(302);world.loadedEntityList.add(pending);manager.tick(tick);
+        world.loadedEntityList.clear();manager.tick(tick);Thread.sleep(20);manager.tick(tick);
+        check(DynamicLights.gameplay(world,20,72,8)==0,"Late worker resurrected removed drop");
+    }
+    private static void awaitLight(ProbeWorld world,DynamicLights manager,TickEvent.WorldTickEvent tick,BlockPos pos,int expected)throws Exception {
+        long deadline=System.nanoTime()+2_000_000_000L;
+        do {
+            manager.tick(tick);
+            if(world.getLightFor(EnumSkyBlock.BLOCK,pos)==expected)return;
+            Thread.sleep(5);
+        } while(System.nanoTime()<deadline);
+        throw new AssertionError("Dropped light at "+pos+": expected "+expected+", got "+world.getLightFor(EnumSkyBlock.BLOCK,pos));
     }
     private static DynamicLights newManager()throws Exception {var c=DynamicLights.class.getDeclaredConstructor();c.setAccessible(true);return c.newInstance();}
     private static void put(ProbeWorld world,BlockPos pos,IBlockState state){world.chunks.getLoadedChunk(pos.getX()>>4,pos.getZ()>>4).getBlockStorageArray()[pos.getY()>>4].set(pos.getX()&15,pos.getY()&15,pos.getZ()&15,state);}

@@ -32,7 +32,7 @@ final class DynamicLightGeometry {
         }
         return properties;
     }
-    static int held(World world, BlockPos pos, ItemStack stack, boolean rgb) {
+    static int itemEmission(World world, BlockPos pos, ItemStack stack, boolean rgb) {
         try { return heldState(world, pos, stack, rgb); }
         catch (RuntimeException unsupported) { return 0; }
     }

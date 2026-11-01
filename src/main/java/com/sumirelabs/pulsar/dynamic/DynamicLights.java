@@ -5,6 +5,7 @@ import com.sumirelabs.pulsar.config.PulsarConfig;
 import com.sumirelabs.pulsar.core.RgbMixinSelection;
 import com.sumirelabs.pulsar.rgb.RgbSettings;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -67,22 +68,21 @@ public final class DynamicLights {
             BlockPos pos = new BlockPos(player.posX, player.posY + player.getEyeHeight(), player.posZ);
             int emission;
             try {
-                emission = DynamicLightField.merge(DynamicLightGeometry.held(world, pos, player.getHeldItemMainhand(), RgbMixinSelection.rgbEnabled()),
-                        DynamicLightGeometry.held(world, pos, player.getHeldItemOffhand(), RgbMixinSelection.rgbEnabled()));
+                emission = DynamicLightField.merge(DynamicLightGeometry.itemEmission(world, pos, player.getHeldItemMainhand(), RgbMixinSelection.rgbEnabled()),
+                        DynamicLightGeometry.itemEmission(world, pos, player.getHeldItemOffhand(), RgbMixinSelection.rgbEnabled()));
             } catch (RuntimeException exception) { continue; } // Unsupported item states are not light sources.
             if (emission == 0) continue;
-            int id = player.getEntityId(); present.add(id);
-            Source source = state.sources.computeIfAbsent(id, k -> new Source());
-            if (!pos.equals(source.pos) || source.emission != emission) {
-                boolean remove = source.emission != emission || source.field != null
-                        && (Math.abs(source.field.x - pos.getX()) + Math.abs(source.field.y - pos.getY()) + Math.abs(source.field.z - pos.getZ()) > 2);
-                source.pos = pos; source.emission = emission; source.dirty = true;
-                if (source.pending != null) source.pending.cancel(false);
-                source.pending = null;
-                if (source.field != null && remove) {
-                    source.field = null; source.revision = ++state.revision; changed = true;
-                }
-            }
+            changed |= track(state, present, player.getEntityId(), pos, emission);
+        }
+        // Only loaded, live item entities participate. Never load a chunk to keep a dropped light alive.
+        // Use the physical entity center, not the client-only bobbing animation.
+        for (var entity : world.loadedEntityList) {
+            if (!(entity instanceof EntityItem item) || item.isDead || item.world != world) continue;
+            BlockPos pos = new BlockPos(item.posX, item.posY + item.height * .5, item.posZ);
+            var chunk = world.getChunkProvider().getLoadedChunk(pos.getX() >> 4, pos.getZ() >> 4);
+            if (chunk == null || chunk instanceof net.minecraft.world.chunk.EmptyChunk) continue;
+            int emission = DynamicLightGeometry.itemEmission(world, pos, item.getItem(), RgbMixinSelection.rgbEnabled());
+            if (emission != 0) changed |= track(state, present, item.getEntityId(), pos, emission);
         }
         for (var it = state.sources.entrySet().iterator(); it.hasNext();) {
             var entry = it.next();
@@ -90,7 +90,7 @@ public final class DynamicLights {
             if (entry.getValue().pending != null) entry.getValue().pending.cancel(false);
             it.remove(); changed = true;
         }
-        // Oldest-first scheduling prevents a moving player from monopolizing the capture budget.
+        // Oldest-first scheduling shares the capture budget between held and dropped sources.
         var scheduled = new ArrayList<>(state.sources.values());
         scheduled.sort(Comparator.comparingLong(source -> source.sampled));
         int captures = 0;
@@ -120,5 +120,18 @@ public final class DynamicLights {
         state.sources.forEach((id, source) -> { if (source.field != null)
             publications.put(id, new DynamicLightNetwork.Publication(source.revision, source.field)); });
         DynamicLightNetwork.publish(world, publications);
+    }
+    private static boolean track(State state, Set<Integer> present, int id, BlockPos pos, int emission) {
+        present.add(id);
+        Source source = state.sources.computeIfAbsent(id, k -> new Source());
+        if (pos.equals(source.pos) && source.emission == emission) return false;
+        boolean remove = source.emission != emission || source.field != null
+                && (Math.abs(source.field.x - pos.getX()) + Math.abs(source.field.y - pos.getY()) + Math.abs(source.field.z - pos.getZ()) > 2);
+        source.pos = pos; source.emission = emission; source.dirty = true;
+        if (source.pending != null) source.pending.cancel(false);
+        source.pending = null;
+        if (source.field == null || !remove) return false;
+        source.field = null; source.revision = ++state.revision;
+        return true;
     }
 }
