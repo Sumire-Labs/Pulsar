@@ -25,6 +25,7 @@ public class PulsarConfig {
     public static DynamicLights dynamicLights = new DynamicLights();
     public static class DynamicLights {
         @Config.Comment({"Server-authoritative held and dropped block light sources and lava buckets.",
+                "Burning mobs and players also emit light using the fire source palette.",
                 "OFF disables dynamic lights. VISUAL changes rendering only.",
                 "GAMEPLAY also changes server light queries (for example mob spawning).",
                 "Enabled modes require compatible Pulsar clients. No dynamic light is saved in chunks.",

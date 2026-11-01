@@ -11,6 +11,7 @@ It offers a non-colored SCALAR lighting mode like Starlight and a full RGB color
 - RGB colored lighting: Calculates block light and sky light per RGB channel, accounting for light source colors and filtering through blocks such as stained glass.
 - SCALAR mode: Uses conventional, non-colored lighting calculations, like Starlight.
 - Optional dynamic lighting for light-emitting blocks and lava buckets held in either hand or dropped on the ground, with visual-only or gameplay lighting.
+- Burning mobs and players also emit dynamic light using the fire source color, combined with any held light.
 - Asynchronous and parallel processing: Runs server-side light propagation on separate worker threads.
 - Batched lighting updates: Groups lighting updates caused by large numbers of block changes.
 - Light data caching: Saves calculated light data in chunk NBT to avoid recalculation when chunks are loaded.

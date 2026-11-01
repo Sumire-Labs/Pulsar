@@ -39,8 +39,11 @@ public final class DynamicLightProbe {
     }
     public static class Player extends EntityPlayerMP {
         ItemStack main,off;
+        boolean burning,spectator;
         Player(){super(null,null,null,null);}
-        @Override public boolean isSpectator(){return false;}
+        @Override public boolean isSpectator(){return spectator;}
+        @Override public boolean isEntityAlive(){return !isDead;}
+        @Override public boolean isBurning(){return burning;}
         @Override public float getEyeHeight(){return 0;}
         @Override public ItemStack getHeldItemMainhand(){return main;}
         @Override public ItemStack getHeldItemOffhand(){return off;}
@@ -101,6 +104,7 @@ public final class DynamicLightProbe {
         Thread.sleep(20);manager.tick(tick);
         check(world.getLightFor(EnumSkyBlock.BLOCK,POS)==0,"Late worker resurrected logged-out source");
         verifyDroppedItems(world,manager,tick,player);
+        verifyBurningEntities(world,manager,tick,player);
         // Real client query hooks, including the vanilla mesh snapshot cache.
         set(World.class,world,"isRemote",true);set(DynamicLightClient.class,null,"owner",world);
         set(DynamicLightClient.class,null,"fields",Map.of(1,field));
@@ -180,7 +184,68 @@ public final class DynamicLightProbe {
             if(world.getLightFor(EnumSkyBlock.BLOCK,pos)==expected)return;
             Thread.sleep(5);
         } while(System.nanoTime()<deadline);
-        throw new AssertionError("Dropped light at "+pos+": expected "+expected+", got "+world.getLightFor(EnumSkyBlock.BLOCK,pos));
+        throw new AssertionError("Dynamic light at "+pos+": expected "+expected+", got "+world.getLightFor(EnumSkyBlock.BLOCK,pos));
+    }
+    private static void verifyBurningEntities(ProbeWorld world,DynamicLights manager,TickEvent.WorldTickEvent tick,Player player)throws Exception {
+        BlockPos pos=new BlockPos(20,72,8);
+        var mob=new net.minecraft.entity.monster.EntityZombie(world);
+        mob.setEntityId(400);mob.setPosition(20.5,72,8.5);world.loadedEntityList.add(mob);
+        manager.tick(tick);check(DynamicLights.gameplay(world,20,72,8)==0,"Unlit mob emitted light");
+        mob.setFire(30);awaitLight(world,manager,tick,pos,15);
+        int fire=DynamicLightGeometry.fireEmission(world,pos,true);
+        check((fire&0xFFF)==BlockLightColors.emission(Blocks.FIRE.getDefaultState(),15),"Burning light lost fire palette");
+        mob.setPosition(24.5,72,8.5);awaitLight(world,manager,tick,new BlockPos(24,72,8),15);
+        check(DynamicLights.gameplay(world,20,72,8)==11,"Moving fire retained old position");
+        mob.extinguish();manager.tick(tick);
+        check(DynamicLights.gameplay(world,24,72,8)==0,"Extinguished mob retained light");
+        mob.setPosition(20.5,72,8.5);mob.setFire(30);awaitLight(world,manager,tick,pos,15);
+        mob.setHealth(0);manager.tick(tick);
+        check(DynamicLights.gameplay(world,20,72,8)==0,"Dying mob retained light before entity removal");
+        mob.setHealth(20);awaitLight(world,manager,tick,pos,15);
+        Chunk removed=world.chunks.loaded.remove(1L<<32);manager.tick(tick);
+        check(DynamicLights.gameplay(world,20,72,8)==0,"Unloaded burning mob retained light");
+        world.chunks.loaded.put(1L<<32,removed);awaitLight(world,manager,tick,pos,15);
+        set(DynamicLights.class,null,"mode",DynamicLights.Mode.VISUAL);manager.tick(tick);
+        check(DynamicLights.gameplay(world,20,72,8)==0,"VISUAL fire affected gameplay");
+        check(publishedCell(world,pos)==0xFFFF,"VISUAL fire was not propagated");
+        set(DynamicLights.class,null,"mode",DynamicLights.Mode.OFF);manager.tick(tick);
+        check(DynamicLights.gameplay(world,20,72,8)==0,"OFF fire affected gameplay");
+        set(DynamicLights.class,null,"mode",DynamicLights.Mode.GAMEPLAY);
+        world.loadedEntityList.clear();manager.tick(tick);
+        // Burning and held colors combine in one player source, even when the player appears in both lists.
+        var palette=com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().values;
+        com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.install(new com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.Values(
+                Map.of(Blocks.FIRE.getDefaultState(),0xF00,Blocks.GLOWSTONE.getDefaultState(),0x00F),Map.of()));
+        set(com.sumirelabs.pulsar.core.RgbMixinSelection.class,null,"enabled",true);
+        try {
+            player.main=new ItemStack(Blocks.GLOWSTONE);player.off=ItemStack.EMPTY;player.burning=true;
+            world.playerEntities.add(player);world.loadedEntityList.add(player);
+            awaitCell(world,manager,tick,pos,0xFF0F);
+            player.burning=false;awaitCell(world,manager,tick,pos,0xF00F);
+            player.burning=true;player.main=ItemStack.EMPTY;awaitCell(world,manager,tick,pos,0xFF00);
+            player.spectator=true;manager.tick(tick);check(publishedCell(world,pos)==0,"Burning spectator emitted light");
+            player.spectator=false;awaitCell(world,manager,tick,pos,0xFF00);
+            player.isDead=true;manager.tick(tick);check(publishedCell(world,pos)==0,"Dead player retained fire light");
+            player.isDead=false;manager.tick(tick);player.burning=false;manager.tick(tick);
+            Thread.sleep(20);manager.tick(tick);check(publishedCell(world,pos)==0,"Late worker restored extinguished player fire");
+        } finally {
+            world.playerEntities.clear();world.loadedEntityList.clear();manager.tick(tick);
+            com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.install(palette);
+            set(com.sumirelabs.pulsar.core.RgbMixinSelection.class,null,"enabled",false);
+        }
+    }
+    private static int publishedCell(ProbeWorld world,BlockPos pos)throws Exception {
+        var worlds=DynamicLights.class.getDeclaredField("WORLDS");worlds.setAccessible(true);
+        Object state=((Map<?,?>)worlds.get(null)).get(world);
+        var visible=state.getClass().getDeclaredField("visible");visible.setAccessible(true);
+        int value=0;
+        for(Object field:(List<?>)visible.get(state))value=DynamicLightField.merge(value,((DynamicLightField)field).get(pos.getX(),pos.getY(),pos.getZ()));
+        return value;
+    }
+    private static void awaitCell(ProbeWorld world,DynamicLights manager,TickEvent.WorldTickEvent tick,BlockPos pos,int expected)throws Exception {
+        long deadline=System.nanoTime()+2_000_000_000L;
+        do {manager.tick(tick);if(publishedCell(world,pos)==expected)return;Thread.sleep(5);}while(System.nanoTime()<deadline);
+        throw new AssertionError("Expected dynamic cell "+Integer.toHexString(expected)+", got "+Integer.toHexString(publishedCell(world,pos)));
     }
     private static DynamicLights newManager()throws Exception {var c=DynamicLights.class.getDeclaredConstructor();c.setAccessible(true);return c.newInstance();}
     private static void put(ProbeWorld world,BlockPos pos,IBlockState state){world.chunks.getLoadedChunk(pos.getX()>>4,pos.getZ()>>4).getBlockStorageArray()[pos.getY()>>4].set(pos.getX()&15,pos.getY()&15,pos.getZ()&15,state);}

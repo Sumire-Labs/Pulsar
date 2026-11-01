@@ -44,6 +44,12 @@ final class DynamicLightGeometry {
         else if (stack.getItem() == net.minecraft.init.Items.LAVA_BUCKET)
             state = net.minecraft.init.Blocks.LAVA.getDefaultState();
         else return 0;
+        return stateEmission(world, pos, state, rgb);
+    }
+    static int fireEmission(World world, BlockPos pos, boolean rgb) {
+        return stateEmission(world, pos, net.minecraft.init.Blocks.FIRE.getDefaultState(), rgb);
+    }
+    private static int stateEmission(World world, BlockPos pos, IBlockState state, boolean rgb) {
         int scalar = Math.max(0, Math.min(15, state.getLightValue(world, pos)));
         int color = rgb ? RgbLightAccess.effectiveEmission(properties(world, pos, state), scalar,
                 RgbSettings.projectsGameplayLight()) : scalar * 0x111;

@@ -6,6 +6,7 @@ import com.sumirelabs.pulsar.core.RgbMixinSelection;
 import com.sumirelabs.pulsar.rgb.RgbSettings;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -64,25 +65,31 @@ public final class DynamicLights {
         Set<Integer> present = new HashSet<>();
         boolean changed = false;
         for (EntityPlayer player : world.playerEntities) {
-            if (player.isDead || player.isSpectator()) continue;
+            if (!player.isEntityAlive() || player.isSpectator() || player.world != world) continue;
             BlockPos pos = new BlockPos(player.posX, player.posY + player.getEyeHeight(), player.posZ);
             int emission;
             try {
                 emission = DynamicLightField.merge(DynamicLightGeometry.itemEmission(world, pos, player.getHeldItemMainhand(), RgbMixinSelection.rgbEnabled()),
                         DynamicLightGeometry.itemEmission(world, pos, player.getHeldItemOffhand(), RgbMixinSelection.rgbEnabled()));
             } catch (RuntimeException exception) { continue; } // Unsupported item states are not light sources.
+            // One source per player: neither burning nor held light may overwrite the other.
+            if (player.isBurning()) emission = DynamicLightField.merge(emission,
+                    DynamicLightGeometry.fireEmission(world, pos, RgbMixinSelection.rgbEnabled()));
             if (emission == 0) continue;
             changed |= track(state, present, player.getEntityId(), pos, emission);
         }
-        // Only loaded, live item entities participate. Never load a chunk to keep a dropped light alive.
-        // Use the physical entity center, not the client-only bobbing animation.
+        // Loaded drops and burning mobs share the same bounded propagation budget.
+        // Use their physical center, not client-only item bobbing or flame animation.
         for (var entity : world.loadedEntityList) {
-            if (!(entity instanceof EntityItem item) || item.isDead || item.world != world) continue;
-            BlockPos pos = new BlockPos(item.posX, item.posY + item.height * .5, item.posZ);
+            if (entity.isDead || entity.world != world) continue;
+            boolean burningMob = entity instanceof EntityLiving mob && mob.isEntityAlive() && mob.isBurning();
+            if (!(entity instanceof EntityItem) && !burningMob) continue;
+            BlockPos pos = new BlockPos(entity.posX, entity.posY + entity.height * .5, entity.posZ);
             var chunk = world.getChunkProvider().getLoadedChunk(pos.getX() >> 4, pos.getZ() >> 4);
             if (chunk == null || chunk instanceof net.minecraft.world.chunk.EmptyChunk) continue;
-            int emission = DynamicLightGeometry.itemEmission(world, pos, item.getItem(), RgbMixinSelection.rgbEnabled());
-            if (emission != 0) changed |= track(state, present, item.getEntityId(), pos, emission);
+            int emission = burningMob ? DynamicLightGeometry.fireEmission(world, pos, RgbMixinSelection.rgbEnabled())
+                    : DynamicLightGeometry.itemEmission(world, pos, ((EntityItem) entity).getItem(), RgbMixinSelection.rgbEnabled());
+            if (emission != 0) changed |= track(state, present, entity.getEntityId(), pos, emission);
         }
         for (var it = state.sources.entrySet().iterator(); it.hasNext();) {
             var entry = it.next();
