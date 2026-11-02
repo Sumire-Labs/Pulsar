@@ -4,6 +4,6 @@
   "compatibilityLevel": "JAVA_25",
   "package": "com.sumirelabs.pulsar.mixin",
   "mixins": ["MixinBlockFaceLight", "MixinBlockSlabFaceLight", "MixinBlockStairsFaceLight",
-    "MixinBlockStateImplementation", "MixinDynamicWorldLight", "MixinWorldRenderLight", "MixinChunkCacheRenderLight"],
+    "MixinBlockStateImplementation", "MixinDynamicWorldLight", "MixinWorldRenderLight", "MixinChunkCacheRenderLight", "MixinDynamicRenderChunk"],
   "injectors": {"defaultRequire": 1}
 }

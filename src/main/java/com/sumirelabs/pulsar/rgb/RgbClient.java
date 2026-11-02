@@ -122,6 +122,7 @@ public final class RgbClient {
      * Sky and a small ambient term desaturate color; it is not shader-level RGB lightmaps.
      */
     public static int tintAbgr(int color, double x, double y, double z) {
+        if(com.sumirelabs.pulsar.dynamic.DynamicLightClient.inMesh() && DynamicTerrainRuntime.enabled()) return color;
         if (!active() && !skyActive) return color;
         int r = 0, g = 0, b = 0, sky = 0, canonical = 0, sr = 0, sg = 0, sb = 0;
         boolean found = false;

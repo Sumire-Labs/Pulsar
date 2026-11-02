@@ -22,9 +22,13 @@ public final class DynamicLightPacket implements IMessage {
         out.writeLong(session).writeInt(dimension).writeInt(source).writeLong(revision)
                 .writeByte(mode.ordinal()).writeBoolean(rgb).writeBoolean(projected).writeBoolean(field != null);
         if (field == null) return;
-        out.writeInt(field.x).writeInt(field.y).writeInt(field.z).writeByte(field.radius);
-        byte[] raw = new byte[field.size() * 2];
+        out.writeInt(field.x).writeInt(field.y).writeInt(field.z).writeByte(field.radius).writeBoolean(field.hasVisualData());
+        byte[] raw = new byte[field.size() * (field.hasVisualData() ? 10 : 2)];
         for (int i = 0; i < field.size(); i++) { raw[i * 2] = (byte) field.cell(i); raw[i * 2 + 1] = (byte) (field.cell(i) >>> 8); }
+        if (field.hasVisualData()) for (int i=0;i<field.size();i++) for(int lane=0;lane<4;lane++) {
+            int at=field.size()*2+(i*4+lane)*2,value=field.visualLoss(i,lane);
+            raw[at]=(byte)value;raw[at+1]=(byte)(value>>>8);
+        }
         Deflater deflater = new Deflater(Deflater.BEST_SPEED);
         try {
             deflater.setInput(raw); deflater.finish();
@@ -41,10 +45,12 @@ public final class DynamicLightPacket implements IMessage {
         if (in.readBoolean()) {
             int x = in.readInt(), y = in.readInt(), z = in.readInt(), radius = in.readUnsignedByte();
             if (radius > 14) throw new IllegalArgumentException("Invalid dynamic light radius");
+            boolean visual=in.readBoolean();
             int length = in.readInt();
-            if (length < 1 || length > 65536 || length != in.readableBytes()) throw new IllegalArgumentException("Invalid dynamic light payload");
+            if (length < 1 || length > 262144 || length != in.readableBytes()) throw new IllegalArgumentException("Invalid dynamic light payload");
             byte[] compressed = new byte[length]; in.readBytes(compressed);
-            byte[] raw = new byte[DynamicLightField.cube(radius) * 2];
+            int size=DynamicLightField.cube(radius);
+            byte[] raw = new byte[size * (visual ? 10 : 2)];
             Inflater inflater = new Inflater();
             try {
                 inflater.setInput(compressed);
@@ -58,9 +64,11 @@ public final class DynamicLightPacket implements IMessage {
                     throw new IllegalArgumentException("Invalid compressed dynamic light volume");
             } catch (DataFormatException exception) { throw new IllegalArgumentException("Invalid dynamic light compression", exception); }
             finally { inflater.end(); }
-            short[] cells = new short[raw.length / 2];
+            short[] cells = new short[size];
             for (int i = 0; i < cells.length; i++) cells[i] = (short) ((raw[i * 2] & 255) | (raw[i * 2 + 1] & 255) << 8);
-            field = new DynamicLightField(x, y, z, radius, cells);
+            short[] losses=visual?new short[size*4]:null;
+            if(visual)for(int i=0;i<losses.length;i++){int at=size*2+i*2;losses[i]=(short)((raw[at]&255)|(raw[at+1]&255)<<8);}
+            field = new DynamicLightField(x, y, z, radius, cells, losses);
         }
         if (in.isReadable()) throw new IllegalArgumentException("Trailing dynamic light data");
     }

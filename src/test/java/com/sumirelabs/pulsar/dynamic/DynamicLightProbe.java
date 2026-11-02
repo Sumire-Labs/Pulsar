@@ -23,11 +23,12 @@ public final class DynamicLightProbe {
     private static final BlockPos POS=new BlockPos(8,72,8);
     public static class ProbeWorld extends WorldServer {
         Provider chunks;
+        int renderUpdates;
         ProbeWorld(){super(null,null,null,0,null);}
         @Override public ChunkProviderServer getChunkProvider(){return chunks;}
         @Override public Chunk getChunk(int x,int z){return chunks.getLoadedChunk(x,z);}
         @Override protected boolean isChunkLoaded(int x,int z,boolean allowEmpty){return chunks.getLoadedChunk(x,z)!=null;}
-        @Override public void markBlockRangeForRenderUpdate(int x,int y,int z,int xx,int yy,int zz){}
+        @Override public void markBlockRangeForRenderUpdate(int x,int y,int z,int xx,int yy,int zz){renderUpdates++;}
     }
     public static class Provider extends ChunkProviderServer {
         Map<Long,Chunk> loaded; Thread owner;
@@ -69,7 +70,7 @@ public final class DynamicLightProbe {
         check(DynamicLightGeometry.itemEmission(world,POS,ItemStack.EMPTY,true)==0,"Empty hand emits");
         var snapshot=DynamicLightGeometry.capture(world,POS,0xFFFF,true);
         var field=java.util.concurrent.CompletableFuture.supplyAsync(snapshot::propagate).get();
-        check(field.get(9,72,8)==0xEEEE,"Air attenuation");
+        check(field.get(9,72,8)==0xDDDD,"Radial air attenuation");
         // A closed slab face must not pass light straight through into the air below.
         put(world,POS.down(),Blocks.WOODEN_SLAB.getDefaultState().withProperty(BlockSlab.HALF,BlockSlab.EnumBlockHalf.TOP));
         var slab=DynamicLightGeometry.capture(world,POS,0xFFFF,false).propagate();
@@ -105,6 +106,7 @@ public final class DynamicLightProbe {
         check(world.getLightFor(EnumSkyBlock.BLOCK,POS)==0,"Late worker resurrected logged-out source");
         verifyDroppedItems(world,manager,tick,player);
         verifyBurningEntities(world,manager,tick,player);
+        verifyContinuousMovement(world,manager,tick,player);
         // Real client query hooks, including the vanilla mesh snapshot cache.
         set(World.class,world,"isRemote",true);set(DynamicLightClient.class,null,"owner",world);
         set(DynamicLightClient.class,null,"fields",Map.of(1,field));
@@ -131,6 +133,16 @@ public final class DynamicLightProbe {
         packet.revision=1;packet.field=field;
         DynamicLightClient.apply(packet,connection,world,connection);
         check(DynamicLightClient.light(world,8,72,8)==0,"Old field resurrected after tombstone");
+        packet.revision=3;packet.field=field;DynamicLightClient.apply(packet,connection,world,connection);
+        world.renderUpdates=0;
+        packet.revision=4;packet.field=new DynamicLightField(9,72,8,0,new short[]{(short)0xFFFF});
+        DynamicLightClient.apply(packet,connection,world,connection);
+        check(world.renderUpdates==1,"Ordinary movement duplicated render invalidation");
+        world.renderUpdates=0;
+        packet.revision=5;packet.field=new DynamicLightField(1000,72,8,0,new short[]{(short)0xFFFF});
+        DynamicLightClient.apply(packet,connection,world,connection);
+        check(world.renderUpdates==2,"Teleport rebuilt the entire gap between fields");
+        verifyMeshScope(world);
         DynamicLightClient.reset();
         System.out.println("DYNAMIC_LIGHT_PASS");
     }
@@ -151,7 +163,7 @@ public final class DynamicLightProbe {
         set(DynamicLights.class,null,"mode",DynamicLights.Mode.GAMEPLAY);
         torch.setPosition(24.5,72,8.5);
         awaitLight(world,manager,tick,new BlockPos(24,72,8),14);
-        check(world.getLightFor(EnumSkyBlock.BLOCK,pos)==10,"Moving drop retained its old source");
+        check(world.getLightFor(EnumSkyBlock.BLOCK,pos)==6,"Moving drop retained its old source");
         torch.setPosition(20.5,72,8.5);awaitLight(world,manager,tick,pos,14);
         EntityItem glow=new EntityItem(world,20.5,72,8.5,new ItemStack(Blocks.GLOWSTONE));
         glow.setEntityId(301);world.loadedEntityList.add(glow);awaitLight(world,manager,tick,pos,15);
@@ -195,7 +207,7 @@ public final class DynamicLightProbe {
         int fire=DynamicLightGeometry.fireEmission(world,pos,true);
         check((fire&0xFFF)==BlockLightColors.emission(Blocks.FIRE.getDefaultState(),15),"Burning light lost fire palette");
         mob.setPosition(24.5,72,8.5);awaitLight(world,manager,tick,new BlockPos(24,72,8),15);
-        check(DynamicLights.gameplay(world,20,72,8)==11,"Moving fire retained old position");
+        check(DynamicLights.gameplay(world,20,72,8)==7,"Moving fire retained old position");
         mob.extinguish();manager.tick(tick);
         check(DynamicLights.gameplay(world,24,72,8)==0,"Extinguished mob retained light");
         mob.setPosition(20.5,72,8.5);mob.setFire(30);awaitLight(world,manager,tick,pos,15);
@@ -241,6 +253,74 @@ public final class DynamicLightProbe {
         int value=0;
         for(Object field:(List<?>)visible.get(state))value=DynamicLightField.merge(value,((DynamicLightField)field).get(pos.getX(),pos.getY(),pos.getZ()));
         return value;
+    }
+    private static void verifyContinuousMovement(ProbeWorld world,DynamicLights manager,TickEvent.WorldTickEvent tick,Player player)throws Exception {
+        player.isDead=false;player.burning=false;player.spectator=false;
+        player.main=new ItemStack(Blocks.TORCH);player.off=ItemStack.EMPTY;
+        player.posX=20.5;player.posY=72;player.posZ=8.5;world.playerEntities.add(player);
+        awaitLight(world,manager,tick,new BlockPos(20,72,8),14);
+        var worlds=DynamicLights.class.getDeclaredField("WORLDS");worlds.setAccessible(true);
+        Object state=((Map<?,?>)worlds.get(null)).get(world);
+        var sources=state.getClass().getDeclaredField("sources");sources.setAccessible(true);
+        Object source=((Map<?,?>)sources.get(state)).get(player.getEntityId());
+        var pending=source.getClass().getDeclaredField("pending");pending.setAccessible(true);
+        var published=source.getClass().getDeclaredField("field");published.setAccessible(true);
+        // Saturating the shared worker queue must retain the last valid publication.
+        var workerField=DynamicLights.class.getDeclaredField("WORKER");workerField.setAccessible(true);
+        var worker=(java.util.concurrent.ThreadPoolExecutor)workerField.get(null);
+        var release=new java.util.concurrent.CountDownLatch(1);
+        var started=new java.util.concurrent.CountDownLatch(2);
+        try {
+            for(int i=0;i<2;i++)worker.execute(()->{started.countDown();try{release.await();}catch(InterruptedException e){Thread.currentThread().interrupt();}});
+            check(started.await(2,java.util.concurrent.TimeUnit.SECONDS),"Could not occupy light workers");
+            while(worker.getQueue().remainingCapacity()>0)worker.execute(()->{});
+            set(source.getClass(),source,"sampled",-100L);
+            manager.tick(tick);
+            check(DynamicLights.gameplay(world,20,72,8)==14,"Queue backpressure extinguished a valid light");
+        } finally {release.countDown();}
+        long drainDeadline=System.nanoTime()+2_000_000_000L;
+        while(!worker.getQueue().isEmpty()&&System.nanoTime()<drainDeadline)Thread.sleep(1);
+        check(worker.getQueue().isEmpty(),"Light worker queue did not drain");
+        // Deterministically delay a worker while the player crosses several cell boundaries.
+        var delayed=new java.util.concurrent.CompletableFuture<DynamicLightField>();
+        pending.set(source,delayed);
+        for(int x=21;x<=23;x++) {
+            player.posX=x+.5;manager.tick(tick);
+            check(!delayed.isCancelled() && pending.get(source)==delayed,"Walking cancelled in-flight light work");
+            check(DynamicLights.gameplay(world,x,72,8)>0,"Walking blanked the visible field before its replacement");
+        }
+        var completed=DynamicLightGeometry.capture(world,new BlockPos(21,72,8),0xEEEE,false).propagate();
+        delayed.complete(completed);player.posX=24.5;manager.tick(tick);
+        check(published.get(source)==completed,"Movement discarded a completed worker result");
+        check(DynamicLights.gameplay(world,24,72,8)>0,"Completion produced a dark frame");
+        var teleportPending=new java.util.concurrent.CompletableFuture<DynamicLightField>();pending.set(source,teleportPending);
+        player.posX=-20.5;manager.tick(tick);
+        check(teleportPending.isCancelled(),"Teleport did not retire old work");
+        check(DynamicLights.gameplay(world,21,72,8)==0,"Teleport left the old light behind");
+        world.playerEntities.clear();manager.tick(tick);
+    }
+    private static void verifyMeshScope(ProbeWorld world)throws Exception {
+        var blue=new DynamicLightField(8,72,8,0,new short[]{(short)0xF007});
+        var red=new DynamicLightField(8,72,8,0,new short[]{(short)0x8800});
+        set(DynamicLightClient.class,null,"fields",Map.of(1,blue));
+        set(DynamicLightClient.class,null,"rgb",true);set(DynamicLightClient.class,null,"projected",false);
+        try(var scope=DynamicLightClient.beginMesh()) {
+            int tint=com.sumirelabs.pulsar.rgb.RgbClient.tintAbgr(0xFFFFFFFF,8.5,72.5,8.5);
+            set(DynamicLightClient.class,null,"fields",Map.of(1,red));set(DynamicLightClient.class,null,"projected",true);
+            check(DynamicLightClient.sample(world,8,72,8)==0xF007,"Mesh changed RGB midway");
+            check(DynamicLightClient.light(world,8,72,8)==15,"Mesh changed canonical brightness midway");
+            check(com.sumirelabs.pulsar.rgb.RgbClient.tintAbgr(0xFFFFFFFF,8.5,72.5,8.5)==tint,"RGB tint read another publication than scalar light");
+            try(var nested=DynamicLightClient.beginMesh()) {
+                check(DynamicLightClient.sample(world,8,72,8)==0xF007,"Nested renderer discarded mesh snapshot");
+            }
+            check(java.util.concurrent.CompletableFuture.supplyAsync(()->DynamicLightClient.sample(world,8,72,8)).get()==0x8800,"Mesh snapshot leaked to another thread");
+        }
+        check(DynamicLightClient.sample(world,8,72,8)==0x8800,"Mesh scope retained old light after completion");
+        var renderChunk=net.minecraft.client.renderer.chunk.RenderChunk.class;
+        check(Arrays.stream(renderChunk.getDeclaredMethods()).anyMatch(m->m.getName().contains("pulsar$dynamicSnapshot")),"Missing vanilla mesh snapshot wrapper");
+        try { inert(renderChunk).rebuildChunk(0,0,0,null); } catch(NullPointerException expected) {}
+        var local=DynamicLightClient.class.getDeclaredField("MESH_VIEW");local.setAccessible(true);
+        check(((ThreadLocal<?>)local.get(null)).get()==null,"Exceptional mesh exit leaked a snapshot");
     }
     private static void awaitCell(ProbeWorld world,DynamicLights manager,TickEvent.WorldTickEvent tick,BlockPos pos,int expected)throws Exception {
         long deadline=System.nanoTime()+2_000_000_000L;

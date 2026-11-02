@@ -36,7 +36,7 @@ public final class DynamicLightNetwork {
     }
     public static void request(long session, int dimension) { CHANNEL.sendToServer(new Hello(session, dimension)); }
     public static final class Hello implements IMessage {
-        int version = 1, dimension; long session;
+        int version = 2, dimension; long session;
         public Hello() {}
         Hello(long session, int dimension) { this.session = session; this.dimension = dimension; }
         public void toBytes(ByteBuf out) { out.writeInt(version).writeLong(session).writeInt(dimension); }
@@ -50,7 +50,7 @@ public final class DynamicLightNetwork {
             var handler = context.getServerHandler();
             handler.player.getServerWorld().addScheduledTask(() -> {
                 var player = handler.player;
-                if (hello.version != 1 || player.connection != handler || !handler.netManager.isChannelOpen()
+                if (hello.version != 2 || player.connection != handler || !handler.netManager.isChannelOpen()
                         || player.dimension != hello.dimension) return;
                 Client existing = CLIENTS.get(handler.netManager);
                 if (existing != null && existing.session == hello.session && existing.player == player && existing.world == player.world) {

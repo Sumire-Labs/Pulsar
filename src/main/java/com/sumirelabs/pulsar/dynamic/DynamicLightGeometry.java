@@ -56,8 +56,7 @@ final class DynamicLightGeometry {
         return color | scalar << 12;
     }
     static Snapshot capture(World world, BlockPos source, int emission, boolean rgb) {
-        int radius = Math.max(DynamicLightField.peak(emission), emission >>> 12 & 15) - 1;
-        radius = Math.max(0, radius);
+        int radius = DynamicLightField.CAPTURE_RADIUS;
         int side = radius * 2 + 1, size = DynamicLightField.cube(radius);
         short[] costs = new short[size * 6]; Arrays.fill(costs, (short) 0xFFFF);
         byte[] exits = new byte[size]; Arrays.fill(exits, (byte) 63);
@@ -65,7 +64,7 @@ final class DynamicLightGeometry {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (int dy = -radius; dy <= radius; dy++) for (int dz = -radius; dz <= radius; dz++)
             for (int dx = -radius; dx <= radius; dx++) {
-                if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) > radius) continue;
+                if (dx * dx + dy * dy + dz * dz > DynamicLightField.VISUAL_RANGE * DynamicLightField.VISUAL_RANGE) continue;
                 int x = source.getX() + dx, y = source.getY() + dy, z = source.getZ() + dz;
                 if (y < height.getMinBlockY() || y > height.getMaxBlockY()) continue;
                 var chunk = world.getChunkProvider().getLoadedChunk(x >> 4, z >> 4);

@@ -21,7 +21,7 @@ public final class DynamicLights {
     public enum Mode { OFF, VISUAL, GAMEPLAY }
     private static Mode mode = Mode.OFF;
     private static final Map<World, State> WORLDS = new ConcurrentHashMap<>();
-    private static final ExecutorService WORKER = new ThreadPoolExecutor(2, 2, 0, TimeUnit.MILLISECONDS,
+    private static final ThreadPoolExecutor WORKER = new ThreadPoolExecutor(2, 2, 0, TimeUnit.MILLISECONDS,
             new ArrayBlockingQueue<>(32), r -> {
         Thread t = new Thread(r, "Pulsar dynamic light"); t.setDaemon(true); return t;
     });
@@ -64,6 +64,18 @@ public final class DynamicLights {
         ++state.tick;
         Set<Integer> present = new HashSet<>();
         boolean changed = false;
+        // Drain completed work BEFORE observing movement. Otherwise crossing a cell boundary
+        // can discard even a completed result, starving continuously moving sources.
+        for (Source source : state.sources.values()) {
+            if (source.pending == null || !source.pending.isDone()) continue;
+            try {
+                DynamicLightField next = source.pending.join();
+                if (!next.sameLight(source.field)) { source.field = next; source.revision = ++state.revision; changed = true; }
+            } catch (CompletionException | CancellationException exception) {
+                Pulsar.LOGGER.warn("Dynamic light propagation failed", exception);
+            }
+            source.pending = null;
+        }
         for (EntityPlayer player : world.playerEntities) {
             if (!player.isEntityAlive() || player.isSpectator() || player.world != world) continue;
             BlockPos pos = new BlockPos(player.posX, player.posY + player.getEyeHeight(), player.posZ);
@@ -103,16 +115,11 @@ public final class DynamicLights {
         int captures = 0;
         long deadline = System.nanoTime() + 2_000_000L;
         for (Source source : scheduled) {
-            if (source.pending != null && source.pending.isDone()) {
-                try {
-                    DynamicLightField next = source.pending.join();
-                    if (!next.sameLight(source.field)) { source.field = next; source.revision = ++state.revision; changed = true; }
-                }
-                catch (CompletionException | CancellationException exception) { Pulsar.LOGGER.warn("Dynamic light propagation failed", exception); }
-                source.pending = null;
-            }
             // Refresh stationary lights too: doors, fluids, filters and palette changes are sampled afresh.
             if (source.pending != null || !source.dirty && state.tick - source.sampled < 10 || captures >= 2 || System.nanoTime() >= deadline) continue;
+            // Only the server thread submits jobs. Backpressure must defer an update, not
+            // turn a still-valid light off through the generic sampling-failure path.
+            if (WORKER.getQueue().remainingCapacity() == 0) break;
             try {
                 var snapshot = DynamicLightGeometry.capture(world, source.pos, source.emission, RgbMixinSelection.rgbEnabled());
                 source.pending = CompletableFuture.supplyAsync(snapshot::propagate, WORKER);
@@ -132,11 +139,16 @@ public final class DynamicLights {
         present.add(id);
         Source source = state.sources.computeIfAbsent(id, k -> new Source());
         if (pos.equals(source.pos) && source.emission == emission) return false;
-        boolean remove = source.emission != emission || source.field != null
-                && (Math.abs(source.field.x - pos.getX()) + Math.abs(source.field.y - pos.getY()) + Math.abs(source.field.z - pos.getZ()) > 2);
+        boolean remove = source.emission != emission || source.pos != null && source.pos.distanceSq(pos) > 64
+                || source.field != null && (Math.abs(source.field.x - pos.getX())
+                + Math.abs(source.field.y - pos.getY()) + Math.abs(source.field.z - pos.getZ()) > 8);
         source.pos = pos; source.emission = emission; source.dirty = true;
-        if (source.pending != null) source.pending.cancel(false);
-        source.pending = null;
+        // Coalesce ordinary movement into the next job; preserve the visible field until
+        // its replacement is ready. Teleports and emission changes still retire it immediately.
+        if (remove) {
+            if (source.pending != null) source.pending.cancel(false);
+            source.pending = null;
+        }
         if (source.field == null || !remove) return false;
         source.field = null; source.revision = ++state.revision;
         return true;

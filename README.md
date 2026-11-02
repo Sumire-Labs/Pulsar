@@ -12,11 +12,16 @@ It offers a non-colored SCALAR lighting mode like Starlight and a full RGB color
 - SCALAR mode: Uses conventional, non-colored lighting calculations, like Starlight.
 - Optional dynamic lighting for light-emitting blocks and lava buckets held in either hand or dropped on the ground, with visual-only or gameplay lighting.
 - Burning mobs and players also emit dynamic light using the fire source color, combined with any held light.
+- Dynamic light uses a round 7.75-block falloff in open air, preserving source hues while respecting closed faces, opacity and colored-glass absorption. Detours around obstacles add attenuation.
 - Asynchronous and parallel processing: Runs server-side light propagation on separate worker threads.
 - Batched lighting updates: Groups lighting updates caused by large numbers of block changes.
 - Light data caching: Saves calculated light data in chunk NBT to avoid recalculation when chunks are loaded.
 - Various additional bug fixes and quality-of-life improvements not listed here.
 - Natural lighting for Thaumcraft crystals.
+
+Celeritas's standard terrain renderer follows dynamic light sources every frame with fractional positions and light levels.
+Server-side obstruction and colored-glass absorption remain authoritative. Shader packs, other renderers,
+or more than 64 nearby dynamic sources use the block-aligned mesh-lighting fallback.
 
 ### Fixed Bugs
 
@@ -59,6 +64,7 @@ Pulsar completely replaces the lighting engine and is incompatible with other li
 ## Configuration
 
 - `config/pulsar.cfg`: Selects the lighting mode and configures additional features.
+  - `dynamicLights.smoothTerrainLighting`: Client option for per-frame lighting in Celeritas's standard renderer (default: `true`). Disable it to use mesh lighting. It does not change server gameplay light.
   - `dynamicLights.mode`: `OFF` (default), `VISUAL` (rendering only), or `GAMEPLAY` (also affects server light queries, including mob spawning). The server chooses the mode; restart to apply. Enabled modes require compatible Pulsar clients. Supports held and dropped block items and lava buckets in SCALAR and RGB, including occlusion and colored-glass filtering. Stack size does not increase brightness. Other non-block item sources are not yet supported. Disable other dynamic-light mods to avoid duplicate lighting. Dynamic light is transient and never saved in chunk lighting data.
   - `lightingMode`: `SCALAR` (default, conventional, non-colored lighting) or `RGB` (RGB colored lighting).
   - `lightingModeSelected`: `false` by default. On the first client launch, choose SCALAR or RGB once for this instance; the selection sets this to `true`. Changing the active mode requires restarting Minecraft. Modpacks can set this to `true` to skip the prompt; dedicated servers use `lightingMode` directly.

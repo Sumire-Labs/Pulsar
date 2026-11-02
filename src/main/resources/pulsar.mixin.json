@@ -35,6 +35,11 @@
     "MixinWorldEntitySpawner"
   ],
   "client": [
+    "MixinDynamicCeleritasShaders",
+    "MixinDynamicCeleritasGlObject",
+    "MixinDynamicCeleritasProgram",
+    "MixinDynamicCeleritasTask",
+    "MixinDynamicRenderChunk",
     "MixinLightUpdateTrace",
     "MixinCeleritasUpdateTrace",
     "MixinCeleritasBuildTrace",

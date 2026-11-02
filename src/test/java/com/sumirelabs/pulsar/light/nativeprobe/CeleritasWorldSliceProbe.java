@@ -32,8 +32,23 @@ public final class CeleritasWorldSliceProbe {
         field.setAccessible(true); unsafe = field.get(null);
         allocate = unsafe.getClass().getMethod("allocateInstance", Class.class);
         Bootstrap.register();
+        Class<?> programType=Class.forName("org.embeddedt.embeddium.impl.gl.shader.GlProgram");
+        if(Arrays.stream(programType.getDeclaredMethods()).noneMatch(m->m.getName().contains("pulsar$frameUniforms")))throw new AssertionError("Missing per-frame program hook");
+        Class<?> loaderType=Class.forName("org.embeddedt.embeddium.impl.render.shader.ShaderLoader");
+        if(Arrays.stream(loaderType.getDeclaredMethods()).noneMatch(m->m.getName().contains("pulsar$frameLight")))throw new AssertionError("Missing terrain shader hook");
         sliceType = Class.forName("org.taumc.celeritas.impl.world.WorldSlice");
         sectionType = Class.forName("org.taumc.celeritas.impl.world.cloned.ClonedChunkSection");
+        net.minecraft.launchwrapper.Launch.blackboard.put("fml.deobfuscatedEnvironment",true);
+        Class<?> taskType=Class.forName("org.taumc.celeritas.impl.render.terrain.compile.task.ChunkBuilderMeshingTask");
+        if(Arrays.stream(taskType.getDeclaredMethods()).noneMatch(m->m.getName().contains("pulsar$dynamicSnapshot")))
+            throw new AssertionError("Missing Celeritas mesh snapshot wrapper");
+        Object task=allocate.invoke(unsafe,taskType);
+        Method execute=Arrays.stream(taskType.getDeclaredMethods()).filter(m->m.getName().equals("execute")&&m.getParameterCount()==2).findFirst().orElseThrow();
+        try { execute.invoke(task,new Object[]{null,null}); } catch(java.lang.reflect.InvocationTargetException expected) {
+            if(!(expected.getCause() instanceof NullPointerException))throw expected;
+        }
+        var scope=com.sumirelabs.pulsar.dynamic.DynamicLightClient.class.getDeclaredField("MESH_VIEW");scope.setAccessible(true);
+        if(((ThreadLocal<?>)scope.get(null)).get()!=null)throw new AssertionError("Celeritas failed to close mesh scope on exception");
         if (Arrays.stream(sliceType.getDeclaredMethods()).noneMatch(m -> m.getName().contains("useFaceAwareNeighborLight"))) {
             throw new AssertionError("Production WorldSlice hook was not applied");
         }

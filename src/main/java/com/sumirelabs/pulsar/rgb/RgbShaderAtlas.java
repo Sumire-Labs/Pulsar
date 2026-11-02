@@ -13,6 +13,9 @@ import java.util.function.BiConsumer;
 
 /** Original sparse shader light field. Only immutable publications cross into GPU uploads. */
 final class RgbShaderAtlas {
+    private final boolean includeDynamic;
+    RgbShaderAtlas() { this(true); }
+    RgbShaderAtlas(boolean includeDynamic) { this.includeDynamic=includeDynamic; }
     private static final int WIDTH = RgbShaderLightData.DATA_WIDTH, LIMIT = 4096;
     private static final long UPLOAD_BUDGET_NS = 2_000_000;
     private final IntBuffer cells = BufferUtils.createIntBuffer(4096);
@@ -137,7 +140,7 @@ final class RgbShaderAtlas {
                 if (sky == null || bytes != view.fallbackSky[s]) sky = RgbSnapshot.ShaderSection.white(bytes);
                 view.fallbackSky[s] = bytes;
             }
-            boolean dynamic = com.sumirelabs.pulsar.dynamic.DynamicLightClient.intersects(chunk.x, y, chunk.z);
+            boolean dynamic = includeDynamic && com.sumirelabs.pulsar.dynamic.DynamicLightClient.intersects(chunk.x, y, chunk.z);
             long dynamicGeneration = com.sumirelabs.pulsar.dynamic.DynamicLightClient.generation();
             if (block == view.block[s] && sky == view.sky[s] && view.generations[s] == generation
                     && dynamic == view.dynamic[s] && (!dynamic || view.dynamicGenerations[s] == dynamicGeneration)) continue;

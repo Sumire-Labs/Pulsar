@@ -28,6 +28,15 @@ public final class RgbShaderRuntime {
     public static boolean fieldReady() { return atlas != null && atlas.ready(); }
     public static void patched() { PATCHED.incrementAndGet(); }
     static boolean present() { return PRESENT; }
+    /** Used in SCALAR too, where the RGB client ticker is deliberately not installed. */
+    static boolean shaderPackInUse(World world) {
+        if(!PRESENT||world==null)return false;
+        try {
+            if(pipelineManager==null){pipelineManager=Class.forName("net.coderbot.iris.Iris").getMethod("getPipelineManager");pipeline=pipelineManager.getReturnType().getMethod("getPipelineNullable");}
+            Object value=pipeline.invoke(pipelineManager.invoke(null));
+            return value!=null&&value.getClass().getName().endsWith("DeferredWorldRenderingPipeline");
+        }catch(ReflectiveOperationException|LinkageError error){fail(error);return true;}
+    }
     private static RgbShaderAtlas atlas() { if (atlas == null) atlas = new RgbShaderAtlas(); return atlas; }
     static void clear() { active = false; if (atlas != null) atlas.clear(); }
     static void tick(World world) {
