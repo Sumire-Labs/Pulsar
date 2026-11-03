@@ -6,9 +6,6 @@ Pulsar is a lighting engine mod for Cleanroom, based on Starlight and SuperNova.
 It replaces Minecraft's vanilla lighting engine with queue-based breadth-first search (BFS) light propagation derived from Starlight.
 It offers a non-colored SCALAR lighting mode like Starlight and a full RGB colored lighting mode like SuperNova.
 
-Current builds require Minecraft 1.12.2, Java 25, and Cleanroom Loader 0.7.14-alpha
-or newer within the 0.7.x series.
-
 ## Features
 
 - RGB colored lighting: Calculates block light and sky light per RGB channel, accounting for light source colors and filtering through blocks such as stained glass.
@@ -99,88 +96,6 @@ dependencies {
     compileOnly 'com.sumirelabs:pulsar-api:<version>'
 }
 ```
-
-The API uses MCP stable_39 development names. Supply your own Cleanroom platform
-and install the matching full Pulsar mod at runtime. Do not shade or bundle the
-API into your mod. Artifact downloads do not require authentication.
-
-## Release publishing
-
-Pushing a release tag builds and checks the mod once, creates a GitHub release,
-publishes `com.sumirelabs:pulsar-api` and its sources to Artifact Keeper, and
-uploads the runtime mod JAR to CurseForge and Modrinth. API, development and source
-JARs are excluded from the CurseForge and Modrinth uploads.
-
-Configure these repository secrets under **Settings > Secrets and variables >
-Actions** before pushing a release tag:
-
-| Secret | Value |
-| --- | --- |
-| `MAVEN_USER` | Artifact Keeper publishing account username |
-| `MAVEN_PASS` | That account's password for HTTP Basic authentication |
-| `CURSEFORGE_TOKEN` | CurseForge upload API token with access to project `1641056` |
-| `MODRINTH_TOKEN` | Modrinth token with version creation/upload access to project `gs7RbryI` |
-
-The Maven account needs write access to the `releases` repository. Credentials
-belong in Actions secrets or local environment variables, never in this file or
-the project's `gradle.properties`.
-
-Cleanroom Versioning derives the release channel from Git tags. Stage suffixes
-such as `-alpha` and `-beta` remain in the version; RC builds use the beta upload
-channel. Bare 0.x tags default to beta unless they inherit an explicit stage.
-GitHub marks alpha and beta releases as prereleases. Release notes are generated
-with GitHub's release-notes API and reused for CurseForge and Modrinth.
-
-For manual publication, run **Release** from the Actions tab and select a version
-tag in **Use workflow from**. The selected tag must contain this build setup.
-The workflow uses the template's Gradle publishing plugin for the runtime mod;
-the separate API publication keeps its original Maven coordinates. Existing
-`MAVEN_USER` / `MAVEN_PASS` Actions secrets are mapped to the template's
-`MAVEN_USERNAME` / `MAVEN_PASSWORD` environment variables.
-
-Verify the Maven layout locally without credentials or remote uploads:
-
-```text
-./gradlew build publishPulsarApiPublicationToApiLocalRepository
-```
-
-The local repository is written to `build/api-repository`. To publish the API
-manually with `MAVEN_USERNAME` and `MAVEN_PASSWORD` in the environment:
-
-```text
-./gradlew -Ppublish_to_maven=true publishPulsarApiPublicationToArtifactKeeperRepository
-```
-
-## Development
-
-The development scaffold is based on [CleanroomDevEnv](https://github.com/Sumire-Labs/CleanroomDevEnv)
-at `a1de707`: CleanroomGradle 0.23.0, Cleanroom USERDEV 0.7.14-alpha, Gradle 9.8.2,
-and Java 25. Cleanroom supplies Mixin, MixinExtras, and the LWJGL compatibility
-APIs. There is no Unimined build path.
-
-```text
-./gradlew build
-./gradlew runClient
-./gradlew runServer
-./gradlew spotlessApply
-```
-
-Spotless is enabled and checked by `build`. The template's Eclipse profile uses
-four spaces, a 120-column wrapping preference, UTF-8, LF, and its prescribed
-import order. It removes unused imports and trailing whitespace while preserving
-comment/Javadoc prose and existing comment wrapping. Formatter toggles are
-supported for code that must retain its layout. The API integration example is
-formatted and compiled as part of the same checks.
-
-Pulsar's optional compatibility probes and GPU/benchmark settings are in
-`gradle/scripts/pulsar-testing.gradle`. The normal check includes a packaged API
-consumer and verifies the remapped SRG Mod JAR, metadata, Mixin refmap, coremod,
-and access-transformer packaging. Gradle's remapping dependency helper handles
-release Mod JARs used by compatibility tests.
-
-Renovate configuration follows the template's Monday 00:00-06:00 Japan-time
-window. Enable the official GitHub App for Pulsar as described in
-[the setup instructions](.github/RENOVATE.md) if it is not already enabled.
 
 ## Benchmarks
 
