@@ -5,6 +5,33 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Add Spotless formatting checks and the CleanroomDevEnv Eclipse formatter profile.
+- Add verification of the production JAR's metadata, version constants, Mixin mappings,
+  coremod and access-transformer packaging.
+- Add Renovate configuration for weekly dependency update PRs.
+
+### Changed
+
+- Replace the Unimined development environment with CleanroomDevEnv, using
+  CleanroomGradle 0.23.0, Cleanroom USERDEV 0.7.14-alpha and Gradle 9.8.2.
+- Require Java 25 and Cleanroom Loader 0.7.14-alpha or newer within the 0.7.x series.
+- Apply the template's formatting rules across production code, tests and the API example.
+- Migrate automated releases to the template's Gradle publishing workflow, retaining
+  CurseForge, Modrinth and the `com.sumirelabs:pulsar-api` Maven publication.
+- Adapt compatibility-test dependencies to CleanroomGradle's SRG-to-MCP remapping.
+
+### Fixed
+
+- Preserve the runtime name of Forge's five-argument `BufferBuilder.putColorRGBA`
+  method when building production Mixins.
+- Use the LWJGL texture-environment query supported by the new Cleanroom environment.
+- Remove stale signatures from disposable remapped test JARs so signed compatibility
+  fixtures can load after remapping.
+
 ## [0.6.2]
 
 ### Added
