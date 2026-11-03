@@ -80,6 +80,74 @@ Pulsar provides APIs for other mods to define light source colors and light tran
 
 See the [API documentation](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/src/main/java/com/sumirelabs/pulsar/api/package-info.java) and [integration example](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/src/apiExample/java/example/pulsar/PulsarCompat.java) for details.
 
+Starting with releases containing the Maven publishing workflow, the compile-only
+API and its sources are published to Sumire Labs' Artifact Keeper:
+
+```groovy
+repositories {
+    maven {
+        url = 'https://artifact.sumirelabs.com/maven/releases'
+        content { includeGroup 'com.sumirelabs' }
+    }
+}
+
+dependencies {
+    // Replace <version> with a published Pulsar release version.
+    compileOnly 'com.sumirelabs:pulsar-api:<version>'
+}
+```
+
+The API uses MCP stable_39 development names. Supply your own Cleanroom platform
+and install the matching full Pulsar mod at runtime. Do not shade or bundle the
+API into your mod. Artifact downloads do not require authentication.
+
+## Release publishing
+
+Pushing a release tag builds and checks the mod once, creates a GitHub release,
+publishes `com.sumirelabs:pulsar-api` and its sources to Artifact Keeper, and
+uploads the runtime mod JAR to CurseForge and Modrinth. API, development and source
+JARs are excluded from the CurseForge and Modrinth uploads.
+
+Configure these repository secrets under **Settings > Secrets and variables >
+Actions** before pushing a release tag:
+
+| Secret | Value |
+| --- | --- |
+| `MAVEN_USER` | Artifact Keeper publishing account username |
+| `MAVEN_PASS` | That account's password for HTTP Basic authentication |
+| `CURSEFORGE_TOKEN` | CurseForge upload API token with access to project `1641056` |
+| `MODRINTH_TOKEN` | Modrinth token with version creation/upload access to project `gs7RbryI` |
+
+The Maven account needs write access to the `releases` repository. Credentials
+belong in Actions secrets or local environment variables, never in this file or
+the project's `gradle.properties`.
+
+Automatic releases use the `beta` channel, matching the existing 0.x releases.
+Set the optional Actions repository variable `RELEASE_TYPE` to `alpha`, `beta`,
+or `release` to change it. GitHub releases are marked as prereleases for alpha
+and beta. The changelog is generated from commits since the previous tag.
+
+For manual publication, run **Publish release** from the Actions tab, select an
+existing release tag containing this configuration, and choose the channel and
+destinations. Run the workflow from a branch containing this workflow. The tag
+must resolve to the same version reported by Gradle; an optional `v` prefix is
+accepted. To recover from a partial failure, enable only the destinations that
+have not succeeded. Leave `publish_github` disabled if the GitHub release exists.
+Previously published destinations are not automatically rolled back.
+
+Verify the Maven layout locally without credentials or remote uploads:
+
+```text
+./gradlew build publishPulsarApiPublicationToApiLocalRepository
+```
+
+The local repository is written to `build/api-repository`. To publish the API
+manually with `MAVEN_USER` and `MAVEN_PASS` in the environment:
+
+```text
+./gradlew -Ppublish_to_maven=true publishPulsarApiPublicationToArtifactKeeperRepository
+```
+
 ## Benchmarks
 
 Measured on 2026-10-30 with Minecraft 1.12.2 / Cleanroom 0.6.13-alpha, comparing vanilla lighting, Alfheim 1.6, and Pulsar `0.6.0` in SCALAR and RGB (`RGB_MAX`) modes.
