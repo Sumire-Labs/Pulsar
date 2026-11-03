@@ -24,7 +24,7 @@ import java.io.IOException;
 public class PulsarConfig {
     public static DynamicLights dynamicLights = new DynamicLights();
     public static class DynamicLights {
-        @Config.Comment({"Client: smooth per-frame terrain lighting with Celeritas's standard renderer.",
+        @Config.Comment({"Client: smooth per-frame terrain, player and item lighting with Celeritas's standard renderer.",
                 "Shader packs, unsupported renderers and more than 64 nearby dynamic sources use mesh lighting instead.",
                 "Does not change server gameplay light or colored-glass absorption."})
         public boolean smoothTerrainLighting = true;

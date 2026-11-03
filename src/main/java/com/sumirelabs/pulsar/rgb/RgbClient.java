@@ -124,7 +124,9 @@ public final class RgbClient {
     public static int tintAbgr(int color, double x, double y, double z) {
         if(com.sumirelabs.pulsar.dynamic.DynamicLightClient.inMesh() && DynamicTerrainRuntime.enabled()) return color;
         if (!active() && !skyActive) return color;
-        int r = 0, g = 0, b = 0, sky = 0, canonical = 0, sr = 0, sg = 0, sb = 0;
+        float r = 0, g = 0, b = 0, canonical = 0;
+        int sky = 0, sr = 0, sg = 0, sb = 0;
+        var objectLight=DynamicObjectLight.current();
         boolean found = false;
         int bx = (int) Math.floor(x - .5), by = (int) Math.floor(y - .5), bz = (int) Math.floor(z - .5);
         long previousKey = 0;
@@ -144,7 +146,7 @@ public final class RgbClient {
             if (view != null) found = true;
             for (int dy = 0; dy < 2; dy++) {
                 int yy = by + dy;
-                int dynamic = com.sumirelabs.pulsar.dynamic.DynamicLightClient.sample(xx, yy, zz);
+                int dynamic = objectLight==null?com.sumirelabs.pulsar.dynamic.DynamicLightClient.sample(xx, yy, zz):0;
                 if (dynamic != 0) {
                     found = true;
                     r = Math.max(r, RgbLight.channel(dynamic, 0));
@@ -177,6 +179,7 @@ public final class RgbClient {
                 sb = Math.max(sb, RgbLight.channel(skyColor, 2));
             }
         }
+        if(objectLight!=null){r=Math.max(r,objectLight.red());g=Math.max(g,objectLight.green());b=Math.max(b,objectLight.blue());canonical=Math.max(canonical,objectLight.brightness());found|=canonical>0||r>0||g>0||b>0;}
         if (!found) return color;
         return RgbTintBlendMode.current.tintAbgr(color, r, g, b, canonical, sr, sg, sb, sky, skyScale);
     }

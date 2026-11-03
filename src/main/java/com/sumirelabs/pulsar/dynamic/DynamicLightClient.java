@@ -80,6 +80,8 @@ public final class DynamicLightClient {
     }
     public static int light(World world, int x, int y, int z) {
         if(inMesh() && com.sumirelabs.pulsar.rgb.DynamicTerrainRuntime.enabled()) return 0;
+        Integer objectLight=com.sumirelabs.pulsar.rgb.DynamicObjectLight.blockLight(world);
+        if(objectLight!=null)return objectLight;
         return brightness(sample(world, x, y, z));
     }
     public static void reset() {

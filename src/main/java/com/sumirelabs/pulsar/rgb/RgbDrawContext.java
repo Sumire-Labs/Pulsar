@@ -49,7 +49,9 @@ public final class RgbDrawContext {
         state.pop(token);boolean owns=state.poppedSession;
         if(oldLightmap!=state.lightmap){if(state.lightmap)Minecraft.getMinecraft().entityRenderer.enableLightmap();else Minecraft.getMinecraft().entityRenderer.disableLightmap();}
         if(oldU!=state.lightU || oldV!=state.lightV)
-            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit,state.lightU,state.lightV);
+            try(var ignored=DynamicObjectLight.suspend()) {
+                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit,state.lightU,state.lightV);
+            }
         context.texture().update(state);
         if(owns)context.texture().close();
     }

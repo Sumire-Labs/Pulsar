@@ -42,6 +42,14 @@ public final class DynamicTerrainRuntime {
     }
     private DynamicTerrainRuntime(){}
     public static boolean enabled(){return enabled;}
+    public static void sampleObject(int id,double x,double y,double z,float[] light) {
+        Arrays.fill(light,0);
+        if(!enabled||owner!=Minecraft.getMinecraft().world)return;
+        for(int i=0;i<count;i++) {
+            Slot slot=SLOTS[i];if(slot==null||slot.field==null)continue;
+            DynamicLightVisualSample.merge(slot.field,slot.motion.x(),slot.motion.y(),slot.motion.z(),x,y,z,slot.id==id,light);
+        }
+    }
     public static void tick() {
         if(!PRESENT)return;
         Minecraft mc=Minecraft.getMinecraft();

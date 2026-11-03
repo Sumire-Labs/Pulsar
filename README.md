@@ -20,6 +20,7 @@ It offers a non-colored SCALAR lighting mode like Starlight and a full RGB color
 - Natural lighting for Thaumcraft crystals.
 
 Celeritas's standard terrain renderer follows dynamic light sources every frame with fractional positions and light levels.
+While this path is active, players, held items and dropped items share a continuous light sample for model brightness and RGB tint.
 Server-side obstruction and colored-glass absorption remain authoritative. Shader packs, other renderers,
 or more than 64 nearby dynamic sources use the block-aligned mesh-lighting fallback.
 

@@ -35,6 +35,9 @@
     "MixinWorldEntitySpawner"
   ],
   "client": [
+    "MixinDynamicEntityLight",
+    "MixinDynamicHandLight",
+    "MixinDynamicLightmapCoordinates",
     "MixinDynamicCeleritasShaders",
     "MixinDynamicCeleritasGlObject",
     "MixinDynamicCeleritasProgram",
