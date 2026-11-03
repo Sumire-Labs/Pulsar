@@ -62,7 +62,7 @@ test {
         originalClasspath.files.findAll { !remapped.contains(it) } + remapped.collect {
             new File(probeModsDirectory.get().asFile, it.name)
         }
-    }).builtBy(prepareCompatTestMods)
+    }).builtBy(originalClasspath, prepareCompatTestMods)
     inputs.files(configurations.fbpFancierTestMods, configurations.fbpFanciestTestMods,
             configurations.fbpLegacyTestMods).withPropertyName('fbpReleaseRenderers')
     // Switching the optional renderer must invalidate the previous test result.

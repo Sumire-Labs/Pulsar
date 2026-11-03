@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Preserve test-resource task dependencies when replacing remapped compatibility JARs
+  on the test classpath, so clean CI builds include the probe Mixin configurations.
 - Preserve the runtime name of Forge's five-argument `BufferBuilder.putColorRGBA`
   method when building production Mixins.
 - Use the LWJGL texture-environment query supported by the new Cleanroom environment.
