@@ -32,6 +32,7 @@ public final class ModLightColors {
     static void registerDefaults(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register) {
         registerAdditionalDefaults(lookup, register);
         registerLegacyPorts(lookup, register);
+        registerSupplementalDefaults(lookup, register);
         register(lookup, register, "extrautils2:decorativeglass",
             state -> "glass_glowstone".equals(namedProperty(state, "decorstates")) ? 0xFD3 : null);
         for (String name : new String[]{"shinyFlower", "miniIsland"})
@@ -193,6 +194,91 @@ public final class ModLightColors {
         for (String name : new String[]{"unlit_torch", "unlit_torch_stone"})
             register(lookup, register, "galacticraftcore:" + name, state -> 0x321);
         register(lookup, register, "galacticraftcore:glowstone_torch", state -> 0xFD3);
+    }
+
+    /** Coverage checked against dragon-forge/luxpacks 1.12.2, abb9575.
+     * These are Pulsar hues, not the pack's scripts, radii or added light sources.
+     * Every preset is scaled to the block's own contextual emission by the engine.
+     */
+    private static void registerSupplementalDefaults(Function<ResourceLocation, Block> lookup,
+        BiConsumer<IBlockState, Integer> register) {
+        registerHue(lookup, register, 0xFD3, "adchimneys:glowstone", "charm:smooth_glowstone",
+            "tinker_io:what_a_beautiful_block");
+        registerHue(lookup, register, 0xAFF, "adchimneys:sea_lantern");
+        registerHue(lookup, register, 0xDA8, "charm:iron_lantern", "charm:gold_lantern",
+            "quark:paper_lantern", "inspirations:torch_lever");
+        registerHue(lookup, register, 0x611, "charm:variable_redstone_lamp",
+            "inspirations:redstone_torch_lever_powered", "exoticbirds:lit_egg_sorter");
+        registerHue(lookup, register, 0xFC5, "embers:block_lantern", "embers:archaic_light",
+            "exoticbirds:lit_egg_incubator", "quark:blaze_lantern");
+        registerHue(lookup, register, 0x2AF, "quark:glowcelium", "quark:glowshroom", "quark:glowshroom_block",
+            "netherex:rime_ore", "netherex:rime_block", "netherex:blue_fire",
+            "taiga:dilithium_ore", "taiga:dilithium_block");
+        registerHue(lookup, register, 0x3CC, "deepmoblearning:infused_ingot_block",
+            "deepmoblearning:simulation_chamber", "deepmoblearning:trial_keystone");
+        registerHue(lookup, register, 0xF83, "deepmoblearning:extraction_chamber");
+        registerHue(lookup, register, 0xA3F, "quark:duskbound_lantern");
+        registerHue(lookup, register, 0xC86, "quark:elder_sea_lantern");
+        registerHue(lookup, register, 0xFCA, "quark:lit_lamp");
+        registerHue(lookup, register, 0xFFF, "tconstruct:glow");
+
+        // Restrict multi-purpose blocks to the actual light-emitting variant.
+        register(lookup, register, "immersiveengineering:cloth_device",
+            state -> "balloon".equals(namedProperty(state, "type")) ? 0xDA8 : null);
+        register(lookup, register, "immersiveengineering:metal_decoration2",
+            state -> "lantern".equals(namedProperty(state, "type")) ? 0xDA8 : null);
+        register(lookup, register, "embersconstruct:kiln",
+            state -> "true".equals(namedProperty(state, "burning")) ? 0xDCA : null);
+
+        // Quark uses its own serialized enums, not a color=EnumDyeColor property.
+        register(lookup, register, "quark:candle", state -> namedDyeColor(state, "variant", "candle_"));
+        for (String name : new String[]{"quark:crystal", "quark:crystal_pane"})
+            register(lookup, register, name, ModLightColors::quarkCrystalColor);
+        register(lookup, register, "inspirations:enlightened_bush",
+            state -> namedDyeColor(state, "lights", ""));
+
+        // HarvestCraft numbers its candle blocks in Minecraft dye metadata order.
+        for (EnumDyeColor dye : EnumDyeColor.values()) {
+            int hue = RgbDefaultPalette.glassTransmittance(dye);
+            registerHue(lookup, register, hue, "harvestcraft:candledeco" + (dye.getMetadata() + 1));
+            String suffix = dye == EnumDyeColor.SILVER ? "light_gray" : dye.getName();
+            registerHue(lookup, register, hue, "colouredsealanterns:sealantern" + suffix);
+        }
+    }
+
+    private static void registerHue(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register,
+        int hue, String... names) {
+        for (String name : names)
+            register(lookup, register, name, state -> hue);
+    }
+
+    private static Integer namedDyeColor(IBlockState state, String property, String prefix) {
+        String value = namedProperty(state, property);
+        if (value == null || !value.startsWith(prefix))
+            return null;
+        String name = value.substring(prefix.length());
+        for (EnumDyeColor dye : EnumDyeColor.values())
+            if (dye.getName().equals(name))
+                return RgbDefaultPalette.glassTransmittance(dye);
+        return null;
+    }
+
+    private static Integer quarkCrystalColor(IBlockState state) {
+        String variant = namedProperty(state, "variant");
+        if (variant == null)
+            return null;
+        // Quark's "blue" is cyan; "indigo" is blue. Follow its actual beacon RGB.
+        return switch (variant) {
+            case "crystal_white", "crystal_black" -> 0xFFF;
+            case "crystal_red" -> 0xF00;
+            case "crystal_orange" -> 0xF80;
+            case "crystal_yellow" -> 0xFF0;
+            case "crystal_green" -> 0x0F0;
+            case "crystal_blue" -> 0x0FF;
+            case "crystal_indigo" -> 0x00F;
+            case "crystal_violet" -> 0xF0F;
+            default -> null;
+        };
     }
 
     private static String namedProperty(IBlockState state, String name) {

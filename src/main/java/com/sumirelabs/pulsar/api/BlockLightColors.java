@@ -184,6 +184,7 @@ public final class BlockLightColors {
         defaultHue(Blocks.LIT_REDSTONE_ORE, 0x511);
         defaultHue(Blocks.FIRE, 0xEC0);
         defaultHue(Blocks.END_PORTAL, 0x7FB);
+        defaultHue(Blocks.END_GATEWAY, 0x7FB);
         defaultHue(Blocks.LIT_PUMPKIN, 0xFDB);
         defaultHue(Blocks.BREWING_STAND, 0x110);
         defaultHue(Blocks.ENDER_CHEST, 0x376);

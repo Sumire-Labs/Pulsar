@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add RGB source-color presets identified through ColoredLux's 1.12.2 Lux Packs:
+  Quark candles, crystals and lanterns; Inspirations lights; Embers and Embers Construct;
+  Immersive Engineering lanterns and balloons; Charm lamps; NetherEx and TAIGA sources;
+  Deep Mob Learning; HarvestCraft candles; Coloured Sea Lanterns; Advanced Chimneys;
+  Exotic Birds; Tinker I/O; and Tinkers' Construct's glowing block.
+- Add an end-portal-colored preset for end gateways. All new presets retain the
+  original contextual brightness and lit/unlit behavior, without creating new light sources.
 - Add Spotless formatting checks and the CleanroomDevEnv Eclipse formatter profile.
 - Add verification of the production JAR's metadata, version constants, Mixin mappings,
   coremod and access-transformer packaging.

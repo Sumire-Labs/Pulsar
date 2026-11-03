@@ -64,6 +64,10 @@ public final class PublicApiRegistrationProbe {
         Files.writeString(home.resolve("config/pulsar-filters.cfg"), "minecraft:glass = 15,0,0\n");
         MinecraftForge.EVENT_BUS.register(new Integration());
         new Pulsar().loadComplete(null);
+        check(BlockLightColors.emission(Blocks.END_GATEWAY.getDefaultState(), 15) == 0x7FB,
+            "End gateway uses the end-portal hue without changing its emission strength");
+        check(BlockLightColors.emission(Blocks.END_GATEWAY.getDefaultState(), 0) == 0,
+            "A hue cannot create emission when the contextual level is zero");
         check(calls == 1, "Registration listener must run once in either mode");
         int expectedColor = args[1].equals("RGB") ? 0x00F : 0x842;
         int expectedFilter = args[1].equals("RGB") ? 0xF00 : 0x0FF;
