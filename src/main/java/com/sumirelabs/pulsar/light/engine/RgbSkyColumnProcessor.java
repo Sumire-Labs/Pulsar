@@ -1,13 +1,15 @@
 package com.sumirelabs.pulsar.light.engine;
 
+import java.util.Arrays;
+
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntSet;
-import net.minecraft.init.Blocks;
+
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
-import java.util.Arrays;
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 /**
  * Handles skylight-specific vertical extrusion and batched changed-column
@@ -31,26 +33,27 @@ final class RgbSkyColumnProcessor {
     }
 
     void initNibble(final int chunkX, final int chunkY, final int chunkZ,
-                    final boolean extrude, final boolean initRemovedNibbles) {
+        final boolean extrude, final boolean initRemovedNibbles) {
         final RgbSkyChannelEngine engine = this.engine;
         if (chunkY < engine.minLightSection || chunkY > engine.maxLightSection
-                || engine.getChunkInCache(chunkX, chunkZ) == null) {
+            || engine.getChunkInCache(chunkX, chunkZ) == null) {
             return;
         }
         SWMRNibbleArray nibble = engine.getNibbleFromCache(chunkX, chunkY, chunkZ);
         if (nibble == null) {
             final int cacheIndex = chunkX + 5 * chunkZ + (5 * 5) * chunkY + engine.chunkSectionIndexOffset;
             nibble = NibbleArrayPublication.takeRemovedNibble(
-                    this.removedNibbleCache, cacheIndex, initRemovedNibbles);
-            if (nibble == null) return;
+                this.removedNibbleCache, cacheIndex, initRemovedNibbles);
+            if (nibble == null)
+                return;
             engine.setNibbleInCache(chunkX, chunkY, chunkZ, nibble);
         }
         this.initSkyNibble(nibble, chunkX, chunkY, chunkZ, extrude);
     }
 
     private void initSkyNibble(final SWMRNibbleArray nibble,
-                               final int chunkX, final int chunkY, final int chunkZ,
-                               final boolean extrude) {
+        final int chunkX, final int chunkY, final int chunkZ,
+        final boolean extrude) {
         final RgbSkyChannelEngine engine = this.engine;
         if (!nibble.isNullNibbleUpdating()) {
             return;
@@ -73,8 +76,7 @@ final class RgbSkyColumnProcessor {
                     continue;
                 }
             } else {
-                final ExtendedBlockStorage section =
-                        engine.getChunkSection(chunkX, sectionY, chunkZ);
+                final ExtendedBlockStorage section = engine.getChunkSection(chunkX, sectionY, chunkZ);
                 if (section == null || section.isEmpty()) {
                     continue;
                 }
@@ -87,10 +89,8 @@ final class RgbSkyColumnProcessor {
             nibble.setNonNull();
             nibble.setFull();
         } else if (extrude) {
-            for (int currentY = chunkY + 1;
-                 currentY <= engine.maxLightSection; ++currentY) {
-                final SWMRNibbleArray above =
-                        engine.getNibbleFromCache(chunkX, currentY, chunkZ);
+            for (int currentY = chunkY + 1; currentY <= engine.maxLightSection; ++currentY) {
+                final SWMRNibbleArray above = engine.getNibbleFromCache(chunkX, currentY, chunkZ);
                 if (above != null && !above.isNullNibbleUpdating()) {
                     nibble.setNonNull();
                     nibble.extrudeLower(above);
@@ -137,27 +137,24 @@ final class RgbSkyColumnProcessor {
         final RgbSkyChannelEngine engine = this.engine;
         this.resetNullPropagationChecks();
         this.rewriteNibbleCache();
-        for (int sectionY = engine.maxLightSection;
-             sectionY >= engine.minLightSection; --sectionY) {
+        for (int sectionY = engine.maxLightSection; sectionY >= engine.minLightSection; --sectionY) {
             this.checkNullSection(chunkX, sectionY, chunkZ, true);
         }
     }
 
     boolean checkNullSection(final int chunkX, final int chunkY, final int chunkZ,
-                             final boolean extrudeInitialised) {
+        final boolean extrudeInitialised) {
         final RgbSkyChannelEngine engine = this.engine;
         if (chunkY < engine.minLightSection || chunkY > engine.maxLightSection
-                || this.nullPropagationChecks[chunkY - engine.minLightSection]) {
+            || this.nullPropagationChecks[chunkY - engine.minLightSection]) {
             return false;
         }
         this.nullPropagationChecks[chunkY - engine.minLightSection] = true;
 
         boolean needInitNeighbours = false;
-        neighbourSearch:
-        for (int deltaZ = -1; deltaZ <= 1; ++deltaZ) {
+        neighbourSearch : for (int deltaZ = -1; deltaZ <= 1; ++deltaZ) {
             for (int deltaX = -1; deltaX <= 1; ++deltaX) {
-                final SWMRNibbleArray nibble =
-                        engine.getNibbleFromCache(chunkX + deltaX, chunkY, chunkZ + deltaZ);
+                final SWMRNibbleArray nibble = engine.getNibbleFromCache(chunkX + deltaX, chunkY, chunkZ + deltaZ);
                 if (nibble != null && !nibble.isNullNibbleUpdating()) {
                     needInitNeighbours = true;
                     break neighbourSearch;
@@ -169,8 +166,8 @@ final class RgbSkyColumnProcessor {
             for (int deltaZ = -1; deltaZ <= 1; ++deltaZ) {
                 for (int deltaX = -1; deltaX <= 1; ++deltaX) {
                     this.initNibble(
-                            chunkX + deltaX, chunkY, chunkZ + deltaZ,
-                            (deltaX | deltaZ) != 0 || extrudeInitialised, true);
+                        chunkX + deltaX, chunkY, chunkZ + deltaZ,
+                        (deltaX | deltaZ) != 0 || extrudeInitialised, true);
                 }
             }
         }
@@ -184,30 +181,29 @@ final class RgbSkyColumnProcessor {
         final int chunkZ = worldZ >> 4;
 
         final int cacheIndex = chunkX + 5 * chunkZ + (5 * 5) * chunkY
-                + engine.chunkSectionIndexOffset;
+            + engine.chunkSectionIndexOffset;
         if (engine.nibbleCache[cacheIndex] != null) {
             return engine.getLightLevel(
-                    cacheIndex,
-                    (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8));
+                cacheIndex,
+                (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8));
         }
 
         while (++chunkY <= engine.maxLightSection) {
             final int nextCacheIndex = chunkX + 5 * chunkZ + (5 * 5) * chunkY
-                    + engine.chunkSectionIndexOffset;
+                + engine.chunkSectionIndexOffset;
             if (engine.nibbleCache[nextCacheIndex] != null) {
                 return engine.getLightLevel(
-                        nextCacheIndex, (worldX & 15) | ((worldZ & 15) << 4));
+                    nextCacheIndex, (worldX & 15) | ((worldZ & 15) << 4));
             }
         }
         return 15;
     }
 
     int tryPropagateSkylight(final int worldX, int startY, final int worldZ,
-                             final boolean extrudeInitialised, final boolean delayLightSet) {
+        final boolean extrudeInitialised, final boolean delayLightSet) {
         final RgbSkyChannelEngine engine = this.engine;
         final int encodeOffset = engine.coordinateOffset;
-        final long propagateDirection =
-                PulsarEngine.AxisDirection.POSITIVE_Y.everythingButThisDirection;
+        final long propagateDirection = PulsarEngine.AxisDirection.POSITIVE_Y.everythingButThisDirection;
 
         final int extrudedLevel = this.getLightLevelExtruded(worldX, startY + 1, worldZ);
         if (extrudedLevel != 15) {
@@ -217,8 +213,8 @@ final class RgbSkyColumnProcessor {
         this.checkNullSection(worldX >> 4, startY >> 4, worldZ >> 4, extrudeInitialised);
         final int currentSky = 15;
         int aboveInfo = engine.lightInfoAt(
-                engine.getBlockState(worldX, startY + 1, worldZ),
-                worldX, startY + 1, worldZ);
+            engine.getBlockState(worldX, startY + 1, worldZ),
+            worldX, startY + 1, worldZ);
 
         for (; startY >= (engine.minLightSection << 4); --startY) {
             if ((startY & 15) == 15) {
@@ -232,16 +228,16 @@ final class RgbSkyColumnProcessor {
             // Seeding weakened values here disagreed with BFS through water
             // and could copy non-15 sky unchanged through empty sections.
             if (engine.filtersDirectSky(currentState, worldX, startY, worldZ)
-                    || !LightAttenuation.canExtrudeDirectSky(currentSky,
+                || !LightAttenuation.canExtrudeDirectSky(currentSky,
                     LightInfo.opacity(aboveInfo), LightInfo.opacity(currentInfo))) {
                 break;
             }
 
             final long speculativeValue = PulsarEngine.encodeCoords(
-                    worldX, worldZ, startY, encodeOffset)
-                    | engine.encodeQueueLevel(currentSky)
-                    | (propagateDirection << PulsarEngine.DIRECTION_SHIFT)
-                    | PulsarEngine.sidedFlag(currentInfo);
+                worldX, worldZ, startY, encodeOffset)
+                | engine.encodeQueueLevel(currentSky)
+                | (propagateDirection << PulsarEngine.DIRECTION_SHIFT)
+                | PulsarEngine.sidedFlag(currentInfo);
             final boolean appended = engine.appendToIncreaseQueue(speculativeValue);
 
             if (engine.getNibbleFromCache(worldX >> 4, startY >> 4, worldZ >> 4) == null) {
@@ -261,7 +257,7 @@ final class RgbSkyColumnProcessor {
     }
 
     void processBlockPositionChanges(final int chunkX, final int chunkZ,
-                                     final IntSet changedPositions) {
+        final IntSet changedPositions) {
         final RgbSkyChannelEngine engine = this.engine;
         this.rewriteNibbleCache();
         Arrays.fill(this.nullPropagationChecks, false);
@@ -288,8 +284,7 @@ final class RgbSkyColumnProcessor {
             }
         }
 
-        final long propagateDirection =
-                PulsarEngine.AxisDirection.POSITIVE_Y.everythingButThisDirection;
+        final long propagateDirection = PulsarEngine.AxisDirection.POSITIVE_Y.everythingButThisDirection;
         final int encodeOffset = engine.coordinateOffset;
         // Bit order keeps the prior ascending-column queue seed order while
         // skipping untouched columns in sparse bulk edits.
@@ -301,10 +296,9 @@ final class RgbSkyColumnProcessor {
                 final int maximumY = this.columnMaxY[column];
                 final int worldX = (chunkX << 4) | (column & 15);
                 final int worldZ = (chunkZ << 4) | (column >> 4);
-                final int maximumPropagationY =
-                        this.tryPropagateSkylight(worldX, maximumY, worldZ, true, true);
+                final int maximumPropagationY = this.tryPropagateSkylight(worldX, maximumY, worldZ, true, true);
                 this.seedFullColumnDecrease(
-                        worldX, maximumPropagationY, worldZ, propagateDirection, encodeOffset);
+                    worldX, maximumPropagationY, worldZ, propagateDirection, encodeOffset);
             }
         }
 
@@ -320,9 +314,9 @@ final class RgbSkyColumnProcessor {
             }
             ++engine.lastPositionsProcessed;
             engine.checkBlock(
-                    (chunkX << 4) | (packed & 15),
-                    worldY,
-                    (chunkZ << 4) | ((packed >> 4) & 15));
+                (chunkX << 4) | (packed & 15),
+                worldY,
+                (chunkZ << 4) | ((packed >> 4) & 15));
         }
         engine.performLightDecrease();
     }
@@ -332,13 +326,11 @@ final class RgbSkyColumnProcessor {
         this.rewriteNibbleCache();
         Arrays.fill(this.nullPropagationChecks, false);
 
-        final int maximumPropagationY =
-                this.tryPropagateSkylight(blockX, blockY, blockZ, true, true);
-        final long propagateDirection =
-                PulsarEngine.AxisDirection.POSITIVE_Y.everythingButThisDirection;
+        final int maximumPropagationY = this.tryPropagateSkylight(blockX, blockY, blockZ, true, true);
+        final long propagateDirection = PulsarEngine.AxisDirection.POSITIVE_Y.everythingButThisDirection;
         this.seedFullColumnDecrease(
-                blockX, maximumPropagationY, blockZ,
-                propagateDirection, engine.coordinateOffset);
+            blockX, maximumPropagationY, blockZ,
+            propagateDirection, engine.coordinateOffset);
 
         this.applyDelayedQueue(engine.increaseQueue, engine.increaseQueueInitialLength, true);
         this.applyDelayedQueue(engine.decreaseQueue, engine.decreaseQueueInitialLength, false);
@@ -347,22 +339,21 @@ final class RgbSkyColumnProcessor {
     }
 
     private void seedFullColumnDecrease(final int worldX, final int maximumPropagationY,
-                                        final int worldZ, final long propagateDirection,
-                                        final int encodeOffset) {
+        final int worldZ, final long propagateDirection,
+        final int encodeOffset) {
         final RgbSkyChannelEngine engine = this.engine;
         if (this.getLightLevelExtruded(worldX, maximumPropagationY, worldZ) != 15) {
             return;
         }
         this.checkNullSection(
-                worldX >> 4, maximumPropagationY >> 4, worldZ >> 4, true);
-        for (int currentY = maximumPropagationY;
-             currentY >= (engine.minLightSection << 4); --currentY) {
+            worldX >> 4, maximumPropagationY >> 4, worldZ >> 4, true);
+        for (int currentY = maximumPropagationY; currentY >= (engine.minLightSection << 4); --currentY) {
             if ((currentY & 15) == 15) {
                 this.checkNullSection(worldX >> 4, currentY >> 4, worldZ >> 4, true);
             }
-            final SWMRNibbleArray nibble = engine.nibbleCache[
-                    (worldX >> 4) + 5 * (worldZ >> 4) + (5 * 5) * (currentY >> 4)
-                            + engine.chunkSectionIndexOffset];
+            final SWMRNibbleArray nibble = engine.nibbleCache[(worldX >> 4) + 5 * (worldZ >> 4)
+                + (5 * 5) * (currentY >> 4)
+                + engine.chunkSectionIndexOffset];
             if (nibble == null) {
                 currentY &= ~15;
                 continue;
@@ -371,9 +362,9 @@ final class RgbSkyColumnProcessor {
                 break;
             }
             engine.appendToDecreaseQueue(
-                    PulsarEngine.encodeCoords(worldX, worldZ, currentY, encodeOffset)
-                            | engine.encodeQueueLevel(15)
-                            | (propagateDirection << PulsarEngine.DIRECTION_SHIFT));
+                PulsarEngine.encodeCoords(worldX, worldZ, currentY, encodeOffset)
+                    | engine.encodeQueueLevel(15)
+                    | (propagateDirection << PulsarEngine.DIRECTION_SHIFT));
         }
     }
 
@@ -388,8 +379,10 @@ final class RgbSkyColumnProcessor {
             final int positionZ = (((int) queueValue >>> 6) & 63) + decodeOffsetZ;
             final int positionY = (((int) queueValue >>> 12) & 0xFFFF) + decodeOffsetY;
             final int level = useLevel
-                    ? (int) ((queueValue >>> PulsarEngine.LIGHT_LEVEL_SHIFT) & 15) : 0;
+                ? (int) ((queueValue >>> PulsarEngine.LIGHT_LEVEL_SHIFT) & 15)
+                : 0;
             engine.setLightLevel(positionX, positionY, positionZ, level);
         }
     }
+
 }

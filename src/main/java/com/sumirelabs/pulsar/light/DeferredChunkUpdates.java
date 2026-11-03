@@ -1,13 +1,16 @@
 package com.sumirelabs.pulsar.light;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+
 /** Server-thread retry ownership; a chunk replacement must not inherit an old send. */
 final class DeferredChunkUpdates<T> {
-    enum Decision { WAIT, SEND, DROP }
+
+    enum Decision {
+        WAIT, SEND, DROP
+    }
 
     private final Long2ObjectOpenHashMap<T> pending = new Long2ObjectOpenHashMap<>();
 
@@ -15,7 +18,9 @@ final class DeferredChunkUpdates<T> {
         pending.put(key, chunk);
     }
 
-    T get(long key) { return pending.get(key); }
+    T get(long key) {
+        return pending.get(key);
+    }
 
     void remove(long key) {
         pending.remove(key);
@@ -49,7 +54,8 @@ final class DeferredChunkUpdates<T> {
 
         for (int i = 0; i < size; i++) {
             long key = keys[i];
-            @SuppressWarnings("unchecked") T chunk = (T) chunks[i];
+            @SuppressWarnings("unchecked")
+            T chunk = (T) chunks[i];
             if (pending.get(key) != chunk) {
                 continue;
             }
@@ -63,4 +69,5 @@ final class DeferredChunkUpdates<T> {
             }
         }
     }
+
 }

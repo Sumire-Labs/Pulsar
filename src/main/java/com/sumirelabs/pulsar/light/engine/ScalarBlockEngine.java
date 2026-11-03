@@ -5,12 +5,14 @@ import com.sumirelabs.pulsar.light.ContextualLightPalette;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntSet;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 /**
  * Scalar block-light engine. BFS propagation with per-block emission and
@@ -57,11 +59,14 @@ public class ScalarBlockEngine extends PulsarEngine {
     }
 
     @Override
-    protected void initNibble(final int chunkX, final int chunkY, final int chunkZ, final boolean extrude, final boolean initRemovedNibbles) {
-        if (chunkY < this.minLightSection || chunkY > this.maxLightSection || this.getChunkInCache(chunkX, chunkZ) == null) {
+    protected void initNibble(final int chunkX, final int chunkY, final int chunkZ, final boolean extrude,
+        final boolean initRemovedNibbles) {
+        if (chunkY < this.minLightSection || chunkY > this.maxLightSection
+            || this.getChunkInCache(chunkX, chunkZ) == null) {
             return;
         }
-        final SWMRNibbleArray nib = this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
+        final SWMRNibbleArray nib = this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY
+            + this.chunkSectionIndexOffset];
         if (nib == null) {
             if (!initRemovedNibbles) {
                 return;
@@ -76,7 +81,8 @@ public class ScalarBlockEngine extends PulsarEngine {
     @Override
     protected void setNibbleNull(final int chunkX, final int chunkY, final int chunkZ) {
         // Block light uses setHidden() — maintains data for decrease propagation
-        final SWMRNibbleArray nib = this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
+        final SWMRNibbleArray nib = this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY
+            + this.chunkSectionIndexOffset];
         if (nib != null) {
             this.assertWriteChunk(chunkX, chunkZ);
             nib.setHidden();
@@ -99,28 +105,28 @@ public class ScalarBlockEngine extends PulsarEngine {
 
         if (emission > 0) {
             this.appendToIncreaseQueue(encodeCoords(worldX, worldZ, worldY, encodeOffset)
-                    | this.encodeQueueLevel(emission)
-                    | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                    | sidedFlag(info));
+                | this.encodeQueueLevel(emission)
+                | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                | sidedFlag(info));
         }
 
         // No sided flag on the decrease (upstream): the flag would mask
         // decrease directions with the NEW block's occlusion, but the light
         // being erased flowed through the OLD block.
         this.appendToDecreaseQueue(encodeCoords(worldX, worldZ, worldY, encodeOffset)
-                | this.encodeQueueLevel(currentLevel)
-                | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT));
+            | this.encodeQueueLevel(currentLevel)
+            | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT));
     }
 
     @Override
     protected int calculateLightValue(final int worldX, final int worldY, final int worldZ, final int expect) {
         final IBlockState state = this.getBlockState(worldX, worldY, worldZ);
         return this.calculateLightValueWithInfo(worldX, worldY, worldZ, expect,
-                state, this.lightInfoAt(state, worldX, worldY, worldZ));
+            state, this.lightInfoAt(state, worldX, worldY, worldZ));
     }
 
     private int calculateLightValueWithInfo(final int worldX, final int worldY, final int worldZ,
-                                           final int expect, final IBlockState state, final int info) {
+        final int expect, final IBlockState state, final int info) {
         int level = LightInfo.emission(info);
 
         if (level >= 14 || level > expect) {
@@ -160,7 +166,8 @@ public class ScalarBlockEngine extends PulsarEngine {
     }
 
     @Override
-    protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ, final IntSet changedPositions) {
+    protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ,
+        final IntSet changedPositions) {
         final int minBlockY = this.heightContext.getMinBlockY();
         final int maxBlockY = this.heightContext.getMaxBlockY();
         final IntIterator it = changedPositions.iterator();
@@ -183,15 +190,15 @@ public class ScalarBlockEngine extends PulsarEngine {
         final int offX = chunk.x << 4;
         final int offZ = chunk.z << 4;
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
-        final Object fluidCapability = this.fluidCapCache[
-                chunk.x + 5 * chunk.z + this.chunkIndexOffset];
+        final Object fluidCapability = this.fluidCapCache[chunk.x + 5 * chunk.z + this.chunkIndexOffset];
         final boolean mayHaveFluidStates = FluidLightBridge.mayHaveFluidStates(
-                fluidCapability, this.minSection, this.maxSection);
+            fluidCapability, this.minSection, this.maxSection);
 
         for (int sectionY = this.minSection; sectionY <= this.maxSection; ++sectionY) {
             final int storageIndex = this.heightContext.getStorageIndex(sectionY);
             final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < sections.length
-                    ? sections[storageIndex] : null;
+                ? sections[storageIndex]
+                : null;
             if (section == null || section.isEmpty()) {
                 continue;
             }
@@ -199,7 +206,7 @@ public class ScalarBlockEngine extends PulsarEngine {
             // Unknown containers and Fluidlogged remain on the full cell scan.
             final Object blockData = section.getData();
             if (!mayHaveFluidStates && blockData instanceof ContextualLightPalette
-                    && ((((ContextualLightPalette) blockData).pulsar$lightPaletteFlags()
+                && ((((ContextualLightPalette) blockData).pulsar$lightPaletteFlags()
                     & ContextualLightPalette.MAY_EMIT) == 0)) {
                 continue;
             }
@@ -229,9 +236,9 @@ public class ScalarBlockEngine extends PulsarEngine {
                 }
 
                 this.appendToIncreaseQueue(encodeCoords(worldX, worldZ, worldY, this.coordinateOffset)
-                        | this.encodeQueueLevel(emission)
-                        | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                        | sidedFlag(info));
+                    | this.encodeQueueLevel(emission)
+                    | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                    | sidedFlag(info));
 
                 this.setLightLevel(worldX, worldY, worldZ, emission);
             }
@@ -265,7 +272,8 @@ public class ScalarBlockEngine extends PulsarEngine {
             final int posZ = (((int) queueValue >>> 6) & 63) + decodeOffsetZ;
             final int posY = (((int) queueValue >>> 12) & COORD_Y_MASK) + decodeOffsetY;
             final int propagatedLevel = (int) ((queueValue >>> LIGHT_LEVEL_SHIFT) & 0xF);
-            final AxisDirection[] checkDirections = OLD_CHECK_DIRECTIONS[(int) ((queueValue >>> DIRECTION_SHIFT) & 63L)];
+            final AxisDirection[] checkDirections = OLD_CHECK_DIRECTIONS[(int) ((queueValue >>> DIRECTION_SHIFT)
+                & 63L)];
 
             if ((queueValue & FLAG_RECHECK_LEVEL) != 0L) {
                 if (this.getLightLevel(posX, posY, posZ) != propagatedLevel) {
@@ -284,7 +292,8 @@ public class ScalarBlockEngine extends PulsarEngine {
             }
 
             for (final AxisDirection propagate : checkDirections) {
-                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0) continue;
+                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0)
+                    continue;
 
                 final int offX = posX + propagate.x;
                 final int offY = posY + propagate.y;
@@ -325,8 +334,8 @@ public class ScalarBlockEngine extends PulsarEngine {
                             queue = this.resizeIncreaseQueue();
                         }
                         queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                                | this.encodeQueueLevel(targetLevel)
-                                | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT);
+                            | this.encodeQueueLevel(targetLevel)
+                            | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT);
                     }
                     continue;
                 }
@@ -353,9 +362,9 @@ public class ScalarBlockEngine extends PulsarEngine {
                         queue = this.resizeIncreaseQueue();
                     }
                     queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(targetLevel)
-                            | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT)
-                            | sidedFlag(destInfo);
+                        | this.encodeQueueLevel(targetLevel)
+                        | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT)
+                        | sidedFlag(destInfo);
                 }
             }
         }
@@ -394,7 +403,8 @@ public class ScalarBlockEngine extends PulsarEngine {
             }
 
             for (final AxisDirection propagate : checkDirections) {
-                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0) continue;
+                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0)
+                    continue;
 
                 final int offX = posX + propagate.x;
                 final int offY = posY + propagate.y;
@@ -421,9 +431,9 @@ public class ScalarBlockEngine extends PulsarEngine {
                         increaseQueue = this.resizeIncreaseQueue();
                     }
                     increaseQueue[increaseQueueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(currentLevel)
-                            | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                            | FLAG_RECHECK_LEVEL | FLAG_HAS_SIDED_TRANSPARENT_BLOCKS;
+                        | this.encodeQueueLevel(currentLevel)
+                        | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                        | FLAG_RECHECK_LEVEL | FLAG_HAS_SIDED_TRANSPARENT_BLOCKS;
                     continue;
                 }
 
@@ -436,8 +446,6 @@ public class ScalarBlockEngine extends PulsarEngine {
                     destinationNibble.set(localIndex, 0);
                     this.postLightUpdate(sectionIndex, offX & 15, offY & 15, offZ & 15);
 
-
-
                     if (targetLevel > 0) {
                         if (queueLength >= queue.length) {
                             if (queue.length >= MAX_QUEUE_SIZE) {
@@ -447,8 +455,8 @@ public class ScalarBlockEngine extends PulsarEngine {
                             queue = this.resizeDecreaseQueue();
                         }
                         queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                                | this.encodeQueueLevel(targetLevel)
-                                | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT);
+                            | this.encodeQueueLevel(targetLevel)
+                            | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT);
                     }
                     continue;
                 }
@@ -467,10 +475,10 @@ public class ScalarBlockEngine extends PulsarEngine {
                         increaseQueue = this.resizeIncreaseQueue();
                     }
                     increaseQueue[increaseQueueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(currentLevel)
-                            | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                            | FLAG_RECHECK_LEVEL
-                            | sFlag;
+                        | this.encodeQueueLevel(currentLevel)
+                        | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                        | FLAG_RECHECK_LEVEL
+                        | sFlag;
                     continue;
                 }
 
@@ -490,10 +498,10 @@ public class ScalarBlockEngine extends PulsarEngine {
                     destinationNibble.set(localIndex, emission);
                     this.postLightUpdate(sectionIndex, offX & 15, offY & 15, offZ & 15);
                     increaseQueue[increaseQueueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(emission)
-                            | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                            | FLAG_WRITE_LEVEL
-                            | sFlag;
+                        | this.encodeQueueLevel(emission)
+                        | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                        | FLAG_WRITE_LEVEL
+                        | sFlag;
                 }
 
                 // Independent of the emission re-seed (upstream): the decrease
@@ -508,9 +516,9 @@ public class ScalarBlockEngine extends PulsarEngine {
                         queue = this.resizeDecreaseQueue();
                     }
                     queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(targetLevel)
-                            | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT)
-                            | sFlag;
+                        | this.encodeQueueLevel(targetLevel)
+                        | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT)
+                        | sFlag;
                 }
             }
         }
@@ -524,4 +532,5 @@ public class ScalarBlockEngine extends PulsarEngine {
     protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {
         this.copyVisibleNibbleToVanilla(cacheIndex, nibble, false);
     }
+
 }

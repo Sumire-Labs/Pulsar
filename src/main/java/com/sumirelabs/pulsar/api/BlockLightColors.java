@@ -4,13 +4,15 @@
  */
 package com.sumirelabs.pulsar.api;
 
-import com.sumirelabs.pulsar.rgb.RgbLight;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
+
+import com.sumirelabs.pulsar.rgb.RgbLight;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 
 /** Static, state-specific RGB chromaticity. Register during initialization, before worlds load,
  * preferably in {@link RegisterLightPropertiesEvent}. Registration is per exact canonical
@@ -21,6 +23,7 @@ import java.util.Map;
  * VANILLA retains independent scalar gameplay brightness.
  */
 public final class BlockLightColors {
+
     private static final Map<IBlockState, Integer> COLORS = new IdentityHashMap<>();
     private static volatile Map<IBlockState, Integer> frozen;
     private static final java.util.Set<IBlockState> ABSOLUTE = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -42,27 +45,34 @@ public final class BlockLightColors {
     public static synchronized void registerAll(Block block, int color) {
         requireMutableBlock(block);
         RgbLight.normalize(PackedLightColor.checked(color)); // Validate before any writes.
-        for (IBlockState state : block.getBlockState().getValidStates()) register(state, color);
+        for (IBlockState state : block.getBlockState().getValidStates())
+            register(state, color);
     }
     /** Register actual component strengths for all states, including black. */
     public static synchronized void registerEmissionAll(Block block, int color) {
         requireMutableBlock(block);
         PackedLightColor.checked(color);
-        for (IBlockState state : block.getBlockState().getValidStates()) registerEmission(state, color);
+        for (IBlockState state : block.getBlockState().getValidStates())
+            registerEmission(state, color);
     }
     /** Disable RGB emission for all states; VANILLA scalar emission is unchanged. */
     public static synchronized void disableAll(Block block) {
         requireMutableBlock(block);
-        for (IBlockState state : block.getBlockState().getValidStates()) disable(state);
+        for (IBlockState state : block.getBlockState().getValidStates())
+            disable(state);
     }
     private static void requireMutableBlock(Block block) {
-        if (frozen != null) throw new IllegalStateException("RGB colors are frozen after initialization");
+        if (frozen != null)
+            throw new IllegalStateException("RGB colors are frozen after initialization");
         java.util.Objects.requireNonNull(block, "block");
-        if (block == Blocks.AIR) throw new IllegalArgumentException("Air cannot be an RGB source");
+        if (block == Blocks.AIR)
+            throw new IllegalArgumentException("Air cannot be an RGB source");
     }
     public static synchronized void register(IBlockState state, int r, int g, int b) {
-        if (frozen != null) throw new IllegalStateException("RGB colors are frozen after initialization");
-        if (state.getBlock() == Blocks.AIR) throw new IllegalArgumentException("Air cannot be an RGB source");
+        if (frozen != null)
+            throw new IllegalStateException("RGB colors are frozen after initialization");
+        if (state.getBlock() == Blocks.AIR)
+            throw new IllegalArgumentException("Air cannot be an RGB source");
         COLORS.put(state, RgbLight.normalize(RgbLight.pack(r, g, b)));
         ABSOLUTE.remove(state);
     }
@@ -70,22 +80,28 @@ public final class BlockLightColors {
      * RGB_MAX uses these levels directly; VANILLA caps the peak to existing scalar emission.
      */
     public static synchronized void registerEmission(IBlockState state, int r, int g, int b) {
-        if (frozen != null) throw new IllegalStateException("RGB colors are frozen after initialization");
-        if (state.getBlock() == Blocks.AIR) throw new IllegalArgumentException("Air cannot be an RGB source");
-        COLORS.put(state, RgbLight.pack(r, g, b)); ABSOLUTE.add(state);
+        if (frozen != null)
+            throw new IllegalStateException("RGB colors are frozen after initialization");
+        if (state.getBlock() == Blocks.AIR)
+            throw new IllegalArgumentException("Air cannot be an RGB source");
+        COLORS.put(state, RgbLight.pack(r, g, b));
+        ABSOLUTE.add(state);
     }
     /** Disable RGB emission; VANILLA retains independent scalar gameplay brightness. */
     public static synchronized void disable(IBlockState state) {
-        if (frozen != null) throw new IllegalStateException("RGB colors are frozen after initialization");
-        if (state.getBlock() == Blocks.AIR) throw new IllegalArgumentException("Air cannot be an RGB source");
+        if (frozen != null)
+            throw new IllegalStateException("RGB colors are frozen after initialization");
+        if (state.getBlock() == Blocks.AIR)
+            throw new IllegalArgumentException("Air cannot be an RGB source");
         COLORS.put(state, 0);
         ABSOLUTE.remove(state);
     }
     public static synchronized void freeze() {
         BlockLightFilters.freeze();
         if (frozen == null) {
-            var absolute = Collections.newSetFromMap(new IdentityHashMap<IBlockState,Boolean>());
-            absolute.addAll(ABSOLUTE); frozenAbsolute = Collections.unmodifiableSet(absolute);
+            var absolute = Collections.newSetFromMap(new IdentityHashMap<IBlockState, Boolean>());
+            absolute.addAll(ABSOLUTE);
+            frozenAbsolute = Collections.unmodifiableSet(absolute);
             frozen = Collections.unmodifiableMap(new IdentityHashMap<>(COLORS));
         }
     }
@@ -94,44 +110,60 @@ public final class BlockLightColors {
         if (palette.profile == null) {
             java.util.List<String> rows = new java.util.ArrayList<>();
             rows.add("gameplay:" + com.sumirelabs.pulsar.rgb.RgbSettings.profile());
-            if (frozen == null) throw new IllegalStateException("RGB colors not initialized");
+            if (frozen == null)
+                throw new IllegalStateException("RGB colors not initialized");
             Map<IBlockState, Integer> colors = new IdentityHashMap<>(frozen);
             colors.putAll(palette.values.colors());
-            for (var entry : colors.entrySet()) rows.add(entry.getKey().toString() + "=" + entry.getValue());
-            for (IBlockState state : frozenAbsolute) if (!palette.values.colors().containsKey(state)) rows.add("absolute:" + state);
-            Map<IBlockState,Integer> filters = new IdentityHashMap<>(BlockLightFilters.frozenFilters());
+            for (var entry : colors.entrySet())
+                rows.add(entry.getKey().toString() + "=" + entry.getValue());
+            for (IBlockState state : frozenAbsolute)
+                if (!palette.values.colors().containsKey(state))
+                    rows.add("absolute:" + state);
+            Map<IBlockState, Integer> filters = new IdentityHashMap<>(BlockLightFilters.frozenFilters());
             filters.putAll(palette.values.filters());
-            for (var entry : filters.entrySet()) rows.add("filter:" + entry.getKey() + "=" + entry.getValue());
+            for (var entry : filters.entrySet())
+                rows.add("filter:" + entry.getKey() + "=" + entry.getValue());
             for (IBlockState state : net.minecraft.block.Block.BLOCK_STATE_IDS) {
-                int dynamic = RgbStateProperties.compute(state,palette) & RgbStateProperties.DYNAMIC;
-                if (dynamic != 0) rows.add("dynamic:" + state + ":" + state.getBlock().getClass().getName() + "=" + dynamic);
+                int dynamic = RgbStateProperties.compute(state, palette) & RgbStateProperties.DYNAMIC;
+                if (dynamic != 0)
+                    rows.add("dynamic:" + state + ":" + state.getBlock().getClass().getName() + "=" + dynamic);
             }
             java.util.Collections.sort(rows);
             try {
-                byte[] digest = java.security.MessageDigest.getInstance("SHA-256").digest(String.join("\n", rows).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(String.join("\n", rows).getBytes(java.nio.charset.StandardCharsets.UTF_8));
                 palette.profile = java.util.HexFormat.of().formatHex(digest);
-            } catch (java.security.NoSuchAlgorithmException impossible) { throw new AssertionError(impossible); }
+            } catch (java.security.NoSuchAlgorithmException impossible) {
+                throw new AssertionError(impossible);
+            }
         }
         return palette.profile;
     }
     public static int emission(IBlockState state, int scalar) {
         return com.sumirelabs.pulsar.rgb.RgbLightAccess.effectiveEmission(RgbStateProperties.of(state), scalar,
-                com.sumirelabs.pulsar.rgb.RgbSettings.projectsGameplayLight());
+            com.sumirelabs.pulsar.rgb.RgbSettings.projectsGameplayLight());
     }
     /** Resolve only the component needed by a propagation lane. */
     public static int emission(IBlockState state, int scalar, int channel) {
         return RgbLight.channel(emission(state, scalar), channel);
     }
-    static Map<IBlockState, Integer> frozenColors() { return frozen; }
-    static boolean absolute(IBlockState state) { var values = frozenAbsolute; return values != null && values.contains(state); }
+    static Map<IBlockState, Integer> frozenColors() {
+        return frozen;
+    }
+    static boolean absolute(IBlockState state) {
+        var values = frozenAbsolute;
+        return values != null && values.contains(state);
+    }
     /** Initialization-only state callbacks; explicit registrations retain precedence. */
     public static synchronized void interfaceDefaults() {
-        if (frozen != null) throw new IllegalStateException("RGB colors already frozen");
+        if (frozen != null)
+            throw new IllegalStateException("RGB colors already frozen");
         for (IBlockState state : net.minecraft.block.Block.BLOCK_STATE_IDS)
             if (state.getBlock() instanceof ColoredLightSource source
-                    && !(source instanceof PositionalColoredLightSource) && !COLORS.containsKey(state)) {
+                && !(source instanceof PositionalColoredLightSource) && !COLORS.containsKey(state)) {
                 int value = checkedColor(source.getColoredLightEmission(state));
-                COLORS.put(state, value); ABSOLUTE.add(state);
+                COLORS.put(state, value);
+                ABSOLUTE.add(state);
             }
     }
     public static int checkedColor(int value) {
@@ -166,12 +198,15 @@ public final class BlockLightColors {
     }
     /** Internal lifecycle hook: optional mods have completed post-init by this point. */
     public static synchronized void modDefaults() {
-        if (frozen != null) throw new IllegalStateException("RGB colors already frozen");
-        com.sumirelabs.pulsar.compat.ModLightColors.registerDefaults((state, color) ->
-                COLORS.putIfAbsent(state, RgbLight.normalize(color)));
+        if (frozen != null)
+            throw new IllegalStateException("RGB colors already frozen");
+        com.sumirelabs.pulsar.compat.ModLightColors
+            .registerDefaults((state, color) -> COLORS.putIfAbsent(state, RgbLight.normalize(color)));
     }
     private static void defaultHue(net.minecraft.block.Block block, int color) {
         int normalized = RgbLight.normalize(color);
-        for (IBlockState state : block.getBlockState().getValidStates()) COLORS.putIfAbsent(state, normalized);
+        for (IBlockState state : block.getBlockState().getValidStates())
+            COLORS.putIfAbsent(state, normalized);
     }
+
 }

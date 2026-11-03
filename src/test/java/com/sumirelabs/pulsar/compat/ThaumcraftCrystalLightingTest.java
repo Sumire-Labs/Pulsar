@@ -41,4 +41,5 @@ class ThaumcraftCrystalLightingTest {
         assertEquals(1, ThaumcraftCrystalLighting.emission(1));
         assertEquals(0, ThaumcraftCrystalLighting.cacheProfile());
     }
+
 }

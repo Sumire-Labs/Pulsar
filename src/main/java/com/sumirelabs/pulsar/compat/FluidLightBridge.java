@@ -1,14 +1,16 @@
 package com.sumirelabs.pulsar.compat;
 
 import com.sumirelabs.pulsar.light.engine.LightInfo;
-import git.jbredwards.fluidlogged_api.api.capability.IFluidStateCapability;
-import git.jbredwards.fluidlogged_api.api.capability.IFluidStateContainer;
-import git.jbredwards.fluidlogged_api.api.util.FluidState;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.Loader;
+
+import git.jbredwards.fluidlogged_api.api.capability.IFluidStateCapability;
+import git.jbredwards.fluidlogged_api.api.capability.IFluidStateContainer;
+import git.jbredwards.fluidlogged_api.api.util.FluidState;
 
 /**
  * Fluidlogged API integration: makes the engine see the fluid stored in a
@@ -32,8 +34,7 @@ public final class FluidLightBridge {
 
     public static final boolean LOADED = Loader.isModLoaded("fluidlogged_api");
 
-    private FluidLightBridge() {
-    }
+    private FluidLightBridge() {}
 
     /**
      * The chunk's fluid capability as an opaque handle, or {@code null}.
@@ -47,11 +48,14 @@ public final class FluidLightBridge {
 
     /** Main-thread snapshot source; null means no stored fluid at this cell. */
     public static IBlockState stateAt(final Chunk chunk, final int x, final int y, final int z) {
-        if (!LOADED) return null;
+        if (!LOADED)
+            return null;
         final IFluidStateCapability capability = IFluidStateCapability.get(chunk);
-        if (capability == null) return null;
+        if (capability == null)
+            return null;
         final IFluidStateContainer container = capability.getContainer(y);
-        if (container == null) return null;
+        if (container == null)
+            return null;
         final FluidState fluid = container.getFluidState(x, y, z, FluidState.EMPTY);
         return fluid.isEmpty() ? null : fluid.getState();
     }
@@ -63,10 +67,11 @@ public final class FluidLightBridge {
      * enumerated safely and the caller must use its conservative scan.
      */
     public static int[] fluidPositions(final Chunk chunk, final int minSection, final int maxSection) {
-        if (!LOADED || chunk == null) return new int[0];
+        if (!LOADED || chunk == null)
+            return new int[0];
         try {
             return FluidLightPositions.enumerate(
-                    IFluidStateCapability.get(chunk), minSection, maxSection);
+                IFluidStateCapability.get(chunk), minSection, maxSection);
         } catch (final LinkageError | RuntimeException unavailable) {
             return null;
         }
@@ -80,12 +85,14 @@ public final class FluidLightBridge {
      * synchronized light queue.
      */
     public static boolean mayHaveFluidStates(final Object capability,
-                                             final int minSection, final int maxSection) {
-        if (!LOADED) return false;
-        if (capability == null) return false;
+        final int minSection, final int maxSection) {
+        if (!LOADED)
+            return false;
+        if (capability == null)
+            return false;
         try {
             return FluidLightPositions.mayHaveFluidStates(
-                    (IFluidStateCapability) capability, minSection, maxSection);
+                (IFluidStateCapability) capability, minSection, maxSection);
         } catch (final LinkageError | RuntimeException unavailable) {
             return true;
         }
@@ -98,16 +105,17 @@ public final class FluidLightBridge {
      * the same scalar semantics Fluidlogged patches into vanilla.
      */
     public static int merge(final int info, final Object capability, final int x, final int y, final int z,
-                            final IBlockAccess access, final BlockPos.MutableBlockPos lookupPos) {
+        final IBlockAccess access, final BlockPos.MutableBlockPos lookupPos) {
         final IFluidStateContainer container = ((IFluidStateCapability) capability).getContainer(y);
-        if (container == null) return info;
+        if (container == null)
+            return info;
         final FluidState fluid = container.getFluidState(x, y, z, FluidState.EMPTY);
         if (fluid.isEmpty()) {
             return info;
         }
         final IBlockState fluidState = fluid.getState();
         final int fluidInfo = LightInfo.resolveContextual(
-                LightInfo.of(fluidState), fluidState, access, lookupPos, x, y, z);
+            LightInfo.of(fluidState), fluidState, access, lookupPos, x, y, z);
         final int opacity = Math.max(info & LightInfo.OPACITY_MASK, fluidInfo & LightInfo.OPACITY_MASK);
         final int emission = Math.max(LightInfo.emission(info), LightInfo.emission(fluidInfo));
         return LightInfo.COMPUTED | opacity | (emission << LightInfo.EMISSION_SHIFT);
@@ -117,9 +125,11 @@ public final class FluidLightBridge {
      * Positional block properties must still be resolved through world-thread snapshots.
      */
     public static IBlockState rgbState(final Object capability, final int x, final int y, final int z) {
-        if (!LOADED || capability == null) return null;
+        if (!LOADED || capability == null)
+            return null;
         final IFluidStateContainer container = ((IFluidStateCapability) capability).getContainer(y);
-        if (container == null) return null;
+        if (container == null)
+            return null;
         final FluidState fluid = container.getFluidState(x, y, z, FluidState.EMPTY);
         return fluid.isEmpty() ? null : fluid.getState();
     }
@@ -130,8 +140,8 @@ public final class FluidLightBridge {
      * position as the containing block.
      */
     public static int maxOpacityAt(final Chunk chunk, final int blockOpacity,
-                                   final int x, final int y, final int z,
-                                   final BlockPos.MutableBlockPos lookupPos) {
+        final int x, final int y, final int z,
+        final BlockPos.MutableBlockPos lookupPos) {
         if (!LOADED) {
             return blockOpacity;
         }
@@ -140,7 +150,8 @@ public final class FluidLightBridge {
             return blockOpacity;
         }
         final IFluidStateContainer container = cap.getContainer(y);
-        if (container == null) return blockOpacity;
+        if (container == null)
+            return blockOpacity;
         final FluidState fluid = container.getFluidState(x, y, z, FluidState.EMPTY);
         if (fluid.isEmpty()) {
             return blockOpacity;
@@ -149,7 +160,8 @@ public final class FluidLightBridge {
         final int worldX = (chunk.x << 4) + x;
         final int worldZ = (chunk.z << 4) + z;
         final int fluidInfo = LightInfo.resolveContextual(
-                LightInfo.of(fluidState), fluidState, chunk.getWorld(), lookupPos, worldX, y, worldZ);
+            LightInfo.of(fluidState), fluidState, chunk.getWorld(), lookupPos, worldX, y, worldZ);
         return Math.max(blockOpacity, LightInfo.opacity(fluidInfo));
     }
+
 }

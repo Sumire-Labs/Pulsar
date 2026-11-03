@@ -1,8 +1,5 @@
 package com.sumirelabs.pulsar.light;
 
-import com.sumirelabs.pulsar.Pulsar;
-import com.sumirelabs.pulsar.config.PulsarConfig;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,13 +10,19 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.config.PulsarConfig;
+
 /**
  * Per-world stats accumulator for light engine instrumentation. Only active
  * while {@code debug.enableDebugStats} is set; dumps to
  * {@code logs/pulsar-stats.log} at the configured tick interval (default 20).
  */
 public final class LightStats {
-    int dimension() { return this.dimension; }
+
+    int dimension() {
+        return this.dimension;
+    }
 
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
     private final Thread owner = Thread.currentThread();
@@ -118,22 +121,27 @@ public final class LightStats {
         this.skyBacklog = skyBacklog;
         this.blockBacklog = blockBacklog;
         if (this.tickCount - this.windowStartTick >= Math.max(1, Math.min(1200,
-                PulsarConfig.debug.statsLogIntervalTicks))) {
+            PulsarConfig.debug.statsLogIntervalTicks))) {
             dump();
             reset();
         }
     }
 
     void recordQueueLatency(final long enqueueTimeNs) {
-        if (enqueueTimeNs == 0L) return; // task was created while stats were off
+        if (enqueueTimeNs == 0L)
+            return; // task was created while stats were off
         final long latency = System.nanoTime() - enqueueTimeNs;
         this.maxQueueLatencyNs.accumulateAndGet(latency, Math::max);
         this.totalQueueLatencyNs.addAndGet(latency);
         this.queueLatencySamples.incrementAndGet();
     }
 
-    void recordSampleLoad(final long elapsedNs) { this.sampleLoad.record(elapsedNs); }
-    void recordSampleFlush(final long elapsedNs) { this.sampleFlush.record(elapsedNs); }
+    void recordSampleLoad(final long elapsedNs) {
+        this.sampleLoad.record(elapsedNs);
+    }
+    void recordSampleFlush(final long elapsedNs) {
+        this.sampleFlush.record(elapsedNs);
+    }
 
     void recordClientDrain(final long elapsedNs, final long budgetNs) {
         this.clientDrain.record(elapsedNs);
@@ -141,26 +149,31 @@ public final class LightStats {
     }
 
     void recordUnloadWait(final long elapsedNs) {
-        if (!enabled) return;
+        if (!enabled)
+            return;
         this.unloadWaitNs.addAndGet(elapsedNs);
         this.unloadWaitMaxNs.updateAndGet(current -> Math.max(current, elapsedNs));
     }
 
     void recordUnloadWaitTimeout() {
-        if (enabled) this.unloadWaitTimeouts.incrementAndGet();
+        if (enabled)
+            this.unloadWaitTimeouts.incrementAndGet();
     }
 
     void recordUnloadWaitBudgetExhausted() {
-        if (enabled) this.unloadWaitBudgetExhausted.incrementAndGet();
+        if (enabled)
+            this.unloadWaitBudgetExhausted.incrementAndGet();
     }
 
     void recordUnloadLightInvalidation() {
-        if (enabled) this.unloadLightInvalidations.incrementAndGet();
+        if (enabled)
+            this.unloadLightInvalidations.incrementAndGet();
     }
 
     private void dump() {
         if (this.writer == null) {
-            if (this.writerFailed) return;
+            if (this.writerFailed)
+                return;
             try {
                 final File logFile = new File("logs/pulsar-stats.log");
                 logFile.getParentFile().mkdirs();
@@ -205,16 +218,19 @@ public final class LightStats {
 
         final long latencySamples = this.queueLatencySamples.get();
         if (latencySamples > 0) {
-            sb.append(" avgLatencyMs=").append(String.format(Locale.US, "%.1f", (this.totalQueueLatencyNs.get() / (double) latencySamples) / 1_000_000.0));
+            sb.append(" avgLatencyMs=").append(String.format(Locale.US, "%.1f",
+                (this.totalQueueLatencyNs.get() / (double) latencySamples) / 1_000_000.0));
         }
         if (this.maxQueueLatencyNs.get() > 0) {
-            sb.append(" maxLatencyMs=").append(String.format(Locale.US, "%.1f", this.maxQueueLatencyNs.get() / 1_000_000.0));
+            sb.append(" maxLatencyMs=")
+                .append(String.format(Locale.US, "%.1f", this.maxQueueLatencyNs.get() / 1_000_000.0));
         }
 
         if (this.unloadWaitNs.get() > 0 || this.unloadWaitTimeouts.get() > 0
-                || this.unloadWaitBudgetExhausted.get() > 0 || this.unloadLightInvalidations.get() > 0) {
+            || this.unloadWaitBudgetExhausted.get() > 0 || this.unloadLightInvalidations.get() > 0) {
             sb.append(" unloadWaitMs=").append(String.format(Locale.US, "%.1f", this.unloadWaitNs.get() / 1_000_000.0));
-            sb.append(" unloadWaitMaxMs=").append(String.format(Locale.US, "%.2f", this.unloadWaitMaxNs.get() / 1_000_000.0));
+            sb.append(" unloadWaitMaxMs=")
+                .append(String.format(Locale.US, "%.2f", this.unloadWaitMaxNs.get() / 1_000_000.0));
             sb.append(" unloadTimeouts=").append(this.unloadWaitTimeouts.get());
             sb.append(" unloadBudgetExhausted=").append(this.unloadWaitBudgetExhausted.get());
             sb.append(" unloadLightInvalidations=").append(this.unloadLightInvalidations.get());
@@ -236,7 +252,8 @@ public final class LightStats {
             sb.append(" engineMarks=").append(engineRenderMarks);
             sb.append(" engineRequests=").append(engineRenderRequests);
             this.clientDrain.append(sb, "clientDrain");
-            sb.append(" clientOvershootMaxMs=").append(String.format(Locale.US, "%.3f", this.clientOvershootMaxNs / 1_000_000.0));
+            sb.append(" clientOvershootMaxMs=")
+                .append(String.format(Locale.US, "%.3f", this.clientOvershootMaxNs / 1_000_000.0));
         } else {
             this.sampleLoad.append(sb, "sampleLoad");
             this.sampleFlush.append(sb, "sampleFlush");
@@ -293,6 +310,7 @@ public final class LightStats {
     }
 
     private static final class DurationWindow {
+
         private long count, totalNs, maxNs;
 
         void record(final long elapsedNs) {
@@ -303,10 +321,16 @@ public final class LightStats {
 
         void append(final StringBuilder sb, final String label) {
             sb.append(' ').append(label).append("Count=").append(this.count);
-            sb.append(' ').append(label).append("Ms=").append(String.format(Locale.US, "%.3f", this.totalNs / 1_000_000.0));
-            sb.append(' ').append(label).append("MaxMs=").append(String.format(Locale.US, "%.3f", this.maxNs / 1_000_000.0));
+            sb.append(' ').append(label).append("Ms=")
+                .append(String.format(Locale.US, "%.3f", this.totalNs / 1_000_000.0));
+            sb.append(' ').append(label).append("MaxMs=")
+                .append(String.format(Locale.US, "%.3f", this.maxNs / 1_000_000.0));
         }
 
-        void reset() { this.count = this.totalNs = this.maxNs = 0; }
+        void reset() {
+            this.count = this.totalNs = this.maxNs = 0;
+        }
+
     }
+
 }

@@ -6,8 +6,7 @@ repositories {
         url = 'https://maven.covers1624.net'
         content { includeGroup 'codechicken'; includeGroup 'mrtjp' }
     }
-    // Other repositories described by default:
-    // CleanroomMC: https://maven.cleanroommc.com
+    // CleanroomGradle supplies CleanroomMC, Mojang and Maven Central.
     maven {
         name = 'CurseMaven'
         url = 'https://cursemaven.com'
@@ -20,23 +19,21 @@ repositories {
         name = 'Modrinth'
         url = 'https://api.modrinth.com/maven'
     }
-    mavenCentral()
-    mavenLocal() // Must be last for caching to work
+    if (providers.gradleProperty('cg.repos.enableLocal').orElse('false').get().toBoolean()) mavenLocal()
 }
 
 dependencies {
     // Isolated native probes load one FBP variant per JVM; these are never runtime dependencies.
-    fbpFancierTestMods('curse.maven:fbp-666575:7287527') { transitive = false }
-    fbpFanciestTestMods('curse.maven:fanciest-block-particles-1653899:8655640') { transitive = false }
-    fbpLegacyTestMods('maven.modrinth:fbp:pt2dL0yf') { transitive = false }
+    fbpFancierTestMods(deobf('curse.maven:fbp-666575:7287527')) { transitive = false }
+    fbpFanciestTestMods(deobf('curse.maven:fanciest-block-particles-1653899:8655640')) { transitive = false }
+    fbpLegacyTestMods(deobf('maven.modrinth:fbp:pt2dL0yf')) { transitive = false }
     if (project.hasProperty('celeritasTestClasspath')) {
-        // Unimined remaps module artifacts, not bare file dependencies. A local
-        // artifact-only Ivy repository lets it remap the supplied release jar.
+        // Resolve supplied renderer jars through the same SRG-to-MCP transform
+        // used for repository mods, without editing the caller's original jar.
         project.property('celeritasTestClasspath').toString().split(java.util.regex.Pattern.quote(File.pathSeparator)).eachWithIndex { path, index ->
             def rendererJar = file(path)
             // The optional headless probes do not use renderer GL access wideners.
-            // Unimined currently assumes intermediary for these files even in a
-            // searge jar. Strip only AW metadata in a disposable validation copy;
+            // Strip AW metadata in a disposable headless validation copy;
             // leave the user's jar and all bytecode untouched before remapping.
             def digest = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance('SHA-256').digest(rendererJar.bytes))
             def prepared = layout.buildDirectory.file("renderer-validation/${digest}/${rendererJar.name}").get().asFile
@@ -62,13 +59,13 @@ dependencies {
                 metadataSources { artifact() }
                 content { includeModule 'pulsar.test.renderer', artifactName }
             }
-            rendererTestMods("pulsar.test.renderer:${artifactName}:${digest.substring(0, 12)}") { transitive = false }
+            rendererTestMods(deobf("pulsar.test.renderer:${artifactName}:${digest.substring(0, 12)}")) { transitive = false }
         }
     }
     testImplementation('net.industrial-craft:industrialcraft-2:2.8.222-ex112:dev') { transitive = false }
     testImplementation('com.enderio.core:EnderCore:1.12.2-0.5.78:deobf') { transitive = false }
-    compatTestMods('com.enderio:EnderIO:1.12.2-5.3.72') { transitive = false }
-    classicTestMods('maven.modrinth:ic2classic:1.5.15') { transitive = false }
+    compatTestMods(deobf('com.enderio:EnderIO:1.12.2-5.3.72')) { transitive = false }
+    classicTestMods(deobf('maven.modrinth:ic2classic:1.5.15')) { transitive = false }
     // Exercise the real 1.12.2 multipart API without making it a runtime dependency.
     testImplementation('codechicken:ForgeMultipart:1.12.2-2.6.2.83:deobf') { transitive = false }
     testImplementation('codechicken:CodeChickenLib:1.12.2-3.2.3.358:deobf') { transitive = false }
@@ -77,8 +74,6 @@ dependencies {
     testImplementation('mrtjp:MrTJPCore:1.12.2-2.1.4.43:deobf') { transitive = false }
     // Fluidlogged API: soft dependency — FluidLightBridge merges the stored
     // fluid's opacity/emission into the engine's light reads when installed.
-    compileOnly "maven.modrinth:fluidlogged-api:3.3.3"
-    if (enable_lwjglx.toBoolean()) {
-        compileOnly "com.cleanroommc:lwjglx:1.0.0"
-    }
+    compileOnly deobf('maven.modrinth:fluidlogged-api:3.3.3')
+    // Mixin and LWJGL compatibility APIs follow the selected Cleanroom USERDEV.
 }

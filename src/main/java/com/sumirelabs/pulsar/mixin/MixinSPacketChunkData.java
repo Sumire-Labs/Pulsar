@@ -1,13 +1,5 @@
 package com.sumirelabs.pulsar.mixin;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.sumirelabs.pulsar.light.ChunkPacketLight;
-import com.sumirelabs.pulsar.light.PulsarChunk;
-import com.sumirelabs.pulsar.util.WorldUtil;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SPacketChunkData;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,48 +7,51 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.sumirelabs.pulsar.light.ChunkPacketLight;
+import com.sumirelabs.pulsar.light.PulsarChunk;
+import com.sumirelabs.pulsar.util.WorldUtil;
+
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.server.SPacketChunkData;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+
 /**
  * Keeps non-trivial light in empty or physically absent packet sections.
  */
 @Mixin(SPacketChunkData.class)
 public abstract class MixinSPacketChunkData {
 
-    @Unique
-    private ExtendedBlockStorage[] pulsar$packetSections;
+    @Unique private ExtendedBlockStorage[] pulsar$packetSections;
 
     @Unique
     private ExtendedBlockStorage[] pulsar$getPacketSections(
-            final Chunk chunk, final boolean hasSky, final int sectionMask, final ExtendedBlockStorage[] storage) {
+        final Chunk chunk, final boolean hasSky, final int sectionMask, final ExtendedBlockStorage[] storage) {
         if (this.pulsar$packetSections == null) {
             this.pulsar$packetSections = chunk instanceof PulsarChunk
-                    ? ChunkPacketLight.prepareSections(
+                ? ChunkPacketLight.prepareSections(
                     WorldUtil.getHeightContext(chunk.getWorld()),
                     ((PulsarChunk) chunk).pulsar$getBlockNibbles(),
                     ((PulsarChunk) chunk).pulsar$getSkyNibbles(), storage, hasSky,
                     sectionMask == 0xFFFF ? -1 : sectionMask)
-                    : storage;
+                : storage;
         }
         return this.pulsar$packetSections;
     }
 
-    @ModifyExpressionValue(method = "calculateChunkSize",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/Chunk;getBlockStorageArray()[Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;"),
-            require = 0)
+    @ModifyExpressionValue(method = "calculateChunkSize", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;getBlockStorageArray()[Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;"), require = 0)
     private ExtendedBlockStorage[] pulsar$sizePacketSections(
-            final ExtendedBlockStorage[] storage, final Chunk chunk, final boolean hasSky, final int sectionMask) {
+        final ExtendedBlockStorage[] storage, final Chunk chunk, final boolean hasSky, final int sectionMask) {
         // Preserve other mods' snapshots (notably Sponge's async-lighting
         // redirect), then add Pulsar's packet-only light sections to that view.
         return this.pulsar$getPacketSections(chunk, hasSky, sectionMask, storage);
     }
 
-    @ModifyExpressionValue(method = "extractChunkData",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/Chunk;getBlockStorageArray()[Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;"),
-            require = 0)
+    @ModifyExpressionValue(method = "extractChunkData", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;getBlockStorageArray()[Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;"), require = 0)
     private ExtendedBlockStorage[] pulsar$extractPacketSections(
-            final ExtendedBlockStorage[] storage, final PacketBuffer buffer, final Chunk chunk,
-            final boolean hasSky, final int sectionMask) {
+        final ExtendedBlockStorage[] storage, final PacketBuffer buffer, final Chunk chunk,
+        final boolean hasSky, final int sectionMask) {
         return this.pulsar$getPacketSections(chunk, hasSky, sectionMask, storage);
     }
 
@@ -66,45 +61,33 @@ public abstract class MixinSPacketChunkData {
     }
 
     // Chunk packets serialize vanilla EBS arrays, so publish visible Pulsar light first.
-    @Inject(
-            method = "<init>(Lnet/minecraft/world/chunk/Chunk;I)V",
-            at = @At("HEAD"),
-            require = 0)
+    @Inject(method = "<init>(Lnet/minecraft/world/chunk/Chunk;I)V", at = @At("HEAD"), require = 0)
     private static void pulsar$syncVisibleLightBeforePacket(final Chunk chunk,
-                                                            final int changedSectionFilter,
-                                                            final CallbackInfo ci) {
+        final int changedSectionFilter,
+        final CallbackInfo ci) {
         if (chunk instanceof PulsarChunk) {
             final PulsarChunk pulsarChunk = (PulsarChunk) chunk;
             if (pulsarChunk.pulsar$isLightReady()) {
                 // Vanilla treats 0xFFFF as a full lifecycle packet. Retain a
                 // full sync there for height mods which append storage slots.
                 pulsarChunk.pulsar$syncLightToVanilla(
-                        changedSectionFilter == 0xFFFF ? -1 : changedSectionFilter);
+                    changedSectionFilter == 0xFFFF ? -1 : changedSectionFilter);
             }
         }
     }
 
-    @Redirect(
-            method = "extractChunkData(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/world/chunk/Chunk;ZI)I",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;isEmpty()Z"),
-            require = 0)
+    @Redirect(method = "extractChunkData(Lnet/minecraft/network/PacketBuffer;Lnet/minecraft/world/chunk/Chunk;ZI)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;isEmpty()Z"), require = 0)
     private boolean pulsar$isSectionTrivialForExtraction(
-            final ExtendedBlockStorage section, final PacketBuffer buffer,
-            final Chunk chunk, final boolean writeSkylight, final int changedSectionFilter) {
+        final ExtendedBlockStorage section, final PacketBuffer buffer,
+        final Chunk chunk, final boolean writeSkylight, final int changedSectionFilter) {
         return ChunkPacketLight.isTrivialForPacket(section, writeSkylight);
     }
 
-    @Redirect(
-            method = "calculateChunkSize(Lnet/minecraft/world/chunk/Chunk;ZI)I",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;isEmpty()Z"),
-            require = 0)
+    @Redirect(method = "calculateChunkSize(Lnet/minecraft/world/chunk/Chunk;ZI)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;isEmpty()Z"), require = 0)
     private boolean pulsar$isSectionTrivialForSize(
-            final ExtendedBlockStorage section, final Chunk chunk,
-            final boolean writeSkylight, final int changedSectionFilter) {
+        final ExtendedBlockStorage section, final Chunk chunk,
+        final boolean writeSkylight, final int changedSectionFilter) {
         return ChunkPacketLight.isTrivialForPacket(section, writeSkylight);
     }
+
 }

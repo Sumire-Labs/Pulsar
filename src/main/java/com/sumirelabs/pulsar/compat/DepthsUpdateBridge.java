@@ -1,14 +1,15 @@
 package com.sumirelabs.pulsar.compat;
 
-import com.sumirelabs.pulsar.Pulsar;
-import com.sumirelabs.pulsar.util.WorldHeightContext;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Loader;
-
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
+
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Loader;
 
 /**
  * Soft integration with Depths Update's per-dimension height API.
@@ -33,8 +34,7 @@ public final class DepthsUpdateBridge {
     private static final int UNRESOLVED = 0;
     private static final int OK = 1;
     private static final int FAILED = 2;
-    private static final Map<World, WorldHeightContext> CONTEXTS =
-            Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<World, WorldHeightContext> CONTEXTS = Collections.synchronizedMap(new WeakHashMap<>());
     private static volatile int state = UNRESOLVED;
     private static Method getHeightInfo;
     private static Method isExtended;
@@ -42,8 +42,7 @@ public final class DepthsUpdateBridge {
     private static Method maxY;
     private static DepthsUpdateStorageIndexInvoker storageIndexInvoker;
 
-    private DepthsUpdateBridge() {
-    }
+    private DepthsUpdateBridge() {}
 
     public static WorldHeightContext getHeightContext(final World world) {
         if (!LOADED || world == null || state == FAILED) {
@@ -61,7 +60,7 @@ public final class DepthsUpdateBridge {
             } catch (final Throwable t) {
                 state = FAILED;
                 Pulsar.LOGGER.warn(
-                        "Depths Update height integration disabled; extended sections will not be lit", t);
+                    "Depths Update height integration disabled; extended sections will not be lit", t);
                 return WorldHeightContext.VANILLA;
             }
         }
@@ -83,23 +82,21 @@ public final class DepthsUpdateBridge {
             final int[] mapping = new int[maximumSection - minimumSection + 1];
 
             for (int sectionY = minimumSection; sectionY <= maximumSection; ++sectionY) {
-                mapping[sectionY - minimumSection] =
-                        storageIndexInvoker.invoke(heightInfo, world, sectionY << 4);
+                mapping[sectionY - minimumSection] = storageIndexInvoker.invoke(heightInfo, world, sectionY << 4);
             }
 
-            final WorldHeightContext context =
-                    WorldHeightContext.mapped(minimumSection, maximumSection, mapping);
+            final WorldHeightContext context = WorldHeightContext.mapped(minimumSection, maximumSection, mapping);
             CONTEXTS.put(world, context);
             Pulsar.LOGGER.info(
-                    "Depths Update height integration active for dimension {}: sections {}..{} using {}",
-                    world.provider.getDimension(), minimumSection, maximumSection,
-                    storageIndexInvoker.getDescription());
+                "Depths Update height integration active for dimension {}: sections {}..{} using {}",
+                world.provider.getDimension(), minimumSection, maximumSection,
+                storageIndexInvoker.getDescription());
             return context;
         } catch (final Throwable t) {
             CONTEXTS.put(world, WorldHeightContext.VANILLA);
             Pulsar.LOGGER.warn(
-                    "Failed to read Depths Update height context for dimension {}; extended sections will not be lit",
-                    world.provider.getDimension(), t);
+                "Failed to read Depths Update height context for dimension {}; extended sections will not be lit",
+                world.provider.getDimension(), t);
             return WorldHeightContext.VANILLA;
         }
     }
@@ -119,7 +116,8 @@ public final class DepthsUpdateBridge {
         minY = heightInfoClass.getMethod("minY");
         maxY = heightInfoClass.getMethod("maxY");
         storageIndexInvoker = DepthsUpdateStorageIndexInvoker.resolve(
-                heightManagerClass, heightContextClass, World.class);
+            heightManagerClass, heightContextClass, World.class);
         state = OK;
     }
+
 }

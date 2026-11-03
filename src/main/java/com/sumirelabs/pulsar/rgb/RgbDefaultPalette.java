@@ -10,6 +10,7 @@ import net.minecraft.item.EnumDyeColor;
 
 /** Optical defaults: texture/dye albedo is not light transmittance. */
 public final class RgbDefaultPalette {
+
     private RgbDefaultPalette() {}
 
     public static int glassTransmittance(EnumDyeColor dye) {
@@ -32,4 +33,5 @@ public final class RgbDefaultPalette {
             case BLACK -> 0x111;
         };
     }
+
 }

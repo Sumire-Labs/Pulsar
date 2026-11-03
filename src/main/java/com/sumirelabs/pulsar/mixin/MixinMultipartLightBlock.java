@@ -1,9 +1,11 @@
 package com.sumirelabs.pulsar.mixin;
 
-import com.sumirelabs.pulsar.compat.MultipartLightBlock;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 
+import com.sumirelabs.pulsar.compat.MultipartLightBlock;
+
 @Pseudo
 @Mixin(targets = "codechicken.multipart.BlockMultipart", remap = false)
-public abstract class MixinMultipartLightBlock implements MultipartLightBlock {}
+public abstract class MixinMultipartLightBlock implements MultipartLightBlock {
+}

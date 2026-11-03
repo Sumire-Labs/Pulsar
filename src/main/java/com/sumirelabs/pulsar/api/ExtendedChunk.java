@@ -21,4 +21,5 @@ public interface ExtendedChunk {
      * On clients it does not guarantee receipt of a separate RGB snapshot.
      */
     boolean pulsar$isLightReady();
+
 }

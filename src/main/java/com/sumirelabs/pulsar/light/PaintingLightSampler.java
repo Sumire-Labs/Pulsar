@@ -17,14 +17,13 @@ public final class PaintingLightSampler {
 
     /** Position, texture UV, lightmap UV, and normal for painting geometry. */
     public static final VertexFormat VERTEX_FORMAT = new VertexFormat()
-            .addElement(DefaultVertexFormats.POSITION_3F)
-            .addElement(DefaultVertexFormats.TEX_2F)
-            .addElement(DefaultVertexFormats.TEX_2S)
-            .addElement(DefaultVertexFormats.NORMAL_3B)
-            .addElement(DefaultVertexFormats.PADDING_1B);
+        .addElement(DefaultVertexFormats.POSITION_3F)
+        .addElement(DefaultVertexFormats.TEX_2F)
+        .addElement(DefaultVertexFormats.TEX_2S)
+        .addElement(DefaultVertexFormats.NORMAL_3B)
+        .addElement(DefaultVertexFormats.PADDING_1B);
 
-    private PaintingLightSampler() {
-    }
+    private PaintingLightSampler() {}
 
     /** Writes UV1 as (block, sky); 1.12.2 stores SHORT lightmap arguments in reverse order. */
     public static void writeVertexLight(final BufferBuilder buffer, final int packed) {
@@ -50,8 +49,8 @@ public final class PaintingLightSampler {
                 final float centerX = minX + (tileX + 0.5F) * 16.0F;
                 final float centerY = minY + (tileY + 0.5F) * 16.0F;
                 final BlockPos samplePos = samplePosition(
-                        painting.posX, painting.posY, painting.posZ,
-                        painting.facingDirection, centerX, centerY);
+                    painting.posX, painting.posY, painting.posZ,
+                    painting.facingDirection, centerX, centerY);
                 tileLight[tileX + tileY * width] = painting.world.getCombinedLight(samplePos, 0);
             }
         }
@@ -65,29 +64,30 @@ public final class PaintingLightSampler {
     }
 
     private static BlockPos samplePosition(final double paintingX, final double paintingY,
-                                           final double paintingZ, final EnumFacing facing,
-                                           final float localX, final float localY) {
+        final double paintingZ, final EnumFacing facing,
+        final float localX, final float localY) {
         int x = MathHelper.floor(paintingX);
         final int y = MathHelper.floor(paintingY + localY / 16.0F);
         int z = MathHelper.floor(paintingZ);
 
         switch (facing) {
-            case NORTH:
+            case NORTH :
                 x = MathHelper.floor(paintingX + localX / 16.0F);
                 break;
-            case WEST:
+            case WEST :
                 z = MathHelper.floor(paintingZ - localX / 16.0F);
                 break;
-            case SOUTH:
+            case SOUTH :
                 x = MathHelper.floor(paintingX - localX / 16.0F);
                 break;
-            case EAST:
+            case EAST :
                 z = MathHelper.floor(paintingZ + localX / 16.0F);
                 break;
-            default:
+            default :
                 break;
         }
 
         return new BlockPos(x, y, z);
     }
+
 }

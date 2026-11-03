@@ -1,19 +1,35 @@
 package com.sumirelabs.pulsar.light;
 
+import java.util.function.BooleanSupplier;
+
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
-import java.util.function.BooleanSupplier;
 
 /** Main-thread render notifications, merged across both light lanes within a tick. */
 final class ClientRenderUpdates<T> {
-    @FunctionalInterface interface Lookup<T> { T get(long chunkKey); }
-    @FunctionalInterface interface Mark { void accept(long chunkKey, int sectionY, long bounds); }
+
+    @FunctionalInterface
+    interface Lookup<T> {
+
+        T get(long chunkKey);
+
+    }
+    @FunctionalInterface
+    interface Mark {
+
+        void accept(long chunkKey, int sectionY, long bounds);
+
+    }
 
     private static final class Entry<T> {
+
         final T chunk;
         final Int2ObjectOpenHashMap<LongArrayList> sections = new Int2ObjectOpenHashMap<>();
-        Entry(T chunk) { this.chunk = chunk; }
+        Entry(T chunk) {
+            this.chunk = chunk;
+        }
+
     }
 
     private Long2ObjectOpenHashMap<Entry<T>> pending = new Long2ObjectOpenHashMap<>();
@@ -48,12 +64,11 @@ final class ClientRenderUpdates<T> {
     /** 3x3x3 renderer-section coverage after vanilla's one-block inflation. */
     static int sectionMask(long bounds) {
         int mask = 0;
-        for (int y = RenderBounds.minY(bounds) == 0 ? 0 : 1;
-             y <= (RenderBounds.maxY(bounds) == 15 ? 2 : 1); y++) {
-            for (int z = RenderBounds.minZ(bounds) == 0 ? 0 : 1;
-                 z <= (RenderBounds.maxZ(bounds) == 15 ? 2 : 1); z++) {
-                for (int x = RenderBounds.minX(bounds) == 0 ? 0 : 1;
-                     x <= (RenderBounds.maxX(bounds) == 15 ? 2 : 1); x++) {
+        for (int y = RenderBounds.minY(bounds) == 0 ? 0 : 1; y <= (RenderBounds.maxY(bounds) == 15 ? 2 : 1); y++) {
+            for (int z = RenderBounds.minZ(bounds) == 0 ? 0 : 1; z <= (RenderBounds.maxZ(bounds) == 15 ? 2 : 1); z++) {
+                for (int x = RenderBounds.minX(bounds) == 0 ? 0 : 1; x <= (RenderBounds.maxX(bounds) == 15
+                    ? 2
+                    : 1); x++) {
                     mask |= 1 << (x + z * 3 + y * 9);
                 }
             }
@@ -63,13 +78,15 @@ final class ClientRenderUpdates<T> {
 
     void remove(long key) {
         pending.remove(key);
-        if (!draining) spare.remove(key);
+        if (!draining)
+            spare.remove(key);
     }
     void clear() {
         pending.clear();
         clearGeneration++;
         // A renderer callback may clear the queue. Do not invalidate its iterator.
-        if (!draining) spare.clear();
+        if (!draining)
+            spare.clear();
     }
 
     int drain(Lookup<T> loaded, Mark mark) {
@@ -78,7 +95,8 @@ final class ClientRenderUpdates<T> {
 
     /** Unsent ranges remain in the old batch; callback additions stay in pending. */
     int drainWhile(Lookup<T> loaded, Mark mark, BooleanSupplier withinBudget) {
-        if (draining || (pending.isEmpty() && spare.isEmpty()) || !withinBudget.getAsBoolean()) return 0;
+        if (draining || (pending.isEmpty() && spare.isEmpty()) || !withinBudget.getAsBoolean())
+            return 0;
         draining = true;
         if (spare.isEmpty()) {
             Long2ObjectOpenHashMap<Entry<T>> batch = pending;
@@ -102,20 +120,24 @@ final class ClientRenderUpdates<T> {
                             ranges.clear();
                             break;
                         }
-                        if (!withinBudget.getAsBoolean()) return marks;
+                        if (!withinBudget.getAsBoolean())
+                            return marks;
                         mark.accept(key, section.getIntKey(), ranges.getLong(0));
                         ranges.removeLong(0);
                         marks++;
-                        if (generation != clearGeneration) return marks;
+                        if (generation != clearGeneration)
+                            return marks;
                     }
                     sections.remove();
                 }
                 chunks.remove();
             }
         } finally {
-            if (generation != clearGeneration) spare.clear();
+            if (generation != clearGeneration)
+                spare.clear();
             draining = false;
         }
         return marks;
     }
+
 }

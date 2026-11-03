@@ -1,25 +1,34 @@
 package com.sumirelabs.pulsar.light.engine;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ContextualLightCapturePositionTest {
-    @BeforeAll static void bootstrap() { Bootstrap.register(); }
+
+    @BeforeAll
+    static void bootstrap() {
+        Bootstrap.register();
+    }
 
     private static final class MutatingBlock extends Block {
+
         int x, y, z;
         int opacityCalls, emissionCalls;
-        Runnable nested = () -> {};
+        Runnable nested = () -> {
+        };
 
-        MutatingBlock() { super(Material.ROCK); }
+        MutatingBlock() {
+            super(Material.ROCK);
+        }
 
         private void check(BlockPos pos) {
             assertEquals(x, pos.getX());
@@ -27,7 +36,8 @@ class ContextualLightCapturePositionTest {
             assertEquals(z, pos.getZ());
         }
 
-        @Override public int getLightOpacity(IBlockState state, IBlockAccess access, BlockPos pos) {
+        @Override
+        public int getLightOpacity(IBlockState state, IBlockAccess access, BlockPos pos) {
             check(pos);
             opacityCalls++;
             nested.run();
@@ -36,12 +46,14 @@ class ContextualLightCapturePositionTest {
             return 3;
         }
 
-        @Override public int getLightValue(IBlockState state, IBlockAccess access, BlockPos pos) {
+        @Override
+        public int getLightValue(IBlockState state, IBlockAccess access, BlockPos pos) {
             check(pos);
             emissionCalls++;
             ((BlockPos.MutableBlockPos) pos).setPos(-999, -999, -999);
             return 10;
         }
+
     }
 
     private static void capture(MutatingBlock block, BlockPos.MutableBlockPos scratch, int x, int y, int z) {
@@ -56,7 +68,8 @@ class ContextualLightCapturePositionTest {
         assertEquals(10, LightInfo.emission(result));
     }
 
-    @Test void reusedPositionIsResetBetweenCallbacksCellsAndFluidLayers() {
+    @Test
+    void reusedPositionIsResetBetweenCallbacksCellsAndFluidLayers() {
         final var block = new MutatingBlock();
         final var fluid = new MutatingBlock();
         final var scratch = new BlockPos.MutableBlockPos();
@@ -74,7 +87,8 @@ class ContextualLightCapturePositionTest {
         assertEquals(768, fluid.emissionCalls);
     }
 
-    @Test void nestedCaptureWithItsOwnLocalPositionDoesNotCorruptOuterCallback() {
+    @Test
+    void nestedCaptureWithItsOwnLocalPositionDoesNotCorruptOuterCallback() {
         final var outer = new MutatingBlock();
         final var inner = new MutatingBlock();
         outer.nested = () -> capture(inner, new BlockPos.MutableBlockPos(), 48, -12, -7);
@@ -84,4 +98,5 @@ class ContextualLightCapturePositionTest {
         assertEquals(2, inner.opacityCalls);
         assertEquals(2, outer.emissionCalls);
     }
+
 }

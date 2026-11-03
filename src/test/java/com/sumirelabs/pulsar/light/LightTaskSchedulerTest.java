@@ -1,23 +1,30 @@
 package com.sumirelabs.pulsar.light;
 
-import com.sumirelabs.pulsar.util.CoordinateUtils;
-import com.sumirelabs.pulsar.util.WorldHeightContext;
-import org.junit.jupiter.api.Test;
-import net.minecraft.world.chunk.Chunk;
-
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.junit.jupiter.api.Test;
+
+import com.sumirelabs.pulsar.util.CoordinateUtils;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
+
+import net.minecraft.world.chunk.Chunk;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class LightTaskSchedulerTest {
+
     @Test
     void blockedEditCandidatesAreCheckedOncePerClaimAndBecomeAvailableOnTheNextClaim() {
         final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
         final LightTaskScheduler scheduler = new LightTaskScheduler(queue, () -> 0L);
-        for (int x = 0; x < 100; x++) queue.queueBlockChange(x << 4, 64, 0);
+        for (int x = 0; x < 100; x++)
+            queue.queueBlockChange(x << 4, 64, 0);
         final AtomicInteger checks = new AtomicInteger();
-        assertNull(scheduler.claimAvailable(key -> { checks.incrementAndGet(); return false; }));
+        assertNull(scheduler.claimAvailable(key -> {
+            checks.incrementAndGet();
+            return false;
+        }));
         assertEquals(100, checks.get());
         final ChunkTasks task = scheduler.claimAvailable(key -> true);
         assertNotNull(task);
@@ -91,10 +98,10 @@ class LightTaskSchedulerTest {
         block.queueBlockChange(0, 64, 0);
         final var skyFuture = sky.getPendingWorkFuture(CoordinateUtils.getChunkKey(0, 0));
         assertTrue(new LightTaskScheduler(sky, clock::get).drainOneUntil(2, () -> true,
-                task -> clock.set(12)));
+            task -> clock.set(12)));
         assertTrue(skyFuture.isDone());
         assertFalse(new LightTaskScheduler(block, clock::get).drainOneUntil(2, () -> true,
-                task -> fail("Must not start after deadline")));
+            task -> fail("Must not start after deadline")));
         assertTrue(block.hasPendingWork(0, 0));
     }
 
@@ -195,8 +202,11 @@ class LightTaskSchedulerTest {
         queue.queueBlockChange(16, 64, 0);
         final LightTaskScheduler scheduler = new LightTaskScheduler(queue, () -> 0);
         assertThrows(IllegalStateException.class, () -> scheduler.drainUntil(5, () -> true,
-                task -> { throw new IllegalStateException("probe"); }));
+            task -> {
+                throw new IllegalStateException("probe");
+            }));
         assertFalse(queue.hasPendingWork(0, 0));
         assertEquals(1, queue.size());
     }
+
 }

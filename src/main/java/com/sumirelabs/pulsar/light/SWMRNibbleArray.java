@@ -1,8 +1,8 @@
 package com.sumirelabs.pulsar.light;
 
-import net.minecraft.world.chunk.NibbleArray;
-
 import java.util.Arrays;
+
+import net.minecraft.world.chunk.NibbleArray;
 
 /**
  * Single Writer Multi Reader nibble array. Port of Starlight's design,
@@ -36,10 +36,12 @@ public final class SWMRNibbleArray {
     // across GC. The weak overflow owns only detached scratch buffers.
     static final int MAX_POOLED_WORKING_BYTES = 2048;
     private static final byte[] FULL_BYTES = new byte[ARRAY_SIZE];
-    static { Arrays.fill(FULL_BYTES, (byte) 0xFF); }
+    static {
+        Arrays.fill(FULL_BYTES, (byte) 0xFF);
+    }
 
-    static final ThreadLocal<WorkingBytesPool> WORKING_BYTES_POOL =
-            ThreadLocal.withInitial(() -> new WorkingBytesPool(MAX_POOLED_WORKING_BYTES));
+    static final ThreadLocal<WorkingBytesPool> WORKING_BYTES_POOL = ThreadLocal
+        .withInitial(() -> new WorkingBytesPool(MAX_POOLED_WORKING_BYTES));
     private int stateUpdating;
     private volatile int stateVisible;
     private byte[] storageUpdating;
@@ -76,8 +78,8 @@ public final class SWMRNibbleArray {
     }
     public SWMRNibbleArray(final byte[] bytes, final boolean isNullNibble) {
         this(bytes, bytes == null
-                ? (isNullNibble ? INIT_STATE_NULL : INIT_STATE_UNINIT)
-                : INIT_STATE_INIT, bytes != null);
+            ? (isNullNibble ? INIT_STATE_NULL : INIT_STATE_UNINIT)
+            : INIT_STATE_INIT, bytes != null);
     }
 
     public SWMRNibbleArray(final byte[] bytes, final int state) {
@@ -88,30 +90,36 @@ public final class SWMRNibbleArray {
      * never modify it; use ordinary constructors for vanilla's mutable storage. */
     public static SWMRNibbleArray fromImmutable(final byte[] bytes) {
         SWMRNibbleArray result = new SWMRNibbleArray(bytes,
-                bytes == null ? INIT_STATE_UNINIT : INIT_STATE_INIT, false);
+            bytes == null ? INIT_STATE_UNINIT : INIT_STATE_INIT, false);
         result.visibleShared = bytes != null;
         return result;
     }
 
     /** Transfer exclusive ownership of bytes, as opposed to wrapping vanilla storage. */
     public static SWMRNibbleArray fromOwned(final byte[] bytes, final int state) {
-        return new SWMRNibbleArray(bytes,state,false);
+        return new SWMRNibbleArray(bytes, state, false);
     }
-    public boolean canShareVisibleData() { return !this.retainVisibleStorage; }
+    public boolean canShareVisibleData() {
+        return !this.retainVisibleStorage;
+    }
     /** Freeze engine-owned visible bytes for readers; subsequent writes detach.
      * Call only while holding the lighting reservation for this section. */
     public synchronized byte[] shareVisibleData() {
-        if(this.retainVisibleStorage)throw new IllegalStateException("Cannot freeze externally owned vanilla storage");
-        this.visibleShared=this.storageVisible!=null;
-        if(this.storageUpdating==this.storageVisible)this.updatingWritable=false;
+        if (this.retainVisibleStorage)
+            throw new IllegalStateException("Cannot freeze externally owned vanilla storage");
+        this.visibleShared = this.storageVisible != null;
+        if (this.storageUpdating == this.storageVisible)
+            this.updatingWritable = false;
         return this.storageVisible;
     }
 
     /** Adopt an equal immutable publication without touching unpublished working
      * changes. Caller owns the lighting reservation and must never mutate bytes. */
     public synchronized void adoptImmutableVisibleData(final byte[] bytes) {
-        if (this.retainVisibleStorage || bytes == null || this.storageVisible == null) return;
-        if (!Arrays.equals(bytes, this.storageVisible)) throw new IllegalArgumentException("Different visible light");
+        if (this.retainVisibleStorage || bytes == null || this.storageVisible == null)
+            return;
+        if (!Arrays.equals(bytes, this.storageVisible))
+            throw new IllegalArgumentException("Different visible light");
         if (this.storageUpdating == this.storageVisible && !this.updatingDirty) {
             this.storageUpdating = bytes;
             this.updatingWritable = false;
@@ -145,7 +153,8 @@ public final class SWMRNibbleArray {
     }
 
     private static void freeBytes(final byte[] bytes) {
-        if (bytes == FULL_BYTES) return;
+        if (bytes == FULL_BYTES)
+            return;
         WORKING_BYTES_POOL.get().addFirst(bytes);
     }
 
@@ -238,7 +247,8 @@ public final class SWMRNibbleArray {
             this.stateUpdating = INIT_STATE_INIT;
         }
         if (!this.retainVisibleStorage) {
-            if (this.updatingDirty && this.storageUpdating != null) freeBytes(this.storageUpdating);
+            if (this.updatingDirty && this.storageUpdating != null)
+                freeBytes(this.storageUpdating);
             this.storageUpdating = FULL_BYTES;
         } else {
             Arrays.fill(this.storageUpdating == null || !this.updatingDirty
@@ -256,8 +266,8 @@ public final class SWMRNibbleArray {
             this.stateUpdating = INIT_STATE_INIT;
         }
         Arrays.fill(this.storageUpdating == null || !this.updatingDirty || this.storageUpdating == FULL_BYTES
-                ? this.storageUpdating = allocateBytes()
-                : this.storageUpdating, (byte) 0);
+            ? this.storageUpdating = allocateBytes()
+            : this.storageUpdating, (byte) 0);
         this.updatingDirty = true;
         this.fullFlag = false;
         this.zeroFlag = true;
@@ -370,7 +380,7 @@ public final class SWMRNibbleArray {
             Arrays.fill(this.storageUpdating, (byte) 0);
         } else {
             System.arraycopy(this.storageUpdating, 0,
-                    this.storageUpdating = allocateBytes(), 0, ARRAY_SIZE);
+                this.storageUpdating = allocateBytes(), 0, ARRAY_SIZE);
         }
         if (this.stateUpdating != INIT_STATE_HIDDEN) {
             this.stateUpdating = INIT_STATE_INIT;
@@ -391,7 +401,8 @@ public final class SWMRNibbleArray {
             } else if (this.fullFlag && !this.retainVisibleStorage) {
                 // The old visible array is never pooled: concurrent readers
                 // may still hold it. Only unpublished working bytes are reusable.
-                if (this.updatingDirty && this.storageUpdating != null) freeBytes(this.storageUpdating);
+                if (this.updatingDirty && this.storageUpdating != null)
+                    freeBytes(this.storageUpdating);
                 if (!this.visibleShared && this.storageVisible != null && this.storageVisible != FULL_BYTES) {
                     this.reusableVisible = this.storageVisible;
                 }
@@ -439,14 +450,14 @@ public final class SWMRNibbleArray {
     public NibbleArray toVanillaNibble() {
         synchronized (this) {
             switch (this.stateVisible) {
-                case INIT_STATE_HIDDEN:
-                case INIT_STATE_NULL:
+                case INIT_STATE_HIDDEN :
+                case INIT_STATE_NULL :
                     return null;
-                case INIT_STATE_UNINIT:
+                case INIT_STATE_UNINIT :
                     return new NibbleArray();
-                case INIT_STATE_INIT:
+                case INIT_STATE_INIT :
                     return new NibbleArray(this.storageVisible.clone());
-                default:
+                default :
                     throw new IllegalStateException();
             }
         }
@@ -501,17 +512,21 @@ public final class SWMRNibbleArray {
 
     /** Internal read-only view for packing; unlike getUpdatingStorage, this
      * must not detach a shared immutable plane or mark it dirty. */
-    public byte[] getUpdatingData() { return this.storageUpdating; }
+    public byte[] getUpdatingData() {
+        return this.storageUpdating;
+    }
 
     public void set(final int index, final int value) {
-        if (!this.updatingWritable) this.prepareScalarWrite();
+        if (!this.updatingWritable)
+            this.prepareScalarWrite();
         final int shift = (index & 1) << 2;
         final int i = index >>> 1;
         this.storageUpdating[i] = (byte) ((this.storageUpdating[i] & (0xF0 >>> shift)) | (value << shift));
     }
 
     private void prepareScalarWrite() {
-        if (!this.updatingDirty || this.storageUpdating == FULL_BYTES) this.swapUpdatingAndMarkDirty();
+        if (!this.updatingDirty || this.storageUpdating == FULL_BYTES)
+            this.swapUpdatingAndMarkDirty();
         this.fullFlag = false;
         this.zeroFlag = false;
         this.updatingWritable = true;
@@ -573,5 +588,7 @@ public final class SWMRNibbleArray {
             this.data = data;
             this.state = state;
         }
+
     }
+
 }

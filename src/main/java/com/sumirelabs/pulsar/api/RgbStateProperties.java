@@ -1,11 +1,14 @@
 package com.sumirelabs.pulsar.api;
 
-import com.sumirelabs.pulsar.rgb.RgbCachedState;
-import net.minecraft.block.state.IBlockState;
 import java.util.Map;
+
+import com.sumirelabs.pulsar.rgb.RgbCachedState;
+
+import net.minecraft.block.state.IBlockState;
 
 /** Internal packed registry snapshot used by RGB-only state caches. */
 public final class RgbStateProperties {
+
     public static final int COLOR_FROZEN = 1 << 24;
     public static final int FILTER_FROZEN = 1 << 25;
     public static final int FILTER_PRESENT = 1 << 26;
@@ -29,35 +32,48 @@ public final class RgbStateProperties {
         Integer filter = filters == null ? null : filters.get(state);
         Integer configuredColor = palette.values.colors().get(state);
         Integer configuredFilter = palette.values.filters().get(state);
-        if (configuredColor != null) color = configuredColor;
-        if (configuredFilter != null) filter = configuredFilter;
+        if (configuredColor != null)
+            color = configuredColor;
+        if (configuredFilter != null)
+            filter = configuredFilter;
         return pack(color == null ? 0xFFF : color, filter == null ? 0 : filter,
-                colors != null, filters != null) | (filter != null ? FILTER_PRESENT : 0)
-                | (color == null && state.getBlock() instanceof PositionalColoredLightSource ? DYNAMIC_SOURCE : 0)
-                | (configuredColor == null && BlockLightColors.absolute(state) || color == null && state.getBlock() instanceof PositionalColoredLightSource ? SOURCE_ABSOLUTE : 0)
-                | (filter == null && state.getBlock() instanceof PositionalColoredTranslucency ? DYNAMIC_FILTER : 0);
+            colors != null, filters != null) | (filter != null ? FILTER_PRESENT : 0)
+            | (color == null && state.getBlock() instanceof PositionalColoredLightSource ? DYNAMIC_SOURCE : 0)
+            | (configuredColor == null && BlockLightColors.absolute(state)
+                || color == null && state.getBlock() instanceof PositionalColoredLightSource ? SOURCE_ABSOLUTE : 0)
+            | (filter == null && state.getBlock() instanceof PositionalColoredTranslucency ? DYNAMIC_FILTER : 0);
     }
     public static int pack(int color, int filter, boolean colorsFrozen, boolean filtersFrozen) {
         return color | filter << 12 | (colorsFrozen ? COLOR_FROZEN : 0) | (filtersFrozen ? FILTER_FROZEN : 0);
     }
-    public static int color(int properties) { return properties & 0xFFF; }
-    public static int filter(int properties) { return properties >>> 12 & 0xFFF; }
+    public static int color(int properties) {
+        return properties & 0xFFF;
+    }
+    public static int filter(int properties) {
+        return properties >>> 12 & 0xFFF;
+    }
     public static boolean cacheable(int properties) {
         return (properties & (COLOR_FROZEN | FILTER_FROZEN)) == (COLOR_FROZEN | FILTER_FROZEN);
     }
     public static boolean mayEmitAbsolute(IBlockState state) {
         int properties = of(state);
         return (properties & COLOR_FROZEN) == 0 || (properties & DYNAMIC_SOURCE) != 0
-                || (properties & SOURCE_ABSOLUTE) != 0 && color(properties) != 0;
+            || (properties & SOURCE_ABSOLUTE) != 0 && color(properties) != 0;
     }
     public static boolean hasDynamicStates() {
         var palette = com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current();
         Boolean cached = palette.dynamicStates;
-        if (cached != null) return cached;
-        if (BlockLightColors.frozenColors() == null || BlockLightFilters.frozenFilters() == null) return true;
+        if (cached != null)
+            return cached;
+        if (BlockLightColors.frozenColors() == null || BlockLightFilters.frozenFilters() == null)
+            return true;
         for (IBlockState state : net.minecraft.block.Block.BLOCK_STATE_IDS)
-            if ((compute(state,palette) & DYNAMIC) != 0) { palette.dynamicStates = true; return true; }
+            if ((compute(state, palette) & DYNAMIC) != 0) {
+                palette.dynamicStates = true;
+                return true;
+            }
         palette.dynamicStates = false;
         return false;
     }
+
 }

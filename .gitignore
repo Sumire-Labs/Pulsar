@@ -44,3 +44,7 @@ gradle-app.setting
 
 # Pulsar Colored Lighting Addon
 pcla/
+
+# Template-generated release notes and Python verification caches.
+RELEASE_NOTES.md
+__pycache__/

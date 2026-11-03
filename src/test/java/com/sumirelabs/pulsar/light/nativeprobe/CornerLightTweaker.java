@@ -1,21 +1,24 @@
 package com.sumirelabs.pulsar.light.nativeprobe;
 
-import com.cleanroommc.common.CleanroomEnvironment;
-import com.llamalad7.mixinextras.MixinExtrasBootstrap;
-import net.minecraft.launchwrapper.ITweaker;
-import net.minecraft.launchwrapper.Launch;
-import net.minecraft.launchwrapper.LaunchClassLoader;
-import net.minecraftforge.fml.relauncher.Side;
-import org.spongepowered.asm.launch.MixinBootstrap;
-import org.spongepowered.asm.mixin.MixinEnvironment;
-import org.spongepowered.asm.mixin.Mixins;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
+import org.spongepowered.asm.launch.MixinBootstrap;
+import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.asm.mixin.Mixins;
+
+import com.cleanroommc.common.CleanroomEnvironment;
+import com.llamalad7.mixinextras.MixinExtrasBootstrap;
+
+import net.minecraft.launchwrapper.ITweaker;
+import net.minecraft.launchwrapper.Launch;
+import net.minecraft.launchwrapper.LaunchClassLoader;
+import net.minecraftforge.fml.relauncher.Side;
+
 /** Minimal Cleanroom launch for testing transformed lighting without starting the game. */
 public final class CornerLightTweaker implements ITweaker {
+
     public CornerLightTweaker() {
         CleanroomEnvironment.setSide(Side.CLIENT);
         Launch.blackboard.put("forgeLaunchArgs", new HashMap<String, String>());
@@ -28,7 +31,9 @@ public final class CornerLightTweaker implements ITweaker {
             var home = net.minecraftforge.fml.relauncher.FMLInjectionData.class.getDeclaredField("minecraftHome");
             home.setAccessible(true);
             home.set(null, game == null ? Launch.minecraftHome : game);
-        } catch (ReflectiveOperationException failure) { throw new IllegalStateException(failure); }
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException(failure);
+        }
     }
 
     public void injectIntoClassLoader(LaunchClassLoader loader) {
@@ -64,19 +69,24 @@ public final class CornerLightTweaker implements ITweaker {
         }
         if (Boolean.getBoolean("pulsar.region")) {
             Mixins.addConfiguration("pulsar-region-test.mixins.json");
-            if (Boolean.getBoolean("pulsar.region.audit")) Mixins.addConfiguration("pulsar-region-audit.mixins.json");
+            if (Boolean.getBoolean("pulsar.region.audit"))
+                Mixins.addConfiguration("pulsar-region-audit.mixins.json");
             return;
         }
         if (Boolean.getBoolean("issue24.packet")) {
             boolean sponge = Boolean.getBoolean("issue24.sponge");
             boolean first = Boolean.getBoolean("issue24.spongeFirst");
-            if (sponge && first) Mixins.addConfiguration("pulsar-sponge-packet-test.mixins.json");
+            if (sponge && first)
+                Mixins.addConfiguration("pulsar-sponge-packet-test.mixins.json");
             Mixins.addConfiguration("pulsar-packet-test.mixins.json");
-            if (sponge && !first) Mixins.addConfiguration("pulsar-sponge-packet-test.mixins.json");
+            if (sponge && !first)
+                Mixins.addConfiguration("pulsar-sponge-packet-test.mixins.json");
             return;
         }
-        if (Boolean.getBoolean("issue20.wall")) Mixins.addConfiguration("pulsar-stair-wall-core.mixins.json");
-        if (Boolean.getBoolean("issue20.wallLegacy")) Mixins.addConfiguration("pulsar-stair-wall-legacy.mixins.json");
+        if (Boolean.getBoolean("issue20.wall"))
+            Mixins.addConfiguration("pulsar-stair-wall-core.mixins.json");
+        if (Boolean.getBoolean("issue20.wallLegacy"))
+            Mixins.addConfiguration("pulsar-stair-wall-legacy.mixins.json");
         if (Boolean.getBoolean("issue20.celeritas")) {
             Mixins.addConfiguration("pulsar-surface-celeritas-quads.mixins.json");
         }
@@ -89,15 +99,25 @@ public final class CornerLightTweaker implements ITweaker {
     }
 
     public String getLaunchTarget() {
-        if (Boolean.getBoolean("pulsar.fbpProbe")) return "com.sumirelabs.pulsar.rgb.FbpRgbProbe";
-        if (Boolean.getBoolean("issue20.worldSlice")) return "com.sumirelabs.pulsar.light.nativeprobe.CeleritasWorldSliceProbe";
-        if (Boolean.getBoolean("pulsar.multipartProbe")) return "com.sumirelabs.pulsar.light.MultipartLightProbe";
-        if (Boolean.getBoolean("pulsar.paletteProbe")) return "com.sumirelabs.pulsar.rgb.RgbPaletteCacheProbe";
-        if (Boolean.getBoolean("issue26.probe")) return "com.sumirelabs.pulsar.light.nativeprobe.OptifineRendererProbe";
-        if (Boolean.getBoolean("pulsar.region")) return "com.sumirelabs.pulsar.light.RegionExclusionProbe";
-        if (Boolean.getBoolean("issue24.packet")) return "com.sumirelabs.pulsar.light.nativeprobe.PacketLightProbe";
+        if (Boolean.getBoolean("pulsar.fbpProbe"))
+            return "com.sumirelabs.pulsar.rgb.FbpRgbProbe";
+        if (Boolean.getBoolean("issue20.worldSlice"))
+            return "com.sumirelabs.pulsar.light.nativeprobe.CeleritasWorldSliceProbe";
+        if (Boolean.getBoolean("pulsar.multipartProbe"))
+            return "com.sumirelabs.pulsar.light.MultipartLightProbe";
+        if (Boolean.getBoolean("pulsar.paletteProbe"))
+            return "com.sumirelabs.pulsar.rgb.RgbPaletteCacheProbe";
+        if (Boolean.getBoolean("issue26.probe"))
+            return "com.sumirelabs.pulsar.light.nativeprobe.OptifineRendererProbe";
+        if (Boolean.getBoolean("pulsar.region"))
+            return "com.sumirelabs.pulsar.light.RegionExclusionProbe";
+        if (Boolean.getBoolean("issue24.packet"))
+            return "com.sumirelabs.pulsar.light.nativeprobe.PacketLightProbe";
         return "com.sumirelabs.pulsar.light.nativeprobe.CornerLightProbe";
     }
 
-    public String[] getLaunchArguments() { return new String[0]; }
+    public String[] getLaunchArguments() {
+        return new String[0];
+    }
+
 }

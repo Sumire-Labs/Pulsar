@@ -1,16 +1,16 @@
 package com.sumirelabs.pulsar.light;
 
+import java.util.BitSet;
+import java.util.NoSuchElementException;
+
 import it.unimi.dsi.fastutil.ints.AbstractIntIterator;
 import it.unimi.dsi.fastutil.ints.AbstractIntSet;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-
-import java.util.BitSet;
-import java.util.NoSuchElementException;
 
 /** Dense section-local bitmap storage for a promoted block-change batch. */
 final class AdaptiveChangedPositions extends AbstractIntSet {
@@ -58,7 +58,7 @@ final class AdaptiveChangedPositions extends AbstractIntSet {
         }
         final long nextCheck = Math.max((long) sparse.size() + 512L, required);
         return new PromotionResult(null,
-                nextCheck >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) nextCheck);
+            nextCheck >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) nextCheck);
     }
 
     @Override
@@ -84,7 +84,7 @@ final class AdaptiveChangedPositions extends AbstractIntSet {
         final int worldY = packedPosition >> 8;
         final BitSet positions = this.dense.get(worldY >> 4);
         return positions != null
-                && positions.get(((worldY & 15) << 8) | (packedPosition & 255));
+            && positions.get(((worldY & 15) << 8) | (packedPosition & 255));
     }
 
     @Override
@@ -135,6 +135,7 @@ final class AdaptiveChangedPositions extends AbstractIntSet {
     }
 
     static final class PromotionResult {
+
         final AdaptiveChangedPositions promoted;
         final int nextCheckSize;
 
@@ -142,9 +143,11 @@ final class AdaptiveChangedPositions extends AbstractIntSet {
             this.promoted = promoted;
             this.nextCheckSize = nextCheckSize;
         }
+
     }
 
     private static final class DenseIterator extends AbstractIntIterator {
+
         private final ObjectIterator<Int2ObjectMap.Entry<BitSet>> sections;
         private Int2ObjectMap.Entry<BitSet> section;
         private int nextPosition;
@@ -192,5 +195,7 @@ final class AdaptiveChangedPositions extends AbstractIntSet {
                 this.nextPosition = 0;
             }
         }
+
     }
+
 }

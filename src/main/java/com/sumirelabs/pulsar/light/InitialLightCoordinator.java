@@ -1,13 +1,15 @@
 package com.sumirelabs.pulsar.light;
 
+import java.util.concurrent.Future;
+
 import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.light.engine.PulsarEngine;
 import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.SnapshotChunkMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+
 import net.minecraft.world.chunk.Chunk;
 
-import java.util.concurrent.Future;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 /**
  * Coordinates the two phases of initial chunk lighting.
@@ -27,20 +29,19 @@ final class InitialLightCoordinator {
     private final LightQueue blockQueue;
 
     private final Object lock = new Object();
-    private final Long2ObjectOpenHashMap<ChunkLightCompletion> completions =
-            new Long2ObjectOpenHashMap<>();
+    private final Long2ObjectOpenHashMap<ChunkLightCompletion> completions = new Long2ObjectOpenHashMap<>();
     private long nextGeneration;
 
     InitialLightCoordinator(final SnapshotChunkMap loadedChunks,
-                            final LightQueue skyQueue,
-                            final LightQueue blockQueue) {
+        final LightQueue skyQueue,
+        final LightQueue blockQueue) {
         this.loadedChunks = loadedChunks;
         this.skyQueue = skyQueue;
         this.blockQueue = blockQueue;
     }
 
     ChunkLightCompletion queue(final int chunkX, final int chunkZ, final Chunk chunk,
-                               final Boolean[] emptySections) {
+        final Boolean[] emptySections) {
         return this.queue(chunkX, chunkZ, chunk, emptySections, 0, false);
     }
 
@@ -60,22 +61,22 @@ final class InitialLightCoordinator {
      * completion to the replacement so existing waiters observe its result.
      */
     ChunkLightCompletion queueRecovery(final int chunkX, final int chunkZ, final Chunk chunk,
-                                       final Boolean[] emptySections,
-                                       final int edgeRecoveryAttempts) {
+        final Boolean[] emptySections,
+        final int edgeRecoveryAttempts) {
         return this.queue(chunkX, chunkZ, chunk, emptySections, edgeRecoveryAttempts, true);
     }
 
     private ChunkLightCompletion queue(final int chunkX, final int chunkZ, final Chunk chunk,
-                                       final Boolean[] emptySections,
-                                       final int edgeRecoveryAttempts,
-                                       final boolean handoffSupersededCompletion) {
+        final Boolean[] emptySections,
+        final int edgeRecoveryAttempts,
+        final boolean handoffSupersededCompletion) {
         return this.queue(chunkX, chunkZ, chunk, emptySections, edgeRecoveryAttempts,
-                handoffSupersededCompletion, true);
+            handoffSupersededCompletion, true);
     }
 
     private ChunkLightCompletion queue(final int chunkX, final int chunkZ, final Chunk chunk,
-                                       final Boolean[] emptySections, final int edgeRecoveryAttempts,
-                                       final boolean handoffSupersededCompletion, final boolean enqueue) {
+        final Boolean[] emptySections, final int edgeRecoveryAttempts,
+        final boolean handoffSupersededCompletion, final boolean enqueue) {
         if (edgeRecoveryAttempts < 0 || edgeRecoveryAttempts > MAX_RELIGHT_ATTEMPTS) {
             throw new IllegalArgumentException("Invalid edge-recovery attempt: " + edgeRecoveryAttempts);
         }
@@ -90,7 +91,7 @@ final class InitialLightCoordinator {
             }
             final long generation = ++this.nextGeneration;
             final int requiredLanes = (this.skyQueue != null ? InitialLightCompletionState.SKY : 0)
-                    | (this.blockQueue != null ? InitialLightCompletionState.BLOCK : 0);
+                | (this.blockQueue != null ? InitialLightCompletionState.BLOCK : 0);
             completion = new ChunkLightCompletion(generation, requiredLanes, chunk, edgeRecoveryAttempts);
             superseded = this.completions.put(key, completion);
 
@@ -102,8 +103,10 @@ final class InitialLightCoordinator {
             if (!enqueue) {
                 // The full batch covers queued edits; later edits need a fresh task,
                 // rather than being absorbed into a superseded initial generation.
-                if (this.skyQueue != null) this.skyQueue.removeChunk(chunkX, chunkZ);
-                if (this.blockQueue != null) this.blockQueue.removeChunk(chunkX, chunkZ);
+                if (this.skyQueue != null)
+                    this.skyQueue.removeChunk(chunkX, chunkZ);
+                if (this.blockQueue != null)
+                    this.blockQueue.removeChunk(chunkX, chunkZ);
             }
             if (enqueue && this.skyQueue != null) {
                 this.skyQueue.queueChunkLight(chunkX, chunkZ, chunk, emptySections, generation);
@@ -116,7 +119,7 @@ final class InitialLightCoordinator {
         if (superseded != null) {
             if (handoffSupersededCompletion) {
                 completion.future.addListener(
-                        () -> superseded.finish(completion.published), Runnable::run);
+                    () -> superseded.finish(completion.published), Runnable::run);
             } else {
                 superseded.finish(false);
             }
@@ -147,14 +150,14 @@ final class InitialLightCoordinator {
      * updates dropped after propagation moved away from the seam.
      */
     boolean restartAfterEdgeOverflow(final ChunkTasks task, final int chunkX, final int chunkZ,
-                                     final String engineName) {
+        final String engineName) {
         if (task.initialLightEdgeGeneration <= 0L) {
             return false;
         }
         if (task.edgeCheckAttempts >= MAX_RELIGHT_ATTEMPTS) {
             Pulsar.LOGGER.error(
-                    "{} engine: chunk ({}, {}) overflowed final edge reconciliation {} times - giving up.",
-                    engineName, chunkX, chunkZ, task.edgeCheckAttempts + 1);
+                "{} engine: chunk ({}, {}) overflowed final edge reconciliation {} times - giving up.",
+                engineName, chunkX, chunkZ, task.edgeCheckAttempts + 1);
             return false;
         }
 
@@ -169,7 +172,7 @@ final class InitialLightCoordinator {
             }
             final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(completion.chunk);
             this.queueRecovery(
-                    chunkX, chunkZ, completion.chunk, emptySections, task.edgeCheckAttempts + 1);
+                chunkX, chunkZ, completion.chunk, emptySections, task.edgeCheckAttempts + 1);
             return true;
         }
     }
@@ -193,8 +196,8 @@ final class InitialLightCoordinator {
             if (completion == null) {
                 return;
             }
-            final InitialLightCompletionState.Result result =
-                    completion.state.completeInitial(task.initialLightGeneration, lane);
+            final InitialLightCompletionState.Result result = completion.state
+                .completeInitial(task.initialLightGeneration, lane);
             if (result != InitialLightCompletionState.Result.INITIAL_COMPLETE) {
                 return;
             }
@@ -211,10 +214,10 @@ final class InitialLightCoordinator {
                     final int chunkX = CoordinateUtils.getChunkX(chunkCoordinate);
                     final int chunkZ = CoordinateUtils.getChunkZ(chunkCoordinate);
                     final boolean skyQueued = this.skyQueue == null
-                            || this.skyQueue.queueInitialLightEdgeCheckAllSections(
+                        || this.skyQueue.queueInitialLightEdgeCheckAllSections(
                             chunkX, chunkZ, true, completion.generation, completion.edgeRecoveryAttempts);
                     final boolean blockQueued = this.blockQueue == null
-                            || this.blockQueue.queueInitialLightEdgeCheckAllSections(
+                        || this.blockQueue.queueInitialLightEdgeCheckAllSections(
                             chunkX, chunkZ, false, completion.generation, completion.edgeRecoveryAttempts);
                     if (!skyQueued || !blockQueued) {
                         throw new IllegalStateException("A newer light task occupied the edge queue");
@@ -238,8 +241,8 @@ final class InitialLightCoordinator {
         }
         if (transitionFailure != null) {
             Pulsar.LOGGER.error("Failed to start edge reconciliation for chunk ({}, {})",
-                    CoordinateUtils.getChunkX(chunkCoordinate), CoordinateUtils.getChunkZ(chunkCoordinate),
-                    transitionFailure);
+                CoordinateUtils.getChunkX(chunkCoordinate), CoordinateUtils.getChunkZ(chunkCoordinate),
+                transitionFailure);
         }
     }
 
@@ -260,8 +263,8 @@ final class InitialLightCoordinator {
             if (completion == null) {
                 return;
             }
-            final InitialLightCompletionState.Result result =
-                    completion.state.completeEdges(task.initialLightEdgeGeneration, lane);
+            final InitialLightCompletionState.Result result = completion.state
+                .completeEdges(task.initialLightEdgeGeneration, lane);
             if (result != InitialLightCompletionState.Result.COMPLETE) {
                 return;
             }
@@ -275,7 +278,7 @@ final class InitialLightCoordinator {
             boolean currentGeneration;
             synchronized (this.lock) {
                 currentGeneration = this.completions.get(chunkCoordinate) == completion
-                        && this.loadedChunks.get(chunkCoordinate) == completion.chunk;
+                    && this.loadedChunks.get(chunkCoordinate) == completion.chunk;
             }
 
             try {
@@ -319,8 +322,8 @@ final class InitialLightCoordinator {
         completion.finish(published);
         if (publishFailure != null) {
             Pulsar.LOGGER.error("Failed to publish edge-reconciled light for chunk ({}, {})",
-                    CoordinateUtils.getChunkX(chunkCoordinate), CoordinateUtils.getChunkZ(chunkCoordinate),
-                    publishFailure);
+                CoordinateUtils.getChunkX(chunkCoordinate), CoordinateUtils.getChunkZ(chunkCoordinate),
+                publishFailure);
         }
     }
 
@@ -336,4 +339,5 @@ final class InitialLightCoordinator {
             return completion == null ? null : completion.future;
         }
     }
+
 }

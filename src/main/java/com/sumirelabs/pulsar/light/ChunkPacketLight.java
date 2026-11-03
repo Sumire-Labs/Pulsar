@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.util.WorldHeightContext;
+
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 /**
@@ -9,8 +10,7 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
  */
 public final class ChunkPacketLight {
 
-    private ChunkPacketLight() {
-    }
+    private ChunkPacketLight() {}
 
     /**
      * Vanilla has no payload for a null storage slot, even when Pulsar holds
@@ -18,34 +18,40 @@ public final class ChunkPacketLight {
      * installing them into the live chunk or changing its emptiness maps.
      */
     public static ExtendedBlockStorage[] prepareSections(
-            final WorldHeightContext height, final SWMRNibbleArray[] block,
-            final SWMRNibbleArray[] sky, final ExtendedBlockStorage[] storage,
-            final boolean hasSky, final int sectionMask) {
+        final WorldHeightContext height, final SWMRNibbleArray[] block,
+        final SWMRNibbleArray[] sky, final ExtendedBlockStorage[] storage,
+        final boolean hasSky, final int sectionMask) {
         ExtendedBlockStorage[] result = storage;
-        if (block == null && sectionMask == -1) return result;
+        if (block == null && sectionMask == -1)
+            return result;
         for (int sectionY = height.getMinSection(); sectionY <= height.getMaxSection(); sectionY++) {
             final int slot = height.getStorageIndex(sectionY);
             if (slot < 0 || slot >= storage.length || storage[slot] != null
-                    || (sectionMask != -1 && (slot >= Integer.SIZE || (sectionMask & (1 << slot)) == 0))) {
+                || (sectionMask != -1 && (slot >= Integer.SIZE || (sectionMask & (1 << slot)) == 0))) {
                 continue;
             }
             final int index = height.getLightSectionIndex(sectionY);
-            if (index < 0) continue;
+            if (index < 0)
+                continue;
             final SWMRNibbleArray nibble = block == null || index >= block.length ? null : block[index];
             byte[] light = null;
             if (nibble != null) {
                 synchronized (nibble) {
                     final byte[] visible = nibble.getVisibleData();
-                    if (!PacketLightSection.needsAbsentStorage(sectionMask == -1, visible)) continue;
-                    if (visible != null) light = visible.clone();
+                    if (!PacketLightSection.needsAbsentStorage(sectionMask == -1, visible))
+                        continue;
+                    if (visible != null)
+                        light = visible.clone();
                 }
             } else if (!PacketLightSection.needsAbsentStorage(sectionMask == -1, null)) {
                 continue;
             }
             final ExtendedBlockStorage section = new ExtendedBlockStorage(sectionY << 4, hasSky);
             ChunkLightHelper.fillVanillaFromEngine(height, sky, null, section, sectionY, hasSky);
-            if (light != null) System.arraycopy(light, 0, section.getBlockLight().getData(), 0, light.length);
-            if (result == storage) result = storage.clone();
+            if (light != null)
+                System.arraycopy(light, 0, section.getBlockLight().getData(), 0, light.length);
+            if (result == storage)
+                result = storage.clone();
             result[slot] = section;
         }
         return result;
@@ -58,11 +64,12 @@ public final class ChunkPacketLight {
      * blocks and every light array written by that packet are trivial.
      */
     public static boolean isTrivialForPacket(final ExtendedBlockStorage section,
-                                             final boolean writeSkylight) {
+        final boolean writeSkylight) {
         return PacketLightSection.isTrivial(
-                section.isEmpty(),
-                section.getBlockLight() == null ? null : section.getBlockLight().getData(),
-                section.getSkyLight() == null ? null : section.getSkyLight().getData(),
-                writeSkylight);
+            section.isEmpty(),
+            section.getBlockLight() == null ? null : section.getBlockLight().getData(),
+            section.getSkyLight() == null ? null : section.getSkyLight().getData(),
+            writeSkylight);
     }
+
 }

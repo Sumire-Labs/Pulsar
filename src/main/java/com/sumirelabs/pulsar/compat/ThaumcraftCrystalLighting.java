@@ -5,8 +5,7 @@ public final class ThaumcraftCrystalLighting {
 
     private static int minimumLight;
 
-    private ThaumcraftCrystalLighting() {
-    }
+    private ThaumcraftCrystalLighting() {}
 
     /** Called during postInit, before any world or lighting worker is started. */
     public static void initialize(final boolean thaumcraftLoaded, final int configuredMinimum) {
@@ -22,4 +21,5 @@ public final class ThaumcraftCrystalLighting {
     public static int cacheProfile() {
         return minimumLight;
     }
+
 }

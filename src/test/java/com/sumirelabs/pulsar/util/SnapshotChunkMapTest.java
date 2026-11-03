@@ -1,12 +1,13 @@
 package com.sumirelabs.pulsar.util;
 
-import org.junit.jupiter.api.Test;
-import net.minecraft.world.chunk.Chunk;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.junit.jupiter.api.Test;
+
+import net.minecraft.world.chunk.Chunk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -28,9 +29,9 @@ class SnapshotChunkMapTest {
         assertEquals(Long.hashCode(firstKey), Long.hashCode(secondKey));
         assertEquals(Long.hashCode(secondKey), Long.hashCode(thirdKey));
         assertNotEquals(Long.hashCode(CoordinateUtils.mixChunkKey(firstKey)),
-                Long.hashCode(CoordinateUtils.mixChunkKey(secondKey)));
+            Long.hashCode(CoordinateUtils.mixChunkKey(secondKey)));
         assertNotEquals(Long.hashCode(CoordinateUtils.mixChunkKey(secondKey)),
-                Long.hashCode(CoordinateUtils.mixChunkKey(thirdKey)));
+            Long.hashCode(CoordinateUtils.mixChunkKey(thirdKey)));
 
         chunks.put(firstKey, first);
         chunks.put(secondKey, second);
@@ -104,4 +105,5 @@ class SnapshotChunkMapTest {
         final Method allocateInstance = unsafeType.getMethod("allocateInstance", Class.class);
         return (Chunk) allocateInstance.invoke(unsafe, Chunk.class);
     }
+
 }

@@ -1,26 +1,32 @@
 package com.sumirelabs.pulsar.api;
 
-import com.sumirelabs.pulsar.rgb.RgbLight;
 import org.junit.jupiter.api.Test;
+
+import com.sumirelabs.pulsar.rgb.RgbLight;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class PackedLightColorTest {
-    @Test void superNovaConversionIsLosslessForAllLightColors() {
+
+    @Test
+    void superNovaConversionIsLosslessForAllLightColors() {
         assertEquals(0x0F0803, PackedLightColor.toSuperNova(0xF83));
         assertEquals(0xF83, PackedLightColor.fromSuperNova(0x0F0803));
-        for (int r = 0; r < 16; r++) for (int g = 0; g < 16; g++) for (int b = 0; b < 16; b++) {
-            int compact = PackedLightColor.pack(r, g, b);
-            int spaced = r << 16 | g << 8 | b;
-            assertEquals(spaced, PackedLightColor.toSuperNova(compact));
-            assertEquals(compact, PackedLightColor.fromSuperNova(spaced));
-        }
-        for (int invalid : new int[] {-1, 0x10, 0x1000, 0x100000, 0x1000000, 0xFF8800})
+        for (int r = 0; r < 16; r++)
+            for (int g = 0; g < 16; g++)
+                for (int b = 0; b < 16; b++) {
+                    int compact = PackedLightColor.pack(r, g, b);
+                    int spaced = r << 16 | g << 8 | b;
+                    assertEquals(spaced, PackedLightColor.toSuperNova(compact));
+                    assertEquals(compact, PackedLightColor.fromSuperNova(spaced));
+                }
+        for (int invalid : new int[]{-1, 0x10, 0x1000, 0x100000, 0x1000000, 0xFF8800})
             assertThrows(IllegalArgumentException.class, () -> PackedLightColor.fromSuperNova(invalid));
         assertThrows(IllegalArgumentException.class, () -> PackedLightColor.toSuperNova(0x1000));
     }
 
-    @Test void allValuesMatchEngineEncodingAndFilterConvention() {
+    @Test
+    void allValuesMatchEngineEncodingAndFilterConvention() {
         for (int color = 0; color <= 0xFFF; color++) {
             int r = PackedLightColor.red(color);
             int g = PackedLightColor.green(color);
@@ -34,18 +40,20 @@ class PackedLightColorTest {
         }
     }
 
-    @Test void rejectsWrongFormatsAndOutOfRangeComponents() {
-        for (int invalid : new int[] {-1, 0x1000, 0xFF0000, Integer.MIN_VALUE}) {
+    @Test
+    void rejectsWrongFormatsAndOutOfRangeComponents() {
+        for (int invalid : new int[]{-1, 0x1000, 0xFF0000, Integer.MIN_VALUE}) {
             assertThrows(IllegalArgumentException.class, () -> PackedLightColor.checked(invalid));
             assertThrows(IllegalArgumentException.class, () -> PackedLightColor.red(invalid));
             assertThrows(IllegalArgumentException.class, () -> PackedLightColor.green(invalid));
             assertThrows(IllegalArgumentException.class, () -> PackedLightColor.blue(invalid));
             assertThrows(IllegalArgumentException.class, () -> PackedLightColor.complement(invalid));
         }
-        for (int invalid : new int[] {-1, 16, Integer.MAX_VALUE}) {
+        for (int invalid : new int[]{-1, 16, Integer.MAX_VALUE}) {
             assertThrows(IllegalArgumentException.class, () -> PackedLightColor.pack(invalid, 0, 0));
             assertThrows(IllegalArgumentException.class, () -> PackedLightColor.pack(0, invalid, 0));
             assertThrows(IllegalArgumentException.class, () -> PackedLightColor.pack(0, 0, invalid));
         }
     }
+
 }

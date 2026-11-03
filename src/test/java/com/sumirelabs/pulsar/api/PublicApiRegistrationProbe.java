@@ -1,19 +1,23 @@
 package com.sumirelabs.pulsar.api;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.core.RgbMixinSelection;
+
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Bootstrap;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /** Runs real Forge dispatch and Pulsar's load-complete handler in an isolated JVM. */
 public final class PublicApiRegistrationProbe {
+
     private static int calls;
 
     public static final class Integration {
+
         @SubscribeEvent
         public void register(RegisterLightPropertiesEvent event) {
             check(!event.isCancelable() && !event.hasResult(), "Event is informational");
@@ -39,6 +43,7 @@ public final class PublicApiRegistrationProbe {
             expectInvalid(() -> BlockLightColors.disableAll(Blocks.AIR));
             expectInvalid(() -> BlockLightFilters.registerAll(Blocks.AIR, 0));
         }
+
     }
 
     public static void main(String[] args) throws Exception {
@@ -46,9 +51,10 @@ public final class PublicApiRegistrationProbe {
         Files.createDirectories(home.resolve("config"));
         net.minecraft.launchwrapper.Launch.minecraftHome = home.toFile();
         var injectionHome = net.minecraftforge.fml.relauncher.FMLInjectionData.class.getDeclaredField("minecraftHome");
-        injectionHome.setAccessible(true); injectionHome.set(null, home.toFile());
+        injectionHome.setAccessible(true);
+        injectionHome.set(null, home.toFile());
         Files.writeString(home.resolve("config/pulsar.cfg"),
-                "general {\nI:configVersion=2\nS:lightingMode=" + args[1] + "\n}\n");
+            "general {\nI:configVersion=2\nS:lightingMode=" + args[1] + "\n}\n");
         new RgbMixinSelection().onLoad("com.sumirelabs.pulsar.mixin");
         Bootstrap.register();
         BlockLightColors.defaults();
@@ -62,19 +68,22 @@ public final class PublicApiRegistrationProbe {
         int expectedColor = args[1].equals("RGB") ? 0x00F : 0x842;
         int expectedFilter = args[1].equals("RGB") ? 0xF00 : 0x0FF;
         check(RgbStateProperties.color(RgbStateProperties.of(Blocks.TORCH.getDefaultState())) == expectedColor,
-                "Color event/config precedence");
+            "Color event/config precedence");
         check(RgbStateProperties.filter(RgbStateProperties.of(Blocks.GLASS.getDefaultState())) == expectedFilter,
-                "Filter event/config precedence");
+            "Filter event/config precedence");
         for (var state : Blocks.WOOL.getBlockState().getValidStates()) {
             int properties = RgbStateProperties.of(state);
             boolean exception = state == Blocks.WOOL.getDefaultState();
-            check(RgbStateProperties.color(properties) == (exception ? 0xFFF : 0x842), "All-state emission/per-state override");
-            check(((properties & RgbStateProperties.SOURCE_ABSOLUTE) != 0) != exception, "Hue must clear absolute emission flag");
+            check(RgbStateProperties.color(properties) == (exception ? 0xFFF : 0x842),
+                "All-state emission/per-state override");
+            check(((properties & RgbStateProperties.SOURCE_ABSOLUTE) != 0) != exception,
+                "Hue must clear absolute emission flag");
         }
         for (var state : Blocks.STAINED_HARDENED_CLAY.getBlockState().getValidStates()) {
             int properties = RgbStateProperties.of(state);
             check(RgbStateProperties.color(properties) == 0xF84, "All-state hue normalization");
-            check((properties & RgbStateProperties.SOURCE_ABSOLUTE) == 0, "All-state hue clears absolute emission flags");
+            check((properties & RgbStateProperties.SOURCE_ABSOLUTE) == 0,
+                "All-state hue clears absolute emission flags");
         }
         for (var state : Blocks.CONCRETE.getBlockState().getValidStates()) {
             int properties = RgbStateProperties.of(state);
@@ -83,7 +92,8 @@ public final class PublicApiRegistrationProbe {
         }
         for (var state : Blocks.STAINED_GLASS.getBlockState().getValidStates()) {
             int filter = RgbStateProperties.filter(RgbStateProperties.of(state));
-            check(filter == (state == Blocks.STAINED_GLASS.getDefaultState() ? 0x123 : 0x0FF), "All-state filter/per-state override");
+            check(filter == (state == Blocks.STAINED_GLASS.getDefaultState() ? 0x123 : 0x0FF),
+                "All-state filter/per-state override");
         }
         expectFrozen(() -> BlockLightColors.register(Blocks.TORCH.getDefaultState(), 15, 15, 15));
         expectFrozen(() -> BlockLightColors.registerEmission(Blocks.TORCH.getDefaultState(), 1, 2, 3));
@@ -97,18 +107,26 @@ public final class PublicApiRegistrationProbe {
     }
 
     private static void expectFrozen(Runnable action) {
-        try { action.run(); }
-        catch (IllegalStateException expected) { return; }
+        try {
+            action.run();
+        } catch (IllegalStateException expected) {
+            return;
+        }
         throw new AssertionError("Registration after freeze must fail");
     }
 
     private static void expectInvalid(Runnable action) {
-        try { action.run(); }
-        catch (IllegalArgumentException expected) { return; }
+        try {
+            action.run();
+        } catch (IllegalArgumentException expected) {
+            return;
+        }
         throw new AssertionError("Invalid registration must fail");
     }
 
     private static void check(boolean condition, String message) {
-        if (!condition) throw new AssertionError(message);
+        if (!condition)
+            throw new AssertionError(message);
     }
+
 }

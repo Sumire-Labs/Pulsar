@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.light;
 
 import com.google.common.util.concurrent.SettableFuture;
+
 import net.minecraft.world.chunk.Chunk;
 
 /**
@@ -20,7 +21,7 @@ final class ChunkLightCompletion {
     volatile boolean published;
 
     ChunkLightCompletion(final long generation, final int requiredLanes, final Chunk chunk,
-                         final int edgeRecoveryAttempts) {
+        final int edgeRecoveryAttempts) {
         this.generation = generation;
         this.edgeRecoveryAttempts = edgeRecoveryAttempts;
         this.state = new InitialLightCompletionState(generation, requiredLanes);
@@ -35,4 +36,5 @@ final class ChunkLightCompletion {
         this.published = published;
         this.future.set(null);
     }
+
 }

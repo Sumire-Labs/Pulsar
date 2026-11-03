@@ -1,10 +1,11 @@
 package com.sumirelabs.pulsar.light;
 
+import java.util.Arrays;
+
 import com.sumirelabs.pulsar.util.WorldHeightContext;
+
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
-
-import java.util.Arrays;
 
 /**
  * Helpers to import vanilla {@link ExtendedBlockStorage} nibble arrays into
@@ -17,8 +18,7 @@ import java.util.Arrays;
  */
 public final class ChunkLightHelper {
 
-    private ChunkLightHelper() {
-    }
+    private ChunkLightHelper() {}
 
     /**
      * Wrap each loaded section's vanilla sky-light {@link NibbleArray} in a
@@ -26,7 +26,7 @@ public final class ChunkLightHelper {
      * untouched ({@code NULL} state) entries are imported.
      */
     public static void importVanillaSky(final WorldHeightContext heightContext, final SWMRNibbleArray[] sky,
-                                        final ExtendedBlockStorage[] storageArrays, final boolean onlyWhereNull) {
+        final ExtendedBlockStorage[] storageArrays, final boolean onlyWhereNull) {
         final int minLight = heightContext.getMinLightSection();
         for (int i = 0; i < sky.length; ++i) {
             final int sectionY = i + minLight;
@@ -34,8 +34,10 @@ public final class ChunkLightHelper {
             if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
                 continue;
             final NibbleArray vanillaSky = storageArrays[storageIndex].getSkyLight();
-            if (vanillaSky == null) continue;
-            if (onlyWhereNull && !sky[i].isNullNibbleVisible()) continue;
+            if (vanillaSky == null)
+                continue;
+            if (onlyWhereNull && !sky[i].isNullNibbleVisible())
+                continue;
             sky[i] = SWMRNibbleArray.fromVanilla(vanillaSky);
         }
     }
@@ -45,7 +47,7 @@ public final class ChunkLightHelper {
      * fresh {@link SWMRNibbleArray}, replacing any existing entry.
      */
     public static void importVanillaBlock(final WorldHeightContext heightContext, final SWMRNibbleArray[] block,
-                                          final ExtendedBlockStorage[] storageArrays) {
+        final ExtendedBlockStorage[] storageArrays) {
         final int minLight = heightContext.getMinLightSection();
         for (int i = 0; i < block.length; ++i) {
             final int sectionY = i + minLight;
@@ -53,7 +55,8 @@ public final class ChunkLightHelper {
             if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
                 continue;
             final NibbleArray vanillaBlock = storageArrays[storageIndex].getBlockLight();
-            if (vanillaBlock == null) continue;
+            if (vanillaBlock == null)
+                continue;
             block[i] = SWMRNibbleArray.fromVanilla(vanillaBlock);
         }
     }
@@ -66,7 +69,7 @@ public final class ChunkLightHelper {
      * all light writes happen on the main thread.
      */
     public static void wrapVanillaBlock(final WorldHeightContext heightContext, final SWMRNibbleArray[] block,
-                                        final ExtendedBlockStorage[] storageArrays) {
+        final ExtendedBlockStorage[] storageArrays) {
         final int minLight = heightContext.getMinLightSection();
         for (int i = 0; i < block.length; ++i) {
             final int sectionY = i + minLight;
@@ -74,7 +77,8 @@ public final class ChunkLightHelper {
             if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
                 continue;
             final NibbleArray vanillaBlock = storageArrays[storageIndex].getBlockLight();
-            if (vanillaBlock == null) continue;
+            if (vanillaBlock == null)
+                continue;
             block[i] = new SWMRNibbleArray(vanillaBlock.getData());
         }
     }
@@ -83,7 +87,7 @@ public final class ChunkLightHelper {
      * Sky-light variant of {@link #wrapVanillaBlock}.
      */
     public static void wrapVanillaSky(final WorldHeightContext heightContext, final SWMRNibbleArray[] sky,
-                                      final ExtendedBlockStorage[] storageArrays) {
+        final ExtendedBlockStorage[] storageArrays) {
         final int minLight = heightContext.getMinLightSection();
         for (int i = 0; i < sky.length; ++i) {
             final int sectionY = i + minLight;
@@ -91,7 +95,8 @@ public final class ChunkLightHelper {
             if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
                 continue;
             final NibbleArray vanillaSky = storageArrays[storageIndex].getSkyLight();
-            if (vanillaSky == null) continue;
+            if (vanillaSky == null)
+                continue;
             sky[i] = new SWMRNibbleArray(vanillaSky.getData());
         }
     }
@@ -100,27 +105,30 @@ public final class ChunkLightHelper {
      * Publish SWMR sky visible data back into the vanilla nibble arrays.
      */
     public static void syncSkyToVanilla(final WorldHeightContext heightContext,
-                                        final SWMRNibbleArray[] skyNibbles,
-                                        final ExtendedBlockStorage[] storageArrays) {
+        final SWMRNibbleArray[] skyNibbles,
+        final ExtendedBlockStorage[] storageArrays) {
         syncSkyToVanilla(heightContext, skyNibbles, storageArrays, -1);
     }
 
     public static void syncSkyToVanilla(final WorldHeightContext heightContext,
-                                        final SWMRNibbleArray[] skyNibbles,
-                                        final ExtendedBlockStorage[] storageArrays, final int sectionMask) {
+        final SWMRNibbleArray[] skyNibbles,
+        final ExtendedBlockStorage[] storageArrays, final int sectionMask) {
         final int minLight = heightContext.getMinLightSection();
         for (int i = 0; i < skyNibbles.length; ++i) {
             final SWMRNibbleArray skyNib = skyNibbles[i];
-            if (skyNib == null) continue;
+            if (skyNib == null)
+                continue;
 
             final int sectionY = i + minLight;
             final int storageIndex = heightContext.getStorageIndex(sectionY);
-            if (!selectedStorage(sectionMask, storageIndex)) continue;
+            if (!selectedStorage(sectionMask, storageIndex))
+                continue;
             if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
                 continue;
 
             final NibbleArray vanilla = storageArrays[storageIndex].getSkyLight();
-            if (vanilla == null) continue;
+            if (vanilla == null)
+                continue;
 
             final byte[] vanillaData = vanilla.getData();
             // Copy under the nibble's monitor: updateVisible() mutates the
@@ -146,27 +154,30 @@ public final class ChunkLightHelper {
      * Publish SWMR block visible data back into the vanilla nibble arrays.
      */
     public static void syncBlockToVanilla(final WorldHeightContext heightContext,
-                                          final SWMRNibbleArray[] blockNibbles,
-                                          final ExtendedBlockStorage[] storageArrays) {
+        final SWMRNibbleArray[] blockNibbles,
+        final ExtendedBlockStorage[] storageArrays) {
         syncBlockToVanilla(heightContext, blockNibbles, storageArrays, -1);
     }
 
     public static void syncBlockToVanilla(final WorldHeightContext heightContext,
-                                          final SWMRNibbleArray[] blockNibbles,
-                                          final ExtendedBlockStorage[] storageArrays, final int sectionMask) {
+        final SWMRNibbleArray[] blockNibbles,
+        final ExtendedBlockStorage[] storageArrays, final int sectionMask) {
         final int minLight = heightContext.getMinLightSection();
         for (int i = 0; i < blockNibbles.length; ++i) {
             final SWMRNibbleArray nib = blockNibbles[i];
-            if (nib == null) continue;
+            if (nib == null)
+                continue;
 
             final int sectionY = i + minLight;
             final int storageIndex = heightContext.getStorageIndex(sectionY);
-            if (!selectedStorage(sectionMask, storageIndex)) continue;
+            if (!selectedStorage(sectionMask, storageIndex))
+                continue;
             if (storageIndex < 0 || storageIndex >= storageArrays.length || storageArrays[storageIndex] == null)
                 continue;
 
             final NibbleArray vanilla = storageArrays[storageIndex].getBlockLight();
-            if (vanilla == null) continue;
+            if (vanilla == null)
+                continue;
 
             final byte[] vanillaData = vanilla.getData();
             synchronized (nib) {
@@ -190,18 +201,19 @@ public final class ChunkLightHelper {
      * black. Root cause of the 2026-07 black-chunk regression.
      */
     public static void fillVanillaFromEngine(final WorldHeightContext heightContext,
-                                             final SWMRNibbleArray[] skyNibbles,
-                                             final SWMRNibbleArray[] blockNibbles,
-                                             final ExtendedBlockStorage section,
-                                             final int sectionY, final boolean hasSky) {
+        final SWMRNibbleArray[] skyNibbles,
+        final SWMRNibbleArray[] blockNibbles,
+        final ExtendedBlockStorage section,
+        final int sectionY, final boolean hasSky) {
         final NibbleArray blockArr = section.getBlockLight();
         final NibbleArray skyArr = hasSky ? section.getSkyLight() : null;
         final int index = heightContext.getLightSectionIndex(sectionY);
         if (blockArr != null) {
             copyVisibleSection(blockNibbles == null || index < 0 ? null : blockNibbles[index],
-                    blockArr.getData(), false);
+                blockArr.getData(), false);
         }
-        if (skyArr == null) return;
+        if (skyArr == null)
+            return;
         final byte[] destination = skyArr.getData();
         if (sectionY < heightContext.getMinLightSection()) {
             Arrays.fill(destination, (byte) 0);
@@ -215,9 +227,11 @@ public final class ChunkLightHelper {
         // materialized section above, rather than unconditionally full daylight.
         for (int i = index; i < skyNibbles.length; i++) {
             final SWMRNibbleArray nibble = skyNibbles[i];
-            if (nibble == null) continue;
+            if (nibble == null)
+                continue;
             synchronized (nibble) {
-                if (nibble.isNullNibbleVisible()) continue;
+                if (nibble.isNullNibbleVisible())
+                    continue;
                 if (nibble.isUninitialisedVisible()) {
                     Arrays.fill(destination, (byte) 0);
                     return;
@@ -232,11 +246,11 @@ public final class ChunkLightHelper {
     private static boolean selectedStorage(final int sectionMask, final int storageIndex) {
         // Full sync remains valid for worlds taller than an int packet mask.
         return storageIndex >= 0 && (sectionMask == -1
-                || (storageIndex < Integer.SIZE && (sectionMask & (1 << storageIndex)) != 0));
+            || (storageIndex < Integer.SIZE && (sectionMask & (1 << storageIndex)) != 0));
     }
 
     private static void copyVisibleSection(final SWMRNibbleArray nibble,
-                                           final byte[] destination, final boolean extrudeBottom) {
+        final byte[] destination, final boolean extrudeBottom) {
         if (nibble == null) {
             Arrays.fill(destination, (byte) 0);
             return;
@@ -261,8 +275,8 @@ public final class ChunkLightHelper {
      * Returns {@code 0} if the section is out of bounds or the nibble is null.
      */
     public static int getBlockLight(final WorldHeightContext heightContext,
-                                    final SWMRNibbleArray[] block,
-                                    final int x, final int y, final int z) {
+        final SWMRNibbleArray[] block,
+        final int x, final int y, final int z) {
         final int sectionY = y >> 4;
         final int idx = heightContext.getLightSectionIndex(sectionY);
         if (idx < 0) {
@@ -273,7 +287,8 @@ public final class ChunkLightHelper {
         }
 
         final SWMRNibbleArray nib = block[idx];
-        if (nib == null) return 0;
+        if (nib == null)
+            return 0;
         return nib.getVisible((x & 15) | ((z & 15) << 4) | ((y & 15) << 8));
     }
 
@@ -284,8 +299,8 @@ public final class ChunkLightHelper {
      * (matches vanilla expectations).
      */
     public static int getSkyLight(final WorldHeightContext heightContext,
-                                  final SWMRNibbleArray[] sky,
-                                  final int x, final int y, final int z) {
+        final SWMRNibbleArray[] sky,
+        final int x, final int y, final int z) {
         final int sectionY = y >> 4;
         final int minLightSection = heightContext.getMinLightSection();
         final int maxLightSection = heightContext.getMaxLightSection();
@@ -324,4 +339,5 @@ public final class ChunkLightHelper {
         }
         return nib.getVisible(x, y, z);
     }
+
 }

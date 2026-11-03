@@ -1,20 +1,24 @@
 package com.sumirelabs.pulsar.light;
 
-import com.sumirelabs.pulsar.Pulsar;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.sumirelabs.pulsar.Pulsar;
+
 /** Bounded process-wide workers with world-scoped read/write region exclusion. */
 final class ParallelLightScheduler {
+
     private static ParallelLightScheduler shared;
 
     static synchronized ParallelLightScheduler shared(int threads) {
-        if (shared == null) shared = new ParallelLightScheduler(Math.max(1, Math.min(16, threads)));
+        if (shared == null)
+            shared = new ParallelLightScheduler(Math.max(1, Math.min(16, threads)));
         return shared;
     }
 
-    private record Claim(LightEngineWorker lane, ChunkTasks task, LightEngineWorker partner) {}
+    private record Claim(LightEngineWorker lane, ChunkTasks task, LightEngineWorker partner) {
+    }
     private final ArrayList<LightEngineWorker> lanes = new ArrayList<>();
     private final ChunkTaskReservations reservations = new ChunkTaskReservations();
     private final Semaphore work = new Semaphore(0);
@@ -37,7 +41,8 @@ final class ParallelLightScheduler {
     }
 
     synchronized void pair(LightEngineWorker first, LightEngineWorker second) {
-        if (first.lockOwner() != second.lockOwner()) throw new IllegalArgumentException("Different worlds");
+        if (first.lockOwner() != second.lockOwner())
+            throw new IllegalArgumentException("Different worlds");
         first.partner = second;
         second.partner = first;
     }
@@ -50,7 +55,8 @@ final class ParallelLightScheduler {
 
     // Queue insertion may call this under its monitor; never take our lock here.
     void signal() {
-        if (signalled.compareAndSet(false, true)) work.release();
+        if (signalled.compareAndSet(false, true))
+            work.release();
     }
 
     private synchronized Claim claim() {
@@ -59,7 +65,8 @@ final class ParallelLightScheduler {
             LightEngineWorker lane = lanes.get(turn++);
             Object owner = lane.lockOwner();
             ChunkTasks task = lane.claimAvailable(key -> reservations.available(owner, key));
-            if (task == null) continue;
+            if (task == null)
+                continue;
             reservations.reserve(owner, task.chunkCoordinate);
             lane.jobClaimed(reservations.activeJobs(owner));
             LightEngineWorker partner = lane.partner;
@@ -71,7 +78,8 @@ final class ParallelLightScheduler {
     /** Keep the shared footprint reserved, but let producer updates merge until this lane starts. */
     private synchronized ChunkTasks claimPartner(final Claim claim) {
         final ChunkTasks task = claim.partner == null ? null : claim.partner.claimChunk(claim.task.chunkCoordinate);
-        if (task != null) claim.partner.jobClaimed(reservations.activeJobs(claim.lane.lockOwner()));
+        if (task != null)
+            claim.partner.jobClaimed(reservations.activeJobs(claim.lane.lockOwner()));
         return task;
     }
 
@@ -91,9 +99,14 @@ final class ParallelLightScheduler {
                     while (!signalled.get() && System.nanoTime() - warmUntil < 0L) {
                         Thread.onSpinWait();
                     }
-                    if (signalled.get()) continue;
+                    if (signalled.get())
+                        continue;
                 }
-                try { work.acquire(); } catch (InterruptedException stopped) { return; }
+                try {
+                    work.acquire();
+                } catch (InterruptedException stopped) {
+                    return;
+                }
                 signalled.set(false);
                 continue;
             }
@@ -101,14 +114,17 @@ final class ParallelLightScheduler {
             ChunkTasks partnerTask = null;
             try {
                 process(claim.lane, claim.task);
-                if (claim.partner != null) partnerTask = this.claimPartner(claim);
-                if (partnerTask != null) process(claim.partner, partnerTask);
+                if (claim.partner != null)
+                    partnerTask = this.claimPartner(claim);
+                if (partnerTask != null)
+                    process(claim.partner, partnerTask);
             } finally {
                 synchronized (this) {
                     reservations.release(claim.lane.lockOwner(), claim.task.chunkCoordinate);
                 }
                 claim.lane.jobFinished();
-                if (partnerTask != null) claim.partner.jobFinished();
+                if (partnerTask != null)
+                    claim.partner.jobFinished();
                 signal();
             }
             warmUntil = System.nanoTime() + IDLE_SPIN_NS;
@@ -116,7 +132,11 @@ final class ParallelLightScheduler {
     }
 
     private static void process(LightEngineWorker lane, ChunkTasks task) {
-        try { lane.processClaimedTask(task); }
-        catch (Throwable error) { Pulsar.LOGGER.error("Parallel lighting job failed", error); }
+        try {
+            lane.processClaimedTask(task);
+        } catch (Throwable error) {
+            Pulsar.LOGGER.error("Parallel lighting job failed", error);
+        }
     }
+
 }

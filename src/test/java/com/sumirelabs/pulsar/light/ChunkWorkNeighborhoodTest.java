@@ -1,11 +1,12 @@
 package com.sumirelabs.pulsar.light;
 
-import com.sumirelabs.pulsar.util.CoordinateUtils;
-import org.junit.jupiter.api.Test;
-
 import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+
+import org.junit.jupiter.api.Test;
+
+import com.sumirelabs.pulsar.util.CoordinateUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -22,8 +23,8 @@ class ChunkWorkNeighborhoodTest {
                 final Future<Void> pending = new CompletableFuture<>();
                 final long pendingKey = CoordinateUtils.getChunkKey(chunkX + dx, chunkZ + dz);
                 assertSame(pending, ChunkWorkNeighborhood.findPendingFuture(chunkX, chunkZ,
-                        key -> key == pendingKey ? pending : null),
-                        "missed pending chunk offset (" + dx + ", " + dz + ")");
+                    key -> key == pendingKey ? pending : null),
+                    "missed pending chunk offset (" + dx + ", " + dz + ")");
             }
         }
     }
@@ -44,4 +45,5 @@ class ChunkWorkNeighborhoodTest {
         }
         assertEquals(expected, checkedKeys);
     }
+
 }

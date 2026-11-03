@@ -17,4 +17,5 @@ class RenderLightRulesTest {
         assertEquals(1, RenderLightRules.ambientOcclusionEmission(2));
         assertEquals(14, RenderLightRules.ambientOcclusionEmission(15));
     }
+
 }

@@ -2,6 +2,7 @@ package com.sumirelabs.pulsar.light;
 
 /** Conservative load-time classification supplied by the vanilla section container mixin. */
 public interface ContextualLightPalette {
+
     int MAY_EMIT = 1;
     int CONTEXT_OPACITY = 1 << 1;
     int CONTEXT_EMISSION = 1 << 2;
@@ -15,4 +16,5 @@ public interface ContextualLightPalette {
     default boolean pulsar$needsContextualSamples() {
         return (this.pulsar$lightPaletteFlags() & CONTEXT_MASK) != 0;
     }
+
 }

@@ -4,6 +4,7 @@ import com.sumirelabs.pulsar.api.FaceLightOcclusion;
 import com.sumirelabs.pulsar.light.LightCachedState;
 import com.sumirelabs.pulsar.light.WorldLightManager;
 import com.sumirelabs.pulsar.world.PulsarWorld;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
@@ -54,7 +55,7 @@ public final class LightInfo {
     public static final int FACE_MASK = 0x3F;
     public static final int COMPUTED = 1 << 30;
     private static final int LIGHT_CHANGE_MASK = OPACITY_MASK | (OPACITY_MASK << EMISSION_SHIFT)
-            | REGISTRY | DYNAMIC | SIDED | CONTEXT_MASK | (FACE_MASK << FACE_SHIFT);
+        | REGISTRY | DYNAMIC | SIDED | CONTEXT_MASK | (FACE_MASK << FACE_SHIFT);
 
     /**
      * Method classification runs once per concrete block class, never per state lookup.
@@ -62,18 +63,19 @@ public final class LightInfo {
      * failed probe takes the conservative compatibility path for both values.
      */
     private static final ClassValue<Integer> CONTEXT_FLAGS = new ClassValue<Integer>() {
+
         @Override
         protected Integer computeValue(final Class<?> blockClass) {
             return ContextMethodOverrides.detect(
-                    blockClass, Block.class,
-                    "getLightOpacity", CONTEXT_OPACITY,
-                    "getLightValue", CONTEXT_EMISSION,
-                    IBlockState.class, IBlockAccess.class, BlockPos.class);
+                blockClass, Block.class,
+                "getLightOpacity", CONTEXT_OPACITY,
+                "getLightValue", CONTEXT_EMISSION,
+                IBlockState.class, IBlockAccess.class, BlockPos.class);
         }
+
     };
 
-    private LightInfo() {
-    }
+    private LightInfo() {}
 
     /**
      * Look up (or lazily compute) the packed info for a state.
@@ -99,7 +101,7 @@ public final class LightInfo {
             info |= DYNAMIC;
         }
         if (FaceOcclusion.hasSidedTransparency(block)
-                && (dynamic || FaceOcclusion.usesAutomaticFaces(state))) {
+            && (dynamic || FaceOcclusion.usesAutomaticFaces(state))) {
             info |= REGISTRY;
             if (opacity > 1) {
                 info |= SIDED;
@@ -137,10 +139,12 @@ public final class LightInfo {
      * packed static values compare equal.
      */
     public static boolean requiresBlockChange(final IBlockState previous, final IBlockState next) {
-        if (previous == next) return false;
+        if (previous == next)
+            return false;
         final int previousInfo = of(previous);
         final int nextInfo = of(next);
-        if (((previousInfo | nextInfo) & (DYNAMIC | CONTEXT_MASK)) != 0) return true;
+        if (((previousInfo | nextInfo) & (DYNAMIC | CONTEXT_MASK)) != 0)
+            return true;
         return ((previousInfo ^ nextInfo) & LIGHT_CHANGE_MASK) != 0;
     }
 
@@ -150,8 +154,8 @@ public final class LightInfo {
      * implementation cannot corrupt the coordinates seen by the next one.
      */
     public static int resolveContextual(final int info, final IBlockState state,
-                                        final IBlockAccess access, final BlockPos.MutableBlockPos pos,
-                                        final int x, final int y, final int z) {
+        final IBlockAccess access, final BlockPos.MutableBlockPos pos,
+        final int x, final int y, final int z) {
         final int flags = info & CONTEXT_MASK;
         if (flags == 0) {
             return info;
@@ -166,8 +170,9 @@ public final class LightInfo {
             }
         }
 
-        try { return sampleContextual(info, state, access, pos, x, y, z); }
-        catch (RuntimeException | LinkageError failure) {
+        try {
+            return sampleContextual(info, state, access, pos, x, y, z);
+        } catch (RuntimeException | LinkageError failure) {
             com.sumirelabs.pulsar.light.LightCallbackFailures.report(state.getBlock(), failure);
             return info;
         }
@@ -176,7 +181,7 @@ public final class LightInfo {
     /** Owner-thread capture uses the throwing form so it can retain its previous
      * snapshot and retry; direct client queries use the guarded static fallback. */
     public static int sampleContextual(int info, IBlockState state, IBlockAccess access,
-                                      BlockPos.MutableBlockPos pos, int x, int y, int z) {
+        BlockPos.MutableBlockPos pos, int x, int y, int z) {
         int flags = info & CONTEXT_MASK;
         int opacity = opacity(info);
         int emission = emission(info);
@@ -233,8 +238,10 @@ public final class LightInfo {
         if ((info & DYNAMIC) != 0) {
             return FaceOcclusion.resolveScalarAbsorption(state, dirOrdinal);
         }
-        if ((info & SIDED) != 0 && !isFaceSolid(info, dirOrdinal)) return 1;
+        if ((info & SIDED) != 0 && !isFaceSolid(info, dirOrdinal))
+            return 1;
         // Packed opacity is already 0..15; ordinary blocks need no face-bit read.
         return Math.max(1, info & OPACITY_MASK);
     }
+
 }

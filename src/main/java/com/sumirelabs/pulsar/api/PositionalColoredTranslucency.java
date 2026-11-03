@@ -8,6 +8,11 @@ import net.minecraft.world.IBlockAccess;
  * Lighting workers never invoke this callback or inspect its TileEntity.
  */
 public interface PositionalColoredTranslucency extends ColoredTranslucency {
-    @Override default int getColoredTransmittance(IBlockState state) { return 0xFFF; }
+
+    @Override
+    default int getColoredTransmittance(IBlockState state) {
+        return 0xFFF;
+    }
     int getColoredTransmittance(IBlockAccess world, BlockPos pos, IBlockState state);
+
 }

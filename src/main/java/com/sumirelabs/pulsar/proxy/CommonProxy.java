@@ -3,6 +3,7 @@ package com.sumirelabs.pulsar.proxy;
 import com.sumirelabs.pulsar.light.LightDataSerializer;
 import com.sumirelabs.pulsar.light.WorldLightManager;
 import com.sumirelabs.pulsar.world.PulsarWorld;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -19,16 +20,19 @@ public class CommonProxy implements IProxy {
 
     @SubscribeEvent
     public void onServerTick(final TickEvent.ServerTickEvent event) {
-        if(event.phase!=TickEvent.Phase.START)return;
-        final var server=net.minecraftforge.fml.common.FMLCommonHandler.instance().getMinecraftServerInstance();
-        if(server==null || server.worlds==null)return;
-        for(final var world:server.worlds)if(world instanceof PulsarWorld pulsar) {
-            final WorldLightManager manager=pulsar.pulsar$getLightManager();
-            if(manager!=null) {
-                manager.retryInitialChunkSends();
-                manager.processDeferredChunkUpdates();
+        if (event.phase != TickEvent.Phase.START)
+            return;
+        final var server = net.minecraftforge.fml.common.FMLCommonHandler.instance().getMinecraftServerInstance();
+        if (server == null || server.worlds == null)
+            return;
+        for (final var world : server.worlds)
+            if (world instanceof PulsarWorld pulsar) {
+                final WorldLightManager manager = pulsar.pulsar$getLightManager();
+                if (manager != null) {
+                    manager.retryInitialChunkSends();
+                    manager.processDeferredChunkUpdates();
+                }
             }
-        }
     }
 
     @SubscribeEvent
@@ -54,4 +58,5 @@ public class CommonProxy implements IProxy {
             ((PulsarWorld) event.getWorld()).pulsar$shutdown();
         }
     }
+
 }

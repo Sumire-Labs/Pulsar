@@ -1,23 +1,26 @@
 package com.sumirelabs.pulsar.light;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ChunkPacketLightTest {
 
-    @Test void partialPacketsMustResetAbsentSectionsEvenWhenTheirLightIsDefault() {
+    @Test
+    void partialPacketsMustResetAbsentSectionsEvenWhenTheirLightIsDefault() {
         assertTrue(PacketLightSection.needsAbsentStorage(false, null));
         assertTrue(PacketLightSection.needsAbsentStorage(false, new byte[2048]));
     }
 
-    @Test void fullPacketsCanOmitDefaultAbsentSectionsButMustKeepBlockLight() {
+    @Test
+    void fullPacketsCanOmitDefaultAbsentSectionsButMustKeepBlockLight() {
         assertFalse(PacketLightSection.needsAbsentStorage(true, null));
         assertFalse(PacketLightSection.needsAbsentStorage(true, new byte[2048]));
-        byte[] light = new byte[2048]; light[100] = 1;
+        byte[] light = new byte[2048];
+        light[100] = 1;
         assertTrue(PacketLightSection.needsAbsentStorage(true, light));
     }
 
@@ -66,4 +69,5 @@ class ChunkPacketLightTest {
 
         assertFalse(PacketLightSection.isTrivial(false, blockLight, skyLight, true));
     }
+
 }

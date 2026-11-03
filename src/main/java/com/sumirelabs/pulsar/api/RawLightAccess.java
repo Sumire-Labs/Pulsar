@@ -12,4 +12,5 @@ import net.minecraft.world.EnumSkyBlock;
 public interface RawLightAccess {
 
     int pulsar$getRawLight(EnumSkyBlock lightType, BlockPos pos);
+
 }

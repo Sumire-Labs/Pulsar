@@ -1,19 +1,104 @@
-name: Releases
+name: Release
 
 on:
   push:
     tags:
-      - "*"
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  publish:
-    uses: ./.github/workflows/release-to-cf-mr.yml
-    with:
-      tag: ${{ github.ref_name }}
-      # Existing 0.x releases are beta. Override with the RELEASE_TYPE variable.
-      release_type: ${{ vars.RELEASE_TYPE || 'beta' }}
-      publish_github: true
-    secrets: inherit
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require a version tag
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          if [[ "$REF_TYPE" != tag ]]; then
+            echo 'Select a version tag in Use workflow from.' >&2
+            exit 1
+          fi
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+      - uses: actions/setup-java@v6.1.0
+        with:
+          java-version: '25'
+          distribution: temurin
+      - uses: gradle/actions/setup-gradle@v6.4.1
+      - name: Read release configuration
+        id: release
+        run: |
+          info=$(./gradlew -q --console=plain printReleaseInfo)
+          echo "version=$(jq -r .version <<< "$info")" >> "$GITHUB_OUTPUT"
+          echo "type=$(jq -r .type <<< "$info")" >> "$GITHUB_OUTPUT"
+          echo "maven=$(jq -r .maven <<< "$info")" >> "$GITHUB_OUTPUT"
+          echo "curseforge=$(jq -r .curseforge <<< "$info")" >> "$GITHUB_OUTPUT"
+          echo "modrinth=$(jq -r .modrinth <<< "$info")" >> "$GITHUB_OUTPUT"
+      - name: Check publication credentials
+        env:
+          PUBLISH_MAVEN: ${{ steps.release.outputs.maven }}
+          PUBLISH_CURSEFORGE: ${{ steps.release.outputs.curseforge }}
+          PUBLISH_MODRINTH: ${{ steps.release.outputs.modrinth }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USER }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASS }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          if [[ "$PUBLISH_MAVEN" == true && ( -z "$MAVEN_USERNAME" || -z "$MAVEN_PASSWORD" ) ]]; then
+            echo 'Maven enabled: set MAVEN_USER and MAVEN_PASS secrets.' >&2
+            exit 1
+          fi
+          if [[ "$PUBLISH_CURSEFORGE" == true && -z "$CURSEFORGE_TOKEN" ]]; then
+            echo 'CurseForge ID configured: set CURSEFORGE_TOKEN.' >&2
+            exit 1
+          fi
+          if [[ "$PUBLISH_MODRINTH" == true && -z "$MODRINTH_TOKEN" ]]; then
+            echo 'Modrinth ID configured: set MODRINTH_TOKEN.' >&2
+            exit 1
+          fi
+      - name: Build
+        run: ./gradlew clean build --console=plain
+      - name: Generate release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/releases/generate-notes" \
+            -f tag_name="$TAG" --jq .body > RELEASE_NOTES.md
+      - name: Publish Maven artifacts
+        if: steps.release.outputs.maven == 'true'
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USER }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASS }}
+        run: ./gradlew publish --console=plain
+      - name: Publish Mods
+        if: steps.release.outputs.curseforge == 'true' || steps.release.outputs.modrinth == 'true'
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          CHANGELOG_FILE: RELEASE_NOTES.md
+        run: ./gradlew publishMods --console=plain
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ steps.release.outputs.version }}
+          RELEASE_TYPE: ${{ steps.release.outputs.type }}
+        run: |
+          args=()
+          if [[ "$RELEASE_TYPE" != release ]]; then args+=(--prerelease); fi
+          gh release create "$TAG" --title "$VERSION" --notes-file RELEASE_NOTES.md \
+            "${args[@]}" build/libs/*.jar

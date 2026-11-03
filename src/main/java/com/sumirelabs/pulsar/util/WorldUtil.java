@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.util;
 
 import com.sumirelabs.pulsar.compat.DepthsUpdateBridge;
+
 import net.minecraft.world.World;
 
 /**
@@ -8,10 +9,10 @@ import net.minecraft.world.World;
  */
 public final class WorldUtil {
 
-    private WorldUtil() {
-    }
+    private WorldUtil() {}
 
     public static WorldHeightContext getHeightContext(final World world) {
         return DepthsUpdateBridge.getHeightContext(world);
     }
+
 }

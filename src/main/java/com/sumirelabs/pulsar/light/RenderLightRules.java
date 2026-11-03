@@ -5,8 +5,7 @@ package com.sumirelabs.pulsar.light;
  */
 public final class RenderLightRules {
 
-    private RenderLightRules() {
-    }
+    private RenderLightRules() {}
 
     /**
      * Light level one is treated as non-emissive for ambient occlusion.
@@ -15,4 +14,5 @@ public final class RenderLightRules {
     public static int ambientOcclusionEmission(final int lightValue) {
         return Math.max(Math.min(lightValue - 1, 15), 0);
     }
+
 }

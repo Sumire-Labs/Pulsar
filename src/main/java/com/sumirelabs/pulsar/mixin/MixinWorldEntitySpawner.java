@@ -1,10 +1,8 @@
 package com.sumirelabs.pulsar.mixin;
 
-import com.sumirelabs.pulsar.config.PulsarConfig;
-import com.sumirelabs.pulsar.world.PulsarWorld;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.WorldEntitySpawner;
-import net.minecraft.world.WorldServer;
+import java.util.Iterator;
+import java.util.Set;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -12,8 +10,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Iterator;
-import java.util.Set;
+import com.sumirelabs.pulsar.config.PulsarConfig;
+import com.sumirelabs.pulsar.world.PulsarWorld;
+
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.WorldEntitySpawner;
+import net.minecraft.world.WorldServer;
 
 /**
  * Skip mob spawning in chunks whose Pulsar BFS hasn't completed yet.
@@ -30,17 +32,18 @@ import java.util.Set;
 public abstract class MixinWorldEntitySpawner {
 
     @Shadow
-    @Final
-    private Set<ChunkPos> eligibleChunksForSpawning;
+    @Final private Set<ChunkPos> eligibleChunksForSpawning;
 
     @Inject(method = "findChunksForSpawning", at = @At("HEAD"))
     private void pulsar$skipPendingLightChunks(final WorldServer worldServerIn,
-                                               final boolean spawnHostileMobs,
-                                               final boolean spawnPeacefulMobs,
-                                               final boolean spawnOnSetTickRate,
-                                               final CallbackInfoReturnable<Integer> cir) {
-        if (!PulsarConfig.enabled) return;
-        if (this.eligibleChunksForSpawning == null || this.eligibleChunksForSpawning.isEmpty()) return;
+        final boolean spawnHostileMobs,
+        final boolean spawnPeacefulMobs,
+        final boolean spawnOnSetTickRate,
+        final CallbackInfoReturnable<Integer> cir) {
+        if (!PulsarConfig.enabled)
+            return;
+        if (this.eligibleChunksForSpawning == null || this.eligibleChunksForSpawning.isEmpty())
+            return;
 
         final PulsarWorld pulsarWorld = (PulsarWorld) worldServerIn;
         final Iterator<ChunkPos> it = this.eligibleChunksForSpawning.iterator();
@@ -51,4 +54,5 @@ public abstract class MixinWorldEntitySpawner {
             }
         }
     }
+
 }

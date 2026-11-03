@@ -1,16 +1,18 @@
 package com.sumirelabs.pulsar.mixin;
 
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
+
 import com.sumirelabs.pulsar.api.FaceLightInfo;
 import com.sumirelabs.pulsar.api.RawLightAccess;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkCache;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
 
 /**
  * Same facing-aware routing as {@code MixinWorldRenderLight}, for the
@@ -40,4 +42,5 @@ public abstract class MixinChunkCacheRenderLight implements RawLightAccess {
     public int pulsar$getRawLight(final EnumSkyBlock lightType, final BlockPos pos) {
         return this.getLightFor(lightType, pos);
     }
+
 }

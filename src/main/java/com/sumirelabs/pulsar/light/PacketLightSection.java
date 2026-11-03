@@ -5,8 +5,7 @@ package com.sumirelabs.pulsar.light;
  */
 final class PacketLightSection {
 
-    private PacketLightSection() {
-    }
+    private PacketLightSection() {}
 
     static boolean needsAbsentStorage(final boolean fullChunk, final byte[] blockLight) {
         // A full packet resets omitted slots. A partial packet leaves them untouched,
@@ -15,7 +14,7 @@ final class PacketLightSection {
     }
 
     static boolean isTrivial(final boolean blockEmpty, final byte[] blockLight,
-                             final byte[] skyLight, final boolean writeSkylight) {
+        final byte[] skyLight, final boolean writeSkylight) {
         if (!blockEmpty || !isFilled(blockLight, (byte) 0x00)) {
             return false;
         }
@@ -33,4 +32,5 @@ final class PacketLightSection {
         }
         return true;
     }
+
 }

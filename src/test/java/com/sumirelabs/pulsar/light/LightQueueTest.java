@@ -1,12 +1,14 @@
 package com.sumirelabs.pulsar.light;
 
-import com.sumirelabs.pulsar.util.CoordinateUtils;
-import com.sumirelabs.pulsar.util.WorldHeightContext;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import org.junit.jupiter.api.Test;
-
 import java.time.Duration;
 import java.util.concurrent.Future;
+
+import org.junit.jupiter.api.Test;
+
+import com.sumirelabs.pulsar.util.CoordinateUtils;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
+
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -252,4 +254,5 @@ class LightQueueTest {
         assertEquals(8192, task.changedPositions.size());
         queue.completeTask(task);
     }
+
 }

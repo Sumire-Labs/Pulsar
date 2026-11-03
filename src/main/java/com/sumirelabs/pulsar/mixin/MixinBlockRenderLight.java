@@ -1,14 +1,16 @@
 package com.sumirelabs.pulsar.mixin;
 
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+
 import com.sumirelabs.pulsar.light.RenderLightRules;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 
 /**
  * Client render-side halves of the non-full-block lighting fix.
@@ -44,4 +46,5 @@ public abstract class MixinBlockRenderLight {
         }
         return 1.0F;
     }
+
 }

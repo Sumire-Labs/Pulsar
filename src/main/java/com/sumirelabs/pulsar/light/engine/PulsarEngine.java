@@ -1,28 +1,30 @@
 package com.sumirelabs.pulsar.light.engine;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.LongPredicate;
+
 import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.api.ExtendedWorld;
 import com.sumirelabs.pulsar.light.LightStats;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
+import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
-import com.sumirelabs.pulsar.api.ExtendedWorld;
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.function.LongPredicate;
-import com.sumirelabs.pulsar.util.CoordinateUtils;
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 /**
  * Abstract base for Pulsar's BFS-based scalar lighting engines. Ported from
@@ -46,8 +48,8 @@ public abstract class PulsarEngine extends LightEngineCache {
 
     protected static final AxisDirection[] AXIS_DIRECTIONS = AxisDirection.values();
     protected static final AxisDirection[] ONLY_HORIZONTAL_DIRECTIONS = new AxisDirection[]{
-            AxisDirection.POSITIVE_X, AxisDirection.NEGATIVE_X,
-            AxisDirection.POSITIVE_Z, AxisDirection.NEGATIVE_Z
+        AxisDirection.POSITIVE_X, AxisDirection.NEGATIVE_X,
+        AxisDirection.POSITIVE_Z, AxisDirection.NEGATIVE_Z
     };
     // Pool for int[4096] arrays — avoids allocation churn during BFS
     protected static final ThreadLocal<ArrayDeque<int[]>> PACKED_ARRAY_POOL = ThreadLocal.withInitial(ArrayDeque::new);
@@ -73,7 +75,8 @@ public abstract class PulsarEngine extends LightEngineCache {
     static {
         for (int i = 0; i < OLD_CHECK_DIRECTIONS.length; ++i) {
             final List<AxisDirection> directions = new ArrayList<>();
-            for (int bitset = i, len = Integer.bitCount(i), index = 0; index < len; ++index, bitset ^= (-bitset & bitset)) {
+            for (int bitset = i, len = Integer.bitCount(i),
+                index = 0; index < len; ++index, bitset ^= (-bitset & bitset)) {
                 directions.add(AXIS_DIRECTIONS[Integer.numberOfTrailingZeros(bitset)]);
             }
             OLD_CHECK_DIRECTIONS[i] = directions.toArray(new AxisDirection[0]);
@@ -95,7 +98,7 @@ public abstract class PulsarEngine extends LightEngineCache {
     protected boolean queueOverflowed;
 
     protected PulsarEngine(final boolean skylightPropagator, final World world,
-                           final WorldHeightContext heightContext) {
+        final WorldHeightContext heightContext) {
         super(world, heightContext);
         this.skylightPropagator = skylightPropagator;
         this.sectionProcessor = new LightSectionProcessor(this);
@@ -113,7 +116,8 @@ public abstract class PulsarEngine extends LightEngineCache {
     }
 
     protected static long encodeCoords(final int x, final int z, final int y, final int encodeOffset) {
-        return (x + ((long) z << COORD_X_BITS) + ((long) y << (COORD_X_BITS + COORD_Z_BITS)) + encodeOffset) & COORD_MASK;
+        return (x + ((long) z << COORD_X_BITS) + ((long) y << (COORD_X_BITS + COORD_Z_BITS)) + encodeOffset)
+            & COORD_MASK;
     }
 
     protected static long sidedFlag(final IBlockState state) {
@@ -132,7 +136,8 @@ public abstract class PulsarEngine extends LightEngineCache {
             final int logicalIndex = heightContext.getSectionIndex(sectionY);
             final int storageIndex = heightContext.getStorageIndex(sectionY);
             final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < sections.length
-                    ? sections[storageIndex] : null;
+                ? sections[storageIndex]
+                : null;
             ret[logicalIndex] = section == null || section.isEmpty() ? Boolean.TRUE : Boolean.FALSE;
         }
         return ret;
@@ -176,11 +181,13 @@ public abstract class PulsarEngine extends LightEngineCache {
 
     protected abstract void setNibbles(final Chunk chunk, final SWMRNibbleArray[] to);
 
-    protected abstract void initNibble(final int chunkX, final int chunkY, final int chunkZ, final boolean extrude, final boolean initRemovedNibbles);
+    protected abstract void initNibble(final int chunkX, final int chunkY, final int chunkZ, final boolean extrude,
+        final boolean initRemovedNibbles);
 
     protected abstract void setNibbleNull(final int chunkX, final int chunkY, final int chunkZ);
 
-    protected abstract void propagateBlockChanges(final Chunk atChunk, final int blockX, final int blockY, final int blockZ);
+    protected abstract void propagateBlockChanges(final Chunk atChunk, final int blockX, final int blockY,
+        final int blockZ);
 
     protected abstract void checkBlock(final int worldX, final int worldY, final int worldZ);
 
@@ -207,7 +214,8 @@ public abstract class PulsarEngine extends LightEngineCache {
         }
     }
 
-    public final void blocksChangedInChunk(final int chunkX, final int chunkZ, final IntSet changedPositions, final Boolean[] changedSections) {
+    public final void blocksChangedInChunk(final int chunkX, final int chunkZ, final IntSet changedPositions,
+        final Boolean[] changedSections) {
         this.lastBfsIncreaseTotal = 0;
         this.lastBfsDecreaseTotal = 0;
         this.lastPositionsProcessed = 0;
@@ -219,7 +227,7 @@ public abstract class PulsarEngine extends LightEngineCache {
             }
             // 1. Section changes first (creates/removes nibbles)
             final Boolean[] effectiveSectionChanges = this.reconcileSectionChanges(
-                    chunk, changedPositions, changedSections);
+                chunk, changedPositions, changedSections);
             if (effectiveSectionChanges != null) {
                 final boolean[] ret = this.handleEmptySectionChanges(chunk, effectiveSectionChanges, false);
                 if (ret != null) {
@@ -245,8 +253,8 @@ public abstract class PulsarEngine extends LightEngineCache {
      * second, ordering-independent opportunity to detect that transition.
      */
     private Boolean[] reconcileSectionChanges(final Chunk chunk,
-                                              final IntSet changedPositions,
-                                              final Boolean[] changedSections) {
+        final IntSet changedPositions,
+        final Boolean[] changedSections) {
         if (changedPositions == null || changedPositions.isEmpty()) {
             return changedSections;
         }
@@ -272,8 +280,8 @@ public abstract class PulsarEngine extends LightEngineCache {
             final boolean isEmpty = section == null || section.isEmpty();
             final Boolean queuedValue = effectiveChanges == null ? null : effectiveChanges[sectionIndex];
             final boolean changedFromKnown = knownEmptiness == null
-                    || sectionIndex >= knownEmptiness.length
-                    || knownEmptiness[sectionIndex] != isEmpty;
+                || sectionIndex >= knownEmptiness.length
+                || knownEmptiness[sectionIndex] != isEmpty;
 
             if (queuedValue != null || changedFromKnown) {
                 if (effectiveChanges == null) {
@@ -285,7 +293,8 @@ public abstract class PulsarEngine extends LightEngineCache {
         return effectiveChanges;
     }
 
-    protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ, final IntSet changedPositions) {
+    protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ,
+        final IntSet changedPositions) {
         final int minBlockY = this.heightContext.getMinBlockY();
         final int maxBlockY = this.heightContext.getMaxBlockY();
         final IntIterator it = changedPositions.iterator();
@@ -319,9 +328,11 @@ public abstract class PulsarEngine extends LightEngineCache {
             // monitor while acquiring their monitors (dedicated lanes overlap).
             this.updateVisible();
             synchronized (chunk) {
-                if (((ExtendedWorld) this.world).pulsar$getAnyChunkImmediately(chunkX, chunkZ) != chunk) return;
+                if (((ExtendedWorld) this.world).pulsar$getAnyChunkImmediately(chunkX, chunkZ) != chunk)
+                    return;
                 this.mergeNibblesForChunkFromCache(chunkX, chunkZ, nibbles);
-                if (ret != null) this.setEmptinessMap(chunk, ret);
+                if (ret != null)
+                    this.setEmptinessMap(chunk, ret);
                 this.setNibbles(chunk, nibbles);
             }
         } finally {
@@ -336,51 +347,60 @@ public abstract class PulsarEngine extends LightEngineCache {
      * lighting jobs in this world for the duration of this operation.
      */
     public final void relightChunks(final Map<Long, Chunk> targets, final Map<Long, Chunk> available,
-                                   final LongPredicate current) {
+        final LongPredicate current) {
         final Map<Long, SWMRNibbleArray[]> nibbles = new LinkedHashMap<>();
         final Map<Long, boolean[]> emptiness = new LinkedHashMap<>();
         final int[] order = {0, 0, -1, 0, 0, -1, 1, 0, 0, 1, -1, 1, 1, 1, -1, -1, 1, -1};
         for (final var target : targets.entrySet()) {
-            if (!current.test(target.getKey())) continue;
+            if (!current.test(target.getKey()))
+                continue;
             final Chunk center = target.getValue();
             for (int i = 0; i < order.length; i += 2) {
                 final int cx = center.x + order[i], cz = center.z + order[i + 1];
                 final long key = CoordinateUtils.getChunkKey(cx, cz);
                 final Chunk chunk = available.get(key);
                 if (chunk == null || nibbles.containsKey(key)
-                        || ((ExtendedWorld) this.world).pulsar$getAnyChunkImmediately(cx, cz) != chunk) continue;
+                    || ((ExtendedWorld) this.world).pulsar$getAnyChunkImmediately(cx, cz) != chunk)
+                    continue;
                 this.resetTaskState();
                 this.setupEncodeOffset(cx * 16 + 7, 128, cz * 16 + 7);
                 try {
-                    for (int dz = -1; dz <= 1; dz++) for (int dx = -1; dx <= 1; dx++) {
-                        final long nearKey = CoordinateUtils.getChunkKey(cx + dx, cz + dz);
-                        final Chunk near = available.get(nearKey);
-                        if (near == null || !nibbles.containsKey(nearKey)) continue;
-                        this.setChunkInCache(near.x, near.z, near);
-                        this.setBlocksForChunkInCache(near.x, near.z, near.getBlockStorageArray());
-                        this.setNibblesForChunkInCache(near.x, near.z, nibbles.get(nearKey));
-                        this.setEmptinessMapCache(near.x, near.z, emptiness.get(nearKey));
-                    }
+                    for (int dz = -1; dz <= 1; dz++)
+                        for (int dx = -1; dx <= 1; dx++) {
+                            final long nearKey = CoordinateUtils.getChunkKey(cx + dx, cz + dz);
+                            final Chunk near = available.get(nearKey);
+                            if (near == null || !nibbles.containsKey(nearKey))
+                                continue;
+                            this.setChunkInCache(near.x, near.z, near);
+                            this.setBlocksForChunkInCache(near.x, near.z, near.getBlockStorageArray());
+                            this.setNibblesForChunkInCache(near.x, near.z, nibbles.get(nearKey));
+                            this.setEmptinessMapCache(near.x, near.z, emptiness.get(nearKey));
+                        }
                     nibbles.put(key, this.getFilledEmptyLight());
                     this.setChunkInCache(cx, cz, chunk);
                     this.setBlocksForChunkInCache(cx, cz, chunk.getBlockStorageArray());
                     this.setNibblesForChunkInCache(cx, cz, nibbles.get(key));
                     emptiness.put(key, this.handleEmptySectionChanges(chunk, getEmptySectionsForChunk(chunk), true));
                     this.lightChunk(chunk, false);
-                    if (this.wasQueueOverflowed()) throw new IllegalStateException("Batch relight BFS overflow");
+                    if (this.wasQueueOverflowed())
+                        throw new IllegalStateException("Batch relight BFS overflow");
                     // Sky topology can replace cached nibble references for neighbours too.
                     for (final Chunk cached : this.chunkCache) {
-                        if (cached == null) continue;
+                        if (cached == null)
+                            continue;
                         final long cachedKey = CoordinateUtils.getChunkKey(cached.x, cached.z);
                         this.mergeNibblesForChunkFromCache(cached.x, cached.z, nibbles.get(cachedKey));
                     }
-                } finally { this.destroyCaches(); }
+                } finally {
+                    this.destroyCaches();
+                }
             }
         }
         for (final var target : targets.entrySet()) {
             final long key = target.getKey();
             final Chunk chunk = target.getValue();
-            if (!current.test(key) || !nibbles.containsKey(key)) continue;
+            if (!current.test(key) || !nibbles.containsKey(key))
+                continue;
             this.setupEncodeOffset(chunk.x * 16 + 7, 128, chunk.z * 16 + 7);
             try {
                 this.setChunkInCache(chunk.x, chunk.z, chunk);
@@ -388,12 +408,15 @@ public abstract class PulsarEngine extends LightEngineCache {
                 // Acquire only this chunk's monitor; never a group of chunk monitors.
                 synchronized (chunk) {
                     if (!current.test(key) || ((ExtendedWorld) this.world)
-                            .pulsar$getAnyChunkImmediately(chunk.x, chunk.z) != chunk) continue;
+                        .pulsar$getAnyChunkImmediately(chunk.x, chunk.z) != chunk)
+                        continue;
                     this.updateVisible();
                     this.setEmptinessMap(chunk, emptiness.get(key));
                     this.setNibbles(chunk, nibbles.get(key));
                 }
-            } finally { this.destroyCaches(); }
+            } finally {
+                this.destroyCaches();
+            }
         }
     }
 
@@ -442,8 +465,7 @@ public abstract class PulsarEngine extends LightEngineCache {
         }
     }
 
-    protected void prepareBatchedEdgeChecks(final int chunkX, final int chunkZ) {
-    }
+    protected void prepareBatchedEdgeChecks(final int chunkX, final int chunkZ) {}
 
     /**
      * Process per-section emptiness changes.
@@ -451,7 +473,8 @@ public abstract class PulsarEngine extends LightEngineCache {
      * means "no change" for that section index — sparse to avoid recomputing
      * unchanged sections.
      */
-    protected final boolean[] handleEmptySectionChanges(final Chunk chunk, final Boolean[] emptinessChanges, final boolean unlit) {
+    protected final boolean[] handleEmptySectionChanges(final Chunk chunk, final Boolean[] emptinessChanges,
+        final boolean unlit) {
         return this.sectionProcessor.handleEmptySectionChanges(chunk, emptinessChanges, unlit);
     }
 
@@ -461,12 +484,12 @@ public abstract class PulsarEngine extends LightEngineCache {
 
     protected boolean areBothEdgeSectionsFull(final int currentIndex, final int neighbourIndex) {
         return this.nibbleCache[currentIndex].isFullUpdating()
-                && this.nibbleCache[neighbourIndex].isFullUpdating();
+            && this.nibbleCache[neighbourIndex].isFullUpdating();
     }
 
     protected boolean areBothEdgeSectionsZero(final int currentIndex, final int neighbourIndex) {
         return this.nibbleCache[currentIndex].isZeroUpdating()
-                && this.nibbleCache[neighbourIndex].isZeroUpdating();
+            && this.nibbleCache[neighbourIndex].isZeroUpdating();
     }
 
     protected void checkChunkEdges(final Chunk chunk, final int fromSection, final int toSection) {
@@ -482,11 +505,13 @@ public abstract class PulsarEngine extends LightEngineCache {
     }
 
     protected final long[] resizeIncreaseQueue() {
-        return this.increaseQueue = Arrays.copyOf(this.increaseQueue, Math.max(INITIAL_QUEUE_SIZE, Math.min(this.increaseQueue.length * 2, MAX_QUEUE_SIZE)));
+        return this.increaseQueue = Arrays.copyOf(this.increaseQueue,
+            Math.max(INITIAL_QUEUE_SIZE, Math.min(this.increaseQueue.length * 2, MAX_QUEUE_SIZE)));
     }
 
     protected final long[] resizeDecreaseQueue() {
-        return this.decreaseQueue = Arrays.copyOf(this.decreaseQueue, Math.max(INITIAL_QUEUE_SIZE, Math.min(this.decreaseQueue.length * 2, MAX_QUEUE_SIZE)));
+        return this.decreaseQueue = Arrays.copyOf(this.decreaseQueue,
+            Math.max(INITIAL_QUEUE_SIZE, Math.min(this.decreaseQueue.length * 2, MAX_QUEUE_SIZE)));
     }
 
     /**
@@ -539,9 +564,9 @@ public abstract class PulsarEngine extends LightEngineCache {
         if (!this.queueOverflowWarned) {
             this.queueOverflowWarned = true;
             Pulsar.LOGGER.warn(
-                    "Pulsar light queue overflow near chunk ({}, {}). Some blocks may remain dark. Chunk will be re-lit.",
-                    2 - this.chunkOffsetX,
-                    2 - this.chunkOffsetZ);
+                "Pulsar light queue overflow near chunk ({}, {}). Some blocks may remain dark. Chunk will be re-lit.",
+                2 - this.chunkOffsetX,
+                2 - this.chunkOffsetZ);
         }
     }
 
@@ -554,12 +579,9 @@ public abstract class PulsarEngine extends LightEngineCache {
     protected abstract void performLightDecrease();
 
     protected enum AxisDirection {
-        POSITIVE_X(1, 0, 0),
-        NEGATIVE_X(-1, 0, 0),
-        POSITIVE_Z(0, 0, 1),
-        NEGATIVE_Z(0, 0, -1),
-        POSITIVE_Y(0, 1, 0),
-        NEGATIVE_Y(0, -1, 0);
+
+        POSITIVE_X(1, 0, 0), NEGATIVE_X(-1, 0, 0), POSITIVE_Z(0, 0, 1), NEGATIVE_Z(0, 0, -1), POSITIVE_Y(0, 1,
+            0), NEGATIVE_Y(0, -1, 0);
 
         static {
             POSITIVE_X.opposite = NEGATIVE_X;
@@ -591,5 +613,7 @@ public abstract class PulsarEngine extends LightEngineCache {
         protected AxisDirection getOpposite() {
             return this.opposite;
         }
+
     }
+
 }

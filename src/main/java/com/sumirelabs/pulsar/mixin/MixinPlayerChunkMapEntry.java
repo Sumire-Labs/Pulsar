@@ -1,11 +1,7 @@
 package com.sumirelabs.pulsar.mixin;
 
-import com.sumirelabs.pulsar.config.PulsarConfig;
-import com.sumirelabs.pulsar.light.PulsarChunk;
-import com.sumirelabs.pulsar.light.WorldLightManager;
-import com.sumirelabs.pulsar.world.PulsarWorld;
-import net.minecraft.server.management.PlayerChunkMapEntry;
-import net.minecraft.world.chunk.Chunk;
+import javax.annotation.Nullable;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,7 +10,13 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import javax.annotation.Nullable;
+import com.sumirelabs.pulsar.config.PulsarConfig;
+import com.sumirelabs.pulsar.light.PulsarChunk;
+import com.sumirelabs.pulsar.light.WorldLightManager;
+import com.sumirelabs.pulsar.world.PulsarWorld;
+
+import net.minecraft.server.management.PlayerChunkMapEntry;
+import net.minecraft.world.chunk.Chunk;
 
 /**
  * Gates chunk sending on Pulsar's light state. This is deliberately NOT done
@@ -37,29 +39,36 @@ import javax.annotation.Nullable;
 public abstract class MixinPlayerChunkMapEntry {
 
     @Shadow
-    @Nullable
-    private Chunk chunk;
+    @Nullable private Chunk chunk;
     @Shadow private int changes;
     @Shadow private int changedSectionFilter;
     @Shadow private boolean sentToPlayers;
-    @Shadow public abstract boolean containsPlayer(net.minecraft.entity.player.EntityPlayerMP player);
-    @Shadow public abstract void sendPacket(net.minecraft.network.Packet<?> packet);
+    @Shadow
+    public abstract boolean containsPlayer(net.minecraft.entity.player.EntityPlayerMP player);
+    @Shadow
+    public abstract void sendPacket(net.minecraft.network.Packet<?> packet);
 
-    @Inject(method="update",at=@At("HEAD"),cancellable=true)
+    @Inject(method = "update", at = @At("HEAD"), cancellable = true)
     private void pulsar$waitForSectionPacketLight(final CallbackInfo ci) {
-        if(this.chunk==null || this.changes<net.minecraftforge.common.ForgeModContainer.clumpingThreshold) return;
-        final WorldLightManager manager=((PulsarWorld)this.chunk.getWorld()).pulsar$getLightManager();
-        if(manager!=null && !manager.canSendUpdatedChunkLight(this.chunk.x,this.chunk.z)) {
+        if (this.chunk == null || this.changes < net.minecraftforge.common.ForgeModContainer.clumpingThreshold)
+            return;
+        final WorldLightManager manager = ((PulsarWorld) this.chunk.getWorld()).pulsar$getLightManager();
+        if (manager != null && !manager.canSendUpdatedChunkLight(this.chunk.x, this.chunk.z)) {
             manager.deferChunkPacketUpdate(this.chunk);
             ci.cancel(); // Keep changes and changedSectionFilter for the manager's retry.
         }
     }
 
-    @Redirect(method="update",at=@At(value="INVOKE",target="Lnet/minecraft/server/management/PlayerChunkMapEntry;sendPacket(Lnet/minecraft/network/Packet;)V"))
-    private void pulsar$preserveEntitiesOnSectionRefresh(final PlayerChunkMapEntry entry,final net.minecraft.network.Packet<?> packet) {
-        if(packet instanceof net.minecraft.network.play.server.SPacketChunkData data && data.isFullChunk() && this.chunk!=null) {
-            final WorldLightManager manager=((PulsarWorld)this.chunk.getWorld()).pulsar$getLightManager();
-            if(manager!=null) { manager.sendChunkLightRefresh(entry,this.chunk,this.changedSectionFilter); return; }
+    @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/management/PlayerChunkMapEntry;sendPacket(Lnet/minecraft/network/Packet;)V"))
+    private void pulsar$preserveEntitiesOnSectionRefresh(final PlayerChunkMapEntry entry,
+        final net.minecraft.network.Packet<?> packet) {
+        if (packet instanceof net.minecraft.network.play.server.SPacketChunkData data && data.isFullChunk()
+            && this.chunk != null) {
+            final WorldLightManager manager = ((PulsarWorld) this.chunk.getWorld()).pulsar$getLightManager();
+            if (manager != null) {
+                manager.sendChunkLightRefresh(entry, this.chunk, this.changedSectionFilter);
+                return;
+            }
         }
         this.sendPacket(packet);
     }
@@ -75,42 +84,45 @@ public abstract class MixinPlayerChunkMapEntry {
         }
         final WorldLightManager mgr = ((PulsarWorld) c.getWorld()).pulsar$getLightManager();
         if (!((PulsarChunk) c).pulsar$isLightReady() || mgr != null
-                && (!mgr.areNeighboursLightReady(c.x, c.z) || !mgr.canSendUpdatedChunkLight(c.x, c.z))) {
-            if(mgr!=null)mgr.deferInitialChunkSend((PlayerChunkMapEntry)(Object)this,c);
+            && (!mgr.areNeighboursLightReady(c.x, c.z) || !mgr.canSendUpdatedChunkLight(c.x, c.z))) {
+            if (mgr != null)
+                mgr.deferInitialChunkSend((PlayerChunkMapEntry) (Object) this, c);
             cir.setReturnValue(false);
         }
     }
 
-    @Redirect(method = "addPlayer", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/server/management/PlayerChunkMapEntry;sendToPlayer(Lnet/minecraft/entity/player/EntityPlayerMP;)V"))
+    @Redirect(method = "addPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/management/PlayerChunkMapEntry;sendToPlayer(Lnet/minecraft/entity/player/EntityPlayerMP;)V"))
     private void pulsar$waitBeforeSendingToWatcher(final PlayerChunkMapEntry entry,
-                                                  final net.minecraft.entity.player.EntityPlayerMP player) {
-        final WorldLightManager mgr = this.chunk == null ? null
-                : ((PulsarWorld) this.chunk.getWorld()).pulsar$getLightManager();
+        final net.minecraft.entity.player.EntityPlayerMP player) {
+        final WorldLightManager mgr = this.chunk == null
+            ? null
+            : ((PulsarWorld) this.chunk.getWorld()).pulsar$getLightManager();
         if (!PulsarConfig.features.sendChunksWithoutLight && mgr != null
-                && !mgr.canSendUpdatedChunkLight(this.chunk.x, this.chunk.z)) {
+            && !mgr.canSendUpdatedChunkLight(this.chunk.x, this.chunk.z)) {
             mgr.deferChunkWatch((PlayerChunkMapEntry) (Object) this, this.chunk, player);
-        } else entry.sendToPlayer(player);
+        } else
+            entry.sendToPlayer(player);
     }
 
-    @Redirect(method = {"addPlayer", "removePlayer"}, at = @At(value = "INVOKE",
-            target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z",
-            remap = false))
+    @Redirect(method = {"addPlayer",
+        "removePlayer"}, at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
     private boolean pulsar$orderWatchEvent(final net.minecraftforge.fml.common.eventhandler.EventBus bus,
-                                           final net.minecraftforge.fml.common.eventhandler.Event event) {
-        final WorldLightManager mgr = this.chunk == null ? null
-                : ((PulsarWorld) this.chunk.getWorld()).pulsar$getLightManager();
+        final net.minecraftforge.fml.common.eventhandler.Event event) {
+        final WorldLightManager mgr = this.chunk == null
+            ? null
+            : ((PulsarWorld) this.chunk.getWorld()).pulsar$getLightManager();
         if (event instanceof net.minecraftforge.event.world.ChunkWatchEvent watch && mgr != null
-                && mgr.isPendingChunkWatch((PlayerChunkMapEntry) (Object) this, watch.getPlayer())) return false;
+            && mgr.isPendingChunkWatch((PlayerChunkMapEntry) (Object) this, watch.getPlayer()))
+            return false;
         return bus.post(event);
     }
 
-    @Redirect(method = "sendPacket", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/network/NetHandlerPlayServer;sendPacket(Lnet/minecraft/network/Packet;)V"))
+    @Redirect(method = "sendPacket", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetHandlerPlayServer;sendPacket(Lnet/minecraft/network/Packet;)V"))
     private void pulsar$waitBeforeBroadcastingToWatcher(final net.minecraft.network.NetHandlerPlayServer connection,
-                                                       final net.minecraft.network.Packet<?> packet) {
-        final WorldLightManager mgr = this.chunk == null ? null
-                : ((PulsarWorld) this.chunk.getWorld()).pulsar$getLightManager();
+        final net.minecraft.network.Packet<?> packet) {
+        final WorldLightManager mgr = this.chunk == null
+            ? null
+            : ((PulsarWorld) this.chunk.getWorld()).pulsar$getLightManager();
         if (mgr == null || !mgr.isPendingChunkWatch((PlayerChunkMapEntry) (Object) this, connection.player)) {
             connection.sendPacket(packet);
         }
@@ -118,9 +130,12 @@ public abstract class MixinPlayerChunkMapEntry {
 
     @Inject(method = "removePlayer", at = @At("RETURN"))
     private void pulsar$cancelWaitingWatcher(final net.minecraft.entity.player.EntityPlayerMP player,
-                                             final CallbackInfo ci) {
-        if (this.chunk == null) return;
+        final CallbackInfo ci) {
+        if (this.chunk == null)
+            return;
         final WorldLightManager mgr = ((PulsarWorld) this.chunk.getWorld()).pulsar$getLightManager();
-        if (mgr != null) mgr.cancelDeferredChunkWatch((PlayerChunkMapEntry) (Object) this, player);
+        if (mgr != null)
+            mgr.cancelDeferredChunkWatch((PlayerChunkMapEntry) (Object) this, player);
     }
+
 }

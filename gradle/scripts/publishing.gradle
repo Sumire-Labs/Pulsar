@@ -1,19 +1,59 @@
-// The public API publication is defined in api.gradle. Consumers provide their
-// own Cleanroom development environment; engine dependencies stay out of its POM.
-if (publish_to_maven.toBoolean()) {
+def remotePublishing = publish_to_maven.toBoolean()
+def localPublishing = publish_to_local_maven.toBoolean()
+if (remotePublishing || localPublishing) {
     publishing {
-        repositories {
-            maven {
-                name = 'artifactKeeper'
-                url = providers.gradleProperty('maven_url').get()
-                credentials {
-                    username = providers.environmentVariable('MAVEN_USER').orNull
-                    password = providers.environmentVariable('MAVEN_PASS').orNull
-                }
-                authentication {
-                    basic(BasicAuthentication)
+        // api.gradle defines Pulsar's compile-only publication. Keep its existing
+        // coordinates and avoid exposing the game/renderer dependency graph.
+        if (remotePublishing && !localPublishing) {
+            if (maven_url.isBlank()) throw new GradleException('Set maven_url before enabling publish_to_maven.')
+            repositories {
+                maven {
+                    name = maven_name
+                    url = maven_url
+                    credentials {
+                        username = providers.environmentVariable('MAVEN_USERNAME')
+                                .orElse(providers.gradleProperty("${maven_name}Username")).orNull
+                        password = providers.environmentVariable('MAVEN_PASSWORD')
+                                .orElse(providers.gradleProperty("${maven_name}Password")).orNull
+                    }
+                    authentication { basic(BasicAuthentication) }
                 }
             }
+        }
+    }
+}
+
+// The same runtime artifact is used for CurseForge and Modrinth.
+apply plugin: 'me.modmuss50.mod-publish-plugin'
+publishMods {
+    file = tasks.named('reobfJar').flatMap { it.output }
+    version = project.version.toString()
+    displayName = "${mod_name} ${project.version}"
+    type = versioning.stage.map { stage ->
+        switch (stage.name()) {
+            case 'ALPHA': return me.modmuss50.mpp.ReleaseType.ALPHA
+            case 'BETA': case 'RC': return me.modmuss50.mpp.ReleaseType.BETA
+            default: return me.modmuss50.mpp.ReleaseType.STABLE
+        }
+    }
+    modLoaders.add('forge')
+    maxRetries = 5
+    def notes = providers.environmentVariable('CHANGELOG_FILE').orElse('RELEASE_NOTES.md')
+    changelog = providers.fileContents(layout.projectDirectory.file(notes)).asText.orElse('')
+    if (!curseforge_project_id.isBlank()) {
+        curseforge {
+            projectId = curseforge_project_id
+            accessToken = providers.environmentVariable('CURSEFORGE_TOKEN')
+            minecraftVersions.add('1.12.2')
+            client = true
+            server = true
+        }
+    }
+    if (!modrinth_project_id.isBlank()) {
+        modrinth {
+            projectId = modrinth_project_id
+            accessToken = providers.environmentVariable('MODRINTH_TOKEN')
+            minecraftVersions.add('1.12.2')
         }
     }
 }

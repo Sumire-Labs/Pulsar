@@ -16,4 +16,5 @@ public interface FaceLightInfo {
     boolean pulsar$useNeighborBrightness(EnumFacing facing, IBlockAccess access, BlockPos pos);
 
     int pulsar$getLightOpacity(EnumFacing facing, IBlockAccess access, BlockPos pos);
+
 }

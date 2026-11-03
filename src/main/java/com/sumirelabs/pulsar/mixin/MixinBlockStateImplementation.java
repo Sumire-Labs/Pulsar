@@ -1,16 +1,18 @@
 package com.sumirelabs.pulsar.mixin;
 
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+
 import com.sumirelabs.pulsar.api.FaceLightInfo;
 import com.sumirelabs.pulsar.api.FaceLitBlock;
 import com.sumirelabs.pulsar.light.LightCachedState;
 import com.sumirelabs.pulsar.light.engine.LightInfo;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 
 /**
  * Attaches the memoised packed light info to every block state. 1.12.2
@@ -29,8 +31,7 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(targets = "net.minecraft.block.state.BlockStateContainer$StateImplementation")
 public abstract class MixinBlockStateImplementation implements LightCachedState, FaceLightInfo {
 
-    @Unique
-    private int pulsar$lightInfo;
+    @Unique private int pulsar$lightInfo;
 
     @Override
     public int pulsar$lightInfo() {
@@ -52,7 +53,8 @@ public abstract class MixinBlockStateImplementation implements LightCachedState,
     }
 
     @Override
-    public boolean pulsar$useNeighborBrightness(final EnumFacing facing, final IBlockAccess access, final BlockPos pos) {
+    public boolean pulsar$useNeighborBrightness(final EnumFacing facing, final IBlockAccess access,
+        final BlockPos pos) {
         final IBlockState self = (IBlockState) this;
         return ((FaceLitBlock) self.getBlock()).pulsar$useNeighborBrightness(self, facing, access, pos);
     }
@@ -62,4 +64,5 @@ public abstract class MixinBlockStateImplementation implements LightCachedState,
         final IBlockState self = (IBlockState) this;
         return ((FaceLitBlock) self.getBlock()).pulsar$getLightOpacity(self, facing, access, pos);
     }
+
 }
