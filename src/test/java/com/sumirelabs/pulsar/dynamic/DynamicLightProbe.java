@@ -97,6 +97,8 @@ public final class DynamicLightProbe {
         check(world.getLightFromNeighbors(POS)>=14,"GAMEPLAY missing neighbor query");
         check(world.chunks.getLoadedChunk(0,0).getBlockStorageArray()[4].getBlockLight().get(8,8,8)==0,"Dynamic light polluted saved storage");
         player.main=ItemStack.EMPTY;player.off=new ItemStack(Blocks.GLOWSTONE);
+        manager.tick(tick);
+        check(world.getLightFor(EnumSkyBlock.BLOCK,POS)>0,"Emitting hand switch blanked the published light");
         for(int i=0;i<5;i++){manager.tick(tick);Thread.sleep(10);}
         check(world.getLightFor(EnumSkyBlock.BLOCK,POS)==15,"Offhand was ignored");
         player.off=ItemStack.EMPTY;manager.tick(tick);

@@ -22,7 +22,7 @@ public final class PacketLightProbe {
         for (boolean sky : new boolean[]{false, true}) for (int level : new int[]{0, 14})
                 for (int mask : new int[]{0xffff, 1 << 4, 0}) {
             World world = world(sky);
-            Chunk source = new Chunk(world, 0, 0);
+            Chunk source = new Chunk(world, -7, 11);
             PulsarChunk light = (PulsarChunk) source;
             SWMRNibbleArray nibble = light.pulsar$getBlockNibbles()[WorldHeightContext.VANILLA.getLightSectionIndex(4)];
             nibble.set(15, 0, 8, level);
@@ -31,11 +31,16 @@ public final class PacketLightProbe {
             source.getBlockStorageArray()[0] = new ExtendedBlockStorage(0, sky);
             source.getBlockStorageArray()[0].set(0, 0, 0, Blocks.STONE.getDefaultState());
             SPacketChunkData packet = new SPacketChunkData(source, mask);
+            var metadata = (com.sumirelabs.pulsar.light.ChunkPacketCoordinates) packet;
+            if (metadata.pulsar$chunkX() != -7 || metadata.pulsar$chunkZ() != 11
+                    || metadata.pulsar$fullChunk() != (mask == 0xffff)) {
+                throw new AssertionError("Common-side packet metadata lost coordinates or full-chunk flag");
+            }
             boolean selected = (mask & (1 << 4)) != 0 && (mask != 0xffff || level != 0);
             if (((packet.getExtractedSize() & (1 << 4)) != 0) != selected) {
                 throw new AssertionError("Packet lost the absent light-only section: sky=" + sky + " mask=" + mask);
             }
-            Chunk received = new Chunk(world, 0, 0);
+            Chunk received = new Chunk(world, -7, 11);
             var buffer = packet.getReadBuffer();
             received.read(buffer, packet.getExtractedSize(), packet.isFullChunk());
             if ((mask & 1) != 0 && (received.getBlockStorageArray()[0] == null

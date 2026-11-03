@@ -7,9 +7,11 @@ import java.util.Arrays;
 public final class DynamicLightField {
     /** Same nominal range as conventional distance-based dynamic lights; static block lighting is unchanged. */
     public static final double RANGE = 7.75;
-    public static final double VISUAL_RANGE = RANGE + 5.0;
-    public static final double MAX_RENDER_OFFSET = 3.5;
-    public static final int CAPTURE_RADIUS = 13;
+    // Include one extra block for remote-entity interpolation/velocity corrections.
+    // The mask still covers the whole radial light plus surface bias and trilinear stencil.
+    public static final double VISUAL_RANGE = RANGE + 6.0;
+    public static final double MAX_RENDER_OFFSET = 4.5;
+    public static final int CAPTURE_RADIUS = 14;
     public static final int BLOCKED = 65535;
     private static final int COST_UNIT = 1024;
     public final int x, y, z, radius, side;

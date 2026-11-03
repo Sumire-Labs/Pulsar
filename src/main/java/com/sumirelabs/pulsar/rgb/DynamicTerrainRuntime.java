@@ -32,6 +32,7 @@ public final class DynamicTerrainRuntime {
     private static long previousFrame;
     private static final class Slot {int id;DynamicLightField field;DynamicLightMotion motion;}
     private static final Map<Integer,DynamicLightMotion> MOTIONS=new HashMap<>();
+    private static final Map<Integer,DynamicLightHistory> HISTORY=new HashMap<>();
     private static final class Program {
         final int id,enable; final Map<String,Integer> locations=new HashMap<>();
         Program(int id){this.id=id;enable=loc("pulsarFrameEnabled");}
@@ -44,7 +45,7 @@ public final class DynamicTerrainRuntime {
     public static void tick() {
         if(!PRESENT)return;
         Minecraft mc=Minecraft.getMinecraft();
-        if(owner!=mc.world){owner=mc.world;Arrays.fill(SLOTS,null);MOTIONS.clear();count=0;previousFrame=0;if(atlas!=null)atlas.clear();}
+        if(owner!=mc.world){owner=mc.world;Arrays.fill(SLOTS,null);MOTIONS.clear();HISTORY.clear();count=0;previousFrame=0;if(atlas!=null)atlas.clear();}
         var fields=DynamicLightClient.visualFields();
         shaderPack=RgbShaderRuntime.shaderPackInUse(owner);
         boolean next=owner!=null&&!failed&&compiled&&com.sumirelabs.pulsar.config.PulsarConfig.dynamicLights.smoothTerrainLighting
@@ -66,11 +67,11 @@ public final class DynamicTerrainRuntime {
             long now=System.nanoTime();double dt=previousFrame==0?1:Math.min(.1,(now-previousFrame)/1e9);previousFrame=now;
             var sorted=new ArrayList<>(fields.entrySet());sorted.sort(Map.Entry.comparingByKey());
             MOTIONS.keySet().retainAll(fields.keySet());
+            HISTORY.keySet().retainAll(fields.keySet());
             POSITIONS.clear();EMISSIONS.clear();BOXES.clear();int at=0;
             for(var entry:sorted) {
                 DynamicLightField field=entry.getValue();if(!field.hasVisualData())continue;
                 Slot slot=SLOTS[at];if(slot==null||slot.id!=entry.getKey()){slot=new Slot();slot.id=entry.getKey();slot.motion=MOTIONS.computeIfAbsent(slot.id,k->new DynamicLightMotion());SLOTS[at]=slot;}
-                if(slot.field!=field){upload(at,field);slot.field=field;}
                 double x=field.x+.5,y=field.y+.5,z=field.z+.5;
                 Entity entity=owner.getEntityByID(entry.getKey());
                 if(entity!=null&&!entity.isDead) {
@@ -78,6 +79,8 @@ public final class DynamicTerrainRuntime {
                     y=entity.lastTickPosY+(entity.posY-entity.lastTickPosY)*partialTicks+(entity instanceof EntityPlayer?entity.getEyeHeight():entity.height*.5);
                     z=entity.lastTickPosZ+(entity.posZ-entity.lastTickPosZ)*partialTicks;
                 }
+                field=HISTORY.computeIfAbsent(entry.getKey(),k->new DynamicLightHistory()).select(field,owner.getTotalWorldTime(),x,y,z);
+                if(slot.field!=field){upload(at,field);slot.field=field;}
                 slot.motion.update(x,y,z,field.x+.5,field.y+.5,field.z+.5,entity!=null&&!entity.isDead,dt);
                 POSITIONS.put((float)(slot.motion.x()-cx)).put((float)(slot.motion.y()-cy)).put((float)(slot.motion.z()-cz)).put(0);
                 BOXES.put(field.x-field.radius-cx).put(field.y-field.radius-cy).put(field.z-field.radius-cz).put(field.side);

@@ -68,7 +68,8 @@ final class DynamicLightGeometry {
                 int x = source.getX() + dx, y = source.getY() + dy, z = source.getZ() + dz;
                 if (y < height.getMinBlockY() || y > height.getMaxBlockY()) continue;
                 var chunk = world.getChunkProvider().getLoadedChunk(x >> 4, z >> 4);
-                if (chunk == null || chunk instanceof net.minecraft.world.chunk.EmptyChunk) continue;
+                // Server providers return null for unloaded chunks. EmptyChunk is client-only.
+                if (chunk == null) continue;
                 pos.setPos(x, y, z);
                 IBlockState state = chunk.getBlockState(pos), fluid = FluidLightBridge.stateAt(chunk, x, y, z);
                 int info = LightInfo.sampleContextual(LightInfo.of(state), state, world, pos, x, y, z);

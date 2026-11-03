@@ -21,6 +21,8 @@ class DynamicLightMotionTest {
         }
         motion.update(3.2,.12,-.5,0,0,0,true,1.0/120);
         assertEquals(3.2,motion.x(),1e-12,"A delayed field clamped a valid fast-flight position");
+        motion.update(4.4,.12,-.5,0,0,0,true,1.0/120);
+        assertEquals(4.4,motion.x(),1e-12,"Remote velocity correction exceeded the sampled margin");
     }
     @Test void predictionCannotLeaveItsOcclusionPaddingAndTeleportsDoNotLeaveATrail() {
         var motion=new DynamicLightMotion();motion.update(0,0,0,0,0,0,true,.05);

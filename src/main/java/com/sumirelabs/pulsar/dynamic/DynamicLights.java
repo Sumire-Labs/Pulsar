@@ -98,7 +98,7 @@ public final class DynamicLights {
             if (!(entity instanceof EntityItem) && !burningMob) continue;
             BlockPos pos = new BlockPos(entity.posX, entity.posY + entity.height * .5, entity.posZ);
             var chunk = world.getChunkProvider().getLoadedChunk(pos.getX() >> 4, pos.getZ() >> 4);
-            if (chunk == null || chunk instanceof net.minecraft.world.chunk.EmptyChunk) continue;
+            if (chunk == null) continue; // EmptyChunk is a client-only placeholder, never a server chunk.
             int emission = burningMob ? DynamicLightGeometry.fireEmission(world, pos, RgbMixinSelection.rgbEnabled())
                     : DynamicLightGeometry.itemEmission(world, pos, ((EntityItem) entity).getItem(), RgbMixinSelection.rgbEnabled());
             if (emission != 0) changed |= track(state, present, entity.getEntityId(), pos, emission);
@@ -139,13 +139,15 @@ public final class DynamicLights {
         present.add(id);
         Source source = state.sources.computeIfAbsent(id, k -> new Source());
         if (pos.equals(source.pos) && source.emission == emission) return false;
-        boolean remove = source.emission != emission || source.pos != null && source.pos.distanceSq(pos) > 64
+        boolean emissionChanged = source.emission != emission;
+        boolean remove = source.pos != null && source.pos.distanceSq(pos) > 64
                 || source.field != null && (Math.abs(source.field.x - pos.getX())
                 + Math.abs(source.field.y - pos.getY()) + Math.abs(source.field.z - pos.getZ()) > 8);
         source.pos = pos; source.emission = emission; source.dirty = true;
         // Coalesce ordinary movement into the next job; preserve the visible field until
-        // its replacement is ready. Teleports and emission changes still retire it immediately.
-        if (remove) {
+        // its replacement is ready. An emitting-to-emitting change replaces the publication
+        // atomically; absent/extinguished sources are still removed immediately by tick().
+        if (remove || emissionChanged) {
             if (source.pending != null) source.pending.cancel(false);
             source.pending = null;
         }
