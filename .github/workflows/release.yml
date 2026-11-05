@@ -8,13 +8,28 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-*'
   workflow_dispatch:
+    inputs:
+      resume_tag:
+        description: Resume mod uploads for an existing tag whose Maven artifacts are already published
+        type: string
+      skip_curseforge:
+        description: Skip CurseForge if its upload already succeeded
+        type: boolean
+        default: false
+      skip_modrinth:
+        description: Skip Modrinth if its upload already succeeded
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ inputs.resume_tag || github.ref_name }}
   cancel-in-progress: false
+
+env:
+  RELEASE_TAG: ${{ inputs.resume_tag || github.ref_name }}
 
 jobs:
   release:
@@ -23,13 +38,15 @@ jobs:
       - name: Require a version tag
         env:
           REF_TYPE: ${{ github.ref_type }}
+          RESUME_TAG: ${{ inputs.resume_tag }}
         run: |
-          if [[ "$REF_TYPE" != tag ]]; then
+          if [[ "$REF_TYPE" != tag && -z "$RESUME_TAG" ]]; then
             echo 'Select a version tag in Use workflow from.' >&2
             exit 1
           fi
       - uses: actions/checkout@v7.0.1
         with:
+          ref: refs/tags/${{ env.RELEASE_TAG }}
           fetch-depth: 0
           fetch-tags: true
           persist-credentials: false
@@ -41,7 +58,8 @@ jobs:
       - name: Read release configuration
         id: release
         run: |
-          info=$(./gradlew -q --console=plain printReleaseInfo)
+          info=$(GITHUB_REF="refs/tags/$RELEASE_TAG" GITHUB_REF_NAME="$RELEASE_TAG" GITHUB_REF_TYPE=tag \
+            ./gradlew -q --console=plain printReleaseInfo)
           echo "version=$(jq -r .version <<< "$info")" >> "$GITHUB_OUTPUT"
           echo "type=$(jq -r .type <<< "$info")" >> "$GITHUB_OUTPUT"
           echo "maven=$(jq -r .maven <<< "$info")" >> "$GITHUB_OUTPUT"
@@ -49,9 +67,9 @@ jobs:
           echo "modrinth=$(jq -r .modrinth <<< "$info")" >> "$GITHUB_OUTPUT"
       - name: Check publication credentials
         env:
-          PUBLISH_MAVEN: ${{ steps.release.outputs.maven }}
-          PUBLISH_CURSEFORGE: ${{ steps.release.outputs.curseforge }}
-          PUBLISH_MODRINTH: ${{ steps.release.outputs.modrinth }}
+          PUBLISH_MAVEN: ${{ !inputs.resume_tag && steps.release.outputs.maven == 'true' }}
+          PUBLISH_CURSEFORGE: ${{ !inputs.skip_curseforge && steps.release.outputs.curseforge == 'true' }}
+          PUBLISH_MODRINTH: ${{ !inputs.skip_modrinth && steps.release.outputs.modrinth == 'true' }}
           MAVEN_USERNAME: ${{ secrets.MAVEN_USER }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASS }}
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -70,16 +88,17 @@ jobs:
             exit 1
           fi
       - name: Build
-        run: ./gradlew clean build --console=plain
+        run: |
+          GITHUB_REF="refs/tags/$RELEASE_TAG" GITHUB_REF_NAME="$RELEASE_TAG" GITHUB_REF_TYPE=tag \
+            ./gradlew clean build --console=plain
       - name: Generate release notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
         run: |
           gh api --method POST "repos/$GITHUB_REPOSITORY/releases/generate-notes" \
-            -f tag_name="$TAG" --jq .body > RELEASE_NOTES.md
+            -f tag_name="$RELEASE_TAG" --jq .body > RELEASE_NOTES.md
       - name: Publish Maven artifacts
-        if: steps.release.outputs.maven == 'true'
+        if: ${{ !inputs.resume_tag && steps.release.outputs.maven == 'true' }}
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USER }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASS }}
@@ -90,15 +109,32 @@ jobs:
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           CHANGELOG_FILE: RELEASE_NOTES.md
-        run: ./gradlew publishMods --console=plain
+          RESUME_TAG: ${{ inputs.resume_tag }}
+          SKIP_CURSEFORGE: ${{ inputs.skip_curseforge }}
+          SKIP_MODRINTH: ${{ inputs.skip_modrinth }}
+        run: |
+          args=()
+          if [[ "$SKIP_CURSEFORGE" == true ]]; then args+=(-x publishCurseforge); fi
+          if [[ "$SKIP_MODRINTH" == true ]]; then args+=(-x publishModrinth); fi
+          if [[ "$RESUME_TAG" == 0.6.3-beta ]]; then
+            # Recover the original tagged build without editing its checkout.
+            cat > "$RUNNER_TEMP/pulsar-release.init.gradle" <<'EOF'
+          gradle.projectsEvaluated {
+              def publication = gradle.rootProject.extensions.getByName('publishMods')
+              publication.type.set(publication.BETA)
+          }
+          EOF
+            args+=(--init-script "$RUNNER_TEMP/pulsar-release.init.gradle")
+          fi
+          GITHUB_REF="refs/tags/$RELEASE_TAG" GITHUB_REF_NAME="$RELEASE_TAG" GITHUB_REF_TYPE=tag \
+            ./gradlew publishMods --console=plain "${args[@]}"
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
           VERSION: ${{ steps.release.outputs.version }}
           RELEASE_TYPE: ${{ steps.release.outputs.type }}
         run: |
           args=()
           if [[ "$RELEASE_TYPE" != release ]]; then args+=(--prerelease); fi
-          gh release create "$TAG" --title "$VERSION" --notes-file RELEASE_NOTES.md \
+          gh release create "$RELEASE_TAG" --verify-tag --title "$VERSION" --notes-file RELEASE_NOTES.md \
             "${args[@]}" build/libs/*.jar
