@@ -177,6 +177,8 @@ abstract class PackedRgbChannelEngine extends PulsarEngine implements PackedRgbO
                 IBlockState state = getBlockStateFast(idx, nx & 15, ny & 15, nz & 15);
                 boolean air = isPlainAir(state, idx);
                 int info = air ? plainAirInfo() : lightInfoAt(state, nx, ny, nz);
+                if (blocksSlabBoundary(info, state, direction.oppositeOrdinal, nx, ny, nz))
+                    continue;
                 int candidate = air
                     ? possible
                     : PackedRgbLight.packedSubRGB(level,

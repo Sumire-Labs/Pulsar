@@ -26,6 +26,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SmoothLightOcclusionTest {
 
+    @Test
+    void coveredWallVerticesUseTheExposedPartOfTheFaceInsteadOfTheOpaqueCell() {
+        for (EnumFacing normal : EnumFacing.HORIZONTALS)
+            for (var half : BlockSlab.EnumBlockHalf.values()) {
+                Fixture world = fixture(normal, 0);
+                BlockPos outside = world.center.offset(normal);
+                world.states.put(outside, Blocks.WOODEN_SLAB.getDefaultState().withProperty(BlockSlab.HALF, half));
+                world.lights.put(outside, 15 << 20);
+                float x = normal.getAxis() == EnumFacing.Axis.X ? (normal == EnumFacing.EAST ? 1 : 0) : .5f;
+                float z = normal.getAxis() == EnumFacing.Axis.Z ? (normal == EnumFacing.SOUTH ? 1 : 0) : .5f;
+                float y = half == BlockSlab.EnumBlockHalf.TOP ? 1 : 0;
+                assertEquals(15 << 20,
+                    PartialFaceLight.sample(world, Blocks.STONE.getDefaultState(), world.center, normal, x, y, z, 0));
+            }
+    }
+
     @BeforeAll
     static void bootstrap() {
         Bootstrap.register();

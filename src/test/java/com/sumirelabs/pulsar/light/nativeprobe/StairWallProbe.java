@@ -103,6 +103,7 @@ public final class StairWallProbe {
     }
 
     private static void slabRoof() throws Exception {
+        wallAgainstSlab();
         int cases = 0;
         for (var half : BlockSlab.EnumBlockHalf.values())
             for (int cornice = 0; cornice < 3; cornice++) {
@@ -175,6 +176,27 @@ public final class StairWallProbe {
                 throw new AssertionError("Slab perimeter opening control: " + half + " light=" + inside);
         }
         System.out.println("SLAB_ROOF_PASS cases=" + cases);
+    }
+
+    private static void wallAgainstSlab() throws Exception {
+        for (EnumFacing face : EnumFacing.HORIZONTALS)
+            for (var half : BlockSlab.EnumBlockHalf.values()) {
+                Room world = new Room(EnumFacing.NORTH, BlockStairs.EnumHalf.TOP, true);
+                world.blocks.put(world.stair, Blocks.STONE.getDefaultState());
+                BlockPos wall = new BlockPos(7, 10, 7), outside = wall.offset(face);
+                world.blocks.put(outside, Blocks.WOODEN_SLAB.getDefaultState().withProperty(BlockSlab.HALF, half));
+                world.light = new StairRoomLight(world.blocks);
+                world.blockLights.put(outside, 15);
+                for (int renderer = 0; renderer < (Boolean.getBoolean("issue20.celeritas") ? 3 : 2); renderer++)
+                    for (var quad : cube())
+                        if (quad.getFace() == face)
+                            for (int packed : PartialSurfaceProbe.renderAt(renderer, world,
+                                Blocks.STONE.getDefaultState(), quad, wall))
+                                if ((packed & 0xffff) == 0)
+                                    throw new AssertionError("Opaque-cell shadow beside slab: renderer=" + renderer
+                                        + " face=" + face + " half=" + half);
+            }
+        System.out.println("SLAB_WALL_SHADOW_PASS");
     }
 
     private static void carpetUnderStair() throws Exception {

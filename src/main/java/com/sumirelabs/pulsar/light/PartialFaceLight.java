@@ -86,6 +86,26 @@ public final class PartialFaceLight {
         }
         // Vertices hidden by a stair/slab (including an adjacent block) still
         // influence the visible part of the quad through interpolation.
+        if (seeds == 0 && rendered.isOpaqueCube()) {
+            // Covered vertices still shade the exposed portion of a cube's quad.
+            // Borrow that portion's cavity, never the opaque cube's dark interior.
+            scratch.setPos(origin.getX() + normal.getXOffset(), origin.getY() + normal.getYOffset(),
+                origin.getZ() + normal.getZOffset());
+            IBlockState adjacent = world.getBlockState(scratch);
+            if (applies(adjacent))
+                for (int corner = 0; corner < 4; corner++) {
+                    double px = .25 + ((corner & 1) != 0 ? .5 : 0), py = .25 + ((corner & 2) != 0 ? .5 : 0), pz = py;
+                    if (axis == 0) {
+                        px = normal.getXOffset() > 0 ? EPSILON : 1 - EPSILON;
+                        py = .25 + ((corner & 1) != 0 ? .5 : 0);
+                    } else if (axis == 1)
+                        py = normal.getYOffset() > 0 ? EPSILON : 1 - EPSILON;
+                    else
+                        pz = normal.getZOffset() > 0 ? EPSILON : 1 - EPSILON;
+                    if (!solidAt(world, adjacent, scratch, normal, px, py, pz, false))
+                        return world.getCombinedLight(scratch, rendered.getLightValue(world, origin));
+                }
+        }
         if (seeds == 0)
             return world.getCombinedLight(origin, rendered.getLightValue(world, origin));
         int reachable = seeds;

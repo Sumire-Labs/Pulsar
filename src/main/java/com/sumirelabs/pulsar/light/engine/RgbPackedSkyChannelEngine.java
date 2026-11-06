@@ -76,6 +76,8 @@ final class RgbPackedSkyChannelEngine extends PackedRgbChannelEngine {
         var state = getBlockState(x, y, z);
         int info = lightInfoAt(state, x, y, z);
         for (var direction : AXIS_DIRECTIONS) {
+            if (blocksSlabBoundary(info, state, direction.ordinal(), x, y, z))
+                continue;
             int nx = x + direction.x, ny = y + direction.y, nz = z + direction.z, idx = section(nx, ny, nz);
             if (idx < 0 || idx >= nibbleCache.length)
                 continue;

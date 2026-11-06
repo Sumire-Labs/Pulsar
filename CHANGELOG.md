@@ -5,6 +5,16 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Block light crossing the sealed horizontal boundary between adjacent upper
+  and lower opaque slabs in SCALAR and RGB lighting (issue #29).
+- Avoid dark bands on exposed wall faces next to slabs by sampling their visible
+  cavity instead of the opaque wall's interior at covered vertices (issue #29).
+- Rebuild older saved lighting with cache version 15 to remove leaked slab light.
+
 ## [0.6.3-beta] - 2026-11-06
 
 ### Added

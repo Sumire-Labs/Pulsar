@@ -165,6 +165,8 @@ final class RgbChannelEngine extends PulsarEngine {
             final int localIndex = (offX & 15) | ((offZ & 15) << 4) | ((offY & 15) << 8);
 
             final int neighbourLevel = this.getLightLevel(sectionIndex, localIndex);
+            if (blocksSlabBoundary(info, state, direction.ordinal(), worldX, worldY, worldZ))
+                continue;
 
             final int absorption = absorption(info, state, direction.ordinal(), worldX, worldY, worldZ);
             final int attenuated = neighbourLevel - absorption;
@@ -363,6 +365,8 @@ final class RgbChannelEngine extends PulsarEngine {
                     continue;
                 }
                 final int destInfo = this.rgbInfoAt(destState, offX, offY, offZ);
+                if (blocksSlabBoundary(destInfo, destState, propagate.oppositeOrdinal, offX, offY, offZ))
+                    continue;
                 final int absorption = absorption(destInfo, destState, propagate.oppositeOrdinal, offX, offY, offZ);
 
                 final int targetLevel = propagatedLevel - absorption;

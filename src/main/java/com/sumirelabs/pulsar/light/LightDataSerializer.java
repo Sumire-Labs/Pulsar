@@ -54,7 +54,8 @@ public final class LightDataSerializer {
     // v6: invalidated light computed before the 2026-07-26 correctness batch
     // (UNINIT-as-15 sync, missing extrude, decrease re-seed/continuation
     // fixes) — old data relights once on load.
-    public static final int LIGHT_VERSION = 14;
+    // v15: rebuild light that crossed sealed opposite-half slab boundaries.
+    public static final int LIGHT_VERSION = 15;
 
     private static final String TAG_ROOT = "PulsarLight";
     private static final String TAG_VERSION = "version";

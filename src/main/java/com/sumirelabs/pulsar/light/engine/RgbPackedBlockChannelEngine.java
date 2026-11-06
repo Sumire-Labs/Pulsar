@@ -42,6 +42,8 @@ final class RgbPackedBlockChannelEngine extends PackedRgbChannelEngine {
         int info = lightInfoAt(state, x, y, z);
         int level = emission(state, x, y, z);
         for (AxisDirection direction : AXIS_DIRECTIONS) {
+            if (blocksSlabBoundary(info, state, direction.ordinal(), x, y, z))
+                continue;
             int nx = x + direction.x, ny = y + direction.y, nz = z + direction.z;
             int candidate = PackedRgbLight.packedSubRGB(getLightLevel(nx, ny, nz),
                 absorption(info, state, direction.ordinal(), x, y, z));

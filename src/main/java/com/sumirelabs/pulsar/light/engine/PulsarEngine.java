@@ -46,6 +46,22 @@ import it.unimi.dsi.fastutil.ints.IntSet;
  */
 public abstract class PulsarEngine extends LightEngineCache {
 
+    /** Two opaque opposite-half slabs jointly seal a horizontal boundary. */
+    protected final boolean blocksSlabBoundary(int info, IBlockState state, int face, int x, int y, int z) {
+        if (face >= 4 || (info & LightInfo.SIDED) == 0 || LightInfo.opacity(info) < 15
+            || (info & LightInfo.DYNAMIC) != 0 || !(state.getBlock() instanceof net.minecraft.block.BlockSlab slab)
+            || slab.isDouble())
+            return false;
+        AxisDirection direction = AXIS_DIRECTIONS[face];
+        int nx = x + direction.x, nz = z + direction.z;
+        IBlockState other = getBlockState(nx, y, nz);
+        if (!(other.getBlock() instanceof net.minecraft.block.BlockSlab otherSlab) || otherSlab.isDouble()
+            || state.getValue(net.minecraft.block.BlockSlab.HALF) == other.getValue(net.minecraft.block.BlockSlab.HALF))
+            return false;
+        int otherInfo = lightInfoAt(other, nx, y, nz);
+        return LightInfo.opacity(otherInfo) >= 15 && (otherInfo & LightInfo.DYNAMIC) == 0;
+    }
+
     protected static final AxisDirection[] AXIS_DIRECTIONS = AxisDirection.values();
     protected static final AxisDirection[] ONLY_HORIZONTAL_DIRECTIONS = new AxisDirection[]{
         AxisDirection.POSITIVE_X, AxisDirection.NEGATIVE_X,
