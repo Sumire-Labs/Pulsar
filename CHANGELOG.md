@@ -5,7 +5,14 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.4-beta] - 2026-11-08
+
+### Changed
+
+- Update Gradle to 9.9.0 and actions/setup-java to v6.2.0.
+- Publish beta-tagged builds as beta files on CurseForge and Modrinth while
+  keeping the GitHub Release's pre-release flag disabled.
+- Use the matching CHANGELOG entry as the release notes on all distribution sites.
 
 ### Fixed
 

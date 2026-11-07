@@ -92,11 +92,16 @@ jobs:
           GITHUB_REF="refs/tags/$RELEASE_TAG" GITHUB_REF_NAME="$RELEASE_TAG" GITHUB_REF_TYPE=tag \
             ./gradlew clean build --console=plain
       - name: Generate release notes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh api --method POST "repos/$GITHUB_REPOSITORY/releases/generate-notes" \
-            -f tag_name="$RELEASE_TAG" --jq .body > RELEASE_NOTES.md
+          awk -v version="${RELEASE_TAG#v}" '
+            /^## \[/ {
+              if (found) exit
+              if (index($0, "## [" version "]") == 1) { found = 1; next }
+            }
+            found { print }
+            END { if (!found) exit 1 }
+          ' CHANGELOG.md > RELEASE_NOTES.md
+          test -s RELEASE_NOTES.md
       - name: Publish Maven artifacts
         if: ${{ !inputs.resume_tag && steps.release.outputs.maven == 'true' }}
         env:
@@ -132,9 +137,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.release.outputs.version }}
-          RELEASE_TYPE: ${{ steps.release.outputs.type }}
         run: |
-          args=()
-          if [[ "$RELEASE_TYPE" != release ]]; then args+=(--prerelease); fi
           gh release create "$RELEASE_TAG" --verify-tag --title "$VERSION" --notes-file RELEASE_NOTES.md \
-            "${args[@]}" build/libs/*.jar
+            --prerelease=false build/libs/*.jar
