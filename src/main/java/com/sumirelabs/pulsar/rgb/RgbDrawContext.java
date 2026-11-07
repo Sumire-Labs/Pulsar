@@ -98,7 +98,9 @@ public final class RgbDrawContext {
                 Minecraft.getMinecraft().entityRenderer.disableLightmap();
         }
         if (oldU != state.lightU || oldV != state.lightV)
-            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, state.lightU, state.lightV);
+            try (var ignored = DynamicObjectLight.suspend()) {
+                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, state.lightU, state.lightV);
+            }
         context.texture().update(state);
         if (owns)
             context.texture().close();

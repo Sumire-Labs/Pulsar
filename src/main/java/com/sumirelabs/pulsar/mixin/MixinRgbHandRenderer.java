@@ -15,16 +15,18 @@ public abstract class MixinRgbHandRenderer {
     @WrapMethod(method = "renderItemInFirstPerson(F)V")
     private void pulsar$handDraw(float partial, Operation<Void> original) {
         var player = Minecraft.getMinecraft().player;
-        int token = player == null
-            ? 0
-            : RgbDrawContext.enter(player,
-                player.lastTickPosX + (player.posX - player.lastTickPosX) * partial,
-                player.lastTickPosY + (player.posY - player.lastTickPosY) * partial + player.getEyeHeight(),
-                player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partial);
-        try {
-            original.call(partial);
-        } finally {
-            RgbDrawContext.close(token);
+        try (var light = com.sumirelabs.pulsar.rgb.DynamicObjectLight.begin(player, partial)) {
+            int token = player == null
+                ? 0
+                : RgbDrawContext.enter(player,
+                    player.lastTickPosX + (player.posX - player.lastTickPosX) * partial,
+                    player.lastTickPosY + (player.posY - player.lastTickPosY) * partial + player.getEyeHeight(),
+                    player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partial);
+            try {
+                original.call(partial);
+            } finally {
+                RgbDrawContext.close(token);
+            }
         }
     }
 

@@ -35,8 +35,33 @@ public final class CeleritasWorldSliceProbe {
         unsafe = field.get(null);
         allocate = unsafe.getClass().getMethod("allocateInstance", Class.class);
         Bootstrap.register();
+        Class<?> programType = Class.forName("org.embeddedt.embeddium.impl.gl.shader.GlProgram");
+        if (Arrays.stream(programType.getDeclaredMethods())
+            .noneMatch(m -> m.getName().contains("pulsar$frameUniforms")))
+            throw new AssertionError("Missing per-frame program hook");
+        Class<?> loaderType = Class.forName("org.embeddedt.embeddium.impl.render.shader.ShaderLoader");
+        if (Arrays.stream(loaderType.getDeclaredMethods()).noneMatch(m -> m.getName().contains("pulsar$frameLight")))
+            throw new AssertionError("Missing terrain shader hook");
         sliceType = Class.forName("org.taumc.celeritas.impl.world.WorldSlice");
         sectionType = Class.forName("org.taumc.celeritas.impl.world.cloned.ClonedChunkSection");
+        net.minecraft.launchwrapper.Launch.blackboard.put("fml.deobfuscatedEnvironment", true);
+        Class<?> taskType = Class
+            .forName("org.taumc.celeritas.impl.render.terrain.compile.task.ChunkBuilderMeshingTask");
+        if (Arrays.stream(taskType.getDeclaredMethods()).noneMatch(m -> m.getName().contains("pulsar$dynamicSnapshot")))
+            throw new AssertionError("Missing Celeritas mesh snapshot wrapper");
+        Object task = allocate.invoke(unsafe, taskType);
+        Method execute = Arrays.stream(taskType.getDeclaredMethods())
+            .filter(m -> m.getName().equals("execute") && m.getParameterCount() == 2).findFirst().orElseThrow();
+        try {
+            execute.invoke(task, new Object[]{null, null});
+        } catch (java.lang.reflect.InvocationTargetException expected) {
+            if (!(expected.getCause() instanceof NullPointerException))
+                throw expected;
+        }
+        var scope = com.sumirelabs.pulsar.dynamic.DynamicLightClient.class.getDeclaredField("MESH_VIEW");
+        scope.setAccessible(true);
+        if (((ThreadLocal<?>) scope.get(null)).get() != null)
+            throw new AssertionError("Celeritas failed to close mesh scope on exception");
         if (Arrays.stream(sliceType.getDeclaredMethods())
             .noneMatch(m -> m.getName().contains("useFaceAwareNeighborLight"))) {
             throw new AssertionError("Production WorldSlice hook was not applied");
@@ -68,6 +93,26 @@ public final class CeleritasWorldSliceProbe {
                             }
                     }
             }
+        }
+        for (BlockPos base : List.of(BlockPos.ORIGIN, new BlockPos(-32, 48, 64), new BlockPos(16, -16, -32))) {
+            BlockPos pos = base.add(8, 8, 8);
+            IBlockAccess slice = slice(base, new Reference(pos, Blocks.STONE.getDefaultState(),
+                Blocks.AIR.getDefaultState(), EnumSkyBlock.BLOCK, 0, 0));
+            var worldField = sliceType.getDeclaredField("world");
+            worldField.setAccessible(true);
+            var owner = com.sumirelabs.pulsar.dynamic.DynamicLightClient.class.getDeclaredField("owner");
+            owner.setAccessible(true);
+            owner.set(null, worldField.get(slice));
+            var fields = com.sumirelabs.pulsar.dynamic.DynamicLightClient.class.getDeclaredField("fields");
+            fields.setAccessible(true);
+            fields.set(null, java.util.Map.of(1, new com.sumirelabs.pulsar.dynamic.DynamicLightField(pos.getX(),
+                pos.getY(), pos.getZ(), 0, new short[]{(short) 0xEEEE})));
+            if ((slice.getCombinedLight(pos, 0) >>> 4 & 15) != 14)
+                throw new AssertionError("Dynamic WorldSlice coordinate conversion: " + base);
+            fields.set(null, java.util.Map.of());
+            if ((slice.getCombinedLight(pos, 0) >>> 4 & 15) != 0)
+                throw new AssertionError("WorldSlice kept removed dynamic light");
+            owner.set(null, null);
         }
         System.out.println("CELERITAS_WORLDSLICE_PASS cases=" + cases);
     }

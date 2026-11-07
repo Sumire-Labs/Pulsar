@@ -37,6 +37,7 @@ public class Pulsar {
             PulsarConfig.debug.enableDebugStats);
         com.sumirelabs.pulsar.rgb.RgbNetwork.initialize();
         com.sumirelabs.pulsar.rgb.CanonicalLightNetwork.initialize();
+        com.sumirelabs.pulsar.dynamic.DynamicLights.initialize();
         proxy.preInit(event);
     }
 

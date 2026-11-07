@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.sumirelabs.pulsar.light.ChunkPacketCoordinates;
 import com.sumirelabs.pulsar.rgb.RgbNetwork;
 
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -19,8 +20,10 @@ public abstract class MixinRgbChunkSend {
     @Shadow public EntityPlayerMP player;
     @Inject(method = "sendPacket", at = @At("RETURN"))
     private void pulsar$sendColorAfterChunk(Packet<?> packet, CallbackInfo ci) {
-        if (packet instanceof SPacketChunkData chunk)
-            RgbNetwork.afterChunkPacket(player, chunk.getChunkX(), chunk.getChunkZ());
+        if (packet instanceof SPacketChunkData) {
+            var chunk = (ChunkPacketCoordinates) packet;
+            RgbNetwork.afterChunkPacket(player, chunk.pulsar$chunkX(), chunk.pulsar$chunkZ());
+        }
     }
 
 }

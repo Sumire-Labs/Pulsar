@@ -3,6 +3,6 @@
   "minVersion": "0.8.7",
   "compatibilityLevel": "JAVA_25",
   "package": "com.sumirelabs.pulsar.mixin",
-  "mixins": ["MixinCeleritasWorldSlice"],
+  "mixins": ["MixinCeleritasWorldSlice", "MixinDynamicCeleritasTask", "MixinDynamicCeleritasShaders", "MixinDynamicCeleritasGlObject", "MixinDynamicCeleritasProgram"],
   "injectors": {"defaultRequire": 1}
 }

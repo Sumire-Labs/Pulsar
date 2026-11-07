@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -8,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.sumirelabs.pulsar.light.ChunkPacketCoordinates;
 import com.sumirelabs.pulsar.light.ChunkPacketLight;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.util.WorldUtil;
@@ -21,7 +23,23 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
  * Keeps non-trivial light in empty or physically absent packet sections.
  */
 @Mixin(SPacketChunkData.class)
-public abstract class MixinSPacketChunkData {
+public abstract class MixinSPacketChunkData implements ChunkPacketCoordinates {
+
+    @Shadow private int chunkX;
+    @Shadow private int chunkZ;
+    @Shadow private boolean fullChunk;
+    @Override
+    public int pulsar$chunkX() {
+        return this.chunkX;
+    }
+    @Override
+    public int pulsar$chunkZ() {
+        return this.chunkZ;
+    }
+    @Override
+    public boolean pulsar$fullChunk() {
+        return this.fullChunk;
+    }
 
     @Unique private ExtendedBlockStorage[] pulsar$packetSections;
 
