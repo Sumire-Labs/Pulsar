@@ -19,7 +19,10 @@ public final class DynamicTerrainRuntime {
     private static final boolean PRESENT=DynamicTerrainRuntime.class.getClassLoader().getResource("org/embeddedt/embeddium/impl/render/shader/ShaderLoader.class")!=null;
     private static final Map<Integer,Program> PROGRAMS=new HashMap<>();
     private static final Slot[] SLOTS=new Slot[LIMIT];
-    private static final FloatBuffer UPLOAD=BufferUtils.createFloatBuffer(WIDTH*ROWS*4);
+    // GLSM redirects glTexSubImage2D but does not implement its FloatBuffer overload.
+    // A native-order byte view preserves the GL_FLOAT payload on both rendering paths.
+    private static final ByteBuffer UPLOAD_BYTES=BufferUtils.createByteBuffer(WIDTH*ROWS*4*Float.BYTES).order(ByteOrder.nativeOrder());
+    private static final FloatBuffer UPLOAD=UPLOAD_BYTES.asFloatBuffer();
     private static final FloatBuffer POSITIONS=BufferUtils.createFloatBuffer(LIMIT*4),EMISSIONS=BufferUtils.createFloatBuffer(LIMIT*4);
     private static final IntBuffer BOXES=BufferUtils.createIntBuffer(LIMIT*4);
     private static final int[] oldTextures=new int[3];
@@ -109,14 +112,15 @@ public final class DynamicTerrainRuntime {
                 texture=GL11.glGenTextures();GL11.glBindTexture(GL11.GL_TEXTURE_2D,texture);
                 GL11.glTexParameteri(GL11.GL_TEXTURE_2D,GL11.GL_TEXTURE_MIN_FILTER,GL11.GL_NEAREST);GL11.glTexParameteri(GL11.GL_TEXTURE_2D,GL11.GL_TEXTURE_MAG_FILTER,GL11.GL_NEAREST);
                 GL11.glTexParameteri(GL11.GL_TEXTURE_2D,GL12.GL_TEXTURE_MAX_LEVEL,0);
-                GL11.glTexImage2D(GL11.GL_TEXTURE_2D,0,GL30.GL_RGBA16F,WIDTH,ROWS*LIMIT,0,GL11.GL_RGBA,GL11.GL_FLOAT,(FloatBuffer)null);
+                GL11.glTexImage2D(GL11.GL_TEXTURE_2D,0,GL30.GL_RGBA16F,WIDTH,ROWS*LIMIT,0,GL11.GL_RGBA,GL11.GL_FLOAT,(ByteBuffer)null);
             } else GL11.glBindTexture(GL11.GL_TEXTURE_2D,texture);
             int rows=(field.size()+WIDTH-1)/WIDTH;UPLOAD.clear();
             for(int i=0;i<rows*WIDTH;i++)for(int lane:LANES) {
                 int loss=i<field.size()?field.visualLoss(i,lane):DynamicLightField.BLOCKED;
                 UPLOAD.put(loss==DynamicLightField.BLOCKED?1024f:loss/256f);
             }
-            UPLOAD.flip();GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D,0,0,slot*ROWS,WIDTH,rows,GL11.GL_RGBA,GL11.GL_FLOAT,UPLOAD);
+            UPLOAD.flip();UPLOAD_BYTES.clear();UPLOAD_BYTES.limit(UPLOAD.remaining()*Float.BYTES);
+            GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D,0,0,slot*ROWS,WIDTH,rows,GL11.GL_RGBA,GL11.GL_FLOAT,UPLOAD_BYTES);
         } finally {
             GL11.glBindTexture(GL11.GL_TEXTURE_2D,oldTexture);GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER,unpack);
             GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT,alignment);GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH,rowLength);

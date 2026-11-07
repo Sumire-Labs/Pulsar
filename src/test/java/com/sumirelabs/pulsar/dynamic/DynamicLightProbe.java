@@ -49,6 +49,16 @@ public final class DynamicLightProbe {
         @Override public ItemStack getHeldItemMainhand(){return main;}
         @Override public ItemStack getHeldItemOffhand(){return off;}
     }
+    public static class PendingNetwork extends net.minecraft.network.NetworkManager {
+        boolean open;
+        PendingNetwork(){super(net.minecraft.network.EnumPacketDirection.SERVERBOUND);}
+        @Override public boolean isChannelOpen(){return open;}
+    }
+    public static class PendingConnection extends net.minecraft.network.NetHandlerPlayServer {
+        int disconnects;
+        PendingConnection(){super(null,null,null);}
+        @Override public void disconnect(net.minecraft.util.text.ITextComponent reason){disconnects++;}
+    }
     public static void main(String[] args)throws Exception {
         Bootstrap.register();
         set(Loader.class,Loader.instance(),"namedMods",Map.of());
@@ -109,6 +119,7 @@ public final class DynamicLightProbe {
         verifyDroppedItems(world,manager,tick,player);
         verifyBurningEntities(world,manager,tick,player);
         verifyContinuousMovement(world,manager,tick,player);
+        verifySlowClientHandshake(player);
         // Real client query hooks, including the vanilla mesh snapshot cache.
         set(World.class,world,"isRemote",true);set(DynamicLightClient.class,null,"owner",world);
         set(DynamicLightClient.class,null,"fields",Map.of(1,field));
@@ -255,6 +266,23 @@ public final class DynamicLightProbe {
         int value=0;
         for(Object field:(List<?>)visible.get(state))value=DynamicLightField.merge(value,((DynamicLightField)field).get(pos.getX(),pos.getY(),pos.getZ()));
         return value;
+    }
+    private static void verifySlowClientHandshake(Player player)throws Exception {
+        var constructor=DynamicLightNetwork.class.getDeclaredConstructor();constructor.setAccessible(true);
+        var network=constructor.newInstance();var connection=inert(PendingConnection.class);var channel=inert(PendingNetwork.class);channel.open=true;
+        set(net.minecraft.network.NetHandlerPlayServer.class,connection,"netManager",channel);
+        var previous=player.connection;player.connection=connection;
+        var event=new TickEvent.ServerTickEvent(TickEvent.Phase.END);
+        var pendingField=DynamicLightNetwork.class.getDeclaredField("PENDING");pendingField.setAccessible(true);var pending=(Map<?,?>)pendingField.get(null);
+        try {
+            network.login(new net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent(player));
+            for(int tick=0;tick<600;tick++)network.tick(event);
+            check(connection.disconnects==0&&pending.containsKey(player),"Cold shader compilation was rejected as an incompatible client");
+            channel.open=false;network.tick(event);check(!pending.containsKey(player),"Closed pending connection was retained");
+            channel.open=true;network.login(new net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent(player));
+            for(int tick=0;tick<=DynamicLightNetwork.HANDSHAKE_TIMEOUT_TICKS;tick++)network.tick(event);
+            check(connection.disconnects==1&&!pending.containsKey(player),"An unresponsive client has no finite handshake deadline");
+        } finally {network.logout(new net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent(player));player.connection=previous;}
     }
     private static void verifyContinuousMovement(ProbeWorld world,DynamicLights manager,TickEvent.WorldTickEvent tick,Player player)throws Exception {
         player.isDead=false;player.burning=false;player.spectator=false;

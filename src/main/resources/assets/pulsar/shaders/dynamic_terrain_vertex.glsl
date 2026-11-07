@@ -6,6 +6,10 @@ uniform vec3 pulsarViewFraction;
 out vec3 pulsarRelativePosition;
 out vec4 pulsarMaterial;
 out vec2 pulsarLightUV;
+#ifdef PULSAR_BILINEAR_MATERIAL
+out vec4 pulsarMaterialCorrection;
+out vec2 pulsarQuadCoord;
+#endif
 
 vec3 pulsarRegionBase(vec3 offset) {
     // Recover the exact integer region origin without large world-coordinate floats.

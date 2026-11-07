@@ -85,6 +85,7 @@ public final class DynamicLightClient {
         return brightness(sample(world, x, y, z));
     }
     public static void reset() {
+        DynamicLightRebuilds.clear();
         fields = Map.of(); owner = null; connection = null; player = null; requested = false; acknowledged = false; rgb = false;
         serverHasChannel = false; ++generation; ++session;
         mode=DynamicLights.Mode.OFF;
@@ -92,6 +93,7 @@ public final class DynamicLightClient {
     public static void tick() {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.world != owner || mc.getConnection() != connection || mc.player != player) {
+            DynamicLightRebuilds.clear();
             if (mc.world == owner) fields.values().forEach(DynamicLightClient::invalidate);
             fields = Map.of(); owner = mc.world; connection = mc.getConnection(); player = mc.player;
             requested = false; acknowledged = false; rgb = false; sequence = 0; retryTicks = 0; ++session; ++generation;
@@ -101,6 +103,7 @@ public final class DynamicLightClient {
         if (!requested && owner != null && mc.player != null && serverHasChannel) {
             requested = true; DynamicLightNetwork.request(session, owner.provider.getDimension());
         }
+        DynamicLightRebuilds.flush(owner);
     }
     public static void receive(DynamicLightPacket packet, Object handler) {
         Minecraft mc = Minecraft.getMinecraft();
@@ -125,13 +128,13 @@ public final class DynamicLightClient {
     }
     private static void invalidate(DynamicLightField before, DynamicLightField after) {
         if (owner != null && before != null && after != null
-                && Math.abs((long)before.x - after.x) <= before.radius + after.radius + 2
-                && Math.abs((long)before.y - after.y) <= before.radius + after.radius + 2
-                && Math.abs((long)before.z - after.z) <= before.radius + after.radius + 2) {
+                && Math.abs((long)before.x - after.x) <= meshRadius(before) + meshRadius(after)
+                && Math.abs((long)before.y - after.y) <= meshRadius(before) + meshRadius(after)
+                && Math.abs((long)before.z - after.z) <= meshRadius(before) + meshRadius(after)) {
             // Normal movement shares most of the affected sections. Issue one rebuild request,
             // rather than immediately invalidating the same section a second time.
-            int a = before.radius + 1, b = after.radius + 1;
-            owner.markBlockRangeForRenderUpdate(Math.min(before.x-a,after.x-b), Math.min(before.y-a,after.y-b), Math.min(before.z-a,after.z-b),
+            int a = meshRadius(before), b = meshRadius(after);
+            mark(Math.min(before.x-a,after.x-b), Math.min(before.y-a,after.y-b), Math.min(before.z-a,after.z-b),
                     Math.max(before.x+a,after.x+b), Math.max(before.y+a,after.y+b), Math.max(before.z+a,after.z+b));
         } else {
             // Do not rebuild the empty gap between distant teleports.
@@ -140,7 +143,11 @@ public final class DynamicLightClient {
     }
     private static void invalidate(DynamicLightField field) {
         if (field == null || owner == null) return;
-        int r = field.radius + 1;
-        owner.markBlockRangeForRenderUpdate(field.x - r, field.y - r, field.z - r, field.x + r, field.y + r, field.z + r);
+        int r = meshRadius(field);
+        mark(field.x - r, field.y - r, field.z - r, field.x + r, field.y + r, field.z + r);
+    }
+    private static int meshRadius(DynamicLightField field){return Math.min(field.radius,(int)Math.ceil(DynamicLightField.RANGE))+1;}
+    private static void mark(int x,int y,int z,int xx,int yy,int zz){
+        if(!DynamicLightRebuilds.invalidate(owner,x,y,z,xx,yy,zz))owner.markBlockRangeForRenderUpdate(x,y,z,xx,yy,zz);
     }
 }

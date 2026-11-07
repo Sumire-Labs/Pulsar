@@ -18,7 +18,8 @@ public final class DynamicTerrainGpuProbe {
             glfwWindowHint(GLFW_VISIBLE,GLFW_FALSE);glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
             window=glfwCreateWindow(16,16,"Pulsar dynamic GPU test",0,0);if(window==0)throw new AssertionError("GL context");
             glfwMakeContextCurrent(window);GL.createCapabilities();
-            String jar=System.getProperty("pulsar.celeritas.jar").split(java.util.regex.Pattern.quote(System.getProperty("path.separator")))[0];
+            int variants=0;
+            for(String jar:System.getProperty("pulsar.celeritas.jar").split(java.util.regex.Pattern.quote(System.getProperty("path.separator")))) {
             try(var zip=new ZipFile(jar)) {
                 for(boolean compressed:new boolean[]{false,true})for(boolean vanilla:new boolean[]{false,true}) {
                     String defines=(compressed?"#define USE_VERTEX_COMPRESSION\n#define VERT_POS_SCALE 1.0\n#define VERT_POS_OFFSET 0.0\n#define VERT_TEX_SCALE 1.0\n":"")+(vanilla?"#define USE_VANILLA_COLOR_FORMAT\n":"");
@@ -27,7 +28,9 @@ public final class DynamicTerrainGpuProbe {
                     if(!vertex.contains("PULSAR_FRAME_LIGHT_V1")||!fragment.contains("PULSAR_FRAME_LIGHT_V1"))throw new AssertionError("Celeritas contract not patched");
                     link(defines(resolve(zip,vertex),defines),defines(resolve(zip,fragment),defines));
                     link(defines(resolve(zip,vertex),defines+"#define CELERITAS_NO_LIGHTMAP\n"),defines(resolve(zip,fragment),defines+"#define CELERITAS_NO_LIGHTMAP\n"));
+                    variants+=2;
                 }
+            }
             }
             testStaticTints();
             String helper;
@@ -69,7 +72,15 @@ public final class DynamicTerrainGpuProbe {
                 if(previous>=0)check(value>previous&&value-previous<.01,"Position changed in discrete light-level steps");previous=value;
             }
             check(values.size()==61,"No sub-tick visual movement");if(glGetError()!=GL_NO_ERROR)throw new AssertionError("GL error");
-            System.out.println("DYNAMIC_GPU_PASS terrainVariants=8 continuousFrames="+values.size()+" ambientFloor=true filters=true");
+            String correctedVertex=vertex.replace("out vec3 pulsarRelativePosition;","uniform vec4 testCorrection;out vec4 pulsarMaterialCorrection;out vec2 pulsarQuadCoord;out vec3 pulsarRelativePosition;")
+                    .replace("pulsarMaterial=vec4(1);","pulsarMaterial=vec4(1);pulsarMaterialCorrection=testCorrection;pulsarQuadCoord=vec2(.5);");
+            program=link(correctedVertex,"#version 330 core\n#define PULSAR_BILINEAR_MATERIAL\n"+helper+"\nout vec4 result;void main(){result=vec4(pulsarFrameLight(vec3(.05)),1);}");glUseProgram(program);
+            glUniform1i(at("pulsarDynamicLoss"),0);glUniform1i(at("u_LightTex"),1);glUniform1i(at("pulsarDynamicCount"),1);glUniform1i(at("pulsarDynamicRgb"),1);
+            glUniform4i(at("pulsarDynamicBox[0]"),-11,-11,-11,23);glUniform4f(at("pulsarDynamicEmission[0]"),14,14,14,14);
+            float[] uncorrected=render();glUniform4f(at("testCorrection"),-.8f,-.4f,0,0);float[] corrected=render();
+            check(Math.abs(corrected[0]/uncorrected[0]-.8f)<1e-5&&Math.abs(corrected[1]/uncorrected[1]-.9f)<1e-5&&Math.abs(corrected[2]-uncorrected[2])<1e-5,"Bilinear material correction was lost under dynamic lighting");
+            if(glGetError()!=GL_NO_ERROR)throw new AssertionError("Bilinear GL error");
+            System.out.println("DYNAMIC_GPU_PASS terrainVariants="+variants+" continuousFrames="+values.size()+" ambientFloor=true filters=true bilinearMaterial=true");
         } finally {if(window!=0)glfwDestroyWindow(window);glfwTerminate();}
     }
     private static String defines(String source,String d){int at=source.indexOf('\n')+1;return source.substring(0,at)+d+source.substring(at);}
@@ -103,7 +114,13 @@ public final class DynamicTerrainGpuProbe {
     private static int compile(int type,String source){int s=glCreateShader(type);glShaderSource(s,source);glCompileShader(s);if(glGetShaderi(s,GL_COMPILE_STATUS)==0)throw new AssertionError(glGetShaderInfoLog(s)+"\n"+source);return s;}
     private static int at(String name){return glGetUniformLocation(program,name);}
     private static void nearest(){glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);}
-    private static void fillLoss(float r,float g,float b,float scalar){glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_2D,loss);float[] data=new float[1024*24*4];for(int i=0;i<data.length;i+=4){data[i]=r;data[i+1]=g;data[i+2]=b;data[i+3]=scalar;}glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16F,1024,24,0,GL_RGBA,GL_FLOAT,data);}
+    private static void fillLoss(float r,float g,float b,float scalar){
+        glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_2D,loss);
+        var bytes=BufferUtils.createByteBuffer(1024*24*4*Float.BYTES).order(java.nio.ByteOrder.nativeOrder());var values=bytes.asFloatBuffer();
+        for(int i=0;i<1024*24;i++)values.put(r).put(g).put(b).put(scalar);
+        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16F,1024,24,0,GL_RGBA,GL_FLOAT,(java.nio.ByteBuffer)null);
+        glTexSubImage2D(GL_TEXTURE_2D,0,0,0,1024,24,GL_RGBA,GL_FLOAT,bytes);
+    }
     private static float[] render(){glDrawArrays(GL_TRIANGLES,0,3);var pixels=BufferUtils.createFloatBuffer(4);glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,pixels);return new float[]{pixels.get(0),pixels.get(1),pixels.get(2)};}
     private static void check(boolean ok,String message){if(!ok)throw new AssertionError(message);}
 }

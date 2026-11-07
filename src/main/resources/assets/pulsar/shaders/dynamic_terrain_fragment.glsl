@@ -12,6 +12,10 @@ uniform vec4 pulsarDynamicEmission[PULSAR_MAX_DYNAMIC];
 in vec3 pulsarRelativePosition;
 in vec4 pulsarMaterial;
 in vec2 pulsarLightUV;
+#ifdef PULSAR_BILINEAR_MATERIAL
+in vec4 pulsarMaterialCorrection;
+in vec2 pulsarQuadCoord;
+#endif
 
 vec4 pulsarLossCell(int source,ivec3 cell) {
     ivec4 box=pulsarDynamicBox[source];ivec3 p=cell-box.xyz;
@@ -56,5 +60,10 @@ vec3 pulsarFrameLight(vec3 baseline) {
     vec3 dynamicLighting=texture(u_LightTex,uv).rgb*tint;
     // Adding a light may brighten a material, never darken the existing ambient/static light.
     // An absorbed RGB component contributes zero; the baseline is not part of the dynamic source.
-    return max(baseline,pulsarMaterial.rgb*dynamicLighting);
+    vec3 material=pulsarMaterial.rgb;
+#ifdef PULSAR_BILINEAR_MATERIAL
+    float correction=min(pulsarQuadCoord.x,pulsarQuadCoord.y)-pulsarQuadCoord.x*pulsarQuadCoord.y;
+    material+=pulsarMaterialCorrection.rgb*correction;
+#endif
+    return max(baseline,material*dynamicLighting);
 }

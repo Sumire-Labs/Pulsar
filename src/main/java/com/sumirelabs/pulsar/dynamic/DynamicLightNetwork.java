@@ -15,6 +15,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import java.util.*;
 
 public final class DynamicLightNetwork {
+    // Cold shader compilation can block the client's world ticker for well over 15 seconds.
+    // Keep a finite compatibility deadline without rejecting a supported client during initialization.
+    static final int HANDSHAKE_TIMEOUT_TICKS = 20 * 120;
     private static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel("pulsar_dynamic");
     private static final Map<NetworkManager, Client> CLIENTS = new IdentityHashMap<>();
     private static final Map<EntityPlayerMP, Integer> PENDING = new IdentityHashMap<>();
@@ -99,7 +102,7 @@ public final class DynamicLightNetwork {
         for (var it = PENDING.entrySet().iterator(); it.hasNext();) {
             var entry = it.next(); var player = entry.getKey();
             if (!player.connection.netManager.isChannelOpen() || CLIENTS.containsKey(player.connection.netManager)) { it.remove(); continue; }
-            if (entry.getValue() < 300) { entry.setValue(entry.getValue() + 1); continue; }
+            if (entry.getValue() < HANDSHAKE_TIMEOUT_TICKS) { entry.setValue(entry.getValue() + 1); continue; }
             it.remove();
             player.connection.disconnect(new net.minecraft.util.text.TextComponentString(
                     "This server requires a Pulsar client supporting dynamic lights. Server dynamicLights.mode can be set to OFF for older clients."));
