@@ -1,296 +1,195 @@
-plugins {
-    id 'java'
-    id 'java-library'
-    id 'maven-publish'
-    id 'com.gradleup.shadow' version '9.6.1'
-    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.4.1'
-    id 'com.cleanroommc.versioning' version '3.3.0'
-    id 'xyz.wagyourtail.unimined' version '1.4.43-kappa'
-    id 'com.cleanroommc.tokenenvoy' version '3.0.0'
-}
-
+import groovy.json.JsonOutput
 import org.jetbrains.gradle.ext.Gradle
 
-ext {
-    //noinspection GroovyAssignabilityCheck
-    access_transformer_locations = "${mod_id}_at.cfg"
+// Development scaffold: Sumire-Labs/CleanroomDevEnv a1de707 (MIT).
+// Its license is retained in licenses/CleanroomDevEnv-MIT.txt.
+plugins {
+    id 'com.cleanroommc.versioning' version '3.4.0'
+    id 'java-library'
+    id 'maven-publish'
+    id 'com.cleanroommc.cleanroomgradle'
+    id 'com.cleanroommc.tokenenvoy' version '3.0.0'
+    id 'com.gradleup.shadow' version '9.6.1' apply false
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.4.1'
+    id 'com.diffplug.spotless' version '8.11.0' apply false
+    id 'me.modmuss50.mod-publish-plugin' version '2.2.1' apply false
 }
 
 group = root_package
+base.archivesName = mod_id
+ext.mixinEnabled = enable_mixin.toBoolean()
+ext.shadowEnabled = enable_shadow.toBoolean()
+ext.accessTransformerNames = access_transformers.tokenize()
+ext.atEnabled = !accessTransformerNames.empty
+ext.coremodEnabled = !coremod_plugin_class.isBlank()
+ext.spotlessEnabled = enable_spotless.toBoolean()
+ext.modPackage = root_package
 
-base {
-    archivesName = mod_id
+if (shadowEnabled) apply plugin: 'com.gradleup.shadow'
+
+if (!(mod_id ==~ /[a-z][a-z0-9_-]*/)) {
+    throw new GradleException('mod_id must start with a lowercase letter and contain only lowercase letters, numbers, underscores or hyphens.')
 }
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
-    if (generate_sources_jar.toBoolean()) {
-        withSourcesJar()
-    }
-    if (generate_javadocs_jar.toBoolean()) {
-        withJavadocJar()
-    }
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    if (generate_sources_jar.toBoolean()) withSourcesJar()
+    if (generate_javadocs_jar.toBoolean()) withJavadocJar()
 }
-
 configurations {
     contain
     implementation.extendsFrom(contain)
-    modCompileOnly
-    compileOnly.extendsFrom(modCompileOnly)
-    modRuntimeOnly
-    runtimeOnly.extendsFrom(modRuntimeOnly)
-    gpuTestRuntime
-    compatTestMods
-    classicTestMods
-    rendererTestMods
-    fbpFancierTestMods
-    fbpFanciestTestMods
-    fbpLegacyTestMods
-    testImplementation.extendsFrom(compatTestMods)
-}
-
-def remapTaskName = enable_shadow.toBoolean() ? "remapShadowJar" : "remapJar"
-
-//noinspection GroovyAssignabilityCheck
-unimined.minecraft {
-    version "1.12.2"
-
-    mappings {
-        mcp("stable", "39-1.12")
-    }
-
-    cleanroom {
-        if (use_access_transformer.toBoolean()) {
-            accessTransformer "${rootProject.projectDir}/src/main/resources/$access_transformer_locations"
-        }
-        loader "0.6.13-alpha"
-        runs.all {
-            systemProperty("crl.dev.mixin", "${mod_id}.mixin.json")
-            args += ['--username', minecraft_username]
-            def extraArgs = extra_jvm_args
-            if (extraArgs != null && !extraArgs.trim().isEmpty()) {
-                jvmArgs += extraArgs.split { "\\s+" }.toList()
-            }
-            if (enable_foundation_debug.toBoolean()) {
-                systemProperty("foundation.dump", "true")
-                systemProperty("foundation.verbose", "true")
-            }
-            if (is_coremod.toBoolean()) {
-                systemProperty("fml.coreMods.load", coremod_plugin_class_name)
-            }
-            return
-        }
-    }
-
-    defaultRemapJar = false
-
-    String jarTaskName = enable_shadow.toBoolean() ? "shadowJar" : "jar"
-
-    remap(tasks.named(jarTaskName).get()) {
-        mixinRemap {
-            enableBaseMixin()
-            enableMixinExtra()
-        }
-    }
-
-    mods {
-        remap(configurations.modCompileOnly)
-        remap(configurations.modRuntimeOnly)
-        remap(configurations.compatTestMods)
-        remap(configurations.classicTestMods)
-        remap(configurations.rendererTestMods)
-        remap(configurations.fbpFancierTestMods)
-        remap(configurations.fbpFanciestTestMods)
-        remap(configurations.fbpLegacyTestMods)
+    if (shadowEnabled) {
+        shade
+        implementation.extendsFrom(shade)
     }
 }
-
-// Use the Gradle run configurations below instead of Unimined's IntelliJ entries.
-tasks.matching { it.name == 'genIntellijRuns' }.configureEach {
-    enabled = false
-}
-
 dependencies {
-    // Standalone hidden-context probe uses unrelocated LWJGL, not LWJGLX's game bridge.
-    def gpuOs = System.getProperty('os.name').toLowerCase(java.util.Locale.ROOT)
-    def gpuArch = System.getProperty('os.arch').toLowerCase(java.util.Locale.ROOT)
-    def gpuNative = gpuOs.contains('win') ? 'natives-windows' : gpuOs.contains('mac') ? 'natives-macos' : 'natives-linux'
-    if (gpuArch.contains('aarch64') || gpuArch.contains('arm64')) gpuNative += '-arm64'
-    for (def module : ['lwjgl', 'lwjgl-glfw', 'lwjgl-opengl']) {
-        gpuTestRuntime "org.lwjgl:${module}:3.4.1"
-        gpuTestRuntime "org.lwjgl:${module}:3.4.1:${gpuNative}"
+    // Cleanroom Mod development uses USERDEV, not the LOADER development mode.
+    implementation cleanroom.userdev(cleanroom_version) {
+        accessTransformers.from(accessTransformerNames.collect { "src/main/resources/META-INF/${it}" })
     }
-    if (use_asset_mover.toBoolean()) {
-        implementation "com.cleanroommc:assetmover:${asset_mover_version}"
-    }
+    if (use_asset_mover.toBoolean()) implementation "com.cleanroommc:assetmover:${asset_mover_version}"
     if (enable_junit_testing.toBoolean()) {
         testImplementation 'org.junit.jupiter:junit-jupiter:6.1.3'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-        // Exercise the optional sparse-fluid compatibility adapter with the
-        // real Fluidlogged container implementation without shipping it.
-        testRuntimeOnly 'maven.modrinth:fluidlogged-api:3.3.3'
-        // Unit tests that exercise the light queue need the libraries bundled
-        // by the 1.12.2 runtime; Unimined does not expose them on testRuntimeClasspath.
-        testRuntimeOnly 'com.google.guava:guava:21.0'
-        testRuntimeOnly 'it.unimi.dsi:fastutil:7.1.0'
-        testRuntimeOnly 'io.netty:netty-all:4.1.9.Final'
     }
 }
-
-apply from: 'gradle/scripts/dependencies.gradle'
-
-processResources {
-    rename '(.+_at.cfg)', 'META-INF/$1'
+if (mixinEnabled) {
+    // Use exactly the Mixin APIs that CleanroomGradle selects as processors from this Loader.
+    // Its public compile classpath does not expose these runtime libraries automatically.
+    configurations.compileOnly.dependencies.addAllLater(providers.provider {
+        configurations.annotationProcessor.allDependencies.findAll {
+            it.group == 'com.cleanroommc' && it.name in ['cleanmix', 'mixinextras-common']
+        }.collect { it.copy().tap { transitive = false } }
+    })
 }
+sourceSets.main {
+    // Optional code stays in the standard main tree; these packages belong to each feature.
+    def packagePath = modPackage.replace('.', '/')
+    if (!mixinEnabled) java.exclude "${packagePath}/mixin/**"
+    if (!coremodEnabled) java.exclude "${packagePath}/core/**"
+    resources.exclude { detail -> detail.path.startsWith('META-INF/') && detail.name.endsWith('_at.cfg') &&
+            !accessTransformerNames.contains(detail.name) }
+    if (!mixinEnabled) resources.exclude '*.mixin.json'
+}
+if (!enable_junit_testing.toBoolean()) sourceSets.test.java.setSrcDirs([])
 
+// Java constants are replaced before inlining. Escape JSON values independently.
 tokenEnvoy {
-    set 'mod_id', mod_id
-    set 'mod_name', mod_name
-    set 'mod_version', project.version.toString()
     main {
-        set 'mod_description', mod_description
-        set 'mod_authors', mod_authors.toString().split(',').findAll { !it.isBlank() }.collect { "\"${it.strip()}\"" }.join(', ')
-        set 'mod_credits', mod_credits
-        set 'mod_url', mod_url
-        set 'mod_update_json', mod_update_json
-        set 'mod_logo_path', mod_logo_path
-        set 'mod_issue_tracker', mod_issue_tracker
-        classes {
-            include 'com.sumirelabs.pulsar.Reference'
-        }
-        resources {
-            include 'mcmod.info', 'pack.mcmeta'
-        }
+        set 'MOD_ID', mod_id
+        set 'MOD_NAME', mod_name
+        set 'MOD_VERSION', project.version.toString()
+        set 'MOD_PACKAGE', modPackage
+        set 'CLIENT_PROXY', "${modPackage}.proxy.ClientProxy".toString()
+        set 'SERVER_PROXY', "${modPackage}.proxy.CommonProxy".toString()
+        set 'MIXIN_REFMAP', providers.gradleProperty('cg.userdev.refmap')
+        set 'MOD_ID_JSON', JsonOutput.toJson(mod_id)
+        set 'MOD_NAME_JSON', JsonOutput.toJson(mod_name)
+        set 'MOD_VERSION_JSON', JsonOutput.toJson(project.version.toString())
+        set 'MOD_DESCRIPTION_JSON', JsonOutput.toJson(mod_description)
+        set 'MOD_AUTHORS_JSON', JsonOutput.toJson(mod_authors.split(',').collect { it.trim() }.findAll { it })
+        set 'MOD_CREDITS_JSON', JsonOutput.toJson(mod_credits)
+        set 'MOD_URL_JSON', JsonOutput.toJson(mod_url)
+        set 'MOD_UPDATE_JSON_JSON', JsonOutput.toJson(mod_update_json)
+        set 'MOD_LOGO_JSON', JsonOutput.toJson(mod_logo_path)
+        set 'MOD_ISSUE_TRACKER_JSON', JsonOutput.toJson(mod_issue_tracker)
+        set 'PACK_DESCRIPTION_JSON', JsonOutput.toJson("${mod_name} Resources".toString())
+        classes { include '**/Reference.class', '**/ExampleMod.class' }
+        resources { include 'mcmod.info', 'pack.mcmeta', '*.mixin.json' }
     }
 }
+processResources {
+    filteringCharset = 'UTF-8'
+    rename 'modid.mixin.json', "${mod_id}.mixin.json"
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+tasks.withType(Jar).configureEach {
+    from('LICENSE.md') { into 'META-INF' }
+    from('licenses/CleanroomDevEnv-MIT.txt') { into 'META-INF' }
+}
+test {
+    enabled = enable_junit_testing.toBoolean()
+    useJUnitPlatform()
+    if (show_testing_output.toBoolean()) testLogging.showStandardStreams = true
+}
+
+apply from: 'gradle/scripts/pulsar-testing.gradle'
+apply from: 'gradle/scripts/dependencies.gradle'
+apply from: 'gradle/scripts/mixin.gradle'
+apply from: 'gradle/scripts/runs.gradle'
+apply from: 'gradle/scripts/spotless.gradle'
 
 idea {
-    module {
-        inheritOutputDirs = true
+    module { inheritOutputDirs = true; downloadSources = true }
+    project.settings.runConfigurations {
+        '1. Build'(Gradle) { taskNames = ['build'] }
+        '2. Run Client'(Gradle) { taskNames = ['runClient'] }
+        '3. Run Server'(Gradle) { taskNames = ['runServer'] }
+        if (spotlessEnabled) '4. Apply Spotless'(Gradle) { taskNames = ['spotlessApply'] }
     }
-    project {
-        settings {
-            runConfigurations {
-                '1. Build'(Gradle) {
-                    taskNames = ["build"]
-                }
-                '2. Run Client'(Gradle) {
-                    taskNames = ["runClient"]
-                }
-                '3. Run Server'(Gradle) {
-                    taskNames = ["runServer"]
-                }
-            }
-            compiler.javac {
-                afterEvaluate {
-                    javacAdditionalOptions = '-encoding utf8'
-                    moduleJavacAdditionalOptions = [
-                            (project.name + '.main'): tasks.compileJava.options.compilerArgs.collect { "\"${it}\"" }.join(' ')
-                    ]
-                }
-            }
-            taskTriggers {
-                beforeSync tasks.named("genSources")
-            }
-        }
-    }
-}
-
-if (!enable_shadow.toBoolean()) {
-    shadowJar.enabled = false
-}
-
-compileJava {
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
-    archiveClassifier = 'dev'
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    if (configurations.contain.size() > 0) {
-        into('/') {
-            from configurations.contain
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    from(configurations.contain) { into '/' }
+    manifest {
+        attributes 'ModType': 'CRL'
+        if (mixinEnabled) attributes 'MixinConfigs': "${mod_id}.mixin.json"
+        if (atEnabled) attributes 'FMLAT': accessTransformerNames.join(' ')
+        if (coremodEnabled) {
+            attributes 'FMLCorePlugin': coremod_plugin_class
+            if (coremod_includes_mod.toBoolean()) {
+                attributes 'FMLCorePluginContainsFMLMod': 'true', 'ForceLoadAsMod': 'true'
+            }
         }
     }
     doFirst {
-        manifest {
-            def attribute_map = [:]
-            attribute_map['ModType'] = "CRL"
-            attribute_map['MixinConfigs'] = "${mod_id}.mixin.json"
-            if (configurations.contain.size() > 0) {
-                attribute_map['ContainedDeps'] = configurations.contain.collect { it.name }.join(' ')
-                attribute_map['NonModDeps'] = true
-            }
-            if (is_coremod.toBoolean()) {
-                attribute_map['FMLCorePlugin'] = coremod_plugin_class_name
-                if (coremod_includes_mod.toBoolean()) {
-                    attribute_map['FMLCorePluginContainsFMLMod'] = true
-                }
-            }
-            if (use_access_transformer.toBoolean()) {
-                attribute_map['FMLAT'] = access_transformer_locations
-            }
-            attributes(attribute_map)
-        }
-    }
-    finalizedBy(tasks.named(remapTaskName).get())
-}
-
-
-shadowJar {
-    //noinspection GroovyAssignabilityCheck,GroovyAccessibility
-    configurations = [project.configurations.shadow]
-    archiveClassifier = "shadow"
-}
-
-
-compileTestJava {
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_25
-    // Exercise the real 1.12.2 vertex buffer, including its lightmap byte layout.
-    classpath += sourceSets.main.compileClasspath
-}
-
-test {
-    classpath += sourceSets.main.compileClasspath
-    inputs.files(configurations.fbpFancierTestMods, configurations.fbpFanciestTestMods,
-            configurations.fbpLegacyTestMods).withPropertyName('fbpReleaseRenderers')
-    // Switching the optional renderer must invalidate the previous test result.
-    inputs.property('celeritasTestClasspath', project.findProperty('celeritasTestClasspath') ?: '')
-    inputs.property('pulsarGpuTests', project.findProperty('pulsarGpuTests') ?: 'false')
-    inputs.property('pulsarEmptySectionBenchmark', project.findProperty('pulsarEmptySectionBenchmark') ?: 'false')
-    inputs.property('pulsarMemoryBenchmark', project.findProperty('pulsarMemoryBenchmark') ?: 'false')
-    doFirst {
-        systemProperty 'pulsar.test.classpath', classpath.asPath
-        systemProperty 'pulsar.test.classicClasspath', configurations.classicTestMods.asPath
-        systemProperty 'pulsar.test.fbp.fancier', configurations.fbpFancierTestMods.asPath
-        systemProperty 'pulsar.test.fbp.fanciest', configurations.fbpFanciestTestMods.asPath
-        systemProperty 'pulsar.test.fbp.legacy', configurations.fbpLegacyTestMods.asPath
-        systemProperty 'pulsar.test.gpu', project.findProperty('pulsarGpuTests') ?: 'false'
-        systemProperty 'pulsar.test.emptySectionBenchmark', project.findProperty('pulsarEmptySectionBenchmark') ?: 'false'
-        systemProperty 'pulsar.test.memoryBenchmark', project.findProperty('pulsarMemoryBenchmark') ?: 'false'
-        if ((project.findProperty('pulsarGpuTests') ?: 'false').toBoolean())
-            systemProperty 'pulsar.test.gpuClasspath', configurations.gpuTestRuntime.asPath
-        if (project.hasProperty('celeritasTestClasspath')) {
-            systemProperty 'pulsar.test.celeritasClasspath', configurations.rendererTestMods.asPath
-        }
-    }
-    useJUnitPlatform()
-    javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(25)
-    })
-    if (show_testing_output.toBoolean()) {
-        testLogging {
-            showStandardStreams = true
+        if (!configurations.contain.empty) {
+            manifest.attributes 'ContainedDeps': configurations.contain.files.collect { it.name }.join(' '),
+                    'NonModDeps': 'true'
         }
     }
 }
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
+if (shadowEnabled) {
+    shadowJar {
+        dependsOn tasks.jar
+        configurations = [project.configurations.shade]
+        archiveClassifier = 'shadow-mcp'
+        destinationDirectory = layout.buildDirectory.dir('intermediates/shadow')
+        from(project.configurations.contain) { into '/' }
+        // Shadow already inherits the jar manifest; inheriting it again can create a cycle.
+    }
+    reobfJar {
+        from(tasks.shadowJar)
+        archiveClassifier.set('')
+    }
 }
-
 apply from: 'gradle/scripts/api.gradle'
 apply from: 'gradle/scripts/publishing.gradle'
+apply from: 'gradle/scripts/verification.gradle'
 apply from: 'gradle/scripts/extra.gradle'
+
+// Upload sites use alpha/beta/release; RC builds are published in their beta channel.
+tasks.register('printReleaseType') {
+    def releaseType = versioning.stage.map { stage ->
+        def name = stage.name().toLowerCase(Locale.ROOT)
+        name == 'rc' ? 'beta' : name
+    }
+    inputs.property('releaseType', releaseType)
+    doLast { println inputs.properties.releaseType }
+}
+
+tasks.register('printReleaseInfo') {
+    def releaseType = versioning.stage.map { stage ->
+        def name = stage.name().toLowerCase(Locale.ROOT)
+        name == 'rc' ? 'beta' : name
+    }
+    inputs.property('info', releaseType.map { type -> JsonOutput.toJson([
+            version: project.version.toString(), type: type,
+            maven: publish_to_maven.toBoolean() && !publish_to_local_maven.toBoolean(),
+            curseforge: !curseforge_project_id.isBlank(), modrinth: !modrinth_project_id.isBlank()
+    ]) })
+    doLast { println inputs.properties.info }
+}

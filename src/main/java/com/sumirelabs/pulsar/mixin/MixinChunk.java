@@ -3,6 +3,15 @@ package com.sumirelabs.pulsar.mixin;
 // REID coexistence: REID also @Unique-injects fields onto Chunk. The pulsar$
 // prefix below avoids collisions with its biome-container state.
 
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 import com.sumirelabs.pulsar.api.ExtendedChunk;
 import com.sumirelabs.pulsar.light.ChunkLightHelper;
 import com.sumirelabs.pulsar.light.PulsarChunk;
@@ -12,20 +21,13 @@ import com.sumirelabs.pulsar.light.engine.PulsarEngine;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import com.sumirelabs.pulsar.world.PulsarWorld;
+
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Owns Pulsar's per-chunk state and chunk lifecycle integration.
@@ -39,49 +41,41 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
 
     @Shadow
-    @Final
-    public int x;
+    @Final public int x;
     @Shadow
-    @Final
-    public int z;
+    @Final public int z;
+    @Shadow public boolean isLightPopulated;
     @Shadow
-    public boolean isLightPopulated;
-    @Shadow
-    @Final
-    private World world;
-    @Unique
-    private volatile SWMRNibbleArray[] pulsar$blockNibbles;
-    @Unique
-    private volatile SWMRNibbleArray[] pulsar$skyNibbles;
-    @Unique
-    private boolean[] pulsar$blockEmptinessMap;
-    @Unique
-    private boolean[] pulsar$skyEmptinessMap;
-    @Unique
-    private volatile boolean pulsar$lightReady;
-    @Unique
-    private volatile boolean pulsar$lightUsable;
-    @Unique
-    private volatile boolean pulsar$savedLightValid;
+    @Final private World world;
+    @Unique private volatile SWMRNibbleArray[] pulsar$blockNibbles;
+    @Unique private volatile SWMRNibbleArray[] pulsar$skyNibbles;
+    @Unique private boolean[] pulsar$blockEmptinessMap;
+    @Unique private boolean[] pulsar$skyEmptinessMap;
+    @Unique private volatile boolean pulsar$lightReady;
+    @Unique private volatile boolean pulsar$lightUsable;
+    @Unique private volatile boolean pulsar$savedLightValid;
     @Unique private volatile boolean pulsar$lightDirty;
 
-    public void pulsar$markLightDirty() { this.pulsar$lightDirty = true; }
-    public void pulsar$clearLightDirty() { this.pulsar$lightDirty = false; }
+    public void pulsar$markLightDirty() {
+        this.pulsar$lightDirty = true;
+    }
+    public void pulsar$clearLightDirty() {
+        this.pulsar$lightDirty = false;
+    }
 
     @Inject(method = "needsSaving", at = @At("RETURN"), cancellable = true)
     private void pulsar$savePublishedLight(boolean all, CallbackInfoReturnable<Boolean> cir) {
-        if (!this.world.isRemote && this.pulsar$lightDirty) cir.setReturnValue(true);
+        if (!this.world.isRemote && this.pulsar$lightDirty)
+            cir.setReturnValue(true);
     }
-    @Unique
-    private WorldHeightContext pulsar$heightContext;
+    @Unique private WorldHeightContext pulsar$heightContext;
 
     @Shadow
     public abstract ExtendedBlockStorage[] getBlockStorageArray();
 
-    @Inject(method = "addTileEntity(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/tileentity/TileEntity;)V",
-            at = @At("RETURN"))
+    @Inject(method = "addTileEntity(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/tileentity/TileEntity;)V", at = @At("RETURN"))
     private void pulsar$trackTileAdded(final BlockPos pos, final net.minecraft.tileentity.TileEntity tile,
-                                     final CallbackInfo ci) {
+        final CallbackInfo ci) {
         this.pulsar$requestTileSample(pos);
     }
 
@@ -92,7 +86,8 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
 
     @Unique
     private void pulsar$requestTileSample(final BlockPos pos) {
-        if (this.world.isRemote) return;
+        if (this.world.isRemote)
+            return;
         final WorldLightManager manager = ((PulsarWorld) this.world).pulsar$getLightManager();
         if (manager != null) {
             manager.contextualLight().tileEntityChanged(pos);
@@ -115,7 +110,7 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
      */
     @Inject(method = "getLightFor", at = @At("HEAD"), cancellable = true, require = 0)
     private void pulsar$getLightFor(final EnumSkyBlock lightType, final BlockPos pos,
-                                    final CallbackInfoReturnable<Integer> cir) {
+        final CallbackInfoReturnable<Integer> cir) {
         if (!this.pulsar$isLightUsable()) {
             return;
         }
@@ -123,14 +118,14 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         final WorldHeightContext heightContext = this.pulsar$getHeightContext();
         if (lightType == EnumSkyBlock.SKY) {
             cir.setReturnValue(this.world.provider.hasSkyLight()
-                    ? ChunkLightHelper.getSkyLight(
+                ? ChunkLightHelper.getSkyLight(
                     heightContext, this.pulsar$skyNibbles, pos.getX(), pos.getY(), pos.getZ())
-                    : 0);
+                : 0);
             return;
         }
 
         cir.setReturnValue(ChunkLightHelper.getBlockLight(
-                heightContext, this.pulsar$blockNibbles, pos.getX(), pos.getY(), pos.getZ()));
+            heightContext, this.pulsar$blockNibbles, pos.getX(), pos.getY(), pos.getZ()));
     }
 
     @Inject(method = "<init>(Lnet/minecraft/world/World;II)V", at = @At("RETURN"), require = 0)
@@ -154,13 +149,16 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         final Chunk self = (Chunk) (Object) this;
         // Disk I/O can finish before a palette reload but register the chunk afterward.
         if (!this.world.isRemote && com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
-                && self instanceof com.sumirelabs.pulsar.rgb.RgbChunk rgb) {
-            if (this.pulsar$savedLightValid && rgb.pulsar$getSavedPaletteGeneration()
-                    != com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().generation)
+            && self instanceof com.sumirelabs.pulsar.rgb.RgbChunk rgb) {
+            if (this.pulsar$savedLightValid
+                && rgb.pulsar$getSavedPaletteGeneration() != com.sumirelabs.pulsar.rgb.RgbPaletteOverrides
+                    .current().generation)
                 this.pulsar$savedLightValid = false;
             if (!this.pulsar$savedLightValid) {
-                rgb.pulsar$setRgbStorage(null); rgb.pulsar$setRgbSkyStorage(null);
-                rgb.pulsar$setRgbSnapshot(null); rgb.pulsar$setRgbSkySnapshot(null);
+                rgb.pulsar$setRgbStorage(null);
+                rgb.pulsar$setRgbSkyStorage(null);
+                rgb.pulsar$setRgbSnapshot(null);
+                rgb.pulsar$setRgbSkySnapshot(null);
             }
         }
 
@@ -168,11 +166,11 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         // that cannot be reconstructed from vanilla storage.
         if (!this.pulsar$savedLightValid) {
             ChunkLightHelper.importVanillaBlock(
-                    this.pulsar$getHeightContext(), this.pulsar$blockNibbles, this.getBlockStorageArray());
+                this.pulsar$getHeightContext(), this.pulsar$blockNibbles, this.getBlockStorageArray());
             if (this.world.provider.hasSkyLight()) {
                 ChunkLightHelper.importVanillaSky(
-                        this.pulsar$getHeightContext(), this.pulsar$skyNibbles,
-                        this.getBlockStorageArray(), false);
+                    this.pulsar$getHeightContext(), this.pulsar$skyNibbles,
+                    this.getBlockStorageArray(), false);
             }
         }
 
@@ -213,10 +211,10 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         // Never hold the publication monitor while waiting for worker futures:
         // their final visible-light publication uses the same monitor.
         final boolean workFinished = this.world.isRemote
-                || manager.awaitPendingWork(this.x, this.z);
+            || manager.awaitPendingWork(this.x, this.z);
         synchronized (self) {
             if (!this.world.isRemote
-                    && (!workFinished || manager.hasPendingLightWorkNear(this.x, this.z))) {
+                && (!workFinished || manager.hasPendingLightWorkNear(this.x, this.z))) {
                 // onUnload runs before chunk serialization. Keep this false
                 // only when light work may still be in flight; a clean unload
                 // must retain valid persisted light through ChunkDataEvent.Save.
@@ -237,17 +235,17 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
      */
     @Inject(method = "read", at = @At("RETURN"), require = 0)
     private void pulsar$onRead(final PacketBuffer buf, final int availableSections,
-                               final boolean groundUpContinuous, final CallbackInfo ci) {
+        final boolean groundUpContinuous, final CallbackInfo ci) {
         if (!this.world.isRemote) {
             return;
         }
         final Chunk self = (Chunk) (Object) this;
 
         ChunkLightHelper.wrapVanillaBlock(
-                this.pulsar$getHeightContext(), this.pulsar$blockNibbles, this.getBlockStorageArray());
+            this.pulsar$getHeightContext(), this.pulsar$blockNibbles, this.getBlockStorageArray());
         if (this.world.provider.hasSkyLight()) {
             ChunkLightHelper.wrapVanillaSky(
-                    this.pulsar$getHeightContext(), this.pulsar$skyNibbles, this.getBlockStorageArray());
+                this.pulsar$getHeightContext(), this.pulsar$skyNibbles, this.getBlockStorageArray());
         }
 
         final WorldLightManager manager = ((PulsarWorld) this.world).pulsar$getLightManager();
@@ -257,7 +255,7 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         manager.registerChunk(self);
         this.pulsar$lightReady = true;
         manager.queueChunkLoadInit(
-                this.x, this.z, self, PulsarEngine.getEmptySectionsForChunk(self));
+            this.x, this.z, self, PulsarEngine.getEmptySectionsForChunk(self));
     }
 
     @Override
@@ -298,10 +296,10 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     @Override
     public void pulsar$syncLightToVanilla(final int sectionMask) {
         ChunkLightHelper.syncBlockToVanilla(
-                this.pulsar$getHeightContext(), this.pulsar$blockNibbles, this.getBlockStorageArray(), sectionMask);
+            this.pulsar$getHeightContext(), this.pulsar$blockNibbles, this.getBlockStorageArray(), sectionMask);
         if (this.world.provider.hasSkyLight()) {
             ChunkLightHelper.syncSkyToVanilla(
-                    this.pulsar$getHeightContext(), this.pulsar$skyNibbles, this.getBlockStorageArray(), sectionMask);
+                this.pulsar$getHeightContext(), this.pulsar$skyNibbles, this.getBlockStorageArray(), sectionMask);
         }
     }
 
@@ -344,4 +342,5 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     public void pulsar$setSkyEmptinessMap(final boolean[] emptinessMap) {
         this.pulsar$skyEmptinessMap = emptinessMap;
     }
+
 }

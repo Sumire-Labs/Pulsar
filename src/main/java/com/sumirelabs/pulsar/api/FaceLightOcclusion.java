@@ -28,4 +28,5 @@ public interface FaceLightOcclusion {
      * {@code 15} = fully opaque.
      */
     int getDirectionalLightOpacity(IBlockState state, EnumFacing direction);
+
 }

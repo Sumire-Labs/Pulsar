@@ -1,9 +1,11 @@
 package com.sumirelabs.pulsar.light;
 
 import com.google.common.util.concurrent.SettableFuture;
+
+import net.minecraft.world.chunk.Chunk;
+
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import net.minecraft.world.chunk.Chunk;
 
 /**
  * Per-chunk batched light work. Accumulates block changes, section changes,
@@ -55,4 +57,5 @@ public final class ChunkTasks {
         this.onComplete = SettableFuture.create();
         this.enqueueTimeNs = LightStats.enabled ? System.nanoTime() : 0L;
     }
+
 }

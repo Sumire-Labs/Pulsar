@@ -1,13 +1,5 @@
 package com.sumirelabs.pulsar.mixin;
 
-import com.sumirelabs.pulsar.Pulsar;
-import com.sumirelabs.pulsar.api.ExtendedWorld;
-import com.sumirelabs.pulsar.light.WorldLightManager;
-import com.sumirelabs.pulsar.world.PulsarWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,14 +7,22 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.api.ExtendedWorld;
+import com.sumirelabs.pulsar.light.WorldLightManager;
+import com.sumirelabs.pulsar.world.PulsarWorld;
+
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+
 @Mixin(World.class)
 public abstract class MixinWorld implements PulsarWorld, ExtendedWorld {
 
-    @Unique
-    private volatile WorldLightManager pulsar$lightInterface;
+    @Unique private volatile WorldLightManager pulsar$lightInterface;
 
-    @Unique
-    private volatile boolean pulsar$ready;
+    @Unique private volatile boolean pulsar$ready;
 
     @Inject(method = "<init>*", at = @At("RETURN"))
     private void pulsar$onInit(final CallbackInfo ci) {
@@ -40,7 +40,7 @@ public abstract class MixinWorld implements PulsarWorld, ExtendedWorld {
      */
     @Inject(method = "checkLightFor", at = @At("HEAD"), cancellable = true)
     private void pulsar$checkLightFor(final EnumSkyBlock lightType, final BlockPos pos,
-                                      final CallbackInfoReturnable<Boolean> cir) {
+        final CallbackInfoReturnable<Boolean> cir) {
         if (!this.pulsar$ready) {
             return;
         }
@@ -65,10 +65,12 @@ public abstract class MixinWorld implements PulsarWorld, ExtendedWorld {
     @Override
     public WorldLightManager pulsar$getLightManager() {
         WorldLightManager mgr = this.pulsar$lightInterface;
-        if (mgr != null) return mgr;
+        if (mgr != null)
+            return mgr;
         synchronized (this) {
             mgr = this.pulsar$lightInterface;
-            if (mgr != null) return mgr;
+            if (mgr != null)
+                return mgr;
             final World self = (World) (Object) this;
             // Skip GregTech WorldSceneRenderer / JEI multiblock-preview fake worlds.
             if (!Pulsar.proxy.isRealMainWorld(self)) {
@@ -82,7 +84,8 @@ public abstract class MixinWorld implements PulsarWorld, ExtendedWorld {
     @Override
     public Chunk pulsar$getAnyChunkImmediately(final int chunkX, final int chunkZ) {
         final WorldLightManager mgr = this.pulsar$lightInterface;
-        if (mgr == null) return null;
+        if (mgr == null)
+            return null;
         return mgr.getLoadedChunk(chunkX, chunkZ);
     }
 

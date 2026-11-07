@@ -20,4 +20,5 @@ import net.minecraftforge.fml.common.eventhandler.Event;
  * retain this event for later registration, or call registry lifecycle methods
  * such as {@code freeze()}, {@code defaults()} or {@code interfaceDefaults()}.
  */
-public final class RegisterLightPropertiesEvent extends Event {}
+public final class RegisterLightPropertiesEvent extends Event {
+}

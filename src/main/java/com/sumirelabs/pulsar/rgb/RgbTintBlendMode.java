@@ -16,24 +16,36 @@ public enum RgbTintBlendMode {
 
     /** Original Pulsar prototype formula, retained for comparisons. */
     LEGACY {
-        @Override protected void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out) {
+
+        @Override
+        protected void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out) {
             float max = .6f + Math.max(br + sr, Math.max(bg + sg, bb + sb));
             out[0] = (.6f + br + sr) / max;
             out[1] = (.6f + bg + sg) / max;
             out[2] = (.6f + bb + sb) / max;
         }
+
     },
 
     MAXIMUM {
-        @Override protected void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out) {
-            float r=Math.max(br,sr), g=Math.max(bg,sg), b=Math.max(bb,sb);
-            float peak=Math.max(r,Math.max(g,b));
-            if(peak<.5f){out[0]=out[1]=out[2]=1f;return;}
-            out[0]=r/peak;out[1]=g/peak;out[2]=b/peak;
+
+        @Override
+        protected void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out) {
+            float r = Math.max(br, sr), g = Math.max(bg, sg), b = Math.max(bb, sb);
+            float peak = Math.max(r, Math.max(g, b));
+            if (peak < .5f) {
+                out[0] = out[1] = out[2] = 1f;
+                return;
+            }
+            out[0] = r / peak;
+            out[1] = g / peak;
+            out[2] = b / peak;
         }
+
     },
 
     ADDITIVE {
+
         @Override
         protected void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out) {
             float tr = br + sr;
@@ -48,9 +60,11 @@ public enum RgbTintBlendMode {
             out[1] = tg / tmax;
             out[2] = tb / tmax;
         }
+
     },
 
     SQUARED_WEIGHT {
+
         @Override
         protected void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out) {
             float blockMax = Math.max(br, Math.max(bg, bb));
@@ -78,9 +92,11 @@ public enum RgbTintBlendMode {
             out[1] = btG * bw + stG * sw;
             out[2] = btB * bw + stB * sw;
         }
+
     },
 
     LINEAR_WEIGHT {
+
         @Override
         protected void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out) {
             float blockMax = Math.max(br, Math.max(bg, bb));
@@ -106,9 +122,11 @@ public enum RgbTintBlendMode {
             out[1] = btG * bw + stG * sw;
             out[2] = btB * bw + stB * sw;
         }
+
     },
 
     OKLAB {
+
         @Override
         protected void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out) {
             float blockMax = Math.max(br, Math.max(bg, bb));
@@ -164,13 +182,16 @@ public enum RgbTintBlendMode {
             out[1] = gg / tmax;
             out[2] = bb2 / tmax;
         }
+
     },
 
     VIVID {
+
         @Override
         protected void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out) {
             SQUARED_WEIGHT.computeTintImpl(br, bg, bb, sr, sg, sb, out);
-            if (out[0] >= 1.0f && out[1] >= 1.0f && out[2] >= 1.0f) return;
+            if (out[0] >= 1.0f && out[1] >= 1.0f && out[2] >= 1.0f)
+                return;
 
             float avg = (out[0] + out[1] + out[2]) * (1.0f / 3.0f);
             final float boost = 1.5f;
@@ -187,18 +208,25 @@ public enum RgbTintBlendMode {
                 out[0] = out[1] = out[2] = 1f;
             }
         }
+
     };
 
     // Only OKLAB users allocate this table; SCALAR and other modes do not.
     private static final class OkLabTable {
+
         static final float[] VALUES = new float[16 * 16 * 16 * 3];
         static {
-            for (int r = 0; r < 16; r++) for (int g = 0; g < 16; g++) for (int b = 0; b < 16; b++)
-                linearRgbToOkLab(r / 15f, g / 15f, b / 15f, VALUES, (r << 8 | g << 4 | b) * 3);
+            for (int r = 0; r < 16; r++)
+                for (int g = 0; g < 16; g++)
+                    for (int b = 0; b < 16; b++)
+                        linearRgbToOkLab(r / 15f, g / 15f, b / 15f, VALUES, (r << 8 | g << 4 | b) * 3);
         }
+
     }
     private static final class Scratch {
+
         static final ThreadLocal<float[]> TINT = ThreadLocal.withInitial(() -> new float[3]);
+
     }
     /** Currently active blend mode. Changed at runtime via keybind or config. */
 
@@ -228,7 +256,8 @@ public enum RgbTintBlendMode {
         computeTintImpl(br, bg, bb, sr, sg, sb, out);
         final float maxLight = Math.max(Math.max(br, Math.max(bg, bb)), Math.max(sr, Math.max(sg, sb)));
         final float w = hueConfidence(maxLight);
-        if (w >= 1f) return;
+        if (w >= 1f)
+            return;
         // Soften dim hues without adding energy to an absent channel. Mixing
         // toward white made red-filtered light acquire green and blue again.
         // This bounded polynomial retains zero/one endpoints and neutral light.
@@ -239,18 +268,18 @@ public enum RgbTintBlendMode {
     }
 
     public int tintAbgr(int color, int r, int g, int b, int canonical,
-                        int sr, int sg, int sb, int skyCanonical, float skyScale) {
-        return tintAbgr(color,(float)r,(float)g,(float)b,(float)canonical,sr,sg,sb,skyCanonical,skyScale);
+        int sr, int sg, int sb, int skyCanonical, float skyScale) {
+        return tintAbgr(color, (float) r, (float) g, (float) b, (float) canonical, sr, sg, sb, skyCanonical, skyScale);
     }
     public int tintAbgr(int color, float r, float g, float b, float canonical,
-                        int sr, int sg, int sb, int skyCanonical, float skyScale) {
+        int sr, int sg, int sb, int skyCanonical, float skyScale) {
         float red = r + sr * skyScale, green = g + sg * skyScale, blue = b + sb * skyScale;
         float scalar = canonical + skyCanonical * skyScale;
         if (this == LEGACY) {
             float max = .6f + Math.max(scalar, Math.max(red, Math.max(green, blue)));
             return color & 0xFF000000 | Math.round((color & 255) * (.6f + red) / max)
-                    | Math.round((color >>> 8 & 255) * (.6f + green) / max) << 8
-                    | Math.round((color >>> 16 & 255) * (.6f + blue) / max) << 16;
+                | Math.round((color >>> 8 & 255) * (.6f + green) / max) << 8
+                | Math.round((color >>> 16 & 255) * (.6f + blue) / max) << 16;
         }
         // Vanilla and SuperNova subtract the time-of-day darkening from each
         // sky component. Scaling kept weak filtered skylight alive at night.
@@ -266,15 +295,16 @@ public enum RgbTintBlendMode {
         // (red block light + blue sky becomes half brightness a second time).
         // VANILLA still needs attenuation when canonical light survives a filter.
         float rgbBrightness = Math.max(r, Math.max(g, b))
-                + Math.max(skyRed, Math.max(skyGreen, skyBlue));
+            + Math.max(skyRed, Math.max(skyGreen, skyBlue));
         float brightness = Math.min(1f, (.6f + rgbBrightness) / (.6f + scalar));
         return color & 0xFF000000 | component(color & 255, tint[0] * brightness)
-                | component(color >>> 8 & 255, tint[1] * brightness) << 8
-                | component(color >>> 16 & 255, tint[2] * brightness) << 16;
+            | component(color >>> 8 & 255, tint[1] * brightness) << 8
+            | component(color >>> 16 & 255, tint[2] * brightness) << 16;
     }
     private static int component(int material, float tint) {
         return Math.max(0, Math.min(255, Math.round(material * tint)));
     }
 
     protected abstract void computeTintImpl(float br, float bg, float bb, float sr, float sg, float sb, float[] out);
+
 }

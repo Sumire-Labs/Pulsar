@@ -75,6 +75,37 @@ Pulsar completely replaces the lighting engine and is incompatible with other li
 - `config/pulsar-colors.cfg`: Defines light source colors.
 - `config/pulsar-filters.cfg`: Defines attenuation for each RGB channel.
 
+### Additional RGB source colors
+
+The additional presets below expand coverage using the block names and state selectors
+in [ColoredLux's 1.12.2 Lux Packs](https://github.com/dragon-forge/luxpacks/tree/abb9575047e4d27a1a0b8d864b16dd10d04e3575/1.12.2)
+as a reference. They use stable Pulsar hues and the source block's own contextual
+brightness. Power, fuel, and other native on/off conditions remain authoritative.
+User palette overrides and a mod's own color API retain precedence.
+
+| Mod | Additional source presets |
+| --- | --- |
+| Quark | Paper, duskbound, elder-sea and blaze lanterns; lit lamps; candles; glowshrooms and glowcelium; crystals and crystal panes |
+| Inspirations | Torch levers, powered redstone torch levers and the single-color enlightened bushes |
+| Embers / Embers Construct | Lanterns, archaic lights and burning kilns |
+| Immersive Engineering | Lantern and balloon variants of the shared device blocks |
+| Charm | Smooth glowstone, iron/gold lanterns and variable redstone lamps |
+| NetherEx / TAIGA | Blue fire, rime ore/blocks and dilithium ore/blocks, where the installed mod emits light |
+| Deep Mob Learning | Infused ingot blocks, simulation/extraction chambers and trial keystones, where the installed mod emits light |
+| Pam's HarvestCraft / Coloured Sea Lanterns | Dye-specific candles and sea lanterns |
+| Advanced Chimneys | Glowstone and sea-lantern chimneys |
+| Exotic Birds / Tinker I/O / Tinkers' Construct | Lit egg sorters/incubators, What a Beautiful Block and the glowing block |
+| Vanilla | End gateways use the end-portal hue |
+
+Quark's crystal palette follows its own names: `crystal_blue` is cyan and
+`crystal_indigo` is blue. Black candles, crystals and sea lanterns keep neutral
+light at their native brightness. Unknown state variants retain their existing
+fallback. Absent mods are skipped; the presets do not load optional mod classes.
+
+These presets do not make normally non-emissive redstone/lapis blocks glow.
+ColoredLux's randomized flicker, radius formulas and entity lights are separate
+features. ColoredLux itself is not required or intended to be installed alongside Pulsar.
+
 ## API
 
 Pulsar provides APIs for other mods to define light source colors and light transmission properties.
@@ -89,6 +120,23 @@ Pulsar provides APIs for other mods to define light source colors and light tran
 - `ExtendedChunk` / `ExtendedWorld`: Query chunk lighting readiness and pending world lighting updates.
 
 See the [API documentation](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/src/main/java/com/sumirelabs/pulsar/api/package-info.java) and [integration example](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/src/apiExample/java/example/pulsar/PulsarCompat.java) for details.
+
+Starting with releases containing the Maven publishing workflow, the compile-only
+API and its sources are published to Sumire Labs' Artifact Keeper:
+
+```groovy
+repositories {
+    maven {
+        url = 'https://artifact.sumirelabs.com/maven/releases'
+        content { includeGroup 'com.sumirelabs' }
+    }
+}
+
+dependencies {
+    // Replace <version> with a published Pulsar release version.
+    compileOnly 'com.sumirelabs:pulsar-api:<version>'
+}
+```
 
 ## Benchmarks
 
@@ -112,6 +160,7 @@ See [lighting validation notes](https://raw.githubusercontent.com/Sumire-Labs/Pu
 - [SuperNova](https://github.com/GTNewHorizons/SuperNova): The source of the ported lighting engine, per-world task management, and packed RGB propagation code.
 - [Alfheim](https://github.com/Red-Studio-Ragnarok/Alfheim): A reference for various lighting bug fixes.
 - [CleanroomModTemplate](https://github.com/CleanroomMC/CleanroomModTemplate): An excellent mod development template for Cleanroom.
+- [CleanroomDevEnv](https://github.com/Sumire-Labs/CleanroomDevEnv): Current development scaffold; its MIT notice is retained in [licenses/CleanroomDevEnv-MIT.txt](licenses/CleanroomDevEnv-MIT.txt).
 - CleanroomVersioning: Build plugin for version management.
 - TokenEnvoy: Build plugin for embedding metadata at build time.
 

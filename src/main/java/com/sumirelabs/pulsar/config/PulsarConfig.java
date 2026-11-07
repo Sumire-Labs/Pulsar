@@ -1,16 +1,18 @@
 package com.sumirelabs.pulsar.config;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.logging.log4j.LogManager;
+
 import com.sumirelabs.pulsar.Reference;
+
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.apache.logging.log4j.LogManager;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Forge {@link Config @Config}-based runtime configuration for Pulsar.
@@ -22,55 +24,51 @@ import java.io.IOException;
  */
 @Config(modid = Reference.MOD_ID, name = "pulsar")
 public class PulsarConfig {
+
     public static DynamicLights dynamicLights = new DynamicLights();
     public static class DynamicLights {
-        @Config.Comment({"Client: smooth per-frame terrain, player and item lighting with Celeritas's standard renderer.",
-                "Shader packs, unsupported renderers and more than 64 nearby dynamic sources use mesh lighting instead.",
-                "Does not change server gameplay light or colored-glass absorption."})
-        public boolean smoothTerrainLighting = true;
+
+        @Config.Comment({
+            "Client: smooth per-frame terrain, player and item lighting with Celeritas's standard renderer.",
+            "Shader packs, unsupported renderers and more than 64 nearby dynamic sources use mesh lighting instead.",
+            "Does not change server gameplay light or colored-glass absorption."}) public boolean smoothTerrainLighting = true;
         @Config.Comment({"Server-authoritative held and dropped block light sources and lava buckets.",
-                "Burning mobs and players also emit light using the fire source palette.",
-                "Open-air dynamic light has a round 7.75-block falloff; obstacles and colored filters still absorb light.",
-                "OFF disables dynamic lights. VISUAL changes rendering only.",
-                "GAMEPLAY also changes server light queries (for example mob spawning).",
-                "Enabled modes require compatible Pulsar clients. No dynamic light is saved in chunks.",
-                "Disable other dynamic-light mods to avoid duplicate lighting. Restart to apply."})
-        @Config.RequiresMcRestart
-        public com.sumirelabs.pulsar.dynamic.DynamicLights.Mode mode = com.sumirelabs.pulsar.dynamic.DynamicLights.Mode.OFF;
+            "Burning mobs and players also emit light using the fire source palette.",
+            "Open-air dynamic light has a round 7.75-block falloff; obstacles and colored filters still absorb light.",
+            "OFF disables dynamic lights. VISUAL changes rendering only.",
+            "GAMEPLAY also changes server light queries (for example mob spawning).",
+            "Enabled modes require compatible Pulsar clients. No dynamic light is saved in chunks.",
+            "Disable other dynamic-light mods to avoid duplicate lighting. Restart to apply."})
+        @Config.RequiresMcRestart public com.sumirelabs.pulsar.dynamic.DynamicLights.Mode mode = com.sumirelabs.pulsar.dynamic.DynamicLights.Mode.OFF;
+
     }
-    public enum LightingMode { SCALAR, RGB }
+    public enum LightingMode {
+        SCALAR, RGB
+    }
     @Config.Comment({"RGB block and sky light. SCALAR preserves the original engine and memory layout.",
-            "RGB adds server-authoritative color; rgbGameplayLight selects gameplay brightness behavior.",
-            "Requires Pulsar on both sides for color. Restart Minecraft and the server to apply.",
-            "SCALAR is the default; existing explicit RGB settings are retained."})
-    @Config.RequiresMcRestart
-    public static LightingMode lightingMode = LightingMode.SCALAR;
+        "RGB adds server-authoritative color; rgbGameplayLight selects gameplay brightness behavior.",
+        "Requires Pulsar on both sides for color. Restart Minecraft and the server to apply.",
+        "SCALAR is the default; existing explicit RGB settings are retained."})
+    @Config.RequiresMcRestart public static LightingMode lightingMode = LightingMode.SCALAR;
 
     @Config.Comment({"Whether the client has completed the one-time lighting mode selection for this instance.",
-            "False opens the selection screen at the next main menu. Dedicated servers do not show this screen.",
-            "Modpacks can set this to true to keep their configured lighting mode without prompting."})
-    public static boolean lightingModeSelected = false;
+        "False opens the selection screen at the next main menu. Dedicated servers do not show this screen.",
+        "Modpacks can set this to true to keep their configured lighting mode without prompting."}) public static boolean lightingModeSelected = false;
 
     @Config.Comment({"Client RGB blend: MAXIMUM, ADDITIVE, SQUARED_WEIGHT, LINEAR_WEIGHT, OKLAB or VIVID.",
-            "MAXIMUM uses the brightest value per channel; full daylight stays neutral around colored sources.",
-            "LEGACY retains the original prototype appearance for comparisons.",
-            "Applies in-game without a restart; existing terrain is rebuilt when the mode changes.",
-            "Ignored in SCALAR mode. This client blend setting does not change gameplay brightness."})
-    public static volatile com.sumirelabs.pulsar.rgb.RgbTintBlendMode rgbBlendMode =
-            com.sumirelabs.pulsar.rgb.RgbTintBlendMode.SQUARED_WEIGHT;
+        "MAXIMUM uses the brightest value per channel; full daylight stays neutral around colored sources.",
+        "LEGACY retains the original prototype appearance for comparisons.",
+        "Applies in-game without a restart; existing terrain is rebuilt when the mode changes.",
+        "Ignored in SCALAR mode. This client blend setting does not change gameplay brightness."}) public static volatile com.sumirelabs.pulsar.rgb.RgbTintBlendMode rgbBlendMode = com.sumirelabs.pulsar.rgb.RgbTintBlendMode.SQUARED_WEIGHT;
 
     @Config.Comment({"Server RGB gameplay brightness policy; ignored in SCALAR mode.",
-            "RGB_MAX derives block/sky brightness from the brightest RGB component, like SuperNova.",
-            "It avoids an additional scalar propagation pass; color absorption also affects spawning.",
-            "VANILLA keeps a separate scalar propagation pass to retain the existing gameplay brightness.",
-            "RGB_MAX requires compatible Pulsar clients for authoritative lighting. Restart to apply."})
-    @Config.RequiresMcRestart
-    public static com.sumirelabs.pulsar.rgb.RgbSettings.GameplayLight rgbGameplayLight =
-            com.sumirelabs.pulsar.rgb.RgbSettings.GameplayLight.RGB_MAX;
+        "RGB_MAX derives block/sky brightness from the brightest RGB component, like SuperNova.",
+        "It avoids an additional scalar propagation pass; color absorption also affects spawning.",
+        "VANILLA keeps a separate scalar propagation pass to retain the existing gameplay brightness.",
+        "RGB_MAX requires compatible Pulsar clients for authoritative lighting. Restart to apply."})
+    @Config.RequiresMcRestart public static com.sumirelabs.pulsar.rgb.RgbSettings.GameplayLight rgbGameplayLight = com.sumirelabs.pulsar.rgb.RgbSettings.GameplayLight.RGB_MAX;
 
-
-    @Config.Ignore
-    public static final int CURRENT_CONFIG_VERSION = 3;
+    @Config.Ignore public static final int CURRENT_CONFIG_VERSION = 3;
 
     // ASM discovery can initialize this class before mod preInit. Do the migration
     // before either that injection or our explicit ConfigManager registration.
@@ -80,8 +78,8 @@ public class PulsarConfig {
             try {
                 if (PulsarConfigVersion.prepare(file, CURRENT_CONFIG_VERSION)) {
                     LogManager.getLogger("Pulsar Config").info(
-                            "Prepared Pulsar Config Version {}",
-                            CURRENT_CONFIG_VERSION);
+                        "Prepared Pulsar Config Version {}",
+                        CURRENT_CONFIG_VERSION);
                 }
             } catch (final IOException exception) {
                 throw new IllegalStateException("Cannot migrate Pulsar config: " + file, exception);
@@ -90,170 +88,154 @@ public class PulsarConfig {
     }
 
     @Config.Comment({
-            "Pulsar Config Version " + CURRENT_CONFIG_VERSION,
-            "Do not edit this version. Managed by Pulsar.",
-            "Version changes preserve existing settings; missing options use current defaults.",
-            "Malformed config syntax regenerates the main config with current defaults."
+        "Pulsar Config Version " + CURRENT_CONFIG_VERSION,
+        "Do not edit this version. Managed by Pulsar.",
+        "Version changes preserve existing settings; missing options use current defaults.",
+        "Malformed config syntax regenerates the main config with current defaults."
     })
     @Config.RangeInt(min = CURRENT_CONFIG_VERSION, max = CURRENT_CONFIG_VERSION)
-    @Config.RequiresMcRestart
-    public static int configVersion = CURRENT_CONFIG_VERSION;
+    @Config.RequiresMcRestart public static int configVersion = CURRENT_CONFIG_VERSION;
 
-    @Config.Comment("Feature toggles")
-    public static final Features features = new Features();
-    @Config.Comment("Debug options")
-    public static final Debug debug = new Debug();
-    @Config.Comment("Lighting scheduling, contextual polling and memory tuning.")
-    public static final Performance performance = new Performance();
+    @Config.Comment("Feature toggles") public static final Features features = new Features();
+    @Config.Comment("Debug options") public static final Debug debug = new Debug();
+    @Config.Comment("Lighting scheduling, contextual polling and memory tuning.") public static final Performance performance = new Performance();
     @Config.Comment({
-            "Enable Pulsar's mob-spawn lighting gate. False uses vanilla spawn checks.",
-            "This does not disable the lighting engine or mixins. Changes apply without a restart."
-    })
-    public static boolean enabled = true;
+        "Enable Pulsar's mob-spawn lighting gate. False uses vanilla spawn checks.",
+        "This does not disable the lighting engine or mixins. Changes apply without a restart."
+    }) public static boolean enabled = true;
 
     public static class Features {
 
         @Config.Comment({
-                "Server side: poll tracked TileEntity emission/opacity with a shared per-world tick budget.",
-                "Large source counts are spread over multiple ticks; see performance.tileEntityLight* settings.",
-                "Disable to reduce sampling cost or diagnose compatibility; changing TileEntity lights may then stay stale.",
-                "Normal block-change sampling remains enabled. Changes apply without a restart."
-        })
-        public boolean trackTileEntityLight = true;
+            "Server side: poll tracked TileEntity emission/opacity with a shared per-world tick budget.",
+            "Large source counts are spread over multiple ticks; see performance.tileEntityLight* settings.",
+            "Disable to reduce sampling cost or diagnose compatibility; changing TileEntity lights may then stay stale.",
+            "Normal block-change sampling remains enabled. Changes apply without a restart."
+        }) public boolean trackTileEntityLight = true;
 
         @Config.Comment({
-                "Use shared private work maps for /pulsar relight <radius>. Experimental; default false.",
-                "Only affects manual relighting, not ordinary lighting updates. Applies to the next relight command."
-        })
-        public boolean experimentalRangeRelight = false;
+            "Use shared private work maps for /pulsar relight <radius>. Experimental; default false.",
+            "Only affects manual relighting, not ordinary lighting updates. Applies to the next relight command."
+        }) public boolean experimentalRangeRelight = false;
 
         @Config.Comment({
-                "Client side: coalesce lighting render notifications within each tick. Default true.",
-                "False sends notifications directly for comparison. Light values are unchanged.",
-                "Changes apply without a restart."
-        })
-        public boolean coalesceClientRenderUpdates = true;
+            "Client side: coalesce lighting render notifications within each tick. Default true.",
+            "False sends notifications directly for comparison. Light values are unchanged.",
+            "Changes apply without a restart."
+        }) public boolean coalesceClientRenderUpdates = true;
 
         @Config.Comment({
-                "Server-side lighting workers, including the integrated server in singleplayer.",
-                "Default -1 selects logical CPU threads/3 automatically, clamped to 1..16.",
-                "0 uses the dedicated sky/block workers; 1..16 sets the shared pool size explicitly.",
-                "Tasks read a 5x5 chunk halo and write within 3x3; only read-only halos may overlap.",
-                "More threads may increase CPU and memory use without improving FPS or latency.",
-                "Restart Minecraft/the server to apply. Values are preserved while the config version matches."
+            "Server-side lighting workers, including the integrated server in singleplayer.",
+            "Default -1 selects logical CPU threads/3 automatically, clamped to 1..16.",
+            "0 uses the dedicated sky/block workers; 1..16 sets the shared pool size explicitly.",
+            "Tasks read a 5x5 chunk halo and write within 3x3; only read-only halos may overlap.",
+            "More threads may increase CPU and memory use without improving FPS or latency.",
+            "Restart Minecraft/the server to apply. Values are preserved while the config version matches."
         })
         @Config.RangeInt(min = -1, max = 16)
-        @Config.RequiresMcRestart
-        public int experimentalServerLightThreads = -1;
+        @Config.RequiresMcRestart public int experimentalServerLightThreads = -1;
 
         @Config.Comment({
-                "Shared client lighting budget per tick in milliseconds. Default 2 favors frame pacing.",
-                "Sky and block tasks alternate. A task already running may exceed this soft limit.",
-                "Higher values finish queued lighting sooner but can delay rendering. Client only.",
-                "Changes apply to the next tick without a restart."
+            "Shared client lighting budget per tick in milliseconds. Default 2 favors frame pacing.",
+            "Sky and block tasks alternate. A task already running may exceed this soft limit.",
+            "Higher values finish queued lighting sooner but can delay rendering. Client only.",
+            "Changes apply to the next tick without a restart."
         })
-        @Config.RangeInt(min = 1, max = 10)
-        public int clientLightBudgetMs = 2;
+        @Config.RangeInt(min = 1, max = 10) public int clientLightBudgetMs = 2;
 
         @Config.Comment({
-                "Minimum block-light level for Thaumcraft 6's placed vis crystal clusters.",
-                "0 keeps Thaumcraft's original emission. Default 10 is dimmer than a torch (14).",
-                "Uses normal uncolored block-light propagation; held items are not affected.",
-                "Restart Minecraft/the server to apply. Saved light is recalculated on chunk load.",
-                "Stronger emission from other mods is preserved. Use matching settings on both sides."
+            "Minimum block-light level for Thaumcraft 6's placed vis crystal clusters.",
+            "0 keeps Thaumcraft's original emission. Default 10 is dimmer than a torch (14).",
+            "Uses normal uncolored block-light propagation; held items are not affected.",
+            "Restart Minecraft/the server to apply. Saved light is recalculated on chunk load.",
+            "Stronger emission from other mods is preserved. Use matching settings on both sides."
         })
         @Config.RangeInt(min = 0, max = 15)
-        @Config.RequiresMcRestart
-        public int thaumcraftCrystalLightLevel = 10;
+        @Config.RequiresMcRestart public int thaumcraftCrystalLightLevel = 10;
 
         @Config.Comment({
-                "Allow the server to send chunks to clients before initial lighting has propagated.",
-                "1.12.2 has no light-update packet, so light sent wrong stays wrong on the client",
-                "until a block change. Chunks with valid persisted light are ready instantly, so",
-                "keeping this off only delays freshly generated chunks by a few worker milliseconds."
-        })
-        public boolean sendChunksWithoutLight = false;
+            "Allow the server to send chunks to clients before initial lighting has propagated.",
+            "1.12.2 has no light-update packet, so light sent wrong stays wrong on the client",
+            "until a block change. Chunks with valid persisted light are ready instantly, so",
+            "keeping this off only delays freshly generated chunks by a few worker milliseconds."
+        }) public boolean sendChunksWithoutLight = false;
+
     }
 
     public static class Performance {
-        @Config.Comment({
-                "Use the previous exclusive 5x5 chunk reservations in the shared server lighting pool.",
-                "Default false permits overlapping read-only halos while preserving isolated 3x3 writes.",
-                "Set true for compatibility diagnosis; nearby jobs then run less concurrently.",
-                "Only affects the shared pool, not dedicated workers. Restart Minecraft/the server to apply."
-        })
-        @Config.RequiresMcRestart
-        public boolean conservativeLightTaskReservations = false;
 
         @Config.Comment({
-                "Maximum fallback TileEntity light samples per world tick. Default 4096.",
-                "A round-robin cursor prevents starvation; larger source counts take multiple ticks to revisit.",
-                "Explicit block changes, TileEntity installation/removal and worker misses are processed first",
-                "and are not limited by this fallback budget. Changes apply without a restart."
+            "Use the previous exclusive 5x5 chunk reservations in the shared server lighting pool.",
+            "Default false permits overlapping read-only halos while preserving isolated 3x3 writes.",
+            "Set true for compatibility diagnosis; nearby jobs then run less concurrently.",
+            "Only affects the shared pool, not dedicated workers. Restart Minecraft/the server to apply."
         })
-        @Config.RangeInt(min = 1, max = 1000000)
-        public volatile int tileEntityLightSamplesPerTick = 4096;
+        @Config.RequiresMcRestart public boolean conservativeLightTaskReservations = false;
 
         @Config.Comment({
-                "Soft time limit in microseconds for fallback TileEntity light polling per world tick. Default 1000 (1 ms).",
-                "Polling stops at the first of this limit and tileEntityLightSamplesPerTick.",
-                "A single MOD callback cannot be interrupted and may exceed this limit.",
-                "Lower budgets reduce tick cost but delay changes from MODs which do not notify light updates.",
-                "Explicit update processing is not limited. Changes apply without a restart."
+            "Maximum fallback TileEntity light samples per world tick. Default 4096.",
+            "A round-robin cursor prevents starvation; larger source counts take multiple ticks to revisit.",
+            "Explicit block changes, TileEntity installation/removal and worker misses are processed first",
+            "and are not limited by this fallback budget. Changes apply without a restart."
         })
-        @Config.RangeInt(min = 1, max = 50000)
-        public volatile int tileEntityLightBudgetMicros = 1000;
+        @Config.RangeInt(min = 1, max = 1000000) public volatile int tileEntityLightSamplesPerTick = 4096;
 
         @Config.Comment({
-                "Time in milliseconds spent draining one batch by a dedicated server lighting worker.",
-                "Applies only when experimentalServerLightThreads=0; shared-pool workers run claimed tasks directly.",
-                "Default 15. Smaller values check the queue between batches more often.",
-                "A running chunk task is never interrupted and may exceed this soft limit.",
-                "Changes apply to the next batch without a restart."
+            "Soft time limit in microseconds for fallback TileEntity light polling per world tick. Default 1000 (1 ms).",
+            "Polling stops at the first of this limit and tileEntityLightSamplesPerTick.",
+            "A single MOD callback cannot be interrupted and may exceed this limit.",
+            "Lower budgets reduce tick cost but delay changes from MODs which do not notify light updates.",
+            "Explicit update processing is not limited. Changes apply without a restart."
         })
-        @Config.RangeInt(min = 1, max = 50)
-        public volatile int dedicatedServerBatchBudgetMs = 15;
+        @Config.RangeInt(min = 1, max = 50000) public volatile int tileEntityLightBudgetMicros = 1000;
 
         @Config.Comment({
-                "Total milliseconds per server world tick allowed for waiting on lighting during chunk unload.",
-                "Default 10. Lower values reduce unload stalls but may invalidate saved light for recalculation.",
-                "0 never waits for unfinished lighting; it does not discard blocks or bypass saved-light validation.",
-                "Higher values allow more work to finish before unloading but may lengthen the server tick.",
-                "Reload the world/restart the server to apply."
+            "Time in milliseconds spent draining one batch by a dedicated server lighting worker.",
+            "Applies only when experimentalServerLightThreads=0; shared-pool workers run claimed tasks directly.",
+            "Default 15. Smaller values check the queue between batches more often.",
+            "A running chunk task is never interrupted and may exceed this soft limit.",
+            "Changes apply to the next batch without a restart."
+        })
+        @Config.RangeInt(min = 1, max = 50) public volatile int dedicatedServerBatchBudgetMs = 15;
+
+        @Config.Comment({
+            "Total milliseconds per server world tick allowed for waiting on lighting during chunk unload.",
+            "Default 10. Lower values reduce unload stalls but may invalidate saved light for recalculation.",
+            "0 never waits for unfinished lighting; it does not discard blocks or bypass saved-light validation.",
+            "Higher values allow more work to finish before unloading but may lengthen the server tick.",
+            "Reload the world/restart the server to apply."
         })
         @Config.RangeInt(min = 0, max = 50)
-        @Config.RequiresWorldRestart
-        public int unloadLightWaitBudgetMs = 10;
+        @Config.RequiresWorldRestart public int unloadLightWaitBudgetMs = 10;
 
         @Config.Comment({
-                "Target number of idle calculation engines retained per world and light lane in the shared pool.",
-                "Default 4. Higher values retain more memory and reduce engine allocation during bursts.",
-                "0 disables this idle pool. Active jobs are never limited or cancelled by this setting.",
-                "Dedicated server workers and client lanes retain their single reusable engine independently.",
-                "Concurrent completions can briefly exceed this target. Reload the world/restart the server to apply."
+            "Target number of idle calculation engines retained per world and light lane in the shared pool.",
+            "Default 4. Higher values retain more memory and reduce engine allocation during bursts.",
+            "0 disables this idle pool. Active jobs are never limited or cancelled by this setting.",
+            "Dedicated server workers and client lanes retain their single reusable engine independently.",
+            "Concurrent completions can briefly exceed this target. Reload the world/restart the server to apply."
         })
         @Config.RangeInt(min = 0, max = 16)
-        @Config.RequiresWorldRestart
-        public int cachedEnginesPerLane = 4;
+        @Config.RequiresWorldRestart public int cachedEnginesPerLane = 4;
+
     }
 
     public static class Debug {
-        @Config.Comment({"Trace lighting/render update origins and Celeritas rebuilds in the normal game log.",
-                "Opt-in diagnostics: exact counts, 1/64 sampled positions/callers, bounded maps, one summary per 200 client ticks.",
-                "Celeritas positions are section coordinates; other positions are block coordinates."})
-        public volatile boolean traceLightUpdates = false;
 
-        @Config.Comment("Emit per-tick stats to logs/pulsar-stats.log.")
-        public boolean enableDebugStats = false;
+        @Config.Comment({"Trace lighting/render update origins and Celeritas rebuilds in the normal game log.",
+            "Opt-in diagnostics: exact counts, 1/64 sampled positions/callers, bounded maps, one summary per 200 client ticks.",
+            "Celeritas positions are section coordinates; other positions are block coordinates."}) public volatile boolean traceLightUpdates = false;
+
+        @Config.Comment("Emit per-tick stats to logs/pulsar-stats.log.") public boolean enableDebugStats = false;
 
         @Config.Comment({
-                "Ticks per statistics log entry while enableDebugStats is true. Default 20 (about one second at 20 TPS).",
-                "Smaller values give finer detail but increase log volume and formatting/disk overhead.",
-                "Larger values aggregate a longer measurement window. Changes apply without a restart.",
-                "Has no effect while statistics logging is disabled."
+            "Ticks per statistics log entry while enableDebugStats is true. Default 20 (about one second at 20 TPS).",
+            "Smaller values give finer detail but increase log volume and formatting/disk overhead.",
+            "Larger values aggregate a longer measurement window. Changes apply without a restart.",
+            "Has no effect while statistics logging is disabled."
         })
-        @Config.RangeInt(min = 1, max = 1200)
-        public volatile int statsLogIntervalTicks = 20;
+        @Config.RangeInt(min = 1, max = 1200) public volatile int statsLogIntervalTicks = 20;
+
     }
 
     /** Calling this method initializes the version guard before registration reads the file. */
@@ -270,5 +252,7 @@ public class PulsarConfig {
                 ConfigManager.sync(Reference.MOD_ID, Config.Type.INSTANCE);
             }
         }
+
     }
+
 }

@@ -1,11 +1,13 @@
 package com.sumirelabs.pulsar.light;
 
-import net.minecraft.nbt.NBTTagCompound;
 import org.junit.jupiter.api.Test;
+
+import net.minecraft.nbt.NBTTagCompound;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class LightDataSerializerTest {
+
     private static NBTTagCompound saved(final boolean projected) {
         var root = new NBTTagCompound();
         root.setInteger("version", LightDataSerializer.LIGHT_VERSION);
@@ -13,19 +15,22 @@ class LightDataSerializerTest {
         return root;
     }
 
-    @Test void switchingFromRgbMaxToScalarRequiresRelighting() {
+    @Test
+    void switchingFromRgbMaxToScalarRequiresRelighting() {
         var root = saved(true);
         assertTrue(LightDataSerializer.hasCompatibleGameplayLight(root, true));
         assertFalse(LightDataSerializer.hasCompatibleGameplayLight(root, false));
     }
 
-    @Test void vanillaGameplayLightCannotInitializeRgbMax() {
+    @Test
+    void vanillaGameplayLightCannotInitializeRgbMax() {
         var root = saved(false);
         assertTrue(LightDataSerializer.hasCompatibleGameplayLight(root, false));
         assertFalse(LightDataSerializer.hasCompatibleGameplayLight(root, true));
     }
 
-    @Test void legacyAndUnmarkedCachesCannotBypassThePolicyCheck() {
+    @Test
+    void legacyAndUnmarkedCachesCannotBypassThePolicyCheck() {
         var root = saved(true);
         root.setInteger("version", 13);
         assertFalse(LightDataSerializer.hasCompatibleGameplayLight(root, true));
@@ -36,4 +41,5 @@ class LightDataSerializerTest {
         root.setString("rgbMaxGameplayLight", "false");
         assertFalse(LightDataSerializer.hasCompatibleGameplayLight(root, false));
     }
+
 }

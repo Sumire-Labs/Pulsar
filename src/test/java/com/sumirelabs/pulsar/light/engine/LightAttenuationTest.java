@@ -6,7 +6,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LightAttenuationTest {
 
-    @Test void packedStaticAbsorptionAgreesForEveryOpacityAndFace() {
+    @Test
+    void packedStaticAbsorptionAgreesForEveryOpacityAndFace() {
         for (int opacity = 0; opacity <= 15; opacity++) {
             for (int face = 0; face < 6; face++) {
                 assertEquals(Math.max(1, opacity), LightInfo.absorption(opacity, null, face));
@@ -39,9 +40,9 @@ class LightAttenuationTest {
     @Test
     void deepWaterColumnAgreesWithKnownUniformSolution() {
         assertArrayEquals(new int[]{15, 15, 12, 9, 6, 3, 0},
-                initialColumn(new int[]{0, 0, 3, 3, 3, 3, 3}));
+            initialColumn(new int[]{0, 0, 3, 3, 3, 3, 3}));
         assertArrayEquals(new int[]{15, 15, 12, 9, 6, 3, 0},
-                columnWithBfsHandoff(new int[]{0, 0, 3, 3, 3, 3, 3}));
+            columnWithBfsHandoff(new int[]{0, 0, 3, 3, 3, 3, 3}));
     }
 
     @Test
@@ -123,4 +124,5 @@ class LightAttenuationTest {
         }
         return result;
     }
+
 }

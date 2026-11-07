@@ -19,4 +19,5 @@ public interface LightCachedState {
      * it on first use. Never 0 once computed (the COMPUTED bit is set).
      */
     int pulsar$lightInfo();
+
 }

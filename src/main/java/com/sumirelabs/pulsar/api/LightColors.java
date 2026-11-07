@@ -5,6 +5,7 @@ package com.sumirelabs.pulsar.api;
  * the selected gameplay-light policy still apply. No gamma conversion is implied.
  */
 public final class LightColors {
+
     public static final int BLACK = 0x000;
     public static final int WHITE = 0xFFF;
     public static final int RED = 0xF00;
@@ -15,4 +16,5 @@ public final class LightColors {
     public static final int MAGENTA = 0xF0F;
 
     private LightColors() {}
+
 }

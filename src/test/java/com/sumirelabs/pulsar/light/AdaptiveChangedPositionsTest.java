@@ -1,12 +1,13 @@
 package com.sumirelabs.pulsar.light;
 
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import org.junit.jupiter.api.Test;
-
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
+import org.junit.jupiter.api.Test;
+
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,8 +16,7 @@ class AdaptiveChangedPositionsTest {
     @Test
     void promotedBitmapMatchesTheSparsePositionsAndDeduplicates() {
         final IntOpenHashSet sparse = compactPositions(-65);
-        final AdaptiveChangedPositions.PromotionResult result =
-                AdaptiveChangedPositions.considerPromotion(sparse);
+        final AdaptiveChangedPositions.PromotionResult result = AdaptiveChangedPositions.considerPromotion(sparse);
         assertNotNull(result.promoted);
 
         final int duplicate = pack(0, -65, 0);
@@ -52,12 +52,11 @@ class AdaptiveChangedPositionsTest {
         for (int index = 0; index < AdaptiveChangedPositions.DENSE_THRESHOLD; ++index) {
             sparse.add(pack(index & 15, index << 4, (index >>> 4) & 15));
         }
-        final AdaptiveChangedPositions.PromotionResult result =
-                AdaptiveChangedPositions.considerPromotion(sparse);
+        final AdaptiveChangedPositions.PromotionResult result = AdaptiveChangedPositions.considerPromotion(sparse);
 
         assertNull(result.promoted);
         assertEquals(4096 * AdaptiveChangedPositions.DENSE_SECTION_OCCUPANCY,
-                result.nextCheckSize);
+            result.nextCheckSize);
     }
 
     @Test
@@ -101,8 +100,8 @@ class AdaptiveChangedPositionsTest {
     }
 
     private static AdaptiveChangedPositions promoteCompact(final int firstY) {
-        final AdaptiveChangedPositions.PromotionResult result =
-                AdaptiveChangedPositions.considerPromotion(compactPositions(firstY));
+        final AdaptiveChangedPositions.PromotionResult result = AdaptiveChangedPositions
+            .considerPromotion(compactPositions(firstY));
         assertNotNull(result.promoted);
         return result.promoted;
     }
@@ -126,4 +125,5 @@ class AdaptiveChangedPositionsTest {
     private static int pack(final int x, final int y, final int z) {
         return (x & 15) | ((z & 15) << 4) | (y << 8);
     }
+
 }

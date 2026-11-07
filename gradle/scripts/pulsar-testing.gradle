@@ -1,0 +1,97 @@
+// Pulsar's isolated compatibility probes and optional GPU/benchmark fixtures.
+configurations {
+    gpuTestRuntime
+    compatTestMods
+    classicTestMods
+    rendererTestMods
+    fbpFancierTestMods
+    fbpFanciestTestMods
+    fbpLegacyTestMods
+    testImplementation.extendsFrom(compatTestMods)
+}
+
+// Remapping changes signed bytecode. Remove stale signature files only from
+// disposable probe copies, leaving downloaded artifacts and runtime mods intact.
+def probeModsDirectory = layout.buildDirectory.dir('compat-test-mods')
+def prepareCompatTestMods = tasks.register('prepareCompatTestMods') {
+    inputs.files(configurations.compatTestMods)
+    outputs.dir(probeModsDirectory)
+    doLast {
+        def destination = probeModsDirectory.get().asFile
+        destination.mkdirs()
+        configurations.compatTestMods.files.each { artifact ->
+            new java.util.zip.ZipFile(artifact).withCloseable { source ->
+                new java.util.zip.ZipOutputStream(new FileOutputStream(new File(destination, artifact.name))).withCloseable { output ->
+                    source.entries().each { entry ->
+                        if (!(entry.name.toUpperCase(Locale.ROOT) ==~ /META-INF\/[^\/]+\.(SF|RSA|DSA|EC)/)) {
+                            output.putNextEntry(new java.util.zip.ZipEntry(entry.name))
+                            if (!entry.directory) source.getInputStream(entry).withCloseable { it.transferTo(output) }
+                            output.closeEntry()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    // The optional GPU probe owns its hidden GLFW context; the game uses SDL.
+    testCompileOnly 'org.lwjgl:lwjgl-glfw:3.4.1'
+    // Standalone hidden-context probe uses unrelocated LWJGL, not LWJGLX's game bridge.
+    def gpuOs = System.getProperty('os.name').toLowerCase(java.util.Locale.ROOT)
+    def gpuArch = System.getProperty('os.arch').toLowerCase(java.util.Locale.ROOT)
+    def gpuNative = gpuOs.contains('win') ? 'natives-windows' : gpuOs.contains('mac') ? 'natives-macos' : 'natives-linux'
+    if (gpuArch.contains('aarch64') || gpuArch.contains('arm64')) gpuNative += '-arm64'
+    for (def module : ['lwjgl', 'lwjgl-glfw', 'lwjgl-opengl']) {
+        gpuTestRuntime "org.lwjgl:${module}:3.4.1"
+        gpuTestRuntime "org.lwjgl:${module}:3.4.1:${gpuNative}"
+    }
+}
+compileTestJava {
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_25
+    // Exercise the real 1.12.2 vertex buffer, including its lightmap byte layout.
+    classpath += sourceSets.main.compileClasspath
+}
+
+test {
+    classpath += sourceSets.main.compileClasspath
+    def originalClasspath = classpath
+    classpath = files(providers.provider {
+        def remapped = configurations.compatTestMods.files
+        originalClasspath.files.findAll { !remapped.contains(it) } + remapped.collect {
+            new File(probeModsDirectory.get().asFile, it.name)
+        }
+    }).builtBy(originalClasspath, prepareCompatTestMods)
+    inputs.files(configurations.fbpFancierTestMods, configurations.fbpFanciestTestMods,
+            configurations.fbpLegacyTestMods).withPropertyName('fbpReleaseRenderers')
+    // Switching the optional renderer must invalidate the previous test result.
+    inputs.property('celeritasTestClasspath', project.findProperty('celeritasTestClasspath') ?: '')
+    inputs.property('pulsarGpuTests', project.findProperty('pulsarGpuTests') ?: 'false')
+    inputs.property('pulsarEmptySectionBenchmark', project.findProperty('pulsarEmptySectionBenchmark') ?: 'false')
+    inputs.property('pulsarMemoryBenchmark', project.findProperty('pulsarMemoryBenchmark') ?: 'false')
+    doFirst {
+        systemProperty 'pulsar.test.classpath', classpath.asPath
+        systemProperty 'pulsar.test.classicClasspath', configurations.classicTestMods.asPath
+        systemProperty 'pulsar.test.fbp.fancier', configurations.fbpFancierTestMods.asPath
+        systemProperty 'pulsar.test.fbp.fanciest', configurations.fbpFanciestTestMods.asPath
+        systemProperty 'pulsar.test.fbp.legacy', configurations.fbpLegacyTestMods.asPath
+        systemProperty 'pulsar.test.gpu', project.findProperty('pulsarGpuTests') ?: 'false'
+        systemProperty 'pulsar.test.emptySectionBenchmark', project.findProperty('pulsarEmptySectionBenchmark') ?: 'false'
+        systemProperty 'pulsar.test.memoryBenchmark', project.findProperty('pulsarMemoryBenchmark') ?: 'false'
+        if ((project.findProperty('pulsarGpuTests') ?: 'false').toBoolean())
+            systemProperty 'pulsar.test.gpuClasspath', configurations.gpuTestRuntime.asPath
+        if (project.hasProperty('celeritasTestClasspath')) {
+            systemProperty 'pulsar.test.celeritasClasspath', configurations.rendererTestMods.asPath
+        }
+    }
+    useJUnitPlatform()
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(25)
+    })
+    if (show_testing_output.toBoolean()) {
+        testLogging {
+            showStandardStreams = true
+        }
+    }
+}

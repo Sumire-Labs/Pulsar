@@ -1,12 +1,5 @@
 package com.sumirelabs.pulsar.mixin;
 
-import com.sumirelabs.pulsar.light.PaintingLightGrid;
-import com.sumirelabs.pulsar.light.PaintingLightSampler;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.entity.item.EntityPainting;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,72 +12,62 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.sumirelabs.pulsar.light.PaintingLightGrid;
+import com.sumirelabs.pulsar.light.PaintingLightSampler;
+
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.entity.item.EntityPainting;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 /** Adds interpolated lightmap coordinates to JSON Paintings' special renderer. */
 @Pseudo
 @Mixin(targets = "git.jbredwards.jsonpaintings.mod.client.RenderJSONPainting", remap = false)
 @SideOnly(Side.CLIENT)
 public abstract class MixinRenderJSONPaintingLight {
 
-    private static final String RENDER_PAINTING_LEGACY =
-            "renderPainting(Lnet/minecraft/entity/item/EntityPainting;"
-                    + "Lgit/jbredwards/jsonpaintings/mod/common/util/IJSONPainting;)V";
+    private static final String RENDER_PAINTING_LEGACY = "renderPainting(Lnet/minecraft/entity/item/EntityPainting;"
+        + "Lgit/jbredwards/jsonpaintings/mod/common/util/IJSONPainting;)V";
 
-    private static final String RENDER_PAINTING_1_5_MCP =
-            "renderPainting(Lnet/minecraft/entity/item/EntityPainting;IIII)V";
+    private static final String RENDER_PAINTING_1_5_MCP = "renderPainting(Lnet/minecraft/entity/item/EntityPainting;IIII)V";
 
-    private static final String RENDER_PAINTING_1_5_SRG =
-            "func_77010_a(Lnet/minecraft/entity/item/EntityPainting;IIII)V";
+    private static final String RENDER_PAINTING_1_5_SRG = "func_77010_a(Lnet/minecraft/entity/item/EntityPainting;IIII)V";
 
-    private static final String BUFFER_BEGIN_MCP =
-            "Lnet/minecraft/client/renderer/BufferBuilder;"
-                    + "begin(ILnet/minecraft/client/renderer/vertex/VertexFormat;)V";
+    private static final String BUFFER_BEGIN_MCP = "Lnet/minecraft/client/renderer/BufferBuilder;"
+        + "begin(ILnet/minecraft/client/renderer/vertex/VertexFormat;)V";
 
-    private static final String BUFFER_BEGIN_SRG =
-            "Lnet/minecraft/client/renderer/BufferBuilder;"
-                    + "func_181668_a(ILnet/minecraft/client/renderer/vertex/VertexFormat;)V";
+    private static final String BUFFER_BEGIN_SRG = "Lnet/minecraft/client/renderer/BufferBuilder;"
+        + "func_181668_a(ILnet/minecraft/client/renderer/vertex/VertexFormat;)V";
 
-    private static final String BUFFER_POS_MCP =
-            "Lnet/minecraft/client/renderer/BufferBuilder;"
-                    + "pos(DDD)Lnet/minecraft/client/renderer/BufferBuilder;";
+    private static final String BUFFER_POS_MCP = "Lnet/minecraft/client/renderer/BufferBuilder;"
+        + "pos(DDD)Lnet/minecraft/client/renderer/BufferBuilder;";
 
-    private static final String BUFFER_POS_SRG =
-            "Lnet/minecraft/client/renderer/BufferBuilder;"
-                    + "func_181662_b(DDD)Lnet/minecraft/client/renderer/BufferBuilder;";
+    private static final String BUFFER_POS_SRG = "Lnet/minecraft/client/renderer/BufferBuilder;"
+        + "func_181662_b(DDD)Lnet/minecraft/client/renderer/BufferBuilder;";
 
-    private static final String BUFFER_NORMAL_MCP =
-            "Lnet/minecraft/client/renderer/BufferBuilder;"
-                    + "normal(FFF)Lnet/minecraft/client/renderer/BufferBuilder;";
+    private static final String BUFFER_NORMAL_MCP = "Lnet/minecraft/client/renderer/BufferBuilder;"
+        + "normal(FFF)Lnet/minecraft/client/renderer/BufferBuilder;";
 
-    private static final String BUFFER_NORMAL_SRG =
-            "Lnet/minecraft/client/renderer/BufferBuilder;"
-                    + "func_181663_c(FFF)Lnet/minecraft/client/renderer/BufferBuilder;";
+    private static final String BUFFER_NORMAL_SRG = "Lnet/minecraft/client/renderer/BufferBuilder;"
+        + "func_181663_c(FFF)Lnet/minecraft/client/renderer/BufferBuilder;";
 
-    @Shadow(remap = false)
-    public static boolean CALC_BRIGHTNESS;
+    @Shadow(remap = false) public static boolean CALC_BRIGHTNESS;
 
-    @Unique
-    private PaintingLightGrid pulsar$jsonPaintingLight;
+    @Unique private PaintingLightGrid pulsar$jsonPaintingLight;
 
-    @Unique
-    private double pulsar$jsonVertexX;
+    @Unique private double pulsar$jsonVertexX;
 
-    @Unique
-    private double pulsar$jsonVertexY;
+    @Unique private double pulsar$jsonVertexY;
 
     // Capture the common first argument instead of using version-specific
     // callback descriptors. Mixin may resolve the legacy selector by name when
     // its removed IJSONPainting argument type is unavailable in 1.5.0.
-    @ModifyVariable(
-            method = {
-                    RENDER_PAINTING_LEGACY,
-                    RENDER_PAINTING_1_5_MCP,
-                    RENDER_PAINTING_1_5_SRG
-            },
-            at = @At("HEAD"),
-            argsOnly = true,
-            ordinal = 0,
-            remap = false,
-            require = 1)
+    @ModifyVariable(method = {
+        RENDER_PAINTING_LEGACY,
+        RENDER_PAINTING_1_5_MCP,
+        RENDER_PAINTING_1_5_SRG
+    }, at = @At("HEAD"), argsOnly = true, ordinal = 0, remap = false, require = 1)
     private EntityPainting pulsar$prepareJsonPaintingLight(final EntityPainting painting) {
         this.pulsar$createJsonPaintingLight(painting);
         return painting;
@@ -93,120 +76,84 @@ public abstract class MixinRenderJSONPaintingLight {
     @Unique
     private void pulsar$createJsonPaintingLight(final EntityPainting painting) {
         this.pulsar$jsonPaintingLight = CALC_BRIGHTNESS
-                && PaintingLightSampler.isSmoothLightingEnabled()
+            && PaintingLightSampler.isSmoothLightingEnabled()
                 ? PaintingLightSampler.create(painting)
                 : null;
     }
 
-    @ModifyArg(
-            method = {
-                    RENDER_PAINTING_LEGACY,
-                    RENDER_PAINTING_1_5_MCP,
-                    RENDER_PAINTING_1_5_SRG
-            },
-            at = @At(value = "INVOKE", target = BUFFER_BEGIN_MCP, remap = false),
-            index = 1,
-            remap = false,
-            require = 0,
-            expect = 0)
+    @ModifyArg(method = {
+        RENDER_PAINTING_LEGACY,
+        RENDER_PAINTING_1_5_MCP,
+        RENDER_PAINTING_1_5_SRG
+    }, at = @At(value = "INVOKE", target = BUFFER_BEGIN_MCP, remap = false), index = 1, remap = false, require = 0, expect = 0)
     @Group(name = "pulsar$jsonPaintingBegin", min = 1)
     private VertexFormat pulsar$useJsonPaintingLightFormatMcp(final VertexFormat original) {
         return this.pulsar$useJsonPaintingLightFormat(original);
     }
 
-    @ModifyArg(
-            method = {
-                    RENDER_PAINTING_LEGACY,
-                    RENDER_PAINTING_1_5_MCP,
-                    RENDER_PAINTING_1_5_SRG
-            },
-            at = @At(value = "INVOKE", target = BUFFER_BEGIN_SRG, remap = false),
-            index = 1,
-            remap = false,
-            require = 0,
-            expect = 0)
+    @ModifyArg(method = {
+        RENDER_PAINTING_LEGACY,
+        RENDER_PAINTING_1_5_MCP,
+        RENDER_PAINTING_1_5_SRG
+    }, at = @At(value = "INVOKE", target = BUFFER_BEGIN_SRG, remap = false), index = 1, remap = false, require = 0, expect = 0)
     @Group(name = "pulsar$jsonPaintingBegin", min = 1)
     private VertexFormat pulsar$useJsonPaintingLightFormatSrg(final VertexFormat original) {
         return this.pulsar$useJsonPaintingLightFormat(original);
     }
 
-    @Redirect(
-            method = {
-                    RENDER_PAINTING_LEGACY,
-                    RENDER_PAINTING_1_5_MCP,
-                    RENDER_PAINTING_1_5_SRG
-            },
-            at = @At(value = "INVOKE", target = BUFFER_POS_MCP, remap = false),
-            remap = false,
-            require = 0,
-            expect = 0)
+    @Redirect(method = {
+        RENDER_PAINTING_LEGACY,
+        RENDER_PAINTING_1_5_MCP,
+        RENDER_PAINTING_1_5_SRG
+    }, at = @At(value = "INVOKE", target = BUFFER_POS_MCP, remap = false), remap = false, require = 0, expect = 0)
     @Group(name = "pulsar$jsonPaintingPosition", min = 1)
     private BufferBuilder pulsar$captureJsonPaintingVertexMcp(final BufferBuilder buffer,
-                                                              final double x, final double y,
-                                                              final double z) {
+        final double x, final double y,
+        final double z) {
         return this.pulsar$captureJsonPaintingVertex(buffer, x, y, z);
     }
 
-    @Redirect(
-            method = {
-                    RENDER_PAINTING_LEGACY,
-                    RENDER_PAINTING_1_5_MCP,
-                    RENDER_PAINTING_1_5_SRG
-            },
-            at = @At(value = "INVOKE", target = BUFFER_POS_SRG, remap = false),
-            remap = false,
-            require = 0,
-            expect = 0)
+    @Redirect(method = {
+        RENDER_PAINTING_LEGACY,
+        RENDER_PAINTING_1_5_MCP,
+        RENDER_PAINTING_1_5_SRG
+    }, at = @At(value = "INVOKE", target = BUFFER_POS_SRG, remap = false), remap = false, require = 0, expect = 0)
     @Group(name = "pulsar$jsonPaintingPosition", min = 1)
     private BufferBuilder pulsar$captureJsonPaintingVertexSrg(final BufferBuilder buffer,
-                                                              final double x, final double y,
-                                                              final double z) {
+        final double x, final double y,
+        final double z) {
         return this.pulsar$captureJsonPaintingVertex(buffer, x, y, z);
     }
 
-    @Redirect(
-            method = {
-                    RENDER_PAINTING_LEGACY,
-                    RENDER_PAINTING_1_5_MCP,
-                    RENDER_PAINTING_1_5_SRG
-            },
-            at = @At(value = "INVOKE", target = BUFFER_NORMAL_MCP, remap = false),
-            remap = false,
-            require = 0,
-            expect = 0)
+    @Redirect(method = {
+        RENDER_PAINTING_LEGACY,
+        RENDER_PAINTING_1_5_MCP,
+        RENDER_PAINTING_1_5_SRG
+    }, at = @At(value = "INVOKE", target = BUFFER_NORMAL_MCP, remap = false), remap = false, require = 0, expect = 0)
     @Group(name = "pulsar$jsonPaintingNormal", min = 1)
     private BufferBuilder pulsar$writeJsonPaintingVertexLightMcp(final BufferBuilder buffer,
-                                                                 final float x, final float y,
-                                                                 final float z) {
+        final float x, final float y,
+        final float z) {
         return this.pulsar$writeJsonPaintingVertexLight(buffer, x, y, z);
     }
 
-    @Redirect(
-            method = {
-                    RENDER_PAINTING_LEGACY,
-                    RENDER_PAINTING_1_5_MCP,
-                    RENDER_PAINTING_1_5_SRG
-            },
-            at = @At(value = "INVOKE", target = BUFFER_NORMAL_SRG, remap = false),
-            remap = false,
-            require = 0,
-            expect = 0)
+    @Redirect(method = {
+        RENDER_PAINTING_LEGACY,
+        RENDER_PAINTING_1_5_MCP,
+        RENDER_PAINTING_1_5_SRG
+    }, at = @At(value = "INVOKE", target = BUFFER_NORMAL_SRG, remap = false), remap = false, require = 0, expect = 0)
     @Group(name = "pulsar$jsonPaintingNormal", min = 1)
     private BufferBuilder pulsar$writeJsonPaintingVertexLightSrg(final BufferBuilder buffer,
-                                                                 final float x, final float y,
-                                                                 final float z) {
+        final float x, final float y,
+        final float z) {
         return this.pulsar$writeJsonPaintingVertexLight(buffer, x, y, z);
     }
 
-    @Inject(
-            method = {
-                    RENDER_PAINTING_LEGACY,
-                    RENDER_PAINTING_1_5_MCP,
-                    RENDER_PAINTING_1_5_SRG
-            },
-            at = @At("RETURN"),
-            remap = false,
-            require = 1)
+    @Inject(method = {
+        RENDER_PAINTING_LEGACY,
+        RENDER_PAINTING_1_5_MCP,
+        RENDER_PAINTING_1_5_SRG
+    }, at = @At("RETURN"), remap = false, require = 1)
     private void pulsar$clearJsonPaintingLight(final CallbackInfo callback) {
         this.pulsar$jsonPaintingLight = null;
     }
@@ -218,8 +165,8 @@ public abstract class MixinRenderJSONPaintingLight {
 
     @Unique
     private BufferBuilder pulsar$captureJsonPaintingVertex(final BufferBuilder buffer,
-                                                           final double x, final double y,
-                                                           final double z) {
+        final double x, final double y,
+        final double z) {
         if (this.pulsar$jsonPaintingLight != null) {
             this.pulsar$jsonVertexX = x;
             this.pulsar$jsonVertexY = y;
@@ -229,13 +176,14 @@ public abstract class MixinRenderJSONPaintingLight {
 
     @Unique
     private BufferBuilder pulsar$writeJsonPaintingVertexLight(final BufferBuilder buffer,
-                                                              final float x, final float y,
-                                                              final float z) {
+        final float x, final float y,
+        final float z) {
         if (this.pulsar$jsonPaintingLight != null) {
             final int packed = this.pulsar$jsonPaintingLight.getLight(
-                    this.pulsar$jsonVertexX, this.pulsar$jsonVertexY);
+                this.pulsar$jsonVertexX, this.pulsar$jsonVertexY);
             PaintingLightSampler.writeVertexLight(buffer, packed);
         }
         return buffer.normal(x, y, z);
     }
+
 }

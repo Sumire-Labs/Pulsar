@@ -9,25 +9,27 @@ import java.lang.invoke.MethodType;
  */
 final class ContextMethodOverrides {
 
-    private ContextMethodOverrides() {
-    }
+    private ContextMethodOverrides() {}
 
     static int detect(final Class<?> implementationClass, final Class<?> baseClass,
-                      final String firstMethod, final int firstFlag,
-                      final String secondMethod, final int secondFlag,
-                      final Class<?>... parameterTypes) {
+        final String firstMethod, final int firstFlag,
+        final String secondMethod, final int secondFlag,
+        final Class<?>... parameterTypes) {
         try {
             MethodHandles.Lookup lookup = MethodHandles.publicLookup();
             MethodType signature = MethodType.methodType(int.class, parameterTypes);
-            try { lookup.findVirtual(implementationClass, firstMethod, signature); }
-            catch (IllegalAccessException inaccessibleClass) {
+            try {
+                lookup.findVirtual(implementationClass, firstMethod, signature);
+            } catch (IllegalAccessException inaccessibleClass) {
                 lookup = MethodHandles.privateLookupIn(implementationClass, MethodHandles.lookup());
             }
             int flags = 0;
-            if (lookup.revealDirect(lookup.findVirtual(implementationClass, firstMethod, signature)).getDeclaringClass() != baseClass) {
+            if (lookup.revealDirect(lookup.findVirtual(implementationClass, firstMethod, signature))
+                .getDeclaringClass() != baseClass) {
                 flags |= firstFlag;
             }
-            if (lookup.revealDirect(lookup.findVirtual(implementationClass, secondMethod, signature)).getDeclaringClass() != baseClass) {
+            if (lookup.revealDirect(lookup.findVirtual(implementationClass, secondMethod, signature))
+                .getDeclaringClass() != baseClass) {
                 flags |= secondFlag;
             }
             return flags;
@@ -37,4 +39,5 @@ final class ContextMethodOverrides {
             return firstFlag | secondFlag;
         }
     }
+
 }

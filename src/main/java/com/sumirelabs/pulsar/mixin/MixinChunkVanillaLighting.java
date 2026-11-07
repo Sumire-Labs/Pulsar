@@ -1,20 +1,5 @@
 package com.sumirelabs.pulsar.mixin;
 
-import com.sumirelabs.pulsar.compat.FluidLightBridge;
-import com.sumirelabs.pulsar.light.PulsarChunk;
-import com.sumirelabs.pulsar.light.engine.LightAttenuation;
-import com.sumirelabs.pulsar.light.engine.LightInfo;
-import com.sumirelabs.pulsar.light.WorldLightManager;
-import net.minecraft.world.EnumSkyBlock;
-import com.sumirelabs.pulsar.util.WorldHeightContext;
-import com.sumirelabs.pulsar.util.WorldUtil;
-import com.sumirelabs.pulsar.world.PulsarWorld;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.NibbleArray;
-import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,6 +7,23 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.sumirelabs.pulsar.compat.FluidLightBridge;
+import com.sumirelabs.pulsar.light.PulsarChunk;
+import com.sumirelabs.pulsar.light.WorldLightManager;
+import com.sumirelabs.pulsar.light.engine.LightAttenuation;
+import com.sumirelabs.pulsar.light.engine.LightInfo;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
+import com.sumirelabs.pulsar.util.WorldUtil;
+import com.sumirelabs.pulsar.world.PulsarWorld;
+
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.NibbleArray;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 /**
  * Replaces vanilla chunk-light bookkeeping that would otherwise write around
@@ -33,28 +35,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinChunkVanillaLighting {
 
     @Shadow
-    @Final
-    public int x;
+    @Final public int x;
     @Shadow
-    @Final
-    public int z;
+    @Final public int z;
+    @Shadow public boolean isLightPopulated;
+    @Shadow public boolean isTerrainPopulated;
+    @Shadow public int[] heightMap;
+    @Shadow public int[] precipitationHeightMap;
+    @Shadow public int heightMapMinimum;
     @Shadow
-    public boolean isLightPopulated;
-    @Shadow
-    public boolean isTerrainPopulated;
-    @Shadow
-    public int[] heightMap;
-    @Shadow
-    public int[] precipitationHeightMap;
-    @Shadow
-    public int heightMapMinimum;
-    @Shadow
-    @Final
-    private World world;
-    @Unique
-    private WorldHeightContext pulsar$vanillaHeightContext;
-    @Unique
-    private BlockPos.MutableBlockPos pulsar$vanillaLightLookupPos;
+    @Final private World world;
+    @Unique private WorldHeightContext pulsar$vanillaHeightContext;
+    @Unique private BlockPos.MutableBlockPos pulsar$vanillaLightLookupPos;
 
     @Shadow
     public abstract ExtendedBlockStorage[] getBlockStorageArray();
@@ -116,7 +108,7 @@ public abstract class MixinChunkVanillaLighting {
         // This fill is only a bootstrap baseline. Repainting an already-lit
         // chunk would overwrite the engine's propagated values.
         if (this.world.provider.hasSkyLight()
-                && !((PulsarChunk) (Object) this).pulsar$isLightReady()) {
+            && !((PulsarChunk) (Object) this).pulsar$isLightReady()) {
             this.pulsar$fillVanillaSkyColumns(topSegment);
         }
 
@@ -152,7 +144,8 @@ public abstract class MixinChunkVanillaLighting {
             // Vanilla's per-Y loop can let an async worker drain partial prefixes
             // repeatedly while contextual-neighbour lookups delay the producer.
             if (this.world.provider.hasSkyLight()) {
-                if (!this.world.isRemote) manager.contextualLight().requestVerticalRange(
+                if (!this.world.isRemote)
+                    manager.contextualLight().requestVerticalRange(
                         worldX, worldZ, newHeight, oldHeight);
                 final WorldHeightContext height = this.pulsar$getVanillaHeightContext();
                 // Vanilla passes blockY+1 on a height increase and blockY on removal.
@@ -160,10 +153,10 @@ public abstract class MixinChunkVanillaLighting {
                 // cell above it, so both notifications can coalesce.
                 final int changedY = newHeight > oldHeight ? y - 1 : y;
                 manager.queueLightCheck(EnumSkyBlock.SKY, worldX,
-                        Math.max(height.getMinBlockY(), Math.min(height.getMaxBlockY(), changedY)), worldZ);
+                    Math.max(height.getMinBlockY(), Math.min(height.getMaxBlockY(), changedY)), worldZ);
             }
             this.world.markBlockRangeForRenderUpdate(worldX, Math.min(newHeight, oldHeight),
-                    worldZ, worldX, Math.max(newHeight, oldHeight), worldZ);
+                worldZ, worldX, Math.max(newHeight, oldHeight), worldZ);
         }
         this.heightMap[z << 4 | x] = newHeight;
         if (newHeight < this.heightMapMinimum) {
@@ -190,15 +183,15 @@ public abstract class MixinChunkVanillaLighting {
         int info = LightInfo.of(state);
         if (LightInfo.hasContextualValues(info)) {
             info = LightInfo.resolveContextual(
-                    info, state, this.world, this.pulsar$getVanillaLightLookupPos(),
-                    (this.x << 4) + x, y, (this.z << 4) + z);
+                info, state, this.world, this.pulsar$getVanillaLightLookupPos(),
+                (this.x << 4) + x, y, (this.z << 4) + z);
         }
         final int opacity = LightInfo.opacity(info);
         if (!FluidLightBridge.LOADED) {
             return opacity;
         }
         return FluidLightBridge.maxOpacityAt(
-                (Chunk) (Object) this, opacity, x, y, z, this.pulsar$getVanillaLightLookupPos());
+            (Chunk) (Object) this, opacity, x, y, z, this.pulsar$getVanillaLightLookupPos());
     }
 
     @Unique
@@ -221,7 +214,8 @@ public abstract class MixinChunkVanillaLighting {
         for (int y = topSegment + 15; y >= heightContext.getMinBlockY(); --y) {
             final int storageIndex = heightContext.getStorageIndex(y >> 4);
             final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < storageArrays.length
-                    ? storageArrays[storageIndex] : null;
+                ? storageArrays[storageIndex]
+                : null;
             if (section == null) {
                 skyLevel = LightAttenuation.skyAfterOpacity(skyLevel, 0);
                 continue;
@@ -264,4 +258,5 @@ public abstract class MixinChunkVanillaLighting {
         this.isLightPopulated = true;
         ci.cancel();
     }
+
 }

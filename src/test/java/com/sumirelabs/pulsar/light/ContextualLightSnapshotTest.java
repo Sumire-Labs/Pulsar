@@ -1,15 +1,17 @@
 package com.sumirelabs.pulsar.light;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ContextualLightSnapshotTest {
-    @Test void denseColumnInvalidationVisitsOnlyTheRequestedSignedHeightRange() {
+
+    @Test
+    void denseColumnInvalidationVisitsOnlyTheRequestedSignedHeightRange() {
         final var snapshot = new ContextualLightSnapshot<Object>();
         final Object block = new Object();
         for (int y = -2; y <= 2; y++) {
@@ -24,7 +26,8 @@ class ContextualLightSnapshotTest {
         assertFalse(snapshot.hasPending());
     }
 
-    @Test void columnInvalidationMatchesStoredCellsAcrossSignedHeightAndIgnoresOtherColumns() {
+    @Test
+    void columnInvalidationMatchesStoredCellsAcrossSignedHeightAndIgnoresOtherColumns() {
         final var snapshot = new ContextualLightSnapshot<Object>();
         final Object block = new Object();
         final java.util.Set<Integer> expected = new java.util.HashSet<>();
@@ -32,7 +35,8 @@ class ContextualLightSnapshotTest {
             int here = (y << 8) | (15 << 4) | 15;
             snapshot.publish(here, block, 3, null, 0);
             snapshot.publish((y << 8) | (15 << 4) | 14, block, 3, null, 0);
-            if (y >= -64 && y <= 255) expected.add(here);
+            if (y >= -64 && y <= 255)
+                expected.add(here);
         }
         snapshot.requestColumn(-1, -1, -64, 255);
         assertEquals(expected, snapshot.takePending());
@@ -55,8 +59,10 @@ class ContextualLightSnapshotTest {
                     initial.initialize(position, sampledBlock, 0x31, sampledFluid, 0x42);
                     reference.publish(position, sampledBlock, 0x31, sampledFluid, 0x42);
                     assertEquals(reference.contains(position), initial.contains(position));
-                    if (sampledBlock != null) assertEquals(0x31, initial.read(position, block, -1));
-                    if (sampledFluid != null) assertEquals(0x42, initial.read(position, fluid, -1));
+                    if (sampledBlock != null)
+                        assertEquals(0x31, initial.read(position, block, -1));
+                    if (sampledFluid != null)
+                        assertEquals(0x42, initial.read(position, fluid, -1));
                 }
             }
             assertFalse(initial.hasPending());
@@ -89,9 +95,9 @@ class ContextualLightSnapshotTest {
                 assertEquals(5, snapshot.read(512, block, -1));
                 assertEquals(13, snapshot.read(512, fluid, -1));
                 assertThrows(IllegalStateException.class,
-                        () -> snapshot.initialize(513, block, 1, null, 0));
+                    () -> snapshot.initialize(513, block, 1, null, 0));
                 assertThrows(IllegalStateException.class,
-                        () -> snapshot.initialize(514, null, 0, null, 0));
+                    () -> snapshot.initialize(514, null, 0, null, 0));
             }).get(5, TimeUnit.SECONDS);
         }
         assertFalse(snapshot.hasPending());
@@ -200,7 +206,8 @@ class ContextualLightSnapshotTest {
     void repeatedMissesCoalesceAndRequestsDuringCaptureSurviveForNextTick() {
         final var snapshot = new ContextualLightSnapshot<Object>();
         final Object state = new Object();
-        for (int i = 0; i < 1000; i++) snapshot.read(27, state, 0);
+        for (int i = 0; i < 1000; i++)
+            snapshot.read(27, state, 0);
         assertEquals(Set.of(27), snapshot.takePending());
         assertFalse(snapshot.hasPending());
         // A callback can itself request lighting. Publication must not erase it.
@@ -215,7 +222,7 @@ class ContextualLightSnapshotTest {
         final var snapshot = new ContextualLightSnapshot<Object>();
         try (var executor = Executors.newSingleThreadExecutor()) {
             executor.submit(() -> assertThrows(IllegalStateException.class,
-                    () -> snapshot.publish(0, new Object(), 15, null, 0))).get(5, TimeUnit.SECONDS);
+                () -> snapshot.publish(0, new Object(), 15, null, 0))).get(5, TimeUnit.SECONDS);
         }
         assertFalse(snapshot.contains(0));
     }
@@ -228,10 +235,12 @@ class ContextualLightSnapshotTest {
         snapshot.publish(1, a, 3, b, 11);
         try (var executor = Executors.newFixedThreadPool(2)) {
             final var readerA = executor.submit(() -> {
-                for (int i = 0; i < 100_000; i++) assertEquals(3, snapshot.read(1, a, -1));
+                for (int i = 0; i < 100_000; i++)
+                    assertEquals(3, snapshot.read(1, a, -1));
             });
             final var readerB = executor.submit(() -> {
-                for (int i = 0; i < 100_000; i++) assertEquals(11, snapshot.read(1, b, -1));
+                for (int i = 0; i < 100_000; i++)
+                    assertEquals(11, snapshot.read(1, b, -1));
             });
             for (int i = 0; i < 10_000; i++) {
                 snapshot.publish(1, b, 11, a, 3);
@@ -250,4 +259,5 @@ class ContextualLightSnapshotTest {
         assertEquals(15, ContextualLightManager.pack(31, -64, -17) & 15);
         assertEquals(15, (ContextualLightManager.pack(31, -64, -17) >>> 4) & 15);
     }
+
 }

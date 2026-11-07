@@ -1,8 +1,15 @@
 package com.sumirelabs.pulsar.command;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.sumirelabs.pulsar.config.PulsarConfig;
 import com.sumirelabs.pulsar.light.WorldLightManager;
+import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.world.PulsarWorld;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -10,12 +17,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
-import com.sumirelabs.pulsar.util.CoordinateUtils;
 
 /**
  * {@code /pulsar} command. Provides relight + stats utilities for the
@@ -40,50 +41,62 @@ public class CommandPulsar extends CommandBase {
     }
 
     @Override
-    public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args) throws CommandException {
+    public void execute(final MinecraftServer server, final ICommandSender sender, final String[] args)
+        throws CommandException {
         if (args.length == 0) {
             sender.sendMessage(new TextComponentString(getUsage(sender)));
             return;
         }
 
         switch (args[0]) {
-            case "reload":
-                processReload(server,sender,args);
+            case "reload" :
+                processReload(server, sender, args);
                 return;
-            case "stats":
+            case "stats" :
                 processStats(sender);
                 return;
-            case "relight":
+            case "relight" :
                 processRelight(sender, args);
                 return;
-            default:
+            default :
                 sender.sendMessage(new TextComponentString(getUsage(sender)));
         }
     }
 
-    private void processReload(MinecraftServer server,ICommandSender sender,String[] args) {
-        if(args.length!=1){sender.sendMessage(new TextComponentString("Usage: /pulsar reload"));return;}
-        if(!com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {
-            sender.sendMessage(new TextComponentString("RGB palette reload requires RGB mode; engine changes still require a restart."));return;
+    private void processReload(MinecraftServer server, ICommandSender sender, String[] args) {
+        if (args.length != 1) {
+            sender.sendMessage(new TextComponentString("Usage: /pulsar reload"));
+            return;
         }
-        if(com.sumirelabs.pulsar.rgb.RgbReloadBarrier.pending()) {
-            sender.sendMessage(new TextComponentString("An RGB palette reload is already in progress."));return;
+        if (!com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {
+            sender.sendMessage(new TextComponentString(
+                "RGB palette reload requires RGB mode; engine changes still require a restart."));
+            return;
+        }
+        if (com.sumirelabs.pulsar.rgb.RgbReloadBarrier.pending()) {
+            sender.sendMessage(new TextComponentString("An RGB palette reload is already in progress."));
+            return;
         }
         try {
-            var home=net.minecraft.launchwrapper.Launch.minecraftHome;
-            var directory=(home==null?java.nio.file.Path.of("."):home.toPath()).resolve("config");
-            var values=com.sumirelabs.pulsar.config.RgbPaletteConfig.prepareReload(directory);
-            sender.sendMessage(new TextComponentString("RGB palettes validated; waiting for current lighting tasks without blocking this tick."));
-            com.sumirelabs.pulsar.rgb.RgbPaletteReload.request(server,values).whenComplete((chunks,failure)->
-                    server.addScheduledTask(()->{
-                        if(failure==null)sender.sendMessage(new TextComponentString("RGB palettes applied; "+chunks+" loaded chunks queued for relighting (not yet complete)."));
-                        else {
-                            com.sumirelabs.pulsar.Pulsar.LOGGER.warn("RGB palette reload failed",failure);
-                            sender.sendMessage(new TextComponentString("RGB palette reload failed; previous active palette retained. See the server log for details."));
-                        }
-                    }));
-        } catch(java.io.IOException|IllegalArgumentException failure) {
-            sender.sendMessage(new TextComponentString("RGB palette reload rejected; current palette unchanged: "+failure.getMessage()));
+            var home = net.minecraft.launchwrapper.Launch.minecraftHome;
+            var directory = (home == null ? java.nio.file.Path.of(".") : home.toPath()).resolve("config");
+            var values = com.sumirelabs.pulsar.config.RgbPaletteConfig.prepareReload(directory);
+            sender.sendMessage(new TextComponentString(
+                "RGB palettes validated; waiting for current lighting tasks without blocking this tick."));
+            com.sumirelabs.pulsar.rgb.RgbPaletteReload.request(server, values)
+                .whenComplete((chunks, failure) -> server.addScheduledTask(() -> {
+                    if (failure == null)
+                        sender.sendMessage(new TextComponentString("RGB palettes applied; " + chunks
+                            + " loaded chunks queued for relighting (not yet complete)."));
+                    else {
+                        com.sumirelabs.pulsar.Pulsar.LOGGER.warn("RGB palette reload failed", failure);
+                        sender.sendMessage(new TextComponentString(
+                            "RGB palette reload failed; previous active palette retained. See the server log for details."));
+                    }
+                }));
+        } catch (java.io.IOException | IllegalArgumentException failure) {
+            sender.sendMessage(new TextComponentString(
+                "RGB palette reload rejected; current palette unchanged: " + failure.getMessage()));
         }
     }
 
@@ -101,11 +114,13 @@ public class CommandPulsar extends CommandBase {
         if (PulsarConfig.debug.enableDebugStats) {
             sender.sendMessage(new TextComponentString("§ePulsar§r — see logs/pulsar-stats.log for live stats."));
         } else {
-            sender.sendMessage(new TextComponentString("§ePulsar§r — debug stats are off (set debug.enableDebugStats in config/pulsar.cfg)."));
+            sender.sendMessage(new TextComponentString(
+                "§ePulsar§r — debug stats are off (set debug.enableDebugStats in config/pulsar.cfg)."));
         }
         sender.sendMessage(new TextComponentString("Pending light updates: " + (mgr.hasUpdates() ? "yes" : "no")));
-        if(com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled())
-            sender.sendMessage(new TextComponentString("RGB palette reload: "+(com.sumirelabs.pulsar.rgb.RgbReloadBarrier.pending()?"waiting/applying":"idle")));
+        if (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled())
+            sender.sendMessage(new TextComponentString("RGB palette reload: "
+                + (com.sumirelabs.pulsar.rgb.RgbReloadBarrier.pending() ? "waiting/applying" : "idle")));
     }
 
     private void processRelight(final ICommandSender sender, final String[] args) throws CommandException {
@@ -142,11 +157,13 @@ public class CommandPulsar extends CommandBase {
             final List<Long> coordinates = new ArrayList<>();
             // Chebyshev rings preserve locality and start with the requested center.
             for (int ring = 0; ring <= radius; ring++)
-                for (int dz = -ring; dz <= ring; dz++) for (int dx = -ring; dx <= ring; dx++)
-                    if (Math.max(Math.abs(dx), Math.abs(dz)) == ring)
-                        coordinates.add(CoordinateUtils.getChunkKey(playerCx + dx, playerCz + dz));
+                for (int dz = -ring; dz <= ring; dz++)
+                    for (int dx = -ring; dx <= ring; dx++)
+                        if (Math.max(Math.abs(dx), Math.abs(dz)) == ring)
+                            coordinates.add(CoordinateUtils.getChunkKey(playerCx + dx, playerCz + dz));
             final int count = mgr.forceRelightChunks(coordinates);
-            sender.sendMessage(new TextComponentString("Queued relight for " + count + " chunks (radius " + radius + ")."));
+            sender.sendMessage(
+                new TextComponentString("Queued relight for " + count + " chunks (radius " + radius + ")."));
         } else {
             // /pulsar relight (no args -- current chunk)
             if (!(sender instanceof EntityPlayerMP)) {
@@ -170,10 +187,11 @@ public class CommandPulsar extends CommandBase {
 
     @Override
     public List<String> getTabCompletions(final MinecraftServer server, final ICommandSender sender,
-                                          final String[] args, final net.minecraft.util.math.BlockPos targetPos) {
+        final String[] args, final net.minecraft.util.math.BlockPos targetPos) {
         if (args.length == 1) {
             return getListOfStringsMatchingLastWord(args, Arrays.asList("stats", "reload", "relight"));
         }
         return Collections.emptyList();
     }
+
 }

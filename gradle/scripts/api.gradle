@@ -40,7 +40,7 @@ tasks.named('assemble') { dependsOn apiJar, apiSourcesJar }
 publishing {
     publications {
         pulsarApi(MavenPublication) {
-            groupId = root_package
+            groupId = 'com.sumirelabs'
             artifactId = mod_id + '-api'
             artifact(apiJar) { classifier = null }
             artifact(apiSourcesJar) { classifier = 'sources' }

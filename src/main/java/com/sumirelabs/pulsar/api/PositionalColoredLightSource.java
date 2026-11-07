@@ -8,6 +8,11 @@ import net.minecraft.world.IBlockAccess;
  * samples. Loaded dynamic positions are sampled each tick, including color-only changes.
  */
 public interface PositionalColoredLightSource extends ColoredLightSource {
-    @Override default int getColoredLightEmission(IBlockState state) { return 0xFFF; }
+
+    @Override
+    default int getColoredLightEmission(IBlockState state) {
+        return 0xFFF;
+    }
     int getColoredLightEmission(IBlockAccess world, BlockPos pos, IBlockState state);
+
 }

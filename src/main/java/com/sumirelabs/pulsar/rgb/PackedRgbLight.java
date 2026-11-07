@@ -21,9 +21,9 @@ public final class PackedRgbLight {
     public static final int CHANNEL_MASK = 0xF;
 
     /** In-place masks for each channel. */
-    public static final int BLUE_MASK = CHANNEL_MASK << BLUE_SHIFT;   // 0x00000F
+    public static final int BLUE_MASK = CHANNEL_MASK << BLUE_SHIFT; // 0x00000F
     public static final int GREEN_MASK = CHANNEL_MASK << GREEN_SHIFT; // 0x000F00
-    public static final int RED_MASK = CHANNEL_MASK << RED_SHIFT;     // 0x0F0000
+    public static final int RED_MASK = CHANNEL_MASK << RED_SHIFT; // 0x0F0000
 
     /** Union of all channel bits: {@code 0x0F0F0F}. */
     public static final int ALL_CHANNELS = RED_MASK | GREEN_MASK | BLUE_MASK;
@@ -42,7 +42,8 @@ public final class PackedRgbLight {
      * @return packed RGB value
      */
     public static int pack(final int r, final int g, final int b) {
-        return ((r & CHANNEL_MASK) << RED_SHIFT) | ((g & CHANNEL_MASK) << GREEN_SHIFT) | ((b & CHANNEL_MASK) << BLUE_SHIFT);
+        return ((r & CHANNEL_MASK) << RED_SHIFT) | ((g & CHANNEL_MASK) << GREEN_SHIFT)
+            | ((b & CHANNEL_MASK) << BLUE_SHIFT);
     }
 
     /** Extract the red channel (0-15) from a packed value. */
@@ -150,16 +151,17 @@ public final class PackedRgbLight {
         return (rgb >>> 8 & 0xF00) | (rgb >>> 4 & 0x0F0) | rgb & 0x00F;
     }
     public static long encodeQueueLevel(int rgb) {
-        return ((long)(rgb & 0x0F0000) << 12) | ((long)(rgb & 0x000F00) << 24)
-                | ((long)(rgb & 0x00000F) << 36);
+        return ((long) (rgb & 0x0F0000) << 12) | ((long) (rgb & 0x000F00) << 24)
+            | ((long) (rgb & 0x00000F) << 36);
     }
     public static int decodeQueueLevel(long entry) {
-        return (int)(entry >>> 12 & 0x0F0000) | (int)(entry >>> 24 & 0x000F00)
-                | (int)(entry >>> 36 & 0x00000F);
+        return (int) (entry >>> 12 & 0x0F0000) | (int) (entry >>> 24 & 0x000F00)
+            | (int) (entry >>> 36 & 0x00000F);
     }
     /** Full component masks where a is strictly greater than b. */
     public static int maskWhereGreater(int a, int b) {
         int diff = (b | SPACER_BITS) - (a & ALL_CHANNELS);
         return ((~diff & SPACER_BITS) >>> 4) * 15;
     }
+
 }

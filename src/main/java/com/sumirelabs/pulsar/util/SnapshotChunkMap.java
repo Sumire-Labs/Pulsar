@@ -1,8 +1,8 @@
 package com.sumirelabs.pulsar.util;
 
-import net.minecraft.world.chunk.Chunk;
-
 import java.util.concurrent.ConcurrentHashMap;
+
+import net.minecraft.world.chunk.Chunk;
 
 /**
  * Thread-safe map keyed by packed chunk coordinates.
@@ -40,6 +40,11 @@ public final class SnapshotChunkMap {
         return map.get(CoordinateUtils.mixChunkKey(key));
     }
 
-    public void clear() { this.map.clear(); }
-    public java.util.List<Chunk> valuesSnapshot() { return java.util.List.copyOf(this.map.values()); }
+    public void clear() {
+        this.map.clear();
+    }
+    public java.util.List<Chunk> valuesSnapshot() {
+        return java.util.List.copyOf(this.map.values());
+    }
+
 }

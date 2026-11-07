@@ -6,6 +6,7 @@ package com.sumirelabs.pulsar.api;
  * Values describe emission or transmittance according to the receiving API.
  */
 public final class PackedLightColor {
+
     public static final int BLACK = 0x000;
     public static final int WHITE = 0xFFF;
 
@@ -23,12 +24,20 @@ public final class PackedLightColor {
         return color;
     }
 
-    public static int red(int color) { return checked(color) >>> 8; }
-    public static int green(int color) { return checked(color) >>> 4 & 15; }
-    public static int blue(int color) { return checked(color) & 15; }
+    public static int red(int color) {
+        return checked(color) >>> 8;
+    }
+    public static int green(int color) {
+        return checked(color) >>> 4 & 15;
+    }
+    public static int blue(int color) {
+        return checked(color) & 15;
+    }
 
     /** Convert transmittance to absorption (or absorption to transmittance). */
-    public static int complement(int color) { return checked(color) ^ WHITE; }
+    public static int complement(int color) {
+        return checked(color) ^ WHITE;
+    }
 
     /** Convert SuperNova's 0x0R0G0B light format to Pulsar's 0xRGB.
      * Rejects nonzero padding bits; this does not quantize 24-bit display RGB.
@@ -44,4 +53,5 @@ public final class PackedLightColor {
         checked(color);
         return (color & 0xF00) << 8 | (color & 0xF0) << 4 | color & 15;
     }
+
 }

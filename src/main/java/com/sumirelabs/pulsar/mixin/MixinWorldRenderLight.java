@@ -1,16 +1,18 @@
 package com.sumirelabs.pulsar.mixin;
 
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
+
 import com.sumirelabs.pulsar.api.FaceLightInfo;
 import com.sumirelabs.pulsar.api.RawLightAccess;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
 
 /**
  * Routes the client-side neighbour-brightness lookup on {@link World}
@@ -41,7 +43,11 @@ public abstract class MixinWorldRenderLight implements RawLightAccess {
     @Override
     public int pulsar$getRawLight(final EnumSkyBlock lightType, final BlockPos pos) {
         int value = this.getLightFor(lightType, pos);
-        return lightType == EnumSkyBlock.BLOCK ? Math.max(value,
-                com.sumirelabs.pulsar.dynamic.DynamicLightClient.light((World) (Object) this, pos.getX(), pos.getY(), pos.getZ())) : value;
+        return lightType == EnumSkyBlock.BLOCK
+            ? Math.max(value,
+                com.sumirelabs.pulsar.dynamic.DynamicLightClient.light((World) (Object) this, pos.getX(), pos.getY(),
+                    pos.getZ()))
+            : value;
     }
+
 }

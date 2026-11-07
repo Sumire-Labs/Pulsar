@@ -1,18 +1,20 @@
 package com.sumirelabs.pulsar.client;
 
+import java.io.File;
+import java.io.IOException;
+
 import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.config.LightingModeSelection;
 import com.sumirelabs.pulsar.config.PulsarConfig;
 import com.sumirelabs.pulsar.core.RgbMixinSelection;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 
-import java.io.File;
-import java.io.IOException;
-
 /** First-menu setup only; mode changes take effect on the next process startup. */
 public final class GuiLightingModeSelection extends GuiScreen {
+
     private final GuiScreen mainMenu;
     private PulsarConfig.LightingMode pendingRestart;
     private boolean saveFailed;
@@ -28,12 +30,12 @@ public final class GuiLightingModeSelection extends GuiScreen {
         final int x = (width - buttonWidth) / 2;
         if (pendingRestart != null) {
             buttonList.add(new GuiButton(2, x, height / 2 + 35, buttonWidth, 20,
-                    I18n.format("pulsar.mode.quit")));
+                I18n.format("pulsar.mode.quit")));
         } else {
             buttonList.add(new GuiButton(0, x, height / 2 - 20, buttonWidth, 20,
-                    I18n.format("pulsar.mode.scalar")));
+                I18n.format("pulsar.mode.scalar")));
             buttonList.add(new GuiButton(1, x, height / 2 + 45, buttonWidth, 20,
-                    I18n.format("pulsar.mode.rgb")));
+                I18n.format("pulsar.mode.rgb")));
         }
     }
 
@@ -43,9 +45,11 @@ public final class GuiLightingModeSelection extends GuiScreen {
             mc.shutdown();
             return;
         }
-        if (pendingRestart != null || (button.id != 0 && button.id != 1)) return;
+        if (pendingRestart != null || (button.id != 0 && button.id != 1))
+            return;
         final PulsarConfig.LightingMode selected = button.id == 0
-                ? PulsarConfig.LightingMode.SCALAR : PulsarConfig.LightingMode.RGB;
+            ? PulsarConfig.LightingMode.SCALAR
+            : PulsarConfig.LightingMode.RGB;
         try {
             LightingModeSelection.save(new File(mc.gameDir, "config/pulsar.cfg"), selected);
         } catch (IOException failure) {
@@ -78,7 +82,8 @@ public final class GuiLightingModeSelection extends GuiScreen {
             text(I18n.format("pulsar.mode.intro"), titleY + 25, 0xdddddd);
             text(I18n.format("pulsar.mode.scalar.description"), height / 2 + 5, 0xaaaaaa);
             text(I18n.format("pulsar.mode.rgb.description"), height / 2 + 70, 0xaaaaaa);
-            if (saveFailed) text(I18n.format("pulsar.mode.saveFailed"), titleY + 55, 0xff7777);
+            if (saveFailed)
+                text(I18n.format("pulsar.mode.saveFailed"), titleY + 55, 0xff7777);
         }
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
@@ -92,4 +97,5 @@ public final class GuiLightingModeSelection extends GuiScreen {
     protected void keyTyped(char typedChar, int keyCode) {
         // ESC must not skip setup or enter a world with a newly saved but inactive mode.
     }
+
 }

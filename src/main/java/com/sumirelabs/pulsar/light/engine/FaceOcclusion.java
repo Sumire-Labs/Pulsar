@@ -2,7 +2,7 @@ package com.sumirelabs.pulsar.light.engine;
 
 import com.sumirelabs.pulsar.Pulsar;
 import com.sumirelabs.pulsar.api.FaceLightOcclusion;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
@@ -13,8 +13,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fluids.IFluidBlock;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 
 /**
  * Per-face light occlusion registry and lookup.
@@ -39,29 +41,27 @@ public final class FaceOcclusion {
     /**
      * {@link Block} → 96 bits packed face solidity.
      */
-    private static final Reference2ObjectOpenHashMap<Block, long[]> FACE_SOLIDITY =
-            new Reference2ObjectOpenHashMap<>();
+    private static final Reference2ObjectOpenHashMap<Block, long[]> FACE_SOLIDITY = new Reference2ObjectOpenHashMap<>();
 
     /**
      * Blocks marked sided-transparent (either via interface or scan).
      */
-    private static final java.util.Set<Block> HAS_SIDED_TRANSPARENCY =
-            java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+    private static final java.util.Set<Block> HAS_SIDED_TRANSPARENCY = java.util.Collections
+        .newSetFromMap(new java.util.IdentityHashMap<>());
 
     /**
      * AxisDirection ordinal → EnumFacing for isSideSolid calls.
      */
     private static final EnumFacing[] AXIS_TO_FACING = {
-            EnumFacing.EAST,   // 0: POSITIVE_X
-            EnumFacing.WEST,   // 1: NEGATIVE_X
-            EnumFacing.SOUTH,  // 2: POSITIVE_Z
-            EnumFacing.NORTH,  // 3: NEGATIVE_Z
-            EnumFacing.UP,     // 4: POSITIVE_Y
-            EnumFacing.DOWN,   // 5: NEGATIVE_Y
+        EnumFacing.EAST, // 0: POSITIVE_X
+        EnumFacing.WEST, // 1: NEGATIVE_X
+        EnumFacing.SOUTH, // 2: POSITIVE_Z
+        EnumFacing.NORTH, // 3: NEGATIVE_Z
+        EnumFacing.UP, // 4: POSITIVE_Y
+        EnumFacing.DOWN, // 5: NEGATIVE_Y
     };
 
-    private FaceOcclusion() {
-    }
+    private FaceOcclusion() {}
 
     public static boolean hasSidedTransparency(final Block block) {
         return HAS_SIDED_TRANSPARENCY.contains(block);
@@ -72,7 +72,7 @@ public final class FaceOcclusion {
     public static boolean usesAutomaticFaces(final IBlockState state) {
         final Block block = state.getBlock();
         final boolean liquid = block instanceof BlockLiquid || block instanceof IFluidBlock
-                || state.getMaterial().isLiquid();
+            || state.getMaterial().isLiquid();
         return LightAttenuation.usesAutomaticFaces(state.isFullCube(), liquid, state.getLightOpacity());
     }
 
@@ -83,10 +83,12 @@ public final class FaceOcclusion {
      */
     public static boolean isFaceSolid(final Block block, final int meta, final int axisDir) {
         final long[] bits = FACE_SOLIDITY.get(block);
-        if (bits == null) return true;
+        if (bits == null)
+            return true;
         // Table only covers meta 0-15 — extended-meta blocks must implement
         // FaceLightOcclusion for per-face control; default to solid here.
-        if (meta > 15) return true;
+        if (meta > 15)
+            return true;
         final int bitIndex = meta * 6 + axisDir;
         return (bits[bitIndex >> 6] & (1L << (bitIndex & 63))) != 0;
     }
@@ -105,10 +107,11 @@ public final class FaceOcclusion {
             final int v = ((FaceLightOcclusion) block).getDirectionalLightOpacity(state, AXIS_TO_FACING[dirOrdinal]);
             return Math.max(1, v);
         }
-        @SuppressWarnings("deprecation") final int opacity = state.getLightOpacity();
+        @SuppressWarnings("deprecation")
+        final int opacity = state.getLightOpacity();
         final boolean sided = opacity > 1 && hasSidedTransparency(block) && usesAutomaticFaces(state);
         return LightAttenuation.absorption(opacity, sided,
-                sided && isFaceSolid(block, block.getMetaFromState(state), dirOrdinal));
+            sided && isFaceSolid(block, block.getMetaFromState(state), dirOrdinal));
     }
 
     /**
@@ -230,5 +233,7 @@ public final class FaceOcclusion {
         public WorldType getWorldType() {
             return WorldType.DEFAULT;
         }
+
     }
+
 }

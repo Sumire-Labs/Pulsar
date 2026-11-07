@@ -8,18 +8,21 @@
  */
 package com.sumirelabs.pulsar.compat;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 import com.sumirelabs.pulsar.api.ColoredLightSource;
 import com.sumirelabs.pulsar.rgb.RgbDefaultPalette;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 /** Conservative, optional 1.12.2 presets; keep contextual brightness and API overrides. */
 public final class ModLightColors {
+
     private ModLightColors() {}
 
     public static void registerDefaults(BiConsumer<IBlockState, Integer> register) {
@@ -29,38 +32,43 @@ public final class ModLightColors {
     static void registerDefaults(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register) {
         registerAdditionalDefaults(lookup, register);
         registerLegacyPorts(lookup, register);
-        register(lookup,register,"extrautils2:decorativeglass",state->
-                "glass_glowstone".equals(namedProperty(state,"decorstates"))?0xFD3:null);
-        for(String name:new String[]{"shinyFlower","miniIsland"})
-            register(lookup,register,name,state->{
-                EnumDyeColor dye=dye(state);
-                return dye==null?null:RgbDefaultPalette.glassTransmittance(dye);
+        registerSupplementalDefaults(lookup, register);
+        register(lookup, register, "extrautils2:decorativeglass",
+            state -> "glass_glowstone".equals(namedProperty(state, "decorstates")) ? 0xFD3 : null);
+        for (String name : new String[]{"shinyFlower", "miniIsland"})
+            register(lookup, register, name, state -> {
+                EnumDyeColor dye = dye(state);
+                return dye == null ? null : RgbDefaultPalette.glassTransmittance(dye);
             });
         // SuperNova rounds each DIM_DYE_PALETTE component up while halving.
         // Preserve those ratios before contextual emission normalizes the hue.
-        for(String name:new String[]{"buriedPetals","mushroom"})
-            register(lookup,register,name,state->{
-                EnumDyeColor dye=dye(state);
-                if(dye==null)return null;
-                int bright=RgbDefaultPalette.glassTransmittance(dye);
-                int r=((bright>>>8)+1)>>1;
-                int g=((bright>>>4&15)+1)>>1;
-                int b=((bright&15)+1)>>1;
-                return r<<8 | g<<4 | b;
+        for (String name : new String[]{"buriedPetals", "mushroom"})
+            register(lookup, register, name, state -> {
+                EnumDyeColor dye = dye(state);
+                if (dye == null)
+                    return null;
+                int bright = RgbDefaultPalette.glassTransmittance(dye);
+                int r = ((bright >>> 8) + 1) >> 1;
+                int g = ((bright >>> 4 & 15) + 1) >> 1;
+                int b = ((bright & 15) + 1) >> 1;
+                return r << 8 | g << 4 | b;
             });
-        for(String name:new String[]{"manaFlame","manaGlass","manaGlassPane","elfGlass","elfGlassPane",
-                "enchanter","bifrost","bifrostPerm","bifrostPermPane","prism"})
-            register(lookup,register,name,state->0xFFF);
-        register(lookup,register,"livingwood",state->{
-            for(var entry:state.getProperties().entrySet())
-                if(entry.getKey().getName().equals("variant")&&entry.getValue() instanceof IStringSerializable variant
-                        &&variant.getName().equals("glimmering"))return 0x480;
+        for (String name : new String[]{"manaFlame", "manaGlass", "manaGlassPane", "elfGlass", "elfGlassPane",
+            "enchanter", "bifrost", "bifrostPerm", "bifrostPermPane", "prism"})
+            register(lookup, register, name, state -> 0xFFF);
+        register(lookup, register, "livingwood", state -> {
+            for (var entry : state.getProperties().entrySet())
+                if (entry.getKey().getName().equals("variant")
+                    && entry.getValue() instanceof IStringSerializable variant
+                    && variant.getName().equals("glimmering"))
+                    return 0x480;
             return null;
         });
         register(lookup, register, "blazeBlock", state -> 0xFF0);
         register(lookup, register, "pylon", state -> {
             for (var entry : state.getProperties().entrySet()) {
-                if (entry.getKey().getName().equals("variant") && entry.getValue() instanceof IStringSerializable variant)
+                if (entry.getKey().getName().equals("variant")
+                    && entry.getValue() instanceof IStringSerializable variant)
                     return switch (variant.getName()) {
                         case "mana" -> 0x08F;
                         case "natura" -> 0x0F0;
@@ -70,16 +78,17 @@ public final class ModLightColors {
             }
             return null;
         });
-        register(lookup,register,"twilightforest:firefly",state->0xFCA);
-        register(lookup,register,"twilightforest:firefly_jar",state->0xFCA);
-        register(lookup,register,"twilightforest:twilight_portal",state->0xA0F);
-        register(lookup,register,"twilightforest:cinder_furnace_lit",state->0xDCA);
-        register(lookup,register,"twilightforest:trollber",state->0xFEC);
-        register(lookup,register,"twilightforest:huge_mushgloom",state->0x420);
-        register(lookup,register,"twilightforest:force_field",state->{
-            EnumDyeColor dye=dye(state);
-            if(dye==null)return null;
-            return switch(dye){
+        register(lookup, register, "twilightforest:firefly", state -> 0xFCA);
+        register(lookup, register, "twilightforest:firefly_jar", state -> 0xFCA);
+        register(lookup, register, "twilightforest:twilight_portal", state -> 0xA0F);
+        register(lookup, register, "twilightforest:cinder_furnace_lit", state -> 0xDCA);
+        register(lookup, register, "twilightforest:trollber", state -> 0xFEC);
+        register(lookup, register, "twilightforest:huge_mushgloom", state -> 0x420);
+        register(lookup, register, "twilightforest:force_field", state -> {
+            EnumDyeColor dye = dye(state);
+            if (dye == null)
+                return null;
+            return switch (dye) {
                 case PURPLE -> 0x201;
                 case PINK -> 0x212;
                 case ORANGE -> 0x210;
@@ -88,26 +97,28 @@ public final class ModLightColors {
                 default -> null;
             };
         });
-        String[] crystals={"aer","ignis","aqua","terra","ordo","perditio"};
-        int[] crystalHues={0x770,0x700,0x007,0x070,0x777,0x444};
-        for(int i=0;i<crystals.length;i++) {
-            int hue=crystalHues[i];register(lookup,register,"thaumcraft:crystal_"+crystals[i],state->hue);
+        String[] crystals = {"aer", "ignis", "aqua", "terra", "ordo", "perditio"};
+        int[] crystalHues = {0x770, 0x700, 0x007, 0x070, 0x777, 0x444};
+        for (int i = 0; i < crystals.length; i++) {
+            int hue = crystalHues[i];
+            register(lookup, register, "thaumcraft:crystal_" + crystals[i], state -> hue);
         }
-        int[] candleHues={0xEEE,0xE84,0xB5C,0x68C,0xDC2,0x4C3,0xD89,0x444,
-                0x999,0x279,0x73B,0x239,0x532,0x352,0xB33,0x222};
-        for(EnumDyeColor color:EnumDyeColor.values()) {
+        int[] candleHues = {0xEEE, 0xE84, 0xB5C, 0x68C, 0xDC2, 0x4C3, 0xD89, 0x444,
+            0x999, 0x279, 0x73B, 0x239, 0x532, 0x352, 0xB33, 0x222};
+        for (EnumDyeColor color : EnumDyeColor.values()) {
             // TC6 lowercases translation keys: lightBlue -> lightblue, not light_blue.
-            String suffix=color.getName().replace("_","");
-            int candle=candleHues[color.getMetadata()];
-            register(lookup,register,"thaumcraft:candle_"+suffix,state->candle);
-            register(lookup,register,"thaumcraft:nitor_"+suffix,state->RgbDefaultPalette.glassTransmittance(color));
+            String suffix = color.getName().replace("_", "");
+            int candle = candleHues[color.getMetadata()];
+            register(lookup, register, "thaumcraft:candle_" + suffix, state -> candle);
+            register(lookup, register, "thaumcraft:nitor_" + suffix,
+                state -> RgbDefaultPalette.glassTransmittance(color));
         }
     }
 
     /** 1.12 ports of SuperNova MiscColors, NaturaColors and ChiselColors.
      * Verified registry/state mappings are recorded in README.md. */
     private static void registerAdditionalDefaults(Function<ResourceLocation, Block> lookup,
-                                                   BiConsumer<IBlockState, Integer> register) {
+        BiConsumer<IBlockState, Integer> register) {
         // Future MC 0.2.21: FBlocks registry IDs and CampfireBlock's lit-dependent
         // emission verified from the released jar. Hues never force an unlit fire on.
         register(lookup, register, "futuremc:lantern", state -> 0xFC5);
@@ -116,13 +127,14 @@ public final class ModLightColors {
         register(lookup, register, "tconstruct:stone_torch", state -> 0xDA8);
         register(lookup, register, "biomesoplenty:crystal", state -> 0x0BF);
         // In 1.12 glowshroom moved from flowers2 metadata to mushroom[variant=glowshroom].
-        register(lookup, register, "biomesoplenty:mushroom", state ->
-                "glowshroom".equals(namedProperty(state, "variant")) ? 0x940 : null);
+        register(lookup, register, "biomesoplenty:mushroom",
+            state -> "glowshroom".equals(namedProperty(state, "variant")) ? 0x940 : null);
         register(lookup, register, "appliedenergistics2:quartz_vibrant_glass", state -> 0xFFF);
         register(lookup, register, "appliedenergistics2:quartz_fixture", state -> 0xEEE);
         register(lookup, register, "natura:nether_glowshroom", state -> {
             String type = namedProperty(state, "type");
-            if (type == null) return null;
+            if (type == null)
+                return null;
             return switch (type) {
                 case "green" -> 0x091;
                 case "blue" -> 0x039;
@@ -153,62 +165,152 @@ public final class ModLightColors {
     /** SuperNova counterparts verified against the 1.12 sources/released jars.
      * See docs/natural-lighting.md for registry changes and intentionally absent ports. */
     private static void registerLegacyPorts(Function<ResourceLocation, Block> lookup,
-                                            BiConsumer<IBlockState, Integer> register) {
-        register(lookup,register,"thermalfoundation:fluid_glowstone",state->0xFC7);
-        register(lookup,register,"thermalexpansion:cell",state->0x800);
-        register(lookup,register,"thermalfoundation:storage_alloy",state->
-                "lumium".equals(namedProperty(state,"type"))?0xFF0:null);
-        register(lookup,register,"buildcraftcore:marker_volume",state->0x037);
-        register(lookup,register,"buildcraftcore:marker_path",state->0x070);
+        BiConsumer<IBlockState, Integer> register) {
+        register(lookup, register, "thermalfoundation:fluid_glowstone", state -> 0xFC7);
+        register(lookup, register, "thermalexpansion:cell", state -> 0x800);
+        register(lookup, register, "thermalfoundation:storage_alloy",
+            state -> "lumium".equals(namedProperty(state, "type")) ? 0xFF0 : null);
+        register(lookup, register, "buildcraftcore:marker_volume", state -> 0x037);
+        register(lookup, register, "buildcraftcore:marker_path", state -> 0x070);
         // Railcraft 1.12 merges stone/metal lanterns into material variants.
-        register(lookup,register,"railcraft:lantern",state->0xDA8);
-        register(lookup,register,"forestry:beehives",state->0x431);
-        for(String name:new String[]{"lanterngold","lanterniron"})
-            register(lookup,register,"bibliocraft:"+name,state->0xFED);
-        for(String name:new String[]{"lampgold","lampiron"})
-            register(lookup,register,"bibliocraft:"+name,state->0xFFF);
-        register(lookup,register,"bibliocraft:desk",state->0x775);
-        register(lookup,register,"opencomputers:assembler",state->0x055);
-        for(String name:new String[]{"capacitor","carpetedcapacitor"})
-            register(lookup,register,"opencomputers:"+name,state->0x052);
-        register(lookup,register,"opencomputers:geolyzer",state->0x320);
-        register(lookup,register,"opencomputers:powerdistributor",state->0x550);
-        for(String name:new String[]{"hologram1","hologram2","screen1","screen2","screen3"})
-            register(lookup,register,"opencomputers:"+name,state->0xFFF);
-        for(String name:new String[]{"arclamp","bright_air","bright_breathable_air"})
-            register(lookup,register,"galacticraftcore:"+name,state->0xFFF);
-        for(String name:new String[]{"unlit_torch_lit","unlit_torch_stone_lit"})
-            register(lookup,register,"galacticraftcore:"+name,state->0xDA8);
-        for(String name:new String[]{"unlit_torch","unlit_torch_stone"})
-            register(lookup,register,"galacticraftcore:"+name,state->0x321);
-        register(lookup,register,"galacticraftcore:glowstone_torch",state->0xFD3);
+        register(lookup, register, "railcraft:lantern", state -> 0xDA8);
+        register(lookup, register, "forestry:beehives", state -> 0x431);
+        for (String name : new String[]{"lanterngold", "lanterniron"})
+            register(lookup, register, "bibliocraft:" + name, state -> 0xFED);
+        for (String name : new String[]{"lampgold", "lampiron"})
+            register(lookup, register, "bibliocraft:" + name, state -> 0xFFF);
+        register(lookup, register, "bibliocraft:desk", state -> 0x775);
+        register(lookup, register, "opencomputers:assembler", state -> 0x055);
+        for (String name : new String[]{"capacitor", "carpetedcapacitor"})
+            register(lookup, register, "opencomputers:" + name, state -> 0x052);
+        register(lookup, register, "opencomputers:geolyzer", state -> 0x320);
+        register(lookup, register, "opencomputers:powerdistributor", state -> 0x550);
+        for (String name : new String[]{"hologram1", "hologram2", "screen1", "screen2", "screen3"})
+            register(lookup, register, "opencomputers:" + name, state -> 0xFFF);
+        for (String name : new String[]{"arclamp", "bright_air", "bright_breathable_air"})
+            register(lookup, register, "galacticraftcore:" + name, state -> 0xFFF);
+        for (String name : new String[]{"unlit_torch_lit", "unlit_torch_stone_lit"})
+            register(lookup, register, "galacticraftcore:" + name, state -> 0xDA8);
+        for (String name : new String[]{"unlit_torch", "unlit_torch_stone"})
+            register(lookup, register, "galacticraftcore:" + name, state -> 0x321);
+        register(lookup, register, "galacticraftcore:glowstone_torch", state -> 0xFD3);
+    }
+
+    /** Coverage checked against dragon-forge/luxpacks 1.12.2, abb9575.
+     * These are Pulsar hues, not the pack's scripts, radii or added light sources.
+     * Every preset is scaled to the block's own contextual emission by the engine.
+     */
+    private static void registerSupplementalDefaults(Function<ResourceLocation, Block> lookup,
+        BiConsumer<IBlockState, Integer> register) {
+        registerHue(lookup, register, 0xFD3, "adchimneys:glowstone", "charm:smooth_glowstone",
+            "tinker_io:what_a_beautiful_block");
+        registerHue(lookup, register, 0xAFF, "adchimneys:sea_lantern");
+        registerHue(lookup, register, 0xDA8, "charm:iron_lantern", "charm:gold_lantern",
+            "quark:paper_lantern", "inspirations:torch_lever");
+        registerHue(lookup, register, 0x611, "charm:variable_redstone_lamp",
+            "inspirations:redstone_torch_lever_powered", "exoticbirds:lit_egg_sorter");
+        registerHue(lookup, register, 0xFC5, "embers:block_lantern", "embers:archaic_light",
+            "exoticbirds:lit_egg_incubator", "quark:blaze_lantern");
+        registerHue(lookup, register, 0x2AF, "quark:glowcelium", "quark:glowshroom", "quark:glowshroom_block",
+            "netherex:rime_ore", "netherex:rime_block", "netherex:blue_fire",
+            "taiga:dilithium_ore", "taiga:dilithium_block");
+        registerHue(lookup, register, 0x3CC, "deepmoblearning:infused_ingot_block",
+            "deepmoblearning:simulation_chamber", "deepmoblearning:trial_keystone");
+        registerHue(lookup, register, 0xF83, "deepmoblearning:extraction_chamber");
+        registerHue(lookup, register, 0xA3F, "quark:duskbound_lantern");
+        registerHue(lookup, register, 0xC86, "quark:elder_sea_lantern");
+        registerHue(lookup, register, 0xFCA, "quark:lit_lamp");
+        registerHue(lookup, register, 0xFFF, "tconstruct:glow");
+
+        // Restrict multi-purpose blocks to the actual light-emitting variant.
+        register(lookup, register, "immersiveengineering:cloth_device",
+            state -> "balloon".equals(namedProperty(state, "type")) ? 0xDA8 : null);
+        register(lookup, register, "immersiveengineering:metal_decoration2",
+            state -> "lantern".equals(namedProperty(state, "type")) ? 0xDA8 : null);
+        register(lookup, register, "embersconstruct:kiln",
+            state -> "true".equals(namedProperty(state, "burning")) ? 0xDCA : null);
+
+        // Quark uses its own serialized enums, not a color=EnumDyeColor property.
+        register(lookup, register, "quark:candle", state -> namedDyeColor(state, "variant", "candle_"));
+        for (String name : new String[]{"quark:crystal", "quark:crystal_pane"})
+            register(lookup, register, name, ModLightColors::quarkCrystalColor);
+        register(lookup, register, "inspirations:enlightened_bush",
+            state -> namedDyeColor(state, "lights", ""));
+
+        // HarvestCraft numbers its candle blocks in Minecraft dye metadata order.
+        for (EnumDyeColor dye : EnumDyeColor.values()) {
+            int hue = RgbDefaultPalette.glassTransmittance(dye);
+            registerHue(lookup, register, hue, "harvestcraft:candledeco" + (dye.getMetadata() + 1));
+            String suffix = dye == EnumDyeColor.SILVER ? "light_gray" : dye.getName();
+            registerHue(lookup, register, hue, "colouredsealanterns:sealantern" + suffix);
+        }
+    }
+
+    private static void registerHue(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register,
+        int hue, String... names) {
+        for (String name : names)
+            register(lookup, register, name, state -> hue);
+    }
+
+    private static Integer namedDyeColor(IBlockState state, String property, String prefix) {
+        String value = namedProperty(state, property);
+        if (value == null || !value.startsWith(prefix))
+            return null;
+        String name = value.substring(prefix.length());
+        for (EnumDyeColor dye : EnumDyeColor.values())
+            if (dye.getName().equals(name))
+                return RgbDefaultPalette.glassTransmittance(dye);
+        return null;
+    }
+
+    private static Integer quarkCrystalColor(IBlockState state) {
+        String variant = namedProperty(state, "variant");
+        if (variant == null)
+            return null;
+        // Quark's "blue" is cyan; "indigo" is blue. Follow its actual beacon RGB.
+        return switch (variant) {
+            case "crystal_white", "crystal_black" -> 0xFFF;
+            case "crystal_red" -> 0xF00;
+            case "crystal_orange" -> 0xF80;
+            case "crystal_yellow" -> 0xFF0;
+            case "crystal_green" -> 0x0F0;
+            case "crystal_blue" -> 0x0FF;
+            case "crystal_indigo" -> 0x00F;
+            case "crystal_violet" -> 0xF0F;
+            default -> null;
+        };
     }
 
     private static String namedProperty(IBlockState state, String name) {
         for (var property : state.getPropertyKeys())
-            if(property.getName().equals(name))return propertyName(state,property);
+            if (property.getName().equals(name))
+                return propertyName(state, property);
         return null;
     }
 
     private static <T extends Comparable<T>> String propertyName(IBlockState state,
-            net.minecraft.block.properties.IProperty<T> property) {
+        net.minecraft.block.properties.IProperty<T> property) {
         return property.getName(state.getValue(property));
     }
 
     private static EnumDyeColor dye(IBlockState state) {
-        for(var entry:state.getProperties().entrySet())
-            if(entry.getKey().getName().equals("color")&&entry.getValue() instanceof EnumDyeColor color)return color;
+        for (var entry : state.getProperties().entrySet())
+            if (entry.getKey().getName().equals("color") && entry.getValue() instanceof EnumDyeColor color)
+                return color;
         return null;
     }
 
     private static void register(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register,
-                                 String name, Function<IBlockState, Integer> color) {
-        Block block = lookup.apply(new ResourceLocation(name.indexOf(':')<0?"botania:"+name:name));
+        String name, Function<IBlockState, Integer> color) {
+        Block block = lookup.apply(new ResourceLocation(name.indexOf(':') < 0 ? "botania:" + name : name));
         // An integration's own static/positional API always wins over our presets.
-        if (block == null || block instanceof ColoredLightSource) return;
+        if (block == null || block instanceof ColoredLightSource)
+            return;
         for (IBlockState state : block.getBlockState().getValidStates()) {
             Integer value = color.apply(state);
-            if (value != null) register.accept(state, value);
+            if (value != null)
+                register.accept(state, value);
         }
     }
+
 }

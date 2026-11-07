@@ -54,7 +54,8 @@ public final class LightDataSerializer {
     // v6: invalidated light computed before the 2026-07-26 correctness batch
     // (UNINIT-as-15 sync, missing extrude, decrease re-seed/continuation
     // fixes) — old data relights once on load.
-    public static final int LIGHT_VERSION = 14;
+    // v15: rebuild light that crossed sealed opposite-half slab boundaries.
+    public static final int LIGHT_VERSION = 15;
 
     private static final String TAG_ROOT = "PulsarLight";
     private static final String TAG_VERSION = "version";
@@ -70,11 +71,12 @@ public final class LightDataSerializer {
     /** SCALAR and RGB/VANILLA may share canonical light; RGB_MAX may not. */
     static boolean hasCompatibleGameplayLight(final NBTTagCompound root, final boolean projected) {
         return root.getInteger(TAG_VERSION) == LIGHT_VERSION
-                && root.hasKey(TAG_RGB_MAX, Constants.NBT.TAG_BYTE)
-                && root.getBoolean(TAG_RGB_MAX) == projected;
+            && root.hasKey(TAG_RGB_MAX, Constants.NBT.TAG_BYTE)
+            && root.getBoolean(TAG_RGB_MAX) == projected;
     }
 
-    private static SWMRNibbleArray restoreNibble(final NBTTagCompound section, final String stateTag, final String dataTag) {
+    private static SWMRNibbleArray restoreNibble(final NBTTagCompound section, final String stateTag,
+        final String dataTag) {
         final int state = section.getByte(stateTag);
         final byte[] raw = section.hasKey(dataTag, Constants.NBT.TAG_BYTE_ARRAY) ? section.getByteArray(dataTag) : null;
         if (raw != null && raw.length != SWMRNibbleArray.ARRAY_SIZE) {
@@ -92,7 +94,7 @@ public final class LightDataSerializer {
             // Failing to attach the tag is not fatal: the chunk will simply be
             // relit on next load.
             Pulsar.LOGGER.warn("Failed to save Pulsar light data for chunk ({}, {})",
-                    event.getChunk().x, event.getChunk().z, t);
+                event.getChunk().x, event.getChunk().z, t);
         }
     }
 
@@ -104,7 +106,7 @@ public final class LightDataSerializer {
             // Invalid or corrupt data: leave savedLightValid unset so the
             // chunk goes through the normal full-relight path.
             Pulsar.LOGGER.warn("Failed to load Pulsar light data for chunk ({}, {}) - chunk will be relit",
-                    event.getChunk().x, event.getChunk().z, t);
+                event.getChunk().x, event.getChunk().z, t);
         }
     }
 
@@ -129,7 +131,8 @@ public final class LightDataSerializer {
             // Any queued work in the 3x3 light cache can still update this
             // chunk's seam nibbles. Do not persist a mixed generation.
             final WorldLightManager mgr = ((PulsarWorld) chunk.getWorld()).pulsar$getLightManager();
-            if (mgr != null && (mgr.hasPendingLightWorkNear(chunk.x, chunk.z) || mgr.hasFailedLightSamplesNear(chunk.x, chunk.z))) {
+            if (mgr != null
+                && (mgr.hasPendingLightWorkNear(chunk.x, chunk.z) || mgr.hasFailedLightSamplesNear(chunk.x, chunk.z))) {
                 return;
             }
             final boolean hasSky = chunk.getWorld().provider.hasSkyLight();
@@ -171,16 +174,19 @@ public final class LightDataSerializer {
             root.setTag(TAG_SECTIONS, sections);
             if (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {
                 var snapshot = ((com.sumirelabs.pulsar.rgb.RgbChunk) chunk).pulsar$getRgbSnapshot();
-                if (snapshot == null) return;
+                if (snapshot == null)
+                    return;
                 com.sumirelabs.pulsar.rgb.RgbPersistence.save(root, snapshot);
                 if (chunk.getWorld().provider.hasSkyLight()) {
                     var skySnapshot = ((com.sumirelabs.pulsar.rgb.RgbChunk) chunk).pulsar$getRgbSkySnapshot();
-                    if (skySnapshot == null) return;
+                    if (skySnapshot == null)
+                        return;
                     com.sumirelabs.pulsar.rgb.RgbPersistence.save(root, skySnapshot, true);
                 }
             }
             // Async save integrations must not label old planes with a new palette.
-            if (paletteGeneration != com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().generation) return;
+            if (paletteGeneration != com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().generation)
+                return;
             event.getData().setTag(TAG_ROOT, root);
             // Clear only after a valid snapshot was serialized, while publication
             // is excluded. Later worker writes survive vanilla's modified=false.
@@ -232,8 +238,10 @@ public final class LightDataSerializer {
         if (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()) {
             var storage = com.sumirelabs.pulsar.rgb.RgbPersistence.load(root, heightContext);
             var skyStorage = event.getChunk().getWorld().provider.hasSkyLight()
-                    ? com.sumirelabs.pulsar.rgb.RgbPersistence.load(root, heightContext, true) : null;
-            if (storage == null || (event.getChunk().getWorld().provider.hasSkyLight() && skyStorage == null)) return;
+                ? com.sumirelabs.pulsar.rgb.RgbPersistence.load(root, heightContext, true)
+                : null;
+            if (storage == null || (event.getChunk().getWorld().provider.hasSkyLight() && skyStorage == null))
+                return;
             var rgb = (com.sumirelabs.pulsar.rgb.RgbChunk) event.getChunk();
             rgb.pulsar$setRgbStorage(storage);
             rgb.pulsar$setRgbSnapshot(storage.snapshot(1, blockNibbles));
@@ -245,9 +253,11 @@ public final class LightDataSerializer {
         final PulsarChunk pc = (PulsarChunk) event.getChunk();
         pc.pulsar$setBlockNibbles(blockNibbles);
         pc.pulsar$setSkyNibbles(skyNibbles);
-        if (paletteGeneration != com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().generation) return;
+        if (paletteGeneration != com.sumirelabs.pulsar.rgb.RgbPaletteOverrides.current().generation)
+            return;
         if (event.getChunk() instanceof com.sumirelabs.pulsar.rgb.RgbChunk rgb)
             rgb.pulsar$setSavedPaletteGeneration(paletteGeneration);
         pc.pulsar$setSavedLightValid(true);
     }
+
 }

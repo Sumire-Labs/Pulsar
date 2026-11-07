@@ -1,25 +1,60 @@
-if (publish_to_maven.toBoolean()) {
+def remotePublishing = publish_to_maven.toBoolean()
+def localPublishing = publish_to_local_maven.toBoolean()
+if (remotePublishing || localPublishing) {
     publishing {
-        repositories {
-            maven {
-                name = maven_name.replaceAll("\\s", "")
-                url = maven_url
-                credentials(PasswordCredentials)
+        // api.gradle defines Pulsar's compile-only publication. Keep its existing
+        // coordinates and avoid exposing the game/renderer dependency graph.
+        if (remotePublishing && !localPublishing) {
+            if (maven_url.isBlank()) throw new GradleException('Set maven_url before enabling publish_to_maven.')
+            repositories {
+                maven {
+                    name = maven_name
+                    url = maven_url
+                    credentials {
+                        username = providers.environmentVariable('MAVEN_USERNAME')
+                                .orElse(providers.gradleProperty("${maven_name}Username")).orNull
+                        password = providers.environmentVariable('MAVEN_PASSWORD')
+                                .orElse(providers.gradleProperty("${maven_name}Password")).orNull
+                    }
+                    authentication { basic(BasicAuthentication) }
+                }
             }
         }
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java // Publish with standard artifacts
-                setGroupId(root_package)// Publish with root package as maven group
-                setArtifactId(mod_id) // Publish artifacts with mod id as the artifact id
+    }
+}
 
-                // Custom artifact:
-                // If you want to publish a different artifact to the one outputted when building normally
-                // Create a different gradle task (Jar task), in extra.gradle
-                // Remove the 'from components.java' line above
-                // Add this line (change the task name):
-                // artifacts task_name
-            }
+// The same runtime artifact is used for CurseForge and Modrinth.
+apply plugin: 'me.modmuss50.mod-publish-plugin'
+def modPublication = extensions.getByName('publishMods')
+publishMods {
+    file = tasks.named('reobfJar').flatMap { it.output }
+    version = project.version.toString()
+    displayName = "${mod_name} ${project.version}"
+    type = versioning.stage.map { stage ->
+        switch (stage.name()) {
+            case 'ALPHA': return modPublication.ALPHA
+            case 'BETA': case 'RC': return modPublication.BETA
+            default: return modPublication.STABLE
+        }
+    }
+    modLoaders.add('forge')
+    maxRetries = 5
+    def notes = providers.environmentVariable('CHANGELOG_FILE').orElse('RELEASE_NOTES.md')
+    changelog = providers.fileContents(layout.projectDirectory.file(notes)).asText.orElse('')
+    if (!curseforge_project_id.isBlank()) {
+        curseforge {
+            projectId = curseforge_project_id
+            accessToken = providers.environmentVariable('CURSEFORGE_TOKEN')
+            minecraftVersions.add('1.12.2')
+            client = true
+            server = true
+        }
+    }
+    if (!modrinth_project_id.isBlank()) {
+        modrinth {
+            projectId = modrinth_project_id
+            accessToken = providers.environmentVariable('MODRINTH_TOKEN')
+            minecraftVersions.add('1.12.2')
         }
     }
 }

@@ -1,5 +1,60 @@
-// You may write any gradle buildscript component in this file
-// This file is automatically applied after build.gradle + dependencies.gradle is ran
+// Project-specific customizations. Applied after the template scripts.
+// With enable_shadow=true:
+// shadowJar { relocate 'org.example.library', "${modPackage}.internal.library" }
 
-// Helper methods (assertProperty, assertSubProperties, setDefaultProperty) are
-// defined directly in build.gradle's script scope and exported via ext.
+// Exercise the production metadata and refmap after SRG reobfuscation. The
+// headless compatibility tests deliberately run in development (MCP) names.
+def verifyPulsarJar = tasks.register('verifyPulsarJar') {
+    group = 'verification'
+    description = 'Checks Pulsar constants, loader requirements and production Mixin mappings.'
+    dependsOn tasks.named('verifyModJar')
+    inputs.file(tasks.named('reobfJar').flatMap { it.output })
+    inputs.property('modVersion', versioning.version)
+    doLast {
+        def expectedVersion = inputs.properties.modVersion
+        new java.util.jar.JarFile(inputs.files.singleFile).withCloseable { jar ->
+            def bytes = { String name ->
+                def entry = jar.getJarEntry(name)
+                if (entry == null) throw new GradleException("Missing Pulsar resource: ${name}")
+                jar.getInputStream(entry).withCloseable { it.readAllBytes() }
+            }
+            def reference = java.lang.classfile.ClassFile.of().parse(bytes('com/sumirelabs/pulsar/Reference.class'))
+            [MOD_ID: 'pulsar', MOD_NAME: 'Pulsar Lighting Engine', VERSION: expectedVersion].each { name, expected ->
+                def field = reference.fields().find { it.fieldName().stringValue() == name }
+                def constant = field?.findAttribute(java.lang.classfile.Attributes.constantValue())?.orElse(null)
+                if (constant?.constant()?.constantValue() != expected) {
+                    throw new GradleException("Unresolved or incorrect Pulsar constant: ${name}")
+                }
+            }
+            def mod = java.lang.classfile.ClassFile.of().parse(bytes('com/sumirelabs/pulsar/Pulsar.class'))
+            def annotations = mod.findAttribute(java.lang.classfile.Attributes.runtimeVisibleAnnotations()).orElse(null)
+            def annotation = annotations?.annotations()?.find {
+                it.className().stringValue() == 'Lnet/minecraftforge/fml/common/Mod;'
+            }
+            def values = annotation?.elements()?.findAll {
+                it.name().stringValue() in ['modid', 'version', 'dependencies']
+            }?.collectEntries { [(it.name().stringValue()): it.value().stringValue()] }
+            if (values?.modid != 'pulsar' || values?.version != expectedVersion ||
+                    values?.dependencies != 'required-after:cleanroom@[0.7.14-alpha,0.8)') {
+                throw new GradleException('Pulsar annotation has incorrect version, Mod ID or Cleanroom requirement.')
+            }
+            def refmap = new groovy.json.JsonSlurper().parse(bytes('pulsar.refmap.json'))
+            ['MixinChunk': 'getLightFor', 'MixinRgbDynamicBuffer': 'putColorRGBA(IIII)V'].each { mixin, selector ->
+                def mapped = refmap.mappings["com/sumirelabs/pulsar/mixin/${mixin}"]?.get(selector)
+                if (!(mapped instanceof String) || !mapped.contains(';func_')) {
+                    throw new GradleException("Missing production Mixin mapping: ${mixin} ${selector}")
+                }
+            }
+            if (refmap.mappings['com/sumirelabs/pulsar/mixin/MixinRgbDynamicBuffer'].containsKey('putColorRGBA(IIIII)V')) {
+                throw new GradleException('Forge-added five-argument putColorRGBA must retain its runtime name.')
+            }
+            if (jar.entries().toList().any {
+                it.name.endsWith('.class') && it.name ==~ /(?:net\/minecraft\/|net\/minecraftforge\/|org\/lwjgl\/).*/
+            }) {
+                throw new GradleException('Game or LWJGL dependency bundled in the Pulsar distribution.')
+            }
+        }
+        logger.lifecycle('Verified Pulsar production constants, loader requirement and Mixin mappings.')
+    }
+}
+tasks.named('check') { dependsOn verifyPulsarJar }

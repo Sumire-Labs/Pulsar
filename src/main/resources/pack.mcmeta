@@ -1,6 +1,6 @@
 {
-	"pack": {
-		"description": "@{mod_name} Resources",
-		"pack_format": 3
-	}
+  "pack": {
+    "description": @{PACK_DESCRIPTION_JSON},
+    "pack_format": 3
+  }
 }

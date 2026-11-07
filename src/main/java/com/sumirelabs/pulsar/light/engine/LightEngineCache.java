@@ -1,5 +1,7 @@
 package com.sumirelabs.pulsar.light.engine;
 
+import java.util.Arrays;
+
 import com.sumirelabs.pulsar.api.ExtendedWorld;
 import com.sumirelabs.pulsar.compat.FluidLightBridge;
 import com.sumirelabs.pulsar.light.LightStats;
@@ -7,15 +9,14 @@ import com.sumirelabs.pulsar.light.RenderBounds;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.world.PulsarWorld;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
-
-import java.util.Arrays;
 
 /**
  * Shared 5x5 chunk/section cache used by scalar light engines.
@@ -28,6 +29,7 @@ import java.util.Arrays;
  * scheduler relies on this distinction when sharing read halos.
  */
 abstract class LightEngineCache {
+
     private static final long[] NO_RENDER_BOUNDS = new long[0];
     // Opt-in until whole-world workloads confirm the accessor benchmark result.
     private static final boolean EMPTY_SECTION_FAST_PATH = Boolean.getBoolean("pulsar.light.emptySectionFastPath");
@@ -68,7 +70,7 @@ abstract class LightEngineCache {
         this.airState = Blocks.AIR.getDefaultState();
         this.airLightInfo = LightInfo.of(this.airState);
         this.plainAir = (this.airLightInfo & (LightInfo.CONTEXT_MASK | LightInfo.DYNAMIC | LightInfo.REGISTRY
-                | LightInfo.OPACITY_MASK | (LightInfo.OPACITY_MASK << LightInfo.EMISSION_SHIFT))) == 0;
+            | LightInfo.OPACITY_MASK | (LightInfo.OPACITY_MASK << LightInfo.EMISSION_SHIFT))) == 0;
         this.heightContext = heightContext;
         this.minLightSection = heightContext.getMinLightSection();
         this.maxLightSection = heightContext.getMaxLightSection();
@@ -88,7 +90,7 @@ abstract class LightEngineCache {
     }
 
     protected final void setupCaches(final int centerX, final int centerY, final int centerZ,
-                                     final boolean relaxed, final boolean tryToLoadChunksFor2Radius) {
+        final boolean relaxed, final boolean tryToLoadChunksFor2Radius) {
         // Reset task state at entry. Overflow must remain observable after the
         // operation returns, and stale queue lengths must not cross tasks.
         this.resetTaskState();
@@ -104,14 +106,14 @@ abstract class LightEngineCache {
                 final int chunkZ = centerChunkZ + deltaZ;
                 final boolean isTwoRadius = Math.max(Math.abs(deltaX), Math.abs(deltaZ)) == 2;
                 final Chunk chunk = ((ExtendedWorld) this.world)
-                        .pulsar$getAnyChunkImmediately(chunkX, chunkZ);
+                    .pulsar$getAnyChunkImmediately(chunkX, chunkZ);
 
                 if (chunk == null) {
                     if (relaxed | isTwoRadius) {
                         continue;
                     }
                     throw new IllegalArgumentException(
-                            "Trying to propagate light update before 1 radius neighbours ready");
+                        "Trying to propagate light update before 1 radius neighbours ready");
                 }
                 if (!this.canUseChunk(chunk)) {
                     continue;
@@ -157,32 +159,34 @@ abstract class LightEngineCache {
      * Resolves cached and context-sensitive block/fluid light properties.
      */
     protected final int lightInfoAt(final IBlockState state,
-                                    final int worldX, final int worldY, final int worldZ) {
+        final int worldX, final int worldY, final int worldZ) {
         int info = state == this.airState ? this.airLightInfo : LightInfo.of(state);
         if (LightInfo.hasContextualValues(info)) {
             info = LightInfo.resolveContextual(
-                    info, state, this.world, this.contextualLightPos, worldX, worldY, worldZ);
+                info, state, this.world, this.contextualLightPos, worldX, worldY, worldZ);
         }
         if (!FluidLightBridge.LOADED) {
             return info;
         }
-        final Object capability =
-                this.fluidCapCache[(worldX >> 4) + 5 * (worldZ >> 4) + this.chunkIndexOffset];
-        return capability == null ? info : FluidLightBridge.merge(
+        final Object capability = this.fluidCapCache[(worldX >> 4) + 5 * (worldZ >> 4) + this.chunkIndexOffset];
+        return capability == null
+            ? info
+            : FluidLightBridge.merge(
                 info, capability, worldX, worldY, worldZ, this.world, this.contextualLightPos);
     }
 
     protected final boolean isPlainAir(final IBlockState state, final int sectionIndex) {
         return state == this.airState && this.plainAir
-                && (!FluidLightBridge.LOADED || this.fluidCapCache[sectionIndex % 25] == null);
+            && (!FluidLightBridge.LOADED || this.fluidCapCache[sectionIndex % 25] == null);
     }
 
-    protected final int plainAirInfo() { return this.airLightInfo; }
+    protected final int plainAirInfo() {
+        return this.airLightInfo;
+    }
 
     protected final ExtendedBlockStorage getChunkSection(final int chunkX, final int chunkY,
-                                                         final int chunkZ) {
-        return this.sectionCache[
-                chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
+        final int chunkZ) {
+        return this.sectionCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
     }
 
     protected final boolean isVanillaStorageSection(final int cacheIndex) {
@@ -201,45 +205,44 @@ abstract class LightEngineCache {
         final int storageIndex = this.heightContext.getStorageIndex(sectionY);
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
         return storageIndex >= 0 && storageIndex < sections.length
-                ? sections[storageIndex] : null;
+            ? sections[storageIndex]
+            : null;
     }
 
     protected final void setChunkSectionInCache(final int chunkX, final int chunkY, final int chunkZ,
-                                                final ExtendedBlockStorage section) {
-        this.sectionCache[
-                chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset] = section;
+        final ExtendedBlockStorage section) {
+        this.sectionCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset] = section;
     }
 
     protected final void setBlocksForChunkInCache(final int chunkX, final int chunkZ,
-                                                  final ExtendedBlockStorage[] sections) {
+        final ExtendedBlockStorage[] sections) {
         for (int sectionY = this.minLightSection; sectionY <= this.maxLightSection; ++sectionY) {
             final int storageIndex = this.heightContext.getStorageIndex(sectionY);
             final ExtendedBlockStorage section = sections == null
-                    || storageIndex < 0 || storageIndex >= sections.length
-                    ? null : sections[storageIndex];
+                || storageIndex < 0 || storageIndex >= sections.length
+                    ? null
+                    : sections[storageIndex];
             this.sectionCache[chunkX + 5 * chunkZ + 5 * 5 * sectionY
-                    + this.chunkSectionIndexOffset] = section;
+                + this.chunkSectionIndexOffset] = section;
         }
     }
 
     protected final SWMRNibbleArray getNibbleFromCache(final int chunkX, final int chunkY,
-                                                       final int chunkZ) {
-        return this.nibbleCache[
-                chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
+        final int chunkZ) {
+        return this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
     }
 
     protected final void setNibbleInCache(final int chunkX, final int chunkY, final int chunkZ,
-                                          final SWMRNibbleArray nibble) {
+        final SWMRNibbleArray nibble) {
         this.assertWriteChunk(chunkX, chunkZ);
-        this.nibbleCache[
-                chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset] = nibble;
+        this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset] = nibble;
     }
 
     protected void setNibblesForChunkInCache(final int chunkX, final int chunkZ,
-                                                   final SWMRNibbleArray[] nibbles) {
+        final SWMRNibbleArray[] nibbles) {
         for (int sectionY = this.minLightSection; sectionY <= this.maxLightSection; ++sectionY) {
             this.setNibbleInCache(chunkX, sectionY, chunkZ,
-                    nibbles == null ? null : nibbles[sectionY - this.minLightSection]);
+                nibbles == null ? null : nibbles[sectionY - this.minLightSection]);
         }
     }
 
@@ -248,7 +251,7 @@ abstract class LightEngineCache {
     }
 
     protected final void setEmptinessMapCache(final int chunkX, final int chunkZ,
-                                              final boolean[] emptinessMap) {
+        final boolean[] emptinessMap) {
         this.emptinessMapCache[chunkX + 5 * chunkZ + this.chunkIndexOffset] = emptinessMap;
     }
 
@@ -265,9 +268,9 @@ abstract class LightEngineCache {
 
     /** Publish a cache nibble only while its owning server chunk remains registered. */
     protected final void publishCacheNibble(final int index, final SWMRNibbleArray nibble,
-                                            final boolean notify) {
+        final boolean notify) {
         assert index % 5 >= 1 && index % 5 <= 3 && (index / 5) % 5 >= 1 && (index / 5) % 5 <= 3
-                : "Light publication escaped the task's 3x3 write region";
+            : "Light publication escaped the task's 3x3 write region";
         if (this.isClientSide) {
             this.publishVisibleNibble(index, nibble, notify);
             return;
@@ -283,18 +286,18 @@ abstract class LightEngineCache {
         }
         synchronized (chunk) {
             if (!(this.world instanceof ExtendedWorld)
-                    || ((ExtendedWorld) this.world).pulsar$getAnyChunkImmediately(
+                || ((ExtendedWorld) this.world).pulsar$getAnyChunkImmediately(
                     chunk.x, chunk.z) != chunk) {
                 return;
             }
             if (nibble != null && nibble.isDirty())
-                ((com.sumirelabs.pulsar.light.PulsarChunk)chunk).pulsar$markLightDirty();
+                ((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$markLightDirty();
             this.publishVisibleNibble(index, nibble, notify);
         }
     }
 
     private void publishVisibleNibble(final int index, final SWMRNibbleArray nibble,
-                                      final boolean notify) {
+        final boolean notify) {
         if (nibble != null) {
             nibble.updateVisible();
         }
@@ -305,8 +308,8 @@ abstract class LightEngineCache {
     }
 
     protected final void copyVisibleNibbleToVanilla(final int cacheIndex,
-                                                     final SWMRNibbleArray nibble,
-                                                     final boolean skyLight) {
+        final SWMRNibbleArray nibble,
+        final boolean skyLight) {
         if (nibble == null || !this.isVanillaStorageSection(cacheIndex)) {
             return;
         }
@@ -329,7 +332,7 @@ abstract class LightEngineCache {
     }
 
     protected final void mergeNibblesForChunkFromCache(final int chunkX, final int chunkZ,
-                                                      final SWMRNibbleArray[] baseline) {
+        final SWMRNibbleArray[] baseline) {
         final int firstIndex = chunkX + 5 * chunkZ + 25 * this.minLightSection + this.chunkSectionIndexOffset;
         NibbleArrayPublication.mergeFullLightFromCache(baseline, this.nibbleCache, firstIndex, 25);
     }
@@ -348,12 +351,12 @@ abstract class LightEngineCache {
             return;
         }
         this.world.markBlockRangeForRenderUpdate(
-                sectionX + RenderBounds.minX(bounds),
-                sectionY + RenderBounds.minY(bounds),
-                sectionZ + RenderBounds.minZ(bounds),
-                sectionX + RenderBounds.maxX(bounds),
-                sectionY + RenderBounds.maxY(bounds),
-                sectionZ + RenderBounds.maxZ(bounds));
+            sectionX + RenderBounds.minX(bounds),
+            sectionY + RenderBounds.minY(bounds),
+            sectionZ + RenderBounds.minZ(bounds),
+            sectionX + RenderBounds.maxX(bounds),
+            sectionY + RenderBounds.maxY(bounds),
+            sectionZ + RenderBounds.maxZ(bounds));
         if (LightStats.enabled) {
             LightStats.engineRenderRequests++;
             LightStats.engineRenderMarks++;
@@ -377,24 +380,28 @@ abstract class LightEngineCache {
 
     protected final IBlockState getBlockState(final int worldX, final int worldY, final int worldZ) {
         final int sectionIndex = (worldX >> 4) + 5 * (worldZ >> 4)
-                + (5 * 5) * (worldY >> 4) + this.chunkSectionIndexOffset;
+            + (5 * 5) * (worldY >> 4) + this.chunkSectionIndexOffset;
         final ExtendedBlockStorage section = this.sectionCache[sectionIndex];
-        return section == null ? Blocks.AIR.getDefaultState()
-                : section.get(worldX & 15, worldY & 15, worldZ & 15);
+        return section == null
+            ? Blocks.AIR.getDefaultState()
+            : section.get(worldX & 15, worldY & 15, worldZ & 15);
     }
 
     protected final IBlockState getBlockStateFast(final int sectionIndex,
-                                                  final int x, final int y, final int z) {
+        final int x, final int y, final int z) {
         final ExtendedBlockStorage section = this.sectionCache[sectionIndex];
-        return section == null || EMPTY_SECTION_FAST_PATH && section.getClass() == ExtendedBlockStorage.class && section.isEmpty()
-                ? Blocks.AIR.getDefaultState() : section.get(x, y, z);
+        return section == null
+            || EMPTY_SECTION_FAST_PATH && section.getClass() == ExtendedBlockStorage.class && section.isEmpty()
+                ? Blocks.AIR.getDefaultState()
+                : section.get(x, y, z);
     }
 
     protected int getLightLevel(final int worldX, final int worldY, final int worldZ) {
-        final SWMRNibbleArray nibble = this.nibbleCache[
-                (worldX >> 4) + 5 * (worldZ >> 4) + (5 * 5) * (worldY >> 4)
-                        + this.chunkSectionIndexOffset];
-        return nibble == null ? 0 : nibble.getUpdating(
+        final SWMRNibbleArray nibble = this.nibbleCache[(worldX >> 4) + 5 * (worldZ >> 4) + (5 * 5) * (worldY >> 4)
+            + this.chunkSectionIndexOffset];
+        return nibble == null
+            ? 0
+            : nibble.getUpdating(
                 (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8));
     }
 
@@ -405,13 +412,12 @@ abstract class LightEngineCache {
 
     protected void setLightLevel(final int worldX, final int worldY, final int worldZ, final int level) {
         final int sectionIndex = (worldX >> 4) + 5 * (worldZ >> 4)
-                + (5 * 5) * (worldY >> 4) + this.chunkSectionIndexOffset;
+            + (5 * 5) * (worldY >> 4) + this.chunkSectionIndexOffset;
         final SWMRNibbleArray nibble = this.nibbleCache[sectionIndex];
         if (nibble == null) {
             return;
         }
-        final int localIndex =
-                (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8);
+        final int localIndex = (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8);
         if (nibble.getUpdating(localIndex) == level) {
             return;
         }
@@ -420,9 +426,10 @@ abstract class LightEngineCache {
     }
 
     protected final void postLightUpdate(final int sectionIndex,
-                                         final int localX, final int localY, final int localZ) {
-        assert sectionIndex % 5 >= 1 && sectionIndex % 5 <= 3 && (sectionIndex / 5) % 5 >= 1 && (sectionIndex / 5) % 5 <= 3
-                : "Light write escaped the task's 3x3 write region";
+        final int localX, final int localY, final int localZ) {
+        assert sectionIndex % 5 >= 1 && sectionIndex % 5 <= 3 && (sectionIndex / 5) % 5 >= 1
+            && (sectionIndex / 5) % 5 <= 3
+            : "Light write escaped the task's 3x3 write region";
         if (!this.isClientSide) {
             return;
         }
@@ -431,21 +438,19 @@ abstract class LightEngineCache {
             this.notifyUpdateCache[sectionIndex] = true;
             this.notifyBoundsCache[sectionIndex] = point;
         } else {
-            this.notifyBoundsCache[sectionIndex] =
-                    RenderBounds.union(this.notifyBoundsCache[sectionIndex], point);
+            this.notifyBoundsCache[sectionIndex] = RenderBounds.union(this.notifyBoundsCache[sectionIndex], point);
         }
     }
 
     /** Scheduler contract: the outer 5x5 halo is read-only metadata. */
     protected final void assertWriteChunk(final int chunkX, final int chunkZ) {
         assert Math.abs((long) (chunkX - ((31 - this.encodeOffsetX) >> 4))) <= 1
-                && Math.abs((long) (chunkZ - ((31 - this.encodeOffsetZ) >> 4))) <= 1
-                : "Light topology write escaped the task's 3x3 write region";
+            && Math.abs((long) (chunkZ - ((31 - this.encodeOffsetZ) >> 4))) <= 1
+            : "Light topology write escaped the task's 3x3 write region";
     }
 
     protected final SWMRNibbleArray[] getFilledEmptyLight() {
-        final SWMRNibbleArray[] result =
-                new SWMRNibbleArray[this.heightContext.getTotalLightSections()];
+        final SWMRNibbleArray[] result = new SWMRNibbleArray[this.heightContext.getTotalLightSections()];
         for (int index = 0; index < result.length; ++index) {
             result[index] = new SWMRNibbleArray(null, true);
         }
@@ -466,6 +471,6 @@ abstract class LightEngineCache {
     /**
      * Called after a dirty nibble is published.
      */
-    protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {
-    }
+    protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {}
+
 }

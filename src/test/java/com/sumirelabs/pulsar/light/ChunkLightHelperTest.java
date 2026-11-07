@@ -1,17 +1,23 @@
 package com.sumirelabs.pulsar.light;
 
-import com.sumirelabs.pulsar.util.WorldHeightContext;
-import net.minecraft.init.Bootstrap;
-import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+import java.util.Random;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.Random;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
+
+import net.minecraft.init.Bootstrap;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ChunkLightHelperTest {
-    @BeforeAll static void bootstrap() { Bootstrap.register(); }
+
+    @BeforeAll
+    static void bootstrap() {
+        Bootstrap.register();
+    }
 
     @Test
     void bulkInitializationMatchesCellReadsAcrossStatesAndNegativeHeights() {
@@ -23,17 +29,19 @@ class ChunkLightHelperTest {
             // Include missing groups, not just missing section entries.
             final SWMRNibbleArray[] skyGroup = attempt % 7 == 0 ? null : sky;
             final SWMRNibbleArray[] blockGroup = attempt % 11 == 0 ? null : block;
-            for (int sectionY = height.getMinLightSection() - 1;
-                 sectionY <= height.getMaxLightSection() + 1; sectionY++) {
+            for (int sectionY = height.getMinLightSection() - 1; sectionY <= height.getMaxLightSection()
+                + 1; sectionY++) {
                 final ExtendedBlockStorage section = new ExtendedBlockStorage(sectionY << 4, true);
                 ChunkLightHelper.fillVanillaFromEngine(height, skyGroup, blockGroup, section, sectionY, true);
-                for (int y = 0; y < 16; y++) for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++) {
-                    final int worldY = (sectionY << 4) + y;
-                    assertEquals(ChunkLightHelper.getBlockLight(height, blockGroup, x, worldY, z),
-                            section.getBlockLight().get(x, y, z));
-                    assertEquals(ChunkLightHelper.getSkyLight(height, skyGroup, x, worldY, z),
-                            section.getSkyLight().get(x, y, z));
-                }
+                for (int y = 0; y < 16; y++)
+                    for (int z = 0; z < 16; z++)
+                        for (int x = 0; x < 16; x++) {
+                            final int worldY = (sectionY << 4) + y;
+                            assertEquals(ChunkLightHelper.getBlockLight(height, blockGroup, x, worldY, z),
+                                section.getBlockLight().get(x, y, z));
+                            assertEquals(ChunkLightHelper.getSkyLight(height, skyGroup, x, worldY, z),
+                                section.getSkyLight().get(x, y, z));
+                        }
             }
         }
     }
@@ -45,10 +53,12 @@ class ChunkLightHelperTest {
         final ExtendedBlockStorage section = new ExtendedBlockStorage(64, false);
         ChunkLightHelper.fillVanillaFromEngine(height, null, block, section, 4, false);
         assertNull(section.getSkyLight());
-        for (int y = 0; y < 16; y++) for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++) {
-            assertEquals(ChunkLightHelper.getBlockLight(height, block, x, 64 + y, z),
-                    section.getBlockLight().get(x, y, z));
-        }
+        for (int y = 0; y < 16; y++)
+            for (int z = 0; z < 16; z++)
+                for (int x = 0; x < 16; x++) {
+                    assertEquals(ChunkLightHelper.getBlockLight(height, block, x, 64 + y, z),
+                        section.getBlockLight().get(x, y, z));
+                }
     }
 
     @Test
@@ -70,8 +80,10 @@ class ChunkLightHelperTest {
         for (int y = -2; y <= 1; y++) {
             final int slot = height.getStorageIndex(y);
             final int expected = slot == 31 || slot == 1 ? 0x73 : 0;
-            for (byte value : storage[slot].getBlockLight().getData()) assertEquals(expected, value & 255);
-            for (byte value : storage[slot].getSkyLight().getData()) assertEquals(expected, value & 255);
+            for (byte value : storage[slot].getBlockLight().getData())
+                assertEquals(expected, value & 255);
+            for (byte value : storage[slot].getSkyLight().getData())
+                assertEquals(expected, value & 255);
         }
         ChunkLightHelper.syncBlockToVanilla(height, block, storage, 0);
         assertEquals(0, storage[17].getBlockLight().get(0, 0, 0));
@@ -94,12 +106,14 @@ class ChunkLightHelperTest {
                     // Even an UNINIT carrying bytes must read as zero for sky;
                     // HIDDEN retains its visible data for the chunk getters.
                     result[i] = new SWMRNibbleArray(bytes, random.nextBoolean()
-                            ? SWMRNibbleArray.INIT_STATE_INIT
-                            : random.nextBoolean() ? SWMRNibbleArray.INIT_STATE_UNINIT
+                        ? SWMRNibbleArray.INIT_STATE_INIT
+                        : random.nextBoolean()
+                            ? SWMRNibbleArray.INIT_STATE_UNINIT
                             : SWMRNibbleArray.INIT_STATE_HIDDEN);
                 }
             }
         }
         return result;
     }
+
 }

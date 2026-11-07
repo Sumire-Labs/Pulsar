@@ -1,17 +1,19 @@
 package com.sumirelabs.pulsar.light;
 
-import com.sumirelabs.pulsar.util.CoordinateUtils;
-import com.sumirelabs.pulsar.util.WorldHeightContext;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
-import net.minecraft.world.chunk.Chunk;
-
 import java.util.ArrayDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.function.LongPredicate;
+
+import com.sumirelabs.pulsar.util.CoordinateUtils;
+import com.sumirelabs.pulsar.util.WorldHeightContext;
+
+import net.minecraft.world.chunk.Chunk;
+
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 
 /**
  * Synchronized insertion-ordered queue of per-chunk light tasks. Main thread
@@ -30,7 +32,9 @@ public final class LightQueue {
     private final Semaphore workAvailable = new Semaphore(0);
     private volatile Runnable parallelWakeup;
 
-    void setParallelWakeup(final Runnable wakeup) { this.parallelWakeup = wakeup; }
+    void setParallelWakeup(final Runnable wakeup) {
+        this.parallelWakeup = wakeup;
+    }
     // Priority lookup support. The drain loop asks for "first task with block
     // changes" / "first task with initial light" once per task processed, so
     // these must be O(1): keys are enqueued on the transition into each class
@@ -60,8 +64,8 @@ public final class LightQueue {
             return false;
         }
         return tasks.initialLightChunk != null
-                || tasks.changedSectionSet != null
-                || (tasks.changedPositions != null && !tasks.changedPositions.isEmpty());
+            || tasks.changedSectionSet != null
+            || (tasks.changedPositions != null && !tasks.changedPositions.isEmpty());
     }
 
     void setStats(final LightStats stats) {
@@ -101,7 +105,8 @@ public final class LightQueue {
     }
 
     public synchronized void queueBlockChange(final int x, final int y, final int z) {
-        LightUpdateTracer.record(LightUpdateTracer.Kind.LIGHT_ENQUEUE,this.stats==null?Integer.MIN_VALUE:this.stats.dimension(),x,y,z);
+        LightUpdateTracer.record(LightUpdateTracer.Kind.LIGHT_ENQUEUE,
+            this.stats == null ? Integer.MIN_VALUE : this.stats.dimension(), x, y, z);
         final long key = CoordinateUtils.getChunkKey(x >> 4, z >> 4);
         final ChunkTasks tasks = this.getOrCreate(key);
         if (tasks.changedPositions == null) {
@@ -116,8 +121,8 @@ public final class LightQueue {
         if (tasks.changedPositions instanceof IntOpenHashSet sparse) {
             sparse.add(packedPosition);
             if (sparse.size() >= tasks.nextPositionPromotionCheck) {
-                final AdaptiveChangedPositions.PromotionResult promotion =
-                        AdaptiveChangedPositions.considerPromotion(sparse);
+                final AdaptiveChangedPositions.PromotionResult promotion = AdaptiveChangedPositions
+                    .considerPromotion(sparse);
                 if (promotion.promoted != null) {
                     tasks.changedPositions = promotion.promoted;
                 } else {
@@ -144,11 +149,11 @@ public final class LightQueue {
     }
 
     public synchronized void queueChunkLight(final int cx, final int cz, final Chunk chunk,
-                                             final Boolean[] emptySections, final long generation) {
+        final Boolean[] emptySections, final long generation) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
         if ((tasks.initialLightChunk != null && tasks.initialLightGeneration > generation)
-                || tasks.initialLightEdgeGeneration > generation) {
+            || tasks.initialLightEdgeGeneration > generation) {
             return;
         }
         if (tasks.initialLightChunk == null) {
@@ -170,7 +175,8 @@ public final class LightQueue {
      * Queue the cheap load-time init (nibble/emptiness-map setup, no BFS) for
      * a chunk restored with valid persisted light.
      */
-    public synchronized void queueChunkLoadInit(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
+    public synchronized void queueChunkLoadInit(final int cx, final int cz, final Chunk chunk,
+        final Boolean[] emptySections) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
         tasks.loadInitChunk = chunk;
@@ -186,12 +192,12 @@ public final class LightQueue {
      * occupies this chunk's queued batch
      */
     public synchronized boolean requeueChunkLight(final int cx, final int cz, final Chunk chunk,
-                                                  final Boolean[] emptySections, final long generation,
-                                                  final int previousAttempts) {
+        final Boolean[] emptySections, final long generation,
+        final int previousAttempts) {
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
         if ((tasks.initialLightChunk != null && tasks.initialLightGeneration > generation)
-                || tasks.initialLightEdgeGeneration > generation) {
+            || tasks.initialLightEdgeGeneration > generation) {
             return false;
         }
         if (tasks.initialLightChunk == null) {
@@ -245,16 +251,16 @@ public final class LightQueue {
      * occupies this chunk
      */
     public synchronized boolean queueInitialLightEdgeCheckAllSections(final int cx, final int cz,
-                                                                      final boolean isSky,
-                                                                      final long generation,
-                                                                      final int attempts) {
+        final boolean isSky,
+        final long generation,
+        final int attempts) {
         if (generation <= 0L || attempts < 0) {
             throw new IllegalArgumentException("Invalid initial-light edge generation/attempt");
         }
         final long key = CoordinateUtils.getChunkKey(cx, cz);
         final ChunkTasks tasks = this.getOrCreate(key);
         if ((tasks.initialLightChunk != null && tasks.initialLightGeneration >= generation)
-                || tasks.initialLightEdgeGeneration > generation) {
+            || tasks.initialLightEdgeGeneration > generation) {
             return false;
         }
         this.addAllEdgeSections(tasks, isSky);
@@ -320,7 +326,8 @@ public final class LightQueue {
         var entries = ((java.util.Map<Long, ChunkTasks>) this.tasksByChunk).entrySet().iterator();
         while (entries.hasNext()) {
             var entry = entries.next();
-            if (this.inFlightTasks.containsKey(entry.getKey().longValue())) continue;
+            if (this.inFlightTasks.containsKey(entry.getKey().longValue()))
+                continue;
             final ChunkTasks task = entry.getValue();
             entries.remove();
             this.onTaskDequeued(task);
@@ -338,8 +345,8 @@ public final class LightQueue {
         for (int remaining = this.maintenanceTasks.size(); remaining > 0; remaining--) {
             final ChunkTasks task = this.maintenanceTasks.removeFirst();
             if (this.tasksByChunk.get(task.chunkCoordinate) != task
-                    || task.initialLightChunk != null
-                    || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
+                || task.initialLightChunk != null
+                || (task.changedPositions != null && !task.changedPositions.isEmpty())) {
                 continue;
             }
             if (this.inFlightTasks.containsKey(task.chunkCoordinate) || !allowed.test(task.chunkCoordinate)) {
@@ -435,9 +442,11 @@ public final class LightQueue {
 
     /** Partner lane claim, under the shared dispatcher's region reservation. */
     synchronized ChunkTasks claimChunk(final long key) {
-        if (this.inFlightTasks.containsKey(key)) return null;
+        if (this.inFlightTasks.containsKey(key))
+            return null;
         final ChunkTasks task = this.tasksByChunk.remove(key);
-        if (task != null) this.onTaskDequeued(task);
+        if (task != null)
+            this.onTaskDequeued(task);
         return task;
     }
 
@@ -475,7 +484,7 @@ public final class LightQueue {
      */
     public synchronized boolean hasPendingLightWork(final long key) {
         return changesLightValues(this.tasksByChunk.get(key))
-                || changesLightValues(this.inFlightTasks.get(key));
+            || changesLightValues(this.inFlightTasks.get(key));
     }
 
     /**
@@ -518,4 +527,5 @@ public final class LightQueue {
     int clearWorkSignal() {
         return this.workAvailable.drainPermits();
     }
+
 }

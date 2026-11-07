@@ -1,20 +1,21 @@
 package com.sumirelabs.pulsar.light.engine;
 
-import com.sumirelabs.pulsar.compat.FluidLightBridge;
-import com.sumirelabs.pulsar.rgb.*;
-import com.sumirelabs.pulsar.api.BlockLightColors;
-import com.sumirelabs.pulsar.api.BlockLightFilters;
 import java.util.Set;
+
+import com.sumirelabs.pulsar.compat.FluidLightBridge;
 import com.sumirelabs.pulsar.light.ContextualLightPalette;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
+import com.sumirelabs.pulsar.rgb.*;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntSet;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 /** Per-component prototype derived from Pulsar's LGPL scalar propagator.
  * Separate hot loops keep SCALAR unaffected. */
@@ -33,7 +34,8 @@ final class RgbChannelEngine extends PulsarEngine {
         RgbChunk rgb = (RgbChunk) chunk;
         RgbStorage storage = rgb.pulsar$getRgbStorage();
         if (storage == null) {
-            storage = new RgbStorage(this.heightContext.getMinLightSection(), this.heightContext.getTotalLightSections());
+            storage = new RgbStorage(this.heightContext.getMinLightSection(),
+                this.heightContext.getTotalLightSections());
             rgb.pulsar$setRgbStorage(storage);
         }
         return storage;
@@ -45,7 +47,8 @@ final class RgbChannelEngine extends PulsarEngine {
     }
     private int absorption(int info, IBlockState state, int direction, int x, int y, int z) {
         int scalar = LightInfo.absorption(info, state, direction);
-        if (scalar >= 15) return scalar;
+        if (scalar >= 15)
+            return scalar;
         return RgbLightAccess.absorption(world, state, colorFluid(x, y, z), x, y, z, channel, scalar);
     }
     private IBlockState colorFluid(int x, int y, int z) {
@@ -69,7 +72,8 @@ final class RgbChannelEngine extends PulsarEngine {
 
     @Override
     protected void setNibbles(final Chunk chunk, final SWMRNibbleArray[] to) {
-        storage(chunk).channels[channel] = to; touched.add(chunk);
+        storage(chunk).channels[channel] = to;
+        touched.add(chunk);
     }
 
     @Override
@@ -78,11 +82,14 @@ final class RgbChannelEngine extends PulsarEngine {
     }
 
     @Override
-    protected void initNibble(final int chunkX, final int chunkY, final int chunkZ, final boolean extrude, final boolean initRemovedNibbles) {
-        if (chunkY < this.minLightSection || chunkY > this.maxLightSection || this.getChunkInCache(chunkX, chunkZ) == null) {
+    protected void initNibble(final int chunkX, final int chunkY, final int chunkZ, final boolean extrude,
+        final boolean initRemovedNibbles) {
+        if (chunkY < this.minLightSection || chunkY > this.maxLightSection
+            || this.getChunkInCache(chunkX, chunkZ) == null) {
             return;
         }
-        final SWMRNibbleArray nib = this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
+        final SWMRNibbleArray nib = this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY
+            + this.chunkSectionIndexOffset];
         if (nib == null) {
             if (!initRemovedNibbles) {
                 return;
@@ -96,7 +103,8 @@ final class RgbChannelEngine extends PulsarEngine {
     @Override
     protected void setNibbleNull(final int chunkX, final int chunkY, final int chunkZ) {
         // Block light uses setHidden() — maintains data for decrease propagation
-        final SWMRNibbleArray nib = this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY + this.chunkSectionIndexOffset];
+        final SWMRNibbleArray nib = this.nibbleCache[chunkX + 5 * chunkZ + (5 * 5) * chunkY
+            + this.chunkSectionIndexOffset];
         if (nib != null) {
             nib.setHidden();
         }
@@ -118,28 +126,28 @@ final class RgbChannelEngine extends PulsarEngine {
 
         if (emission > 0) {
             this.appendToIncreaseQueue(encodeCoords(worldX, worldZ, worldY, encodeOffset)
-                    | this.encodeQueueLevel(emission)
-                    | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                    | sidedFlag(info));
+                | this.encodeQueueLevel(emission)
+                | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                | sidedFlag(info));
         }
 
         // No sided flag on the decrease (upstream): the flag would mask
         // decrease directions with the NEW block's occlusion, but the light
         // being erased flowed through the OLD block.
         this.appendToDecreaseQueue(encodeCoords(worldX, worldZ, worldY, encodeOffset)
-                | this.encodeQueueLevel(currentLevel)
-                | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT));
+            | this.encodeQueueLevel(currentLevel)
+            | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT));
     }
 
     @Override
     protected int calculateLightValue(final int worldX, final int worldY, final int worldZ, final int expect) {
         final IBlockState state = this.getBlockState(worldX, worldY, worldZ);
         return this.calculateLightValueWithInfo(worldX, worldY, worldZ, expect,
-                state, this.rgbInfoAt(state, worldX, worldY, worldZ));
+            state, this.rgbInfoAt(state, worldX, worldY, worldZ));
     }
 
     private int calculateLightValueWithInfo(final int worldX, final int worldY, final int worldZ,
-                                           final int expect, final IBlockState state, final int info) {
+        final int expect, final IBlockState state, final int info) {
         int level = LightInfo.emission(info);
 
         if (level >= 14 || level > expect) {
@@ -157,6 +165,8 @@ final class RgbChannelEngine extends PulsarEngine {
             final int localIndex = (offX & 15) | ((offZ & 15) << 4) | ((offY & 15) << 8);
 
             final int neighbourLevel = this.getLightLevel(sectionIndex, localIndex);
+            if (blocksSlabBoundary(info, state, direction.ordinal(), worldX, worldY, worldZ))
+                continue;
 
             final int absorption = absorption(info, state, direction.ordinal(), worldX, worldY, worldZ);
             final int attenuated = neighbourLevel - absorption;
@@ -179,7 +189,8 @@ final class RgbChannelEngine extends PulsarEngine {
     }
 
     @Override
-    protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ, final IntSet changedPositions) {
+    protected void processBlockPositionChanges(final Chunk chunk, final int chunkX, final int chunkZ,
+        final IntSet changedPositions) {
         final int minBlockY = this.heightContext.getMinBlockY();
         final int maxBlockY = this.heightContext.getMaxBlockY();
         final IntIterator it = changedPositions.iterator();
@@ -202,16 +213,17 @@ final class RgbChannelEngine extends PulsarEngine {
         final int offX = chunk.x << 4;
         final int offZ = chunk.z << 4;
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
-        final Object fluidCapability = this.fluidCapCache[
-                chunk.x + 5 * chunk.z + this.chunkIndexOffset];
+        final Object fluidCapability = this.fluidCapCache[chunk.x + 5 * chunk.z + this.chunkIndexOffset];
         final boolean mayHaveFluidStates = FluidLightBridge.mayHaveFluidStates(
-                fluidCapability, this.minSection, this.maxSection);
+            fluidCapability, this.minSection, this.maxSection);
 
         for (int sectionY = this.minSection; sectionY <= this.maxSection; ++sectionY) {
             final int storageIndex = this.heightContext.getStorageIndex(sectionY);
             final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < sections.length
-                    ? sections[storageIndex] : null;
-            boolean absolute = section != null && (!(section.getData() instanceof RgbFilterPalette palette) || palette.pulsar$mayEmitAbsoluteRgb());
+                ? sections[storageIndex]
+                : null;
+            boolean absolute = section != null
+                && (!(section.getData() instanceof RgbFilterPalette palette) || palette.pulsar$mayEmitAbsoluteRgb());
             if (section == null || section.isEmpty() && !absolute) {
                 continue;
             }
@@ -219,7 +231,7 @@ final class RgbChannelEngine extends PulsarEngine {
             // Unknown containers and Fluidlogged remain on the full cell scan.
             final Object blockData = section.getData();
             if (!mayHaveFluidStates && !absolute && blockData instanceof ContextualLightPalette
-                    && ((((ContextualLightPalette) blockData).pulsar$lightPaletteFlags()
+                && ((((ContextualLightPalette) blockData).pulsar$lightPaletteFlags()
                     & ContextualLightPalette.MAY_EMIT) == 0)) {
                 continue;
             }
@@ -249,9 +261,9 @@ final class RgbChannelEngine extends PulsarEngine {
                 }
 
                 this.appendToIncreaseQueue(encodeCoords(worldX, worldZ, worldY, this.coordinateOffset)
-                        | this.encodeQueueLevel(emission)
-                        | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                        | sidedFlag(info));
+                    | this.encodeQueueLevel(emission)
+                    | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                    | sidedFlag(info));
 
                 this.setLightLevel(worldX, worldY, worldZ, emission);
             }
@@ -285,7 +297,8 @@ final class RgbChannelEngine extends PulsarEngine {
             final int posZ = (((int) queueValue >>> 6) & 63) + decodeOffsetZ;
             final int posY = (((int) queueValue >>> 12) & COORD_Y_MASK) + decodeOffsetY;
             final int propagatedLevel = (int) ((queueValue >>> LIGHT_LEVEL_SHIFT) & 0xF);
-            final AxisDirection[] checkDirections = OLD_CHECK_DIRECTIONS[(int) ((queueValue >>> DIRECTION_SHIFT) & 63L)];
+            final AxisDirection[] checkDirections = OLD_CHECK_DIRECTIONS[(int) ((queueValue >>> DIRECTION_SHIFT)
+                & 63L)];
 
             if ((queueValue & FLAG_RECHECK_LEVEL) != 0L) {
                 if (this.getLightLevel(posX, posY, posZ) != propagatedLevel) {
@@ -304,7 +317,8 @@ final class RgbChannelEngine extends PulsarEngine {
             }
 
             for (final AxisDirection propagate : checkDirections) {
-                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0) continue;
+                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0)
+                    continue;
 
                 final int offX = posX + propagate.x;
                 final int offY = posY + propagate.y;
@@ -345,12 +359,14 @@ final class RgbChannelEngine extends PulsarEngine {
                             queue = this.resizeIncreaseQueue();
                         }
                         queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                                | this.encodeQueueLevel(targetLevel)
-                                | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT);
+                            | this.encodeQueueLevel(targetLevel)
+                            | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT);
                     }
                     continue;
                 }
                 final int destInfo = this.rgbInfoAt(destState, offX, offY, offZ);
+                if (blocksSlabBoundary(destInfo, destState, propagate.oppositeOrdinal, offX, offY, offZ))
+                    continue;
                 final int absorption = absorption(destInfo, destState, propagate.oppositeOrdinal, offX, offY, offZ);
 
                 final int targetLevel = propagatedLevel - absorption;
@@ -373,9 +389,9 @@ final class RgbChannelEngine extends PulsarEngine {
                         queue = this.resizeIncreaseQueue();
                     }
                     queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(targetLevel)
-                            | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT)
-                            | sidedFlag(destInfo);
+                        | this.encodeQueueLevel(targetLevel)
+                        | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT)
+                        | sidedFlag(destInfo);
                 }
             }
         }
@@ -414,7 +430,8 @@ final class RgbChannelEngine extends PulsarEngine {
             }
 
             for (final AxisDirection propagate : checkDirections) {
-                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0) continue;
+                if ((srcBlockedFaces & (1 << propagate.ordinal())) != 0)
+                    continue;
 
                 final int offX = posX + propagate.x;
                 final int offY = posY + propagate.y;
@@ -441,9 +458,9 @@ final class RgbChannelEngine extends PulsarEngine {
                         increaseQueue = this.resizeIncreaseQueue();
                     }
                     increaseQueue[increaseQueueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(currentLevel)
-                            | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                            | FLAG_RECHECK_LEVEL | FLAG_HAS_SIDED_TRANSPARENT_BLOCKS;
+                        | this.encodeQueueLevel(currentLevel)
+                        | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                        | FLAG_RECHECK_LEVEL | FLAG_HAS_SIDED_TRANSPARENT_BLOCKS;
                     continue;
                 }
 
@@ -456,8 +473,6 @@ final class RgbChannelEngine extends PulsarEngine {
                     destinationNibble.set(localIndex, 0);
                     this.postLightUpdate(sectionIndex, offX & 15, offY & 15, offZ & 15);
 
-
-
                     if (targetLevel > 0) {
                         if (queueLength >= queue.length) {
                             if (queue.length >= MAX_QUEUE_SIZE) {
@@ -467,8 +482,8 @@ final class RgbChannelEngine extends PulsarEngine {
                             queue = this.resizeDecreaseQueue();
                         }
                         queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                                | this.encodeQueueLevel(targetLevel)
-                                | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT);
+                            | this.encodeQueueLevel(targetLevel)
+                            | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT);
                     }
                     continue;
                 }
@@ -487,10 +502,10 @@ final class RgbChannelEngine extends PulsarEngine {
                         increaseQueue = this.resizeIncreaseQueue();
                     }
                     increaseQueue[increaseQueueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(currentLevel)
-                            | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                            | FLAG_RECHECK_LEVEL
-                            | sFlag;
+                        | this.encodeQueueLevel(currentLevel)
+                        | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                        | FLAG_RECHECK_LEVEL
+                        | sFlag;
                     continue;
                 }
 
@@ -510,10 +525,10 @@ final class RgbChannelEngine extends PulsarEngine {
                     destinationNibble.set(localIndex, emission);
                     this.postLightUpdate(sectionIndex, offX & 15, offY & 15, offZ & 15);
                     increaseQueue[increaseQueueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(emission)
-                            | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
-                            | FLAG_WRITE_LEVEL
-                            | sFlag;
+                        | this.encodeQueueLevel(emission)
+                        | (((long) ALL_DIRECTIONS_BITSET) << DIRECTION_SHIFT)
+                        | FLAG_WRITE_LEVEL
+                        | sFlag;
                 }
 
                 // Independent of the emission re-seed (upstream): the decrease
@@ -528,9 +543,9 @@ final class RgbChannelEngine extends PulsarEngine {
                         queue = this.resizeDecreaseQueue();
                     }
                     queue[queueLength++] = encodeCoords(offX, offZ, offY, encodeOffset)
-                            | this.encodeQueueLevel(targetLevel)
-                            | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT)
-                            | sFlag;
+                        | this.encodeQueueLevel(targetLevel)
+                        | (propagate.everythingButTheOppositeDirection << DIRECTION_SHIFT)
+                        | sFlag;
                 }
             }
         }
@@ -543,6 +558,8 @@ final class RgbChannelEngine extends PulsarEngine {
     @Override
     protected void onNibbleVisible(final int cacheIndex, final SWMRNibbleArray nibble) {
         Chunk chunk = this.chunkCache[cacheIndex % 25];
-        if (chunk != null) touched.add(chunk);
+        if (chunk != null)
+            touched.add(chunk);
     }
+
 }

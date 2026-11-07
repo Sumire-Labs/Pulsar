@@ -1,12 +1,14 @@
 package com.sumirelabs.pulsar.light.engine;
 
+import org.junit.jupiter.api.Test;
+
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class NibbleArrayPublicationTest {
+
     @Test
     void stridedPublicationUsesOnlyTheSelectedChunksSectionsAndPreservesNullStates() {
         final var height = WorldHeightContext.contiguous(-8, 23);
@@ -21,9 +23,10 @@ class NibbleArrayPublicationTest {
             cache[37 + i * 25] = i % 2 == 0 ? null : expected[i];
         }
         NibbleArrayPublication.mergeFullLightFromCache(baseline, cache, 37, 25);
-        for (int i = 0; i < count; i++) assertSame(expected[i], baseline[i]);
+        for (int i = 0; i < count; i++)
+            assertSame(expected[i], baseline[i]);
         assertThrows(IllegalArgumentException.class,
-                () -> NibbleArrayPublication.mergeFullLightFromCache(baseline, cache, cache.length - 1, 25));
+            () -> NibbleArrayPublication.mergeFullLightFromCache(baseline, cache, cache.length - 1, 25));
     }
 
     @Test
@@ -65,4 +68,5 @@ class NibbleArrayPublicationTest {
         assertEquals(17, NibbleArrayPublication.lightIndex(height, 12));
         assertEquals(-1, NibbleArrayPublication.lightIndex(height, 13));
     }
+
 }

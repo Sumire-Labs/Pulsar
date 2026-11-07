@@ -1,28 +1,34 @@
 package com.sumirelabs.pulsar.light;
 
-import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ClientRenderUpdatesTest {
+
     @Test
     void oneExpensiveMarkCanOvershootButDoesNotStartAnotherMark() {
         var updates = new ClientRenderUpdates<Object>();
         Object chunk = new Object();
-        for (int section = 0; section < 20; section++) updates.add(0, chunk, section, 0L);
+        for (int section = 0; section < 20; section++)
+            updates.add(0, chunk, section, 0L);
         long[] clock = {0};
         assertEquals(1, updates.drainWhile(key -> chunk, (key, section, bounds) -> clock[0] += 5,
-                () -> clock[0] < 2));
+            () -> clock[0] < 2));
         assertEquals(5, clock[0]);
-        assertEquals(19, updates.drain(key -> chunk, (key, section, bounds) -> {}));
+        assertEquals(19, updates.drain(key -> chunk, (key, section, bounds) -> {
+        }));
     }
 
     @Test
     void callbackClearDropsCarriedMarksWithoutDroppingSubsequentAdditions() {
         var updates = new ClientRenderUpdates<Object>();
         Object chunk = new Object();
-        for (int section = 0; section < 20; section++) updates.add(0, chunk, section, 0L);
+        for (int section = 0; section < 20; section++)
+            updates.add(0, chunk, section, 0L);
         assertEquals(1, updates.drain(key -> chunk, (key, section, bounds) -> {
             updates.clear();
             updates.add(0, chunk, 99, 0L);
@@ -35,7 +41,8 @@ class ClientRenderUpdatesTest {
     void budgetYieldsRetainEveryRangeAndDoNotRepeatAlreadySentMarks() {
         var updates = new ClientRenderUpdates<Object>();
         Object chunk = new Object();
-        for (int section = 0; section < 30; section++) updates.add(0L, chunk, section, 0L);
+        for (int section = 0; section < 30; section++)
+            updates.add(0L, chunk, section, 0L);
         var seen = new java.util.HashSet<Integer>();
         for (int tick = 0; tick < 10; tick++) {
             int[] count = {0};
@@ -103,8 +110,8 @@ class ClientRenderUpdatesTest {
         updates.add(0L, chunk, 0, a);
         updates.add(0L, chunk, 0, b);
         final int[] coverage = {0};
-        assertEquals(2, updates.drain(key -> chunk, (key, section, bounds) ->
-                coverage[0] |= ClientRenderUpdates.sectionMask(bounds)));
+        assertEquals(2, updates.drain(key -> chunk,
+            (key, section, bounds) -> coverage[0] |= ClientRenderUpdates.sectionMask(bounds)));
         assertEquals(ClientRenderUpdates.sectionMask(a) | ClientRenderUpdates.sectionMask(b), coverage[0]);
         assertNotEquals(coverage[0], ClientRenderUpdates.sectionMask(RenderBounds.union(a, b)));
     }
@@ -136,4 +143,5 @@ class ClientRenderUpdatesTest {
         }));
         assertEquals(1, updates.drain(key -> chunk, (key, section, bounds) -> assertEquals(1, section)));
     }
+
 }

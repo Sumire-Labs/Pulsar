@@ -9,5 +9,7 @@ import net.minecraft.block.state.IBlockState;
  * This callback must be stable after initialization and must not access a live world.
  */
 public interface ColoredLightSource {
+
     int getColoredLightEmission(IBlockState state);
+
 }

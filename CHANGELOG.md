@@ -5,6 +5,52 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Block light crossing the sealed horizontal boundary between adjacent upper
+  and lower opaque slabs in SCALAR and RGB lighting (issue #29).
+- Avoid dark bands on exposed wall faces next to slabs by sampling their visible
+  cavity instead of the opaque wall's interior at covered vertices (issue #29).
+- Rebuild older saved lighting with cache version 15 to remove leaked slab light.
+
+## [0.6.3-beta] - 2026-11-06
+
+### Added
+
+- Add RGB source-color presets identified through ColoredLux's 1.12.2 Lux Packs:
+  Quark candles, crystals and lanterns; Inspirations lights; Embers and Embers Construct;
+  Immersive Engineering lanterns and balloons; Charm lamps; NetherEx and TAIGA sources;
+  Deep Mob Learning; HarvestCraft candles; Coloured Sea Lanterns; Advanced Chimneys;
+  Exotic Birds; Tinker I/O; and Tinkers' Construct's glowing block.
+- Add an end-portal-colored preset for end gateways. All new presets retain the
+  original contextual brightness and lit/unlit behavior, without creating new light sources.
+- Add Spotless formatting checks and the CleanroomDevEnv Eclipse formatter profile.
+- Add verification of the production JAR's metadata, version constants, Mixin mappings,
+  coremod and access-transformer packaging.
+- Add Renovate configuration for weekly dependency update PRs.
+
+### Changed
+
+- Replace the Unimined development environment with CleanroomDevEnv, using
+  CleanroomGradle 0.23.0, Cleanroom USERDEV 0.7.14-alpha and Gradle 9.8.2.
+- Require Java 25 and Cleanroom Loader 0.7.14-alpha or newer within the 0.7.x series.
+- Apply the template's formatting rules across production code, tests and the API example.
+- Migrate automated releases to the template's Gradle publishing workflow, retaining
+  CurseForge, Modrinth and the `com.sumirelabs:pulsar-api` Maven publication.
+- Adapt compatibility-test dependencies to CleanroomGradle's SRG-to-MCP remapping.
+
+### Fixed
+
+- Preserve test-resource task dependencies when replacing remapped compatibility JARs
+  on the test classpath, so clean CI builds include the probe Mixin configurations.
+- Preserve the runtime name of Forge's five-argument `BufferBuilder.putColorRGBA`
+  method when building production Mixins.
+- Use the LWJGL texture-environment query supported by the new Cleanroom environment.
+- Remove stale signatures from disposable remapped test JARs so signed compatibility
+  fixtures can load after remapping.
+
 ## [0.6.2]
 
 ### Added

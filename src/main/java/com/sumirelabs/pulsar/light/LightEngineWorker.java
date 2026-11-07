@@ -1,14 +1,14 @@
 package com.sumirelabs.pulsar.light;
 
-import com.sumirelabs.pulsar.Pulsar;
-import com.sumirelabs.pulsar.config.PulsarConfig;
-import com.sumirelabs.pulsar.light.engine.PulsarEngine;
-
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 import java.util.function.LongPredicate;
+import java.util.function.Supplier;
+
+import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.config.PulsarConfig;
+import com.sumirelabs.pulsar.light.engine.PulsarEngine;
 
 /**
  * Drains one light lane and owns that lane's thread and reusable engine pool.
@@ -42,14 +42,14 @@ final class LightEngineWorker {
     private volatile boolean running = true;
 
     LightEngineWorker(final LightQueue queue,
-                      final Supplier<PulsarEngine> engineFactory,
-                      final BiConsumer<ChunkTasks, PulsarEngine> taskProcessor,
-                      final AtomicInteger budgetYields,
-                      final String operationName,
-                      final String threadName,
-                      final boolean startThread,
-                      final Object lockOwner,
-                      final AtomicInteger parallelJobsMax) {
+        final Supplier<PulsarEngine> engineFactory,
+        final BiConsumer<ChunkTasks, PulsarEngine> taskProcessor,
+        final AtomicInteger budgetYields,
+        final String operationName,
+        final String threadName,
+        final boolean startThread,
+        final Object lockOwner,
+        final AtomicInteger parallelJobsMax) {
         this.queue = queue;
         this.scheduler = new LightTaskScheduler(queue, System::nanoTime);
         this.engineFactory = engineFactory;
@@ -61,7 +61,7 @@ final class LightEngineWorker {
         this.maxCachedEngines = Math.max(0, Math.min(16, PulsarConfig.performance.cachedEnginesPerLane));
 
         final int parallelThreads = LightThreadCount.resolve(
-                PulsarConfig.features.experimentalServerLightThreads, Runtime.getRuntime().availableProcessors());
+            PulsarConfig.features.experimentalServerLightThreads, Runtime.getRuntime().availableProcessors());
         if (startThread && parallelThreads > 0) {
             this.thread = null;
             this.parallel = ParallelLightScheduler.shared(parallelThreads);
@@ -95,12 +95,16 @@ final class LightEngineWorker {
 
     void processPending() {
         final long budget = Math.max(1, Math.min(50,
-                PulsarConfig.performance.dedicatedServerBatchBudgetMs)) * 1_000_000L;
+            PulsarConfig.performance.dedicatedServerBatchBudgetMs)) * 1_000_000L;
         this.processPendingUntil(System.nanoTime() + budget);
     }
 
-    Object lockOwner() { return this.lockOwner; }
-    void setParallelWakeup(Runnable wakeup) { this.queue.setParallelWakeup(wakeup); }
+    Object lockOwner() {
+        return this.lockOwner;
+    }
+    void setParallelWakeup(Runnable wakeup) {
+        this.queue.setParallelWakeup(wakeup);
+    }
 
     ChunkTasks claimAvailable(LongPredicate allowed) {
         return this.running ? this.scheduler.claimAvailable(allowed) : null;
@@ -117,8 +121,11 @@ final class LightEngineWorker {
     }
 
     void jobClaimed(int simultaneousWorldJobs) {
-        synchronized (this.completionMonitor) { this.activeJobs++; }
-        if (LightStats.enabled) this.parallelJobsMax.accumulateAndGet(simultaneousWorldJobs, Math::max);
+        synchronized (this.completionMonitor) {
+            this.activeJobs++;
+        }
+        if (LightStats.enabled)
+            this.parallelJobsMax.accumulateAndGet(simultaneousWorldJobs, Math::max);
     }
 
     void jobFinished() {
@@ -134,18 +141,20 @@ final class LightEngineWorker {
             engine = this.acquireEngine();
             this.taskProcessor.accept(task, engine);
         } finally {
-            if (engine != null) this.releaseEngine(engine);
+            if (engine != null)
+                this.releaseEngine(engine);
             this.queue.completeTask(task);
         }
     }
 
     /** Client lanes take turns after each complete task, sharing one deadline. */
     boolean processOnePendingUntil(final long deadline) {
-        if (!this.running || this.queue.isEmpty() || System.nanoTime() - deadline >= 0L) return false;
+        if (!this.running || this.queue.isEmpty() || System.nanoTime() - deadline >= 0L)
+            return false;
         final PulsarEngine engine = this.acquireEngine();
         try {
             return this.scheduler.drainOneUntil(deadline, () -> this.running,
-                    task -> this.taskProcessor.accept(task, engine));
+                task -> this.taskProcessor.accept(task, engine));
         } catch (final Throwable t) {
             Pulsar.LOGGER.error("Exception in " + this.operationName, t);
             return false;
@@ -158,11 +167,12 @@ final class LightEngineWorker {
         if (!this.running || this.queue.isEmpty()) {
             return;
         }
-        if (System.nanoTime() - deadline >= 0L) return;
+        if (System.nanoTime() - deadline >= 0L)
+            return;
         final PulsarEngine engine = this.acquireEngine();
         try {
             if (this.scheduler.drainUntil(deadline, () -> this.running,
-                    task -> this.taskProcessor.accept(task, engine)) && LightStats.enabled) {
+                task -> this.taskProcessor.accept(task, engine)) && LightStats.enabled) {
                 this.budgetYields.incrementAndGet();
             }
         } catch (final Throwable t) {
@@ -174,7 +184,8 @@ final class LightEngineWorker {
 
     private PulsarEngine acquireEngine() {
         if (this.parallel == null && !this.singleEngineInUse) {
-            if (this.singleEngine == null) this.singleEngine = this.engineFactory.get();
+            if (this.singleEngine == null)
+                this.singleEngine = this.engineFactory.get();
             this.singleEngineInUse = true;
             return this.singleEngine;
         }
@@ -194,7 +205,8 @@ final class LightEngineWorker {
 
     void requestStop() {
         this.running = false;
-        if (this.parallel != null) this.parallel.unregister(this);
+        if (this.parallel != null)
+            this.parallel.unregister(this);
         this.queue.wakeUp();
     }
 
@@ -204,9 +216,14 @@ final class LightEngineWorker {
             synchronized (this.completionMonitor) {
                 while (this.activeJobs != 0) {
                     long remaining = deadline - System.nanoTime();
-                    if (remaining <= 0L) break;
-                    try { this.completionMonitor.wait(Math.max(1L, remaining / 1_000_000L)); }
-                    catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); break; }
+                    if (remaining <= 0L)
+                        break;
+                    try {
+                        this.completionMonitor.wait(Math.max(1L, remaining / 1_000_000L));
+                    } catch (InterruptedException interrupted) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
                 }
             }
             return;
@@ -216,4 +233,5 @@ final class LightEngineWorker {
         } catch (final InterruptedException ignored) {
         }
     }
+
 }

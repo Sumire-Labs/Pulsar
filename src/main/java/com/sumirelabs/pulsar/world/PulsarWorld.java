@@ -13,4 +13,5 @@ public interface PulsarWorld extends ExtendedWorld {
     WorldLightManager pulsar$getLightManager();
 
     void pulsar$shutdown();
+
 }

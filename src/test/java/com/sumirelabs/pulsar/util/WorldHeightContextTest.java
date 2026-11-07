@@ -63,7 +63,7 @@ class WorldHeightContextTest {
     @Test
     void mappedContextRejectsDuplicateStorageIndices() {
         assertThrows(IllegalArgumentException.class,
-                () -> WorldHeightContext.mapped(-1, 0, new int[]{0, 0}));
+            () -> WorldHeightContext.mapped(-1, 0, new int[]{0, 0}));
     }
 
     @Test
@@ -71,7 +71,7 @@ class WorldHeightContextTest {
         // Depths Update retains all 16 vanilla storage slots even when a
         // configured build range only uses a subset of them.
         final WorldHeightContext context = WorldHeightContext.mapped(4, 19, new int[]{
-                4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
+            4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
         });
 
         assertEquals(4, context.getStorageIndex(4));
@@ -80,4 +80,5 @@ class WorldHeightContextTest {
         assertEquals(Integer.MIN_VALUE, context.getSectionForStorageIndex(0));
         assertEquals(4, context.getSectionForStorageIndex(4));
     }
+
 }

@@ -31,7 +31,7 @@ public final class PaintingLightGrid {
         for (int vertexY = 0; vertexY <= height; vertexY++) {
             for (int vertexX = 0; vertexX <= width; vertexX++) {
                 this.vertexLight[vertexX + vertexY * (width + 1)] = averageAdjacentTiles(
-                        tileLight, width, height, vertexX, vertexY);
+                    tileLight, width, height, vertexX, vertexY);
             }
         }
     }
@@ -42,22 +42,22 @@ public final class PaintingLightGrid {
      */
     public int getLight(final double localX, final double localY) {
         final int vertexX = clamp(
-                Math.round((float) (localX + this.widthPixels / 2.0F) / 16.0F),
-                0, this.width);
+            Math.round((float) (localX + this.widthPixels / 2.0F) / 16.0F),
+            0, this.width);
         final int vertexY = clamp(
-                Math.round((float) (localY + this.heightPixels / 2.0F) / 16.0F),
-                0, this.height);
+            Math.round((float) (localY + this.heightPixels / 2.0F) / 16.0F),
+            0, this.height);
         return this.vertexLight[vertexX + vertexY * (this.width + 1)];
     }
 
     public static PaintingLightGrid fromTileLight(final int width, final int height,
-                                                  final int... tileLight) {
+        final int... tileLight) {
         return new PaintingLightGrid(width, height, tileLight);
     }
 
     private static int averageAdjacentTiles(final int[] tileLight, final int width,
-                                            final int height, final int vertexX,
-                                            final int vertexY) {
+        final int height, final int vertexX,
+        final int vertexY) {
         int blockSum = 0;
         int skySum = 0;
         int count = 0;
@@ -83,4 +83,5 @@ public final class PaintingLightGrid {
     private static int clamp(final int value, final int min, final int max) {
         return Math.max(min, Math.min(max, value));
     }
+
 }

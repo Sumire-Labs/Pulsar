@@ -2,6 +2,7 @@ package com.sumirelabs.pulsar.light.engine;
 
 import com.sumirelabs.pulsar.light.LightStats;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
@@ -25,8 +26,8 @@ final class LightSectionProcessor {
      * Applies sparse section-emptiness changes and initializes nearby nibbles.
      */
     boolean[] handleEmptySectionChanges(final Chunk chunk,
-                                        final Boolean[] emptinessChanges,
-                                        final boolean unlit) {
+        final Boolean[] emptinessChanges,
+        final boolean unlit) {
         final PulsarEngine engine = this.engine;
         final int chunkX = chunk.x;
         final int chunkZ = chunk.z;
@@ -38,8 +39,7 @@ final class LightSectionProcessor {
         final boolean needsInit = unlit || chunkEmptinessMap == null;
 
         if (needsInit) {
-            initializedMap = chunkEmptinessMap =
-                    new boolean[engine.heightContext.getTotalSections()];
+            initializedMap = chunkEmptinessMap = new boolean[engine.heightContext.getTotalSections()];
             engine.setEmptinessMapCache(chunkX, chunkZ, chunkEmptinessMap);
         }
 
@@ -50,7 +50,7 @@ final class LightSectionProcessor {
                     continue;
                 }
                 final ExtendedBlockStorage section = engine.getChunkSection(
-                        chunkX, sectionIndex + engine.minSection, chunkZ);
+                    chunkX, sectionIndex + engine.minSection, chunkZ);
                 empty = section == null || section.isEmpty() ? Boolean.TRUE : Boolean.FALSE;
                 emptinessChanges[sectionIndex] = empty;
             }
@@ -69,8 +69,8 @@ final class LightSectionProcessor {
                     final boolean extrude = (deltaX | deltaZ) != 0 || !unlit;
                     for (int deltaY = 1; deltaY >= -1; --deltaY) {
                         engine.initNibble(
-                                chunkX + deltaX, sectionY + deltaY, chunkZ + deltaZ,
-                                extrude, false);
+                            chunkX + deltaX, sectionY + deltaY, chunkZ + deltaZ,
+                            extrude, false);
                     }
                 }
             }
@@ -85,29 +85,27 @@ final class LightSectionProcessor {
         for (int deltaZ = -1; deltaZ <= 1; ++deltaZ) {
             for (int deltaX = -1; deltaX <= 1; ++deltaX) {
                 boolean neighboursLoaded = true;
-                neighbourLoadedSearch:
-                for (int neighbourZ = -1; neighbourZ <= 1; ++neighbourZ) {
+                neighbourLoadedSearch : for (int neighbourZ = -1; neighbourZ <= 1; ++neighbourZ) {
                     for (int neighbourX = -1; neighbourX <= 1; ++neighbourX) {
                         if (engine.getEmptinessMap(
-                                chunkX + deltaX + neighbourX,
-                                chunkZ + deltaZ + neighbourZ) == null) {
+                            chunkX + deltaX + neighbourX,
+                            chunkZ + deltaZ + neighbourZ) == null) {
                             neighboursLoaded = false;
                             break neighbourLoadedSearch;
                         }
                     }
                 }
 
-                for (int sectionY = engine.maxLightSection;
-                     sectionY >= engine.minLightSection; --sectionY) {
+                for (int sectionY = engine.maxLightSection; sectionY >= engine.minLightSection; --sectionY) {
                     final boolean allEmpty = this.isNeighbourhoodEmpty(
-                            chunkX + deltaX, sectionY, chunkZ + deltaZ);
+                        chunkX + deltaX, sectionY, chunkZ + deltaZ);
                     if (allEmpty & neighboursLoaded) {
                         engine.setNibbleNull(chunkX + deltaX, sectionY, chunkZ + deltaZ);
                     } else if (!allEmpty) {
                         final boolean extrude = (deltaX | deltaZ) != 0 || !unlit;
                         engine.initNibble(
-                                chunkX + deltaX, sectionY, chunkZ + deltaZ,
-                                extrude, false);
+                            chunkX + deltaX, sectionY, chunkZ + deltaZ,
+                            extrude, false);
                     }
                 }
             }
@@ -123,15 +121,14 @@ final class LightSectionProcessor {
                     if (neighbourY < engine.minSection || neighbourY > engine.maxSection) {
                         continue;
                     }
-                    final boolean[] emptinessMap =
-                            engine.getEmptinessMap(chunkX + deltaX, chunkZ + deltaZ);
+                    final boolean[] emptinessMap = engine.getEmptinessMap(chunkX + deltaX, chunkZ + deltaZ);
                     if (emptinessMap != null) {
                         if (!emptinessMap[neighbourY - engine.minSection]) {
                             return false;
                         }
                     } else {
                         final ExtendedBlockStorage section = engine.getChunkSection(
-                                chunkX + deltaX, neighbourY, chunkZ + deltaZ);
+                            chunkX + deltaX, neighbourY, chunkZ + deltaZ);
                         if (section != null && !section.isEmpty()) {
                             return false;
                         }
@@ -152,7 +149,7 @@ final class LightSectionProcessor {
     void checkChunkEdge(final int chunkX, final int chunkY, final int chunkZ) {
         final PulsarEngine engine = this.engine;
         final int currentCacheIndex = chunkX + 5 * chunkZ + (5 * 5) * chunkY
-                + engine.chunkSectionIndexOffset;
+            + engine.chunkSectionIndexOffset;
         final SWMRNibbleArray currentNibble = engine.nibbleCache[currentCacheIndex];
         if (currentNibble == null) {
             return;
@@ -163,8 +160,8 @@ final class LightSectionProcessor {
             final int neighbourOffsetX = direction.x;
             final int neighbourOffsetZ = direction.z;
             final int neighbourCacheIndex = (chunkX + neighbourOffsetX)
-                    + 5 * (chunkZ + neighbourOffsetZ) + (5 * 5) * chunkY
-                    + engine.chunkSectionIndexOffset;
+                + 5 * (chunkZ + neighbourOffsetZ) + (5 * 5) * chunkY
+                + engine.chunkSectionIndexOffset;
             final SWMRNibbleArray neighbourNibble = engine.nibbleCache[neighbourCacheIndex];
             if (neighbourNibble == null) {
                 continue;
@@ -173,25 +170,28 @@ final class LightSectionProcessor {
                 continue;
             }
             if (engine.areBothEdgeSectionsFull(currentCacheIndex, neighbourCacheIndex)) {
-                if (stats != null) stats.edgeSectionPairsSkippedFull.incrementAndGet();
+                if (stats != null)
+                    stats.edgeSectionPairsSkippedFull.incrementAndGet();
                 continue;
             }
             if (engine.areBothEdgeSectionsZero(currentCacheIndex, neighbourCacheIndex)) {
-                if (stats != null) stats.edgeSectionPairsSkippedZero.incrementAndGet();
+                if (stats != null)
+                    stats.edgeSectionPairsSkippedZero.incrementAndGet();
                 continue;
             }
-            if (stats != null) stats.edgeSectionPairsChecked.incrementAndGet();
+            if (stats != null)
+                stats.edgeSectionPairsChecked.incrementAndGet();
 
             this.reconcileEdge(
-                    chunkX, chunkY, chunkZ, direction,
-                    currentCacheIndex, neighbourCacheIndex, stats);
+                chunkX, chunkY, chunkZ, direction,
+                currentCacheIndex, neighbourCacheIndex, stats);
         }
     }
 
     private void reconcileEdge(final int chunkX, final int chunkY, final int chunkZ,
-                               final PulsarEngine.AxisDirection direction,
-                               final int currentCacheIndex, final int neighbourCacheIndex,
-                               final LightStats stats) {
+        final PulsarEngine.AxisDirection direction,
+        final int currentCacheIndex, final int neighbourCacheIndex,
+        final LightStats stats) {
         final PulsarEngine engine = this.engine;
         final int neighbourOffsetX = direction.x;
         final int neighbourOffsetZ = direction.z;
@@ -217,16 +217,13 @@ final class LightSectionProcessor {
         int blocksRecalculated = 0;
         int blocksMismatched = 0;
         for (int worldY = chunkY << 4, maxY = worldY | 15; worldY <= maxY; ++worldY) {
-            for (int index = 0, worldX = startX, worldZ = startZ;
-                 index < 16;
-                 ++index, worldX += incrementX, worldZ += incrementZ) {
+            for (int index = 0, worldX = startX,
+                worldZ = startZ; index < 16; ++index, worldX += incrementX, worldZ += incrementZ) {
                 final int neighbourX = worldX + neighbourOffsetX;
                 final int neighbourZ = worldZ + neighbourOffsetZ;
-                final int currentIndex =
-                        (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8);
+                final int currentIndex = (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8);
                 final int currentLevel = engine.getLightLevel(currentCacheIndex, currentIndex);
-                final int neighbourIndex =
-                        (neighbourX & 15) | ((neighbourZ & 15) << 4) | ((worldY & 15) << 8);
+                final int neighbourIndex = (neighbourX & 15) | ((neighbourZ & 15) << 4) | ((worldY & 15) << 8);
                 final int neighbourLevel = engine.getLightLevel(neighbourCacheIndex, neighbourIndex);
 
                 if (currentLevel == 0 && neighbourLevel == 0) {
@@ -240,7 +237,7 @@ final class LightSectionProcessor {
                     ++blocksMismatched;
                 }
                 if (engine.calculateLightValue(
-                        neighbourX, worldY, neighbourZ, neighbourLevel) != neighbourLevel) {
+                    neighbourX, worldY, neighbourZ, neighbourLevel) != neighbourLevel) {
                     this.neighbourDelayedUpdates[neighbourDelayedCount++] = neighbourIndex;
                     ++blocksMismatched;
                 }
@@ -258,12 +255,12 @@ final class LightSectionProcessor {
         }
 
         this.enqueueMismatches(
-                chunkX, chunkY, chunkZ, direction, centerDelayedCount, neighbourDelayedCount);
+            chunkX, chunkY, chunkZ, direction, centerDelayedCount, neighbourDelayedCount);
     }
 
     private void enqueueMismatches(final int chunkX, final int chunkY, final int chunkZ,
-                                   final PulsarEngine.AxisDirection direction,
-                                   final int centerCount, final int neighbourCount) {
+        final PulsarEngine.AxisDirection direction,
+        final int centerCount, final int neighbourCount) {
         final int currentChunkOffsetX = chunkX << 4;
         final int currentChunkOffsetZ = chunkZ << 4;
         final int neighbourChunkOffsetX = (chunkX + direction.x) << 4;
@@ -274,16 +271,16 @@ final class LightSectionProcessor {
             if (index < centerCount) {
                 final int value = this.centerDelayedUpdates[index];
                 this.engine.checkBlock(
-                        currentChunkOffsetX | (value & 15),
-                        chunkOffsetY | (value >>> 8),
-                        currentChunkOffsetZ | ((value >>> 4) & 15));
+                    currentChunkOffsetX | (value & 15),
+                    chunkOffsetY | (value >>> 8),
+                    currentChunkOffsetZ | ((value >>> 4) & 15));
             }
             if (index < neighbourCount) {
                 final int value = this.neighbourDelayedUpdates[index];
                 this.engine.checkBlock(
-                        neighbourChunkOffsetX | (value & 15),
-                        chunkOffsetY | (value >>> 8),
-                        neighbourChunkOffsetZ | ((value >>> 4) & 15));
+                    neighbourChunkOffsetX | (value & 15),
+                    chunkOffsetY | (value >>> 8),
+                    neighbourChunkOffsetZ | ((value >>> 4) & 15));
             }
         }
     }
@@ -303,10 +300,10 @@ final class LightSectionProcessor {
                 final int neighbourOffsetX = direction.x;
                 final int neighbourOffsetZ = direction.z;
                 final int neighbourCacheIndex = (chunkX + neighbourOffsetX)
-                        + 5 * (chunkZ + neighbourOffsetZ) + (5 * 5) * sectionY
-                        + engine.chunkSectionIndexOffset;
+                    + 5 * (chunkZ + neighbourOffsetZ) + (5 * 5) * sectionY
+                    + engine.chunkSectionIndexOffset;
                 if (engine.nibbleCache[neighbourCacheIndex] == null
-                        || !engine.nibbleCache[neighbourCacheIndex].isInitialisedUpdating()) {
+                    || !engine.nibbleCache[neighbourCacheIndex].isInitialisedUpdating()) {
                     continue;
                 }
 
@@ -328,29 +325,27 @@ final class LightSectionProcessor {
 
                 final long propagateDirection = 1L << direction.oppositeOrdinal;
                 final int encodeOffset = engine.coordinateOffset;
-                for (int worldY = sectionY << 4, maxY = worldY | 15;
-                     worldY <= maxY; ++worldY) {
-                    for (int index = 0, worldX = startX, worldZ = startZ;
-                         index < 16;
-                         ++index, worldX += incrementX, worldZ += incrementZ) {
-                        final int localIndex =
-                                (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8);
+                for (int worldY = sectionY << 4, maxY = worldY | 15; worldY <= maxY; ++worldY) {
+                    for (int index = 0, worldX = startX,
+                        worldZ = startZ; index < 16; ++index, worldX += incrementX, worldZ += incrementZ) {
+                        final int localIndex = (worldX & 15) | ((worldZ & 15) << 4) | ((worldY & 15) << 8);
                         final int level = engine.getLightLevel(neighbourCacheIndex, localIndex);
                         if (engine.isBelowPropagationThreshold(level)) {
                             continue;
                         }
                         final int edgeCacheIndex = (worldX >> 4) + 5 * (worldZ >> 4)
-                                + (5 * 5) * (worldY >> 4) + engine.chunkSectionIndexOffset;
+                            + (5 * 5) * (worldY >> 4) + engine.chunkSectionIndexOffset;
                         final IBlockState edgeState = engine.getBlockStateFast(
-                                edgeCacheIndex, worldX & 15, worldY & 15, worldZ & 15);
+                            edgeCacheIndex, worldX & 15, worldY & 15, worldZ & 15);
                         engine.appendToIncreaseQueue(
-                                PulsarEngine.encodeCoords(worldX, worldZ, worldY, encodeOffset)
-                                        | engine.encodeQueueLevel(level)
-                                        | (propagateDirection << directionShift)
-                                        | PulsarEngine.sidedFlag(edgeState));
+                            PulsarEngine.encodeCoords(worldX, worldZ, worldY, encodeOffset)
+                                | engine.encodeQueueLevel(level)
+                                | (propagateDirection << directionShift)
+                                | PulsarEngine.sidedFlag(edgeState));
                     }
                 }
             }
         }
     }
+
 }

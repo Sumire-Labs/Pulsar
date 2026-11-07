@@ -13,6 +13,7 @@ import com.sumirelabs.pulsar.api.ExtendedChunk;
  * scalar contract.
  */
 public interface PulsarChunk extends ExtendedChunk {
+
     /** Server light publication and serialization hold the chunk monitor. */
     void pulsar$markLightDirty();
     void pulsar$clearLightDirty();
@@ -68,4 +69,5 @@ public interface PulsarChunk extends ExtendedChunk {
     boolean[] pulsar$getSkyEmptinessMap();
 
     void pulsar$setSkyEmptinessMap(boolean[] emptinessMap);
+
 }

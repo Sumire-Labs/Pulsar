@@ -1,8 +1,11 @@
 package com.sumirelabs.pulsar.mixin;
 
+import org.spongepowered.asm.mixin.Mixin;
+
 import com.sumirelabs.pulsar.api.FaceLightInfo;
 import com.sumirelabs.pulsar.api.FaceLitBlock;
 import com.sumirelabs.pulsar.api.RawLightAccess;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
@@ -11,7 +14,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fluids.BlockFluidBase;
-import org.spongepowered.asm.mixin.Mixin;
 
 /**
  * Facing-aware neighbour-brightness core (MC-92 family).
@@ -30,7 +32,7 @@ public abstract class MixinBlockFaceLight implements FaceLitBlock {
 
     @Override
     public int pulsar$getLightFor(final IBlockState state, final IBlockAccess access,
-                                  final EnumSkyBlock lightType, final BlockPos pos) {
+        final EnumSkyBlock lightType, final BlockPos pos) {
         if (!(access instanceof RawLightAccess)) {
             // Unknown IBlockAccess implementation (modded cache we haven't
             // wired): no raw per-type lookup available, nothing sane to
@@ -42,7 +44,7 @@ public abstract class MixinBlockFaceLight implements FaceLitBlock {
         int lightLevel = raw.pulsar$getRawLight(lightType, pos);
         final Block block = state.getBlock();
         final boolean useNeighborBrightness = state.useNeighborBrightness()
-                || block instanceof BlockLiquid || block instanceof BlockFluidBase;
+            || block instanceof BlockLiquid || block instanceof BlockFluidBase;
         if (lightLevel == 15 || !useNeighborBrightness) {
             return lightLevel;
         }
@@ -63,12 +65,13 @@ public abstract class MixinBlockFaceLight implements FaceLitBlock {
             // not borrow it through a closed face (e.g. carpet below stairs).
             // Opaque emitters can still illuminate their exposed surfaces.
             if (neighbor.getLightOpacity(access, neighborPos) >= 15
-                    && neighbor.isSideSolid(access, neighborPos, facing.getOpposite())) {
+                && neighbor.isSideSolid(access, neighborPos, facing.getOpposite())) {
                 neighborLight = lightType == EnumSkyBlock.BLOCK ? neighbor.getLightValue(access, neighborPos) : 0;
             }
             // A fully open face still attenuates by 1 unless it is
             // receiving full sky light (keeps open-to-sky faces at 15).
-            if (opacity == 0 && (lightType != EnumSkyBlock.SKY || neighborLight != EnumSkyBlock.SKY.defaultLightValue)) {
+            if (opacity == 0
+                && (lightType != EnumSkyBlock.SKY || neighborLight != EnumSkyBlock.SKY.defaultLightValue)) {
                 opacity = 1;
             }
             lightLevel = Math.max(lightLevel, neighborLight - opacity);
@@ -81,13 +84,14 @@ public abstract class MixinBlockFaceLight implements FaceLitBlock {
 
     @Override
     public boolean pulsar$useNeighborBrightness(final IBlockState state, final EnumFacing facing,
-                                                final IBlockAccess access, final BlockPos pos) {
+        final IBlockAccess access, final BlockPos pos) {
         return facing == EnumFacing.UP;
     }
 
     @Override
     public int pulsar$getLightOpacity(final IBlockState state, final EnumFacing facing,
-                                      final IBlockAccess access, final BlockPos pos) {
+        final IBlockAccess access, final BlockPos pos) {
         return 0;
     }
+
 }

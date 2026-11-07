@@ -12,18 +12,17 @@ package com.sumirelabs.pulsar.light;
  */
 public final class RenderBounds {
 
-    private RenderBounds() {
-    }
+    private RenderBounds() {}
 
     public static long pack(final int minX, final int minY, final int minZ,
-                            final int maxX, final int maxY, final int maxZ) {
+        final int maxX, final int maxY, final int maxZ) {
         return (long) (minX | (minY << 4) | (minZ << 8) | (maxX << 12) | (maxY << 16) | (maxZ << 20));
     }
 
     public static long union(final long a, final long b) {
         return pack(
-                Math.min(minX(a), minX(b)), Math.min(minY(a), minY(b)), Math.min(minZ(a), minZ(b)),
-                Math.max(maxX(a), maxX(b)), Math.max(maxY(a), maxY(b)), Math.max(maxZ(a), maxZ(b)));
+            Math.min(minX(a), minX(b)), Math.min(minY(a), minY(b)), Math.min(minZ(a), minZ(b)),
+            Math.max(maxX(a), maxX(b)), Math.max(maxY(a), maxY(b)), Math.max(maxZ(a), maxZ(b)));
     }
 
     public static int minX(final long bounds) {
@@ -49,4 +48,5 @@ public final class RenderBounds {
     public static int maxZ(final long bounds) {
         return (int) (bounds >>> 20) & 15;
     }
+
 }

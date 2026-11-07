@@ -1,5 +1,6 @@
 {
   "required": true,
+  "refmap": "@{MIXIN_REFMAP}",
   "plugin": "com.sumirelabs.pulsar.core.RgbMixinSelection",
   "package": "com.sumirelabs.pulsar.mixin",
   "compatibilityLevel": "JAVA_25",
@@ -34,6 +35,7 @@
     "MixinWorldServer",
     "MixinWorldEntitySpawner"
   ],
+  "server": [],
   "client": [
     "MixinDynamicEntityLight",
     "MixinDynamicHandLight",

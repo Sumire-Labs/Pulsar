@@ -1,14 +1,16 @@
 package com.sumirelabs.pulsar.light;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import org.junit.jupiter.api.Test;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
+import org.junit.jupiter.api.Test;
+
+import net.minecraft.client.renderer.BufferBuilder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PaintingLightBufferTest {
+
     @Test
     void lightmapBufferStoresBlockThenSky() {
         // Unequal channels catch a swapped lightmap axis, which a fully lit scene hides.
@@ -26,4 +28,5 @@ class PaintingLightBufferTest {
             assertEquals(packed >>> 16 & 0xFFFF, Short.toUnsignedInt(bytes.getShort(offset + 2)), "sky UV");
         }
     }
+
 }

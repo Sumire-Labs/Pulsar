@@ -7,5 +7,7 @@ import net.minecraft.block.state.IBlockState;
  * do not access a live world. Registry overrides take precedence.
  */
 public interface ColoredTranslucency {
+
     int getColoredTransmittance(IBlockState state);
+
 }

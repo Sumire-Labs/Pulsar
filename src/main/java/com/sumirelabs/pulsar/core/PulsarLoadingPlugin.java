@@ -1,9 +1,10 @@
 package com.sumirelabs.pulsar.core;
 
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 /**
  * No-op FML coremod entry point retained to match CleanroomModTemplate's
@@ -13,7 +14,7 @@ import java.util.Map;
  * CleanMix discovers {@code pulsar.mixin.json} through the jar's
  * {@code MixinConfigs} manifest attribute, or through {@code crl.dev.mixin}
  * in development runs. The access transformer is declared separately in the
- * jar manifest and the Unimined development configuration.
+ * jar manifest and the CleanroomGradle development configuration.
  */
 public class PulsarLoadingPlugin implements IFMLLoadingPlugin {
 
@@ -41,4 +42,5 @@ public class PulsarLoadingPlugin implements IFMLLoadingPlugin {
     public @Nullable String getAccessTransformerClass() {
         return null;
     }
+
 }

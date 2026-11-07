@@ -1,11 +1,5 @@
 package com.sumirelabs.pulsar.mixin;
 
-import com.sumirelabs.pulsar.api.FaceLightInfo;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.IBlockAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
@@ -13,6 +7,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import com.sumirelabs.pulsar.api.FaceLightInfo;
+
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.IBlockAccess;
 
 /**
  * Applies Pulsar's facing-aware neighbour brightness to Celeritas's cloned
@@ -26,14 +28,17 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Pseudo
 @Mixin(targets = "org.taumc.celeritas.impl.world.WorldSlice", remap = false)
 public abstract class MixinCeleritasWorldSlice {
-    @Shadow @org.spongepowered.asm.mixin.Final private net.minecraft.world.World world;
+
+    @Shadow
+    @org.spongepowered.asm.mixin.Final private net.minecraft.world.World world;
     @Shadow private int baseX;
     @Shadow private int baseY;
     @Shadow private int baseZ;
 
     @Inject(method = "getLightFor(Lnet/minecraft/world/EnumSkyBlock;III)I", at = @At("RETURN"), cancellable = true, remap = false)
     private void pulsar$dynamicLight(EnumSkyBlock type, int x, int y, int z, CallbackInfoReturnable<Integer> cir) {
-        if (type == EnumSkyBlock.BLOCK) cir.setReturnValue(Math.max(cir.getReturnValueI(),
+        if (type == EnumSkyBlock.BLOCK)
+            cir.setReturnValue(Math.max(cir.getReturnValueI(),
                 com.sumirelabs.pulsar.dynamic.DynamicLightClient.light(world, baseX + x, baseY + y, baseZ + z)));
     }
 
@@ -52,21 +57,11 @@ public abstract class MixinCeleritasWorldSlice {
      * <p>The injection is optional so an incompatible future Celeritas
      * version does not prevent Minecraft from starting.
      */
-    @Inject(
-            method = "getLightFromNeighborsFor(Lnet/minecraft/world/EnumSkyBlock;Lnet/minecraft/util/math/BlockPos;)I",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lorg/taumc/celeritas/impl/world/WorldSlice;getLightFor(Lnet/minecraft/world/EnumSkyBlock;III)I",
-                    ordinal = 1),
-            cancellable = true,
-            locals = LocalCapture.CAPTURE_FAILSOFT,
-            require = 0,
-            expect = 1,
-            remap = false)
+    @Inject(method = "getLightFromNeighborsFor(Lnet/minecraft/world/EnumSkyBlock;Lnet/minecraft/util/math/BlockPos;)I", at = @At(value = "INVOKE", target = "Lorg/taumc/celeritas/impl/world/WorldSlice;getLightFor(Lnet/minecraft/world/EnumSkyBlock;III)I", ordinal = 1), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT, require = 0, expect = 1, remap = false)
     private void pulsar$useFaceAwareNeighborLight(final EnumSkyBlock lightType, final BlockPos pos,
-                                                   final CallbackInfoReturnable<Integer> cir,
-                                                   final int relX, final int relY, final int relZ,
-                                                   final IBlockState state) {
+        final CallbackInfoReturnable<Integer> cir,
+        final int relX, final int relY, final int relZ,
+        final IBlockState state) {
         final IBlockAccess self = (IBlockAccess) (Object) this;
         final FaceLightInfo info = (FaceLightInfo) state;
         int lightLevel = this.getLightFor(lightType, relX, relY, relZ);
@@ -83,9 +78,9 @@ public abstract class MixinCeleritasWorldSlice {
 
             int opacity = info.pulsar$getLightOpacity(facing, self, pos);
             int neighborLight = this.getLightFor(lightType,
-                    relX + facing.getXOffset(),
-                    relY + facing.getYOffset(),
-                    relZ + facing.getZOffset());
+                relX + facing.getXOffset(),
+                relY + facing.getYOffset(),
+                relZ + facing.getZOffset());
             if (neighborLight <= lightLevel) {
                 continue;
             }
@@ -96,12 +91,12 @@ public abstract class MixinCeleritasWorldSlice {
             final BlockPos neighborPos = pos.offset(facing);
             final IBlockState neighbor = self.getBlockState(neighborPos);
             if (neighbor.getLightOpacity(self, neighborPos) >= 15
-                    && neighbor.isSideSolid(self, neighborPos, facing.getOpposite())) {
+                && neighbor.isSideSolid(self, neighborPos, facing.getOpposite())) {
                 neighborLight = lightType == EnumSkyBlock.BLOCK ? neighbor.getLightValue(self, neighborPos) : 0;
             }
 
             if (opacity == 0
-                    && (lightType != EnumSkyBlock.SKY || neighborLight != EnumSkyBlock.SKY.defaultLightValue)) {
+                && (lightType != EnumSkyBlock.SKY || neighborLight != EnumSkyBlock.SKY.defaultLightValue)) {
                 opacity = 1;
             }
 
@@ -114,4 +109,5 @@ public abstract class MixinCeleritasWorldSlice {
 
         cir.setReturnValue(lightLevel);
     }
+
 }

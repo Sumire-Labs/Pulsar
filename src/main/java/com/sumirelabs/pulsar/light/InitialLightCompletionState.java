@@ -35,8 +35,8 @@ final class InitialLightCompletionState {
 
     synchronized Result completeEdges(final long taskGeneration, final int lane) {
         if (!this.accepts(taskGeneration, lane)
-                || this.initialCompletedLanes != this.requiredLanes
-                || (this.edgeCompletedLanes & lane) != 0) {
+            || this.initialCompletedLanes != this.requiredLanes
+            || (this.edgeCompletedLanes & lane) != 0) {
             return Result.IGNORED;
         }
         this.edgeCompletedLanes |= lane;
@@ -51,9 +51,7 @@ final class InitialLightCompletionState {
     }
 
     enum Result {
-        IGNORED,
-        WAITING,
-        INITIAL_COMPLETE,
-        COMPLETE
+        IGNORED, WAITING, INITIAL_COMPLETE, COMPLETE
     }
+
 }

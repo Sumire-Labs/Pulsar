@@ -25,7 +25,7 @@ public final class WorldHeightContext {
     private final int[] sectionByStorageIndex;
 
     private WorldHeightContext(final int minSection, final int maxSection,
-                               final int[] storageIndexBySection) {
+        final int[] storageIndexBySection) {
         if (minSection > maxSection) {
             throw new IllegalArgumentException("Minimum section exceeds maximum section");
         }
@@ -78,7 +78,7 @@ public final class WorldHeightContext {
      * ascending logical section.
      */
     public static WorldHeightContext mapped(final int minSection, final int maxSection,
-                                            final int[] storageIndexBySection) {
+        final int[] storageIndexBySection) {
         return new WorldHeightContext(minSection, maxSection, storageIndexBySection);
     }
 
@@ -117,7 +117,8 @@ public final class WorldHeightContext {
     public int getFullChunkSectionMask() {
         final int storageSectionCount = this.sectionByStorageIndex.length;
         return storageSectionCount >= Integer.SIZE
-                ? -1 : (1 << storageSectionCount) - 1;
+            ? -1
+            : (1 << storageSectionCount) - 1;
     }
 
     public int getMinBlockY() {
@@ -150,7 +151,8 @@ public final class WorldHeightContext {
      */
     public int getLightSectionIndex(final int sectionY) {
         return sectionY >= this.minLightSection && sectionY <= this.maxLightSection
-                ? sectionY - this.minLightSection : -1;
+            ? sectionY - this.minLightSection
+            : -1;
     }
 
     /**
@@ -168,6 +170,8 @@ public final class WorldHeightContext {
      */
     public int getSectionForStorageIndex(final int storageIndex) {
         return storageIndex >= 0 && storageIndex < this.sectionByStorageIndex.length
-                ? this.sectionByStorageIndex[storageIndex] : Integer.MIN_VALUE;
+            ? this.sectionByStorageIndex[storageIndex]
+            : Integer.MIN_VALUE;
     }
+
 }

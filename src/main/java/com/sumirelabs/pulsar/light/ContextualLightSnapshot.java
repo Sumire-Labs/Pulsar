@@ -1,8 +1,9 @@
 package com.sumirelabs.pulsar.light;
 
-import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 /**
  * Sparse, per-chunk publication of main-thread light samples. Readers never
@@ -11,26 +12,31 @@ import java.util.concurrent.ConcurrentHashMap;
  * The type parameter keeps this concurrency primitive independent of Minecraft.
  */
 public final class ContextualLightSnapshot<S> {
+
     public static final int BLOCK_CHANGED = 1;
     public static final int SKY_CHANGED = 2;
     public static final int BOTH_CHANGED = BLOCK_CHANGED | SKY_CHANGED;
-    private record Cell<S>(S block, int blockInfo, S fluid, int fluidInfo) {}
+    private record Cell<S>(S block, int blockInfo, S fluid, int fluidInfo) {
+    }
 
     /** Bounded, owner-thread cache: equal immutable samples may serve many positions. */
     static final class Samples<S> {
+
         private final Cell<?>[] recent = new Cell<?>[256];
         @SuppressWarnings("unchecked")
         Cell<S> sample(S block, int blockInfo, S fluid, int fluidInfo) {
             int hash = System.identityHashCode(block) * 31 + System.identityHashCode(fluid);
-            hash = hash * 31 + blockInfo; hash = hash * 31 + fluidInfo;
+            hash = hash * 31 + blockInfo;
+            hash = hash * 31 + fluidInfo;
             int index = (hash ^ (hash >>> 16)) & (recent.length - 1);
             Cell<S> cell = (Cell<S>) recent[index];
             if (cell == null || cell.block != block || cell.fluid != fluid
-                    || cell.blockInfo != blockInfo || cell.fluidInfo != fluidInfo) {
+                || cell.blockInfo != blockInfo || cell.fluidInfo != fluidInfo) {
                 recent[index] = cell = new Cell<>(block, blockInfo, fluid, fluidInfo);
             }
             return cell;
         }
+
     }
     private volatile PublishedIntTable<Cell<S>> cells;
     private final Samples<S> samples;
@@ -38,14 +44,20 @@ public final class ContextualLightSnapshot<S> {
     private volatile Set<Integer> missed;
     private final Thread owner = Thread.currentThread();
 
-    public ContextualLightSnapshot() { this(new Samples<>()); }
-    ContextualLightSnapshot(Samples<S> samples) { this.samples = samples; }
+    public ContextualLightSnapshot() {
+        this(new Samples<>());
+    }
+    ContextualLightSnapshot(Samples<S> samples) {
+        this.samples = samples;
+    }
 
     public int read(final int position, final S state, final int fallback) {
         final Cell<S> cell = this.cell(position);
         if (cell != null) {
-            if (cell.block == state) return cell.blockInfo;
-            if (cell.fluid == state) return cell.fluidInfo;
+            if (cell.block == state)
+                return cell.blockInfo;
+            if (cell.fluid == state)
+                return cell.fluidInfo;
         }
         // A worker can observe a newly placed block before the end-of-tick
         // publication. Use the static value temporarily and request correction.
@@ -55,25 +67,28 @@ public final class ContextualLightSnapshot<S> {
     }
 
     public void publish(final int position, final S block, final int blockInfo,
-                        final S fluid, final int fluidInfo) {
+        final S fluid, final int fluidInfo) {
         this.publishChanges(position, block, blockInfo, fluid, fluidInfo, 0);
     }
 
     private Cell<S> cell(int position) {
-        final var current=this.cells;
-        return current==null?null:current.get(position);
+        final var current = this.cells;
+        return current == null ? null : current.get(position);
     }
-    private void put(int position,Cell<S> cell) {
+    private void put(int position, Cell<S> cell) {
         // Only the owning world thread writes cells. The volatile map reference
         // publishes its initialization to readers; slots use release/acquire.
-        if(this.cells==null)this.cells=new PublishedIntTable<>();
-        this.cells.put(position,cell);
+        if (this.cells == null)
+            this.cells = new PublishedIntTable<>();
+        this.cells.put(position, cell);
     }
     private Set<Integer> misses() {
-        Set<Integer> current=this.missed;
-        if(current!=null)return current;
-        synchronized(this) {
-            if(this.missed==null)this.missed=ConcurrentHashMap.newKeySet();
+        Set<Integer> current = this.missed;
+        if (current != null)
+            return current;
+        synchronized (this) {
+            if (this.missed == null)
+                this.missed = ConcurrentHashMap.newKeySet();
             return this.missed;
         }
     }
@@ -84,7 +99,7 @@ public final class ContextualLightSnapshot<S> {
      * Refreshes of a published snapshot must use publishChanges instead.
      */
     void initialize(final int position, final S block, final int blockInfo,
-                    final S fluid, final int fluidInfo) {
+        final S fluid, final int fluidInfo) {
         if (Thread.currentThread() != this.owner) {
             throw new IllegalStateException("Only the world thread may initialize contextual light");
         }
@@ -98,61 +113,72 @@ public final class ContextualLightSnapshot<S> {
      * The caller specifies packed fields which affect only block light (emission).
      */
     public int publishChanges(final int position, final S block, final int blockInfo,
-                              final S fluid, final int fluidInfo, final int blockOnlyMask) {
+        final S fluid, final int fluidInfo, final int blockOnlyMask) {
         if (Thread.currentThread() != this.owner) {
             throw new IllegalStateException("Only the world thread may publish contextual light");
         }
         final Cell<S> previous = this.cell(position);
-        final boolean changed = previous == null ? block != null || fluid != null
-                : previous.block != block || previous.fluid != fluid
+        final boolean changed = previous == null
+            ? block != null || fluid != null
+            : previous.block != block || previous.fluid != fluid
                 || (block != null && previous.blockInfo != blockInfo)
                 || (fluid != null && previous.fluidInfo != fluidInfo);
         if (block == null && fluid == null) {
-            if (previous != null) this.cells.remove(position);
+            if (previous != null)
+                this.cells.remove(position);
         } else if (changed) {
             this.put(position, samples.sample(block, blockInfo, fluid, fluidInfo));
         }
         // A worker may have used a static fallback even when capture returns
         // to the previously sampled state. That miss still needs a correction.
-        final Set<Integer> misses=this.missed;
-        final boolean correction = misses!=null && !misses.isEmpty() && misses.remove(position);
-        if (correction) return BOTH_CHANGED;
-        if (!changed) return 0;
-        if (previous == null || previous.block != block || previous.fluid != fluid) return BOTH_CHANGED;
+        final Set<Integer> misses = this.missed;
+        final boolean correction = misses != null && !misses.isEmpty() && misses.remove(position);
+        if (correction)
+            return BOTH_CHANGED;
+        if (!changed)
+            return 0;
+        if (previous == null || previous.block != block || previous.fluid != fluid)
+            return BOTH_CHANGED;
         final int changedBits = (block == null ? 0 : previous.blockInfo ^ blockInfo)
-                | (fluid == null ? 0 : previous.fluidInfo ^ fluidInfo);
+            | (fluid == null ? 0 : previous.fluidInfo ^ fluidInfo);
         return (changedBits & ~blockOnlyMask) == 0 ? BLOCK_CHANGED : BOTH_CHANGED;
     }
 
     public boolean contains(final int position) {
-        return this.cell(position)!=null;
+        return this.cell(position) != null;
     }
 
     public boolean contains(final int position, final S state) {
-        Cell<S> cell=this.cell(position);
-        return state!=null && cell!=null && (cell.block==state || cell.fluid==state);
+        Cell<S> cell = this.cell(position);
+        return state != null && cell != null && (cell.block == state || cell.fluid == state);
     }
 
-    boolean isEmpty() { return this.cells==null || this.cells.isEmpty(); }
+    boolean isEmpty() {
+        return this.cells == null || this.cells.isEmpty();
+    }
 
     /** Invalidate only already-published sources in a heightmap-affected column. */
     public void requestColumn(final int localX, final int localZ, final int minY, final int maxY) {
-        final var cells=this.cells;
-        if (minY > maxY || cells==null || cells.isEmpty()) return;
+        final var cells = this.cells;
+        if (minY > maxY || cells == null || cells.isEmpty())
+            return;
         final int column = (localX & 15) | ((localZ & 15) << 4);
         // A densely contextual chunk must not pay a whole-chunk scan for each
         // column. Bound work by the smaller of its source count and height span.
         if ((long) maxY - minY + 1L < cells.size()) {
             for (int y = minY;; y++) {
                 final int position = (y << 8) | column;
-                if (cells.get(position) != null) this.pending.add(position);
-                if (y == maxY) break;
+                if (cells.get(position) != null)
+                    this.pending.add(position);
+                if (y == maxY)
+                    break;
             }
             return;
         }
         cells.forEachKey(position -> {
             final int y = position >> 8;
-            if ((position & 255) == column && y >= minY && y <= maxY) this.pending.add(position);
+            if ((position & 255) == column && y >= minY && y <= maxY)
+                this.pending.add(position);
         });
     }
 
@@ -169,5 +195,8 @@ public final class ContextualLightSnapshot<S> {
         return this.takePendingPositions();
     }
 
-    IntSet takePendingPositions() { return this.pending.take(); }
+    IntSet takePendingPositions() {
+        return this.pending.take();
+    }
+
 }

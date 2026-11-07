@@ -38,4 +38,5 @@ public interface ExtendedWorld {
      */
     @Deprecated
     void pulsar$flushLightUpdates();
+
 }

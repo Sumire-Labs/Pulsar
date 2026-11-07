@@ -1,5 +1,13 @@
 package com.sumirelabs.pulsar.mixin;
 
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 import com.sumirelabs.pulsar.light.ChunkLightHelper;
 import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.SWMRNibbleArray;
@@ -8,19 +16,13 @@ import com.sumirelabs.pulsar.light.engine.LightInfo;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.util.WorldUtil;
 import com.sumirelabs.pulsar.world.PulsarWorld;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Keeps Pulsar and vanilla nibble storage aligned when setBlockState creates a
@@ -30,18 +32,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinChunkSectionChanges {
 
     @Shadow
-    @Final
-    public int x;
+    @Final public int x;
     @Shadow
-    @Final
-    public int z;
+    @Final public int z;
     @Shadow
-    @Final
-    private World world;
-    @Unique
-    private boolean pulsar$sectionWasEmpty;
-    @Unique
-    private WorldHeightContext pulsar$sectionHeightContext;
+    @Final private World world;
+    @Unique private boolean pulsar$sectionWasEmpty;
+    @Unique private WorldHeightContext pulsar$sectionHeightContext;
 
     @Shadow
     public abstract ExtendedBlockStorage[] getBlockStorageArray();
@@ -56,26 +53,27 @@ public abstract class MixinChunkSectionChanges {
 
     @Inject(method = "setBlockState", at = @At("HEAD"), require = 0)
     private void pulsar$preSetBlockState(final BlockPos pos, final IBlockState state,
-                                         final CallbackInfoReturnable<IBlockState> cir) {
+        final CallbackInfoReturnable<IBlockState> cir) {
         final ExtendedBlockStorage[] storage = this.getBlockStorageArray();
         final int sectionY = pos.getY() >> 4;
         final int storageIndex = this.pulsar$getSectionHeightContext().getStorageIndex(sectionY);
         this.pulsar$sectionWasEmpty = storageIndex >= 0 && storageIndex < storage.length
-                && storage[storageIndex] == Chunk.NULL_BLOCK_STORAGE;
+            && storage[storageIndex] == Chunk.NULL_BLOCK_STORAGE;
     }
 
     @Inject(method = "setBlockState", at = @At("RETURN"), require = 0)
     private void pulsar$postSetBlockState(final BlockPos pos, final IBlockState state,
-                                          final CallbackInfoReturnable<IBlockState> cir) {
+        final CallbackInfoReturnable<IBlockState> cir) {
         final IBlockState previousState = cir.getReturnValue();
-        if (previousState == null) return;
+        if (previousState == null)
+            return;
 
         final WorldLightManager manager = ((PulsarWorld) this.world).pulsar$getLightManager();
         // checkLight may be skipped when static opacity/emission is unchanged.
         // Still invalidate position-dependent values, after the state was set.
         if (!this.world.isRemote && manager != null) {
             manager.contextualLight().requestBlockChange(previousState, state,
-                    pos.getX(), pos.getY(), pos.getZ());
+                pos.getX(), pos.getY(), pos.getZ());
         }
 
         if (this.pulsar$sectionWasEmpty) {
@@ -84,13 +82,14 @@ public abstract class MixinChunkSectionChanges {
             final int storageIndex = heightContext.getStorageIndex(sectionY);
             final ExtendedBlockStorage[] storage = this.getBlockStorageArray();
             final ExtendedBlockStorage section = storageIndex >= 0 && storageIndex < storage.length
-                    ? storage[storageIndex] : Chunk.NULL_BLOCK_STORAGE;
+                ? storage[storageIndex]
+                : Chunk.NULL_BLOCK_STORAGE;
             if (section != Chunk.NULL_BLOCK_STORAGE) {
                 this.pulsar$sectionWasEmpty = false;
                 final PulsarChunk pulsarChunk = (PulsarChunk) (Object) this;
                 ChunkLightHelper.fillVanillaFromEngine(
-                        heightContext, pulsarChunk.pulsar$getSkyNibbles(), pulsarChunk.pulsar$getBlockNibbles(),
-                        section, sectionY, this.world.provider.hasSkyLight());
+                    heightContext, pulsarChunk.pulsar$getSkyNibbles(), pulsarChunk.pulsar$getBlockNibbles(),
+                    section, sectionY, this.world.provider.hasSkyLight());
 
                 if (this.world.isRemote) {
                     this.pulsar$rewrapClientNibbles(pulsarChunk, section, sectionY);
@@ -103,9 +102,9 @@ public abstract class MixinChunkSectionChanges {
         }
 
         if (manager != null && (!this.world.isRemote
-                || ((PulsarChunk) (Object) this).pulsar$isLightReady())
-                && (LightInfo.requiresBlockChange(previousState, state)
-                    || (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled() && previousState != state))) {
+            || ((PulsarChunk) (Object) this).pulsar$isLightReady())
+            && (LightInfo.requiresBlockChange(previousState, state)
+                || (com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled() && previousState != state))) {
             // New-section initialization above must enter the queues first,
             // so the recheck sees the materialized nibble.
             // Server sampling was already requested above; enqueue only the lanes.
@@ -115,8 +114,8 @@ public abstract class MixinChunkSectionChanges {
 
     @Unique
     private void pulsar$rewrapClientNibbles(final PulsarChunk pulsarChunk,
-                                            final ExtendedBlockStorage section,
-                                            final int sectionY) {
+        final ExtendedBlockStorage section,
+        final int sectionY) {
         final int lightIndex = this.pulsar$getSectionHeightContext().getLightSectionIndex(sectionY);
         if (lightIndex < 0) {
             return;
@@ -132,4 +131,5 @@ public abstract class MixinChunkSectionChanges {
             skyNibbles[lightIndex] = new SWMRNibbleArray(skyNibble.getData());
         }
     }
+
 }
