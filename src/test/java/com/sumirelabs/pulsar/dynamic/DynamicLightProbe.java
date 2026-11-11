@@ -579,6 +579,22 @@ public final class DynamicLightProbe {
                 .get() == 0x8800, "Mesh snapshot leaked to another thread");
         }
         check(DynamicLightClient.sample(world, 8, 72, 8) == 0x8800, "Mesh scope retained old light after completion");
+        int radius = 9, side = radius * 2 + 1, size = DynamicLightField.cube(radius);
+        short[] cells = new short[size];
+        cells[radius + side * (radius + side * radius)] = (short) 0xeeee;
+        var moving = new DynamicLightField(8, 72, 8, radius, cells, new short[size * 4]);
+        set(DynamicLightClient.class, null, "fields", Map.of(1, moving));
+        set(DynamicLightClient.class, null, "renderSources",
+            Map.of(1, DynamicLightRenderSource.at(moving, 8.5, 72.5, 8.5)));
+        int before = DynamicLightClient.sample(world, 11, 72, 8);
+        try (var pinned = DynamicLightClient.beginMesh()) {
+            set(DynamicLightClient.class, null, "renderSources",
+                Map.of(1, DynamicLightRenderSource.at(moving, 9.5, 72.5, 8.5)));
+            check(DynamicLightClient.sample(world, 11, 72, 8) == before,
+                "Moving source changed position inside a mesh");
+        }
+        check(DynamicLightClient.sample(world, 11, 72, 8) > before,
+            "New mesh did not observe fractional source motion");
         var renderChunk = net.minecraft.client.renderer.chunk.RenderChunk.class;
         check(Arrays.stream(renderChunk.getDeclaredMethods())
             .anyMatch(m -> m.getName().contains("pulsar$dynamicSnapshot")), "Missing vanilla mesh snapshot wrapper");

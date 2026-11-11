@@ -13,11 +13,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class ClientProxy extends CommonProxy {
 
-    @SubscribeEvent
-    public void dynamicFrame(TickEvent.RenderTickEvent event) {
-        if (event.phase == TickEvent.Phase.START)
-            com.sumirelabs.pulsar.rgb.DynamicTerrainRuntime.frame(event.renderTickTime);
-    }
     @Override
     public void receiveDynamicLight(com.sumirelabs.pulsar.dynamic.DynamicLightPacket packet, Object connection) {
         com.sumirelabs.pulsar.dynamic.DynamicLightClient.receive(packet, connection);
@@ -100,7 +95,6 @@ public class ClientProxy extends CommonProxy {
         com.sumirelabs.pulsar.light.LightUpdateTracer.tick(mc.world != null);
         com.sumirelabs.pulsar.rgb.CanonicalLightClient.tick();
         com.sumirelabs.pulsar.dynamic.DynamicLightClient.tick();
-        com.sumirelabs.pulsar.rgb.DynamicTerrainRuntime.tick();
         if (mc.world == null)
             return;
         final WorldLightManager mgr = ((PulsarWorld) mc.world).pulsar$getLightManager();

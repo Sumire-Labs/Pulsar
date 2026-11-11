@@ -41,9 +41,15 @@ public abstract class MixinRgbBlockRenderer {
                 int at = i * stride, color = bytes.getInt(at + colorOffset);
                 if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)
                     color = Integer.reverseBytes(color);
+                int material = color;
                 color = RgbClient.tintAbgr(color, bytes.getFloat(at) - offsets.pulsar$xOffset(),
                     bytes.getFloat(at + 4) - offsets.pulsar$yOffset(),
                     bytes.getFloat(at + 8) - offsets.pulsar$zOffset());
+                if (format.hasUvOffset(1)) {
+                    int uv = at + format.getUvOffsetById(1);
+                    color = RgbAmbientFloor.preserve(material, color, Short.toUnsignedInt(bytes.getShort(uv)) / 16f,
+                        Short.toUnsignedInt(bytes.getShort(uv + 2)) / 16f);
+                }
                 bytes.putInt(at + colorOffset,
                     ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? Integer.reverseBytes(color) : color);
             }

@@ -5,8 +5,8 @@ import com.sumirelabs.pulsar.dynamic.DynamicLightClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
 /** One continuous light sample for an object's brightness, tint and all of its nested draw layers. */
@@ -62,9 +62,10 @@ public final class DynamicObjectLight {
     }
     public static Scope begin(Entity entity, float partial) {
         // Paintings and other per-vertex renderers must retain their spatial sampling.
-        if (!(entity instanceof EntityPlayer) && !(entity instanceof EntityItem))
+        if (!(entity instanceof EntityLivingBase) && !(entity instanceof EntityItem))
             return CURRENT.get() == null ? NOOP : suspend();
-        if (entity.world == null || entity.world != Minecraft.getMinecraft().world || !DynamicTerrainRuntime.enabled())
+        if (entity.world == null || entity.world != Minecraft.getMinecraft().world
+            || DynamicLightClient.mode() == com.sumirelabs.pulsar.dynamic.DynamicLights.Mode.OFF)
             return CURRENT.get() == null ? NOOP : suspend();
         Sample previous = CURRENT.get();
         if (previous != null && previous.owner == entity)
@@ -73,7 +74,7 @@ public final class DynamicObjectLight {
         double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partial;
         double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partial + entity.getEyeHeight();
         double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partial;
-        DynamicTerrainRuntime.sampleObject(entity.getEntityId(), x, y, z, sample.light);
+        DynamicLightClient.sampleObject(entity.getEntityId(), x, y, z, partial, sample.light);
         CURRENT.set(sample);
         return new Scope(previous, true);
     }

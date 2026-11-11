@@ -180,8 +180,6 @@ public final class RgbClient {
      * Sky and a small ambient term desaturate color; it is not shader-level RGB lightmaps.
      */
     public static int tintAbgr(int color, double x, double y, double z) {
-        if (com.sumirelabs.pulsar.dynamic.DynamicLightClient.inMesh() && DynamicTerrainRuntime.enabled())
-            return color;
         if (!active() && !skyActive)
             return color;
         float r = 0, g = 0, b = 0, canonical = 0;
@@ -256,7 +254,8 @@ public final class RgbClient {
         }
         if (!found)
             return color;
-        return RgbTintBlendMode.current.tintAbgr(color, r, g, b, canonical, sr, sg, sb, sky, skyScale);
+        return RgbAmbientFloor.preserve(color,
+            RgbTintBlendMode.current.tintAbgr(color, r, g, b, canonical, sr, sg, sb, sky, skyScale), canonical, sky);
     }
     public static int modulate(int color, int r, int g, int b, float sky) {
         return modulate(color, r, g, b, sky, Math.max(r, Math.max(g, b)));

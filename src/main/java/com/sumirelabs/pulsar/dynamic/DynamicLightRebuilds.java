@@ -2,7 +2,6 @@ package com.sumirelabs.pulsar.dynamic;
 import java.lang.reflect.Method;
 
 import com.sumirelabs.pulsar.Pulsar;
-import com.sumirelabs.pulsar.rgb.DynamicTerrainRuntime;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
@@ -61,7 +60,7 @@ final class DynamicLightRebuilds {
     static void flush(World world) {
         if (QUEUE.isEmpty())
             return;
-        if (world == null || world != owner || DynamicTerrainRuntime.enabled()) {
+        if (world == null || world != owner) {
             clear();
             return;
         }

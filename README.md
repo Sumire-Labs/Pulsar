@@ -19,10 +19,10 @@ It offers a non-colored SCALAR lighting mode like Starlight and a full RGB color
 - Various additional bug fixes and quality-of-life improvements not listed here.
 - Natural lighting for Thaumcraft crystals.
 
-Celeritas's standard terrain renderer follows dynamic light sources every frame with fractional positions and light levels.
-While this path is active, players, held items and dropped items share a continuous light sample for model brightness and RGB tint.
-Server-side obstruction and colored-glass absorption remain authoritative. Shader packs, other renderers,
-or more than 64 nearby dynamic sources use the block-aligned mesh-lighting fallback.
+Dynamic terrain lighting uses distance-based CPU samples and coalesced mesh updates on client ticks.
+Players, held items and dropped items share a continuous per-draw sample for model brightness and RGB tint.
+The server remains authoritative for obstruction, colored-glass absorption and GAMEPLAY light queries.
+No separate per-frame dynamic-terrain shader or 64-source rendering cutoff is used.
 
 ### Fixed Bugs
 
@@ -65,7 +65,7 @@ Pulsar completely replaces the lighting engine and is incompatible with other li
 ## Configuration
 
 - `config/pulsar.cfg`: Selects the lighting mode and configures additional features.
-  - `dynamicLights.smoothTerrainLighting`: Client option for per-frame lighting in Celeritas's standard renderer (default: `true`). Disable it to use mesh lighting. It does not change server gameplay light.
+  - Dynamic lights use distance-based mesh lighting, updated on client ticks with coalesced section rebuilds. Server RGB filtering and gameplay light remain authoritative.
   - `dynamicLights.mode`: `OFF` (default), `VISUAL` (rendering only), or `GAMEPLAY` (also affects server light queries, including mob spawning). The server chooses the mode; restart to apply. Enabled modes require compatible Pulsar clients. Supports held and dropped block items and lava buckets in SCALAR and RGB, including occlusion and colored-glass filtering. Stack size does not increase brightness. Other non-block item sources are not yet supported. Disable other dynamic-light mods to avoid duplicate lighting. Dynamic light is transient and never saved in chunk lighting data.
   - `lightingMode`: `SCALAR` (default, conventional, non-colored lighting) or `RGB` (RGB colored lighting).
   - `lightingModeSelected`: `false` by default. On the first client launch, choose SCALAR or RGB once for this instance; the selection sets this to `true`. Changing the active mode requires restarting Minecraft. Modpacks can set this to `true` to skip the prompt; dedicated servers use `lightingMode` directly.

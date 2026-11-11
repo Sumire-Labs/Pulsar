@@ -28,10 +28,6 @@ public class PulsarConfig {
     public static DynamicLights dynamicLights = new DynamicLights();
     public static class DynamicLights {
 
-        @Config.Comment({
-            "Client: smooth per-frame terrain, player and item lighting with Celeritas's standard renderer.",
-            "Shader packs, unsupported renderers and more than 64 nearby dynamic sources use mesh lighting instead.",
-            "Does not change server gameplay light or colored-glass absorption."}) public boolean smoothTerrainLighting = true;
         @Config.Comment({"Server-authoritative held and dropped block light sources and lava buckets.",
             "Burning mobs and players also emit light using the fire source palette.",
             "Open-air dynamic light has a round 7.75-block falloff; obstacles and colored filters still absorb light.",

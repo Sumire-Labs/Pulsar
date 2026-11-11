@@ -35,13 +35,15 @@ public final class CeleritasWorldSliceProbe {
         unsafe = field.get(null);
         allocate = unsafe.getClass().getMethod("allocateInstance", Class.class);
         Bootstrap.register();
-        Class<?> programType = Class.forName("org.embeddedt.embeddium.impl.gl.shader.GlProgram");
-        if (Arrays.stream(programType.getDeclaredMethods())
-            .noneMatch(m -> m.getName().contains("pulsar$frameUniforms")))
-            throw new AssertionError("Missing per-frame program hook");
-        Class<?> loaderType = Class.forName("org.embeddedt.embeddium.impl.render.shader.ShaderLoader");
-        if (Arrays.stream(loaderType.getDeclaredMethods()).noneMatch(m -> m.getName().contains("pulsar$frameLight")))
-            throw new AssertionError("Missing terrain shader hook");
+        Object quadLight = Class.forName("org.embeddedt.embeddium.impl.model.light.data.QuadLightData").getConstructor()
+            .newInstance();
+        if (!(quadLight instanceof com.sumirelabs.pulsar.rgb.RgbQuadLightmap lightmap)
+            || lightmap.pulsar$lightmap().length != 4)
+            throw new AssertionError("Missing final vertex lightmap access");
+        Class<?> renderer = Class
+            .forName("org.taumc.celeritas.impl.render.terrain.compile.pipeline.VintageBlockRenderer");
+        if (Arrays.stream(renderer.getDeclaredMethods()).noneMatch(m -> m.getName().contains("pulsar$ambientFloor")))
+            throw new AssertionError("Missing terrain ambient floor hook");
         sliceType = Class.forName("org.taumc.celeritas.impl.world.WorldSlice");
         sectionType = Class.forName("org.taumc.celeritas.impl.world.cloned.ClonedChunkSection");
         net.minecraft.launchwrapper.Launch.blackboard.put("fml.deobfuscatedEnvironment", true);
