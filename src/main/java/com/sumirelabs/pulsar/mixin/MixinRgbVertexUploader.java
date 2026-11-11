@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.mixin;
 
 import org.lwjgl.opengl.GL11;

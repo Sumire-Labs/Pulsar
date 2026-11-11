@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.compat;
 
 /** Startup-frozen scalar emission policy for Thaumcraft's placed vis crystals. */

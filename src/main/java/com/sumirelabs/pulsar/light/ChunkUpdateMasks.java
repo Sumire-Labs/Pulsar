@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.light;
 
 /** Section replacements must not set the protocol's full-chunk lifecycle flag. */

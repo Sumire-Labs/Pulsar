@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.light;
 
 /** Faces whose Forge light matrix contained a hidden, brighter sample. */

@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.rgb;
 
 /** Static chromaticity/filter metadata only; world-dependent light stays uncached. */

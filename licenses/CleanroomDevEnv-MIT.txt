@@ -1,6 +1,7 @@
 MIT License
 
 Copyright (c) 2025 kappa-maintainer
+Copyright (c) 2026 Pepelys
 Copyright (c) 2026 Sumire Labs
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

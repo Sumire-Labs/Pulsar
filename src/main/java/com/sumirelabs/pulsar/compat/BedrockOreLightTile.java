@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.compat;
 
 /** Internal marker installed only with the Bedrock Ores setter notification hook. */

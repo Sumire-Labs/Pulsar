@@ -144,6 +144,20 @@ See the [measured values and run ranges](https://raw.githubusercontent.com/Sumir
 
 See [lighting validation notes](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/docs/lighting-validation.md) for compatibility probes and the opt-in empty-section experiment.
 
+## Development
+
+The build follows CleanroomDevEnv `590d46c`, with Kotlin DSL entry points and
+configuration caching. Pulsar-specific dependency, API publication and native-test
+scripts remain under `gradle/scripts/`.
+
+- `./gradlew build`: Compile, test, check formatting/licenses and verify the production JAR.
+- `./gradlew spotlessApply`: Apply the formatter configured in `gradle/spotless/`.
+- `./gradlew applyLicenseHeader`: Add Pulsar's LGPL header to sources without a notice.
+
+Source-specific upstream notices listed in `gradle/license-preserved-paths.txt`
+are preserved and maintained separately. Review that list when adding imported
+code; do not replace its original copyright or license notices with the common header.
+
 ## Credits
 
 - [Starlight](https://github.com/PaperMC/Starlight): The foundation for the lighting engine's architecture and core algorithms.

@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.api;
 
 /** Basic additive light colors in Pulsar's 0xRGB format, not Minecraft dye colors.

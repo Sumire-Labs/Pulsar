@@ -1,0 +1,10 @@
+configurations {
+    gpuTestRuntime
+    compatTestMods
+    classicTestMods
+    rendererTestMods
+    fbpFancierTestMods
+    fbpFanciestTestMods
+    fbpLegacyTestMods
+    testImplementation.extendsFrom(compatTestMods)
+}

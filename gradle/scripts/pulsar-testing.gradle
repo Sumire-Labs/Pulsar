@@ -1,17 +1,9 @@
 // Pulsar's isolated compatibility probes and optional GPU/benchmark fixtures.
-configurations {
-    gpuTestRuntime
-    compatTestMods
-    classicTestMods
-    rendererTestMods
-    fbpFancierTestMods
-    fbpFanciestTestMods
-    fbpLegacyTestMods
-    testImplementation.extendsFrom(compatTestMods)
-}
+
 
 // Remapping changes signed bytecode. Remove stale signature files only from
 // disposable probe copies, leaving downloaded artifacts and runtime mods intact.
+def compatFiles = files(configurations.compatTestMods)
 def probeModsDirectory = layout.buildDirectory.dir('compat-test-mods')
 def prepareCompatTestMods = tasks.register('prepareCompatTestMods') {
     inputs.files(configurations.compatTestMods)
@@ -19,7 +11,7 @@ def prepareCompatTestMods = tasks.register('prepareCompatTestMods') {
     doLast {
         def destination = probeModsDirectory.get().asFile
         destination.mkdirs()
-        configurations.compatTestMods.files.each { artifact ->
+        compatFiles.files.each { artifact ->
             new java.util.zip.ZipFile(artifact).withCloseable { source ->
                 new java.util.zip.ZipOutputStream(new FileOutputStream(new File(destination, artifact.name))).withCloseable { output ->
                     source.entries().each { entry ->
@@ -58,7 +50,7 @@ test {
     classpath += sourceSets.main.compileClasspath
     def originalClasspath = classpath
     classpath = files(providers.provider {
-        def remapped = configurations.compatTestMods.files
+        def remapped = compatFiles.files
         originalClasspath.files.findAll { !remapped.contains(it) } + remapped.collect {
             new File(probeModsDirectory.get().asFile, it.name)
         }
@@ -70,20 +62,31 @@ test {
     inputs.property('pulsarGpuTests', project.findProperty('pulsarGpuTests') ?: 'false')
     inputs.property('pulsarEmptySectionBenchmark', project.findProperty('pulsarEmptySectionBenchmark') ?: 'false')
     inputs.property('pulsarMemoryBenchmark', project.findProperty('pulsarMemoryBenchmark') ?: 'false')
+    // Capture file collections during configuration; avoid Project access in task actions.
+    def nativePaths = [
+        classic: files(configurations.classicTestMods),
+        fancier: files(configurations.fbpFancierTestMods),
+        fanciest: files(configurations.fbpFanciestTestMods),
+        legacy: files(configurations.fbpLegacyTestMods)
+    ]
+    def probeFlags = [
+        gpu: project.findProperty('pulsarGpuTests') ?: 'false',
+        empty: project.findProperty('pulsarEmptySectionBenchmark') ?: 'false',
+        memory: project.findProperty('pulsarMemoryBenchmark') ?: 'false'
+    ]
+    if (probeFlags.gpu.toBoolean()) nativePaths.gpu = files(configurations.gpuTestRuntime)
+    if (project.hasProperty('celeritasTestClasspath')) nativePaths.celeritas = files(configurations.rendererTestMods)
     doFirst {
         systemProperty 'pulsar.test.classpath', classpath.asPath
-        systemProperty 'pulsar.test.classicClasspath', configurations.classicTestMods.asPath
-        systemProperty 'pulsar.test.fbp.fancier', configurations.fbpFancierTestMods.asPath
-        systemProperty 'pulsar.test.fbp.fanciest', configurations.fbpFanciestTestMods.asPath
-        systemProperty 'pulsar.test.fbp.legacy', configurations.fbpLegacyTestMods.asPath
-        systemProperty 'pulsar.test.gpu', project.findProperty('pulsarGpuTests') ?: 'false'
-        systemProperty 'pulsar.test.emptySectionBenchmark', project.findProperty('pulsarEmptySectionBenchmark') ?: 'false'
-        systemProperty 'pulsar.test.memoryBenchmark', project.findProperty('pulsarMemoryBenchmark') ?: 'false'
-        if ((project.findProperty('pulsarGpuTests') ?: 'false').toBoolean())
-            systemProperty 'pulsar.test.gpuClasspath', configurations.gpuTestRuntime.asPath
-        if (project.hasProperty('celeritasTestClasspath')) {
-            systemProperty 'pulsar.test.celeritasClasspath', configurations.rendererTestMods.asPath
-        }
+        systemProperty 'pulsar.test.classicClasspath', nativePaths.classic.asPath
+        systemProperty 'pulsar.test.fbp.fancier', nativePaths.fancier.asPath
+        systemProperty 'pulsar.test.fbp.fanciest', nativePaths.fanciest.asPath
+        systemProperty 'pulsar.test.fbp.legacy', nativePaths.legacy.asPath
+        systemProperty 'pulsar.test.gpu', probeFlags.gpu
+        systemProperty 'pulsar.test.emptySectionBenchmark', probeFlags.empty
+        systemProperty 'pulsar.test.memoryBenchmark', probeFlags.memory
+        if (nativePaths.gpu != null) systemProperty 'pulsar.test.gpuClasspath', nativePaths.gpu.asPath
+        if (nativePaths.celeritas != null) systemProperty 'pulsar.test.celeritasClasspath', nativePaths.celeritas.asPath
     }
     useJUnitPlatform()
     javaLauncher.set(javaToolchains.launcherFor {

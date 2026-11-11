@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.light;
 
 /** Conservative load-time classification supplied by the vanilla section container mixin. */

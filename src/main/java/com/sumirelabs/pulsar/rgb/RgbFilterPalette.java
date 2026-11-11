@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.rgb;
 
 /** RGB-only section classification. Unknown containers conservatively require color work. */

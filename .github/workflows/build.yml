@@ -33,9 +33,9 @@ jobs:
           java-version: '25'
           distribution: temurin
       - uses: gradle/actions/setup-gradle@v6.4.1
-      - name: Build and check distributable
+      - name: Build, test and check distributable
         shell: bash
-        run: bash ./gradlew clean build ${{ matrix.flags }} --console=plain
+        run: bash ./gradlew clean build -Penable_junit_testing=true -Penable_spotless=true ${{ matrix.flags }} --console=plain
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: jars-${{ matrix.os }}-${{ matrix.variant }}

@@ -5,6 +5,20 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Sync CleanroomDevEnv through `590d46c`: migrate build entry points and shared
+  scripts to Kotlin DSL, and enable parallel configuration caching.
+- Adapt Pulsar's native compatibility tests to configuration-cache execution,
+  retaining the standalone API publication and production-JAR checks.
+- Add Felt license management with LGPL-3.0-only headers while retaining
+  source-specific upstream notices and the template's MIT notice.
+- Move Spotless profiles under `gradle/spotless` and extend Renovate coverage.
+- Harden release-note extraction while retaining resumable uploads and GitHub
+  Releases with the pre-release flag disabled.
+
 ## [0.6.4-beta] - 2026-11-08
 
 ### Changed

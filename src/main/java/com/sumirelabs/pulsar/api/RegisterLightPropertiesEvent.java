@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.api;
 
 import net.minecraftforge.fml.common.eventhandler.Event;

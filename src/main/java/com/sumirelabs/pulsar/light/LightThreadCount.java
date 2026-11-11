@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.light;
 
 /** Zero retains dedicated workers; -1 selects ScalableLux's CPU/3 policy. */

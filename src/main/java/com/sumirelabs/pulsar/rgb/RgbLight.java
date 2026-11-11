@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.rgb;
 
 /** Four bits per component, 0xRGB. Rendering color, never a gameplay light level. */

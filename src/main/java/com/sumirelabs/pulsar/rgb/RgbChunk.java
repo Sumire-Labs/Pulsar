@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.rgb;
 
 /** Chunk-owned data; no global chunk cache survives a world unload. */

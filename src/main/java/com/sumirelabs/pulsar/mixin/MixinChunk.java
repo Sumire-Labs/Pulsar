@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.mixin;
 
 // REID coexistence: REID also @Unique-injects fields onto Chunk. The pulsar$

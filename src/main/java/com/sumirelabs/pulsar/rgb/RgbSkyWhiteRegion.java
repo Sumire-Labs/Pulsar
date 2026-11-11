@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-only
+ */
+
 package com.sumirelabs.pulsar.rgb;
 
 /** A component can travel at most 14 blocks horizontally, hence one chunk.
