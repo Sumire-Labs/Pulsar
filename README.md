@@ -41,7 +41,7 @@ It offers a non-colored SCALAR lighting mode like Starlight and a full RGB color
 - Thaumcraft: Adds smooth lighting to crystals.
 - Celeritas: Supports its rendering pipeline.
 - Demonica Shader: Tested and confirmed working with Complementary Reimagined.
-  - Compatibility with forks such as Actinium, Pintonium, and Impetus is not guaranteed.
+  - Compatibility with forks such as Pintonium and Impetus is not guaranteed.
 
 ### Incompatibilities
 
@@ -52,6 +52,7 @@ Pulsar completely replaces the lighting engine and is incompatible with other li
 - Hesperus
 - Starlight-1.12
 - OptiFine: Use Celeritas instead. Demonica Shader provides shader support, while Celeritas Extra and Celeritas Leaf Culling should cover the additional video options.
+- Actinium: Targets Cleanroom 0.6.x, while Pulsar requires Cleanroom 0.7.14-alpha or newer within the 0.7.x series.
 - The Aether II: Use [The Aether II: Phosphor Not Included](https://www.curseforge.com/minecraft/mc-mods/the-aether-ii-phosphor-not-included) instead.
 
 ## Configuration

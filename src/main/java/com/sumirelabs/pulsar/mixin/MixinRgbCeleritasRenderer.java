@@ -17,8 +17,7 @@ import net.minecraft.util.math.BlockPos;
 
 /** Optional vintage mesh paths; shader-owned passes keep their original material colors. */
 @Pseudo
-@Mixin(targets = {"org.taumc.celeritas.impl.render.terrain.compile.pipeline.VintageBlockRenderer",
-    "com.dhj.actinium.render.terrain.compile.pipeline.VintageBlockRenderer"}, remap = false)
+@Mixin(targets = "org.taumc.celeritas.impl.render.terrain.compile.pipeline.VintageBlockRenderer", remap = false)
 public abstract class MixinRgbCeleritasRenderer {
 
     @Inject(method = "getVertexColors", at = @At("RETURN"), require = 0, remap = false)
