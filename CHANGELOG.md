@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Release stale priority-index entries when the lighting queue drains, so idle
+  queues no longer retain completed batches and their chunk references.
 - Respect a neighbouring block's closed outgoing faces during SCALAR and RGB
   light recalculation, preventing false light mismatches and redundant relighting
   during chunk-edge reconciliation near slabs and other sided blocks.

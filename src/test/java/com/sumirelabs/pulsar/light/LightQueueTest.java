@@ -19,6 +19,43 @@ import static org.junit.jupiter.api.Assertions.*;
 class LightQueueTest {
 
     @Test
+    void drainingOrRemovingTheLastBatchReleasesStalePriorityEntries() throws Exception {
+        for (int path = 0; path < 5; path++) {
+            final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
+            for (int round = 0; round < 32; round++) {
+                queue.queueBlockChange(0, 64, 0);
+                queue.queueEdgeCheck(0, 0, 0, true);
+                queue.queueChunkLight(0, 0, new net.minecraft.world.chunk.Chunk(null, 0, 0), null, 1L);
+                final Future<Void> completion = queue.getPendingWorkFuture(0L);
+                if (path == 4) {
+                    queue.removeChunk(0, 0);
+                } else {
+                    final ChunkTasks task = switch (path) {
+                        case 0 -> queue.claimChunk(0L);
+                        case 1 -> queue.removeFirstBlockChangeTask();
+                        case 2 -> queue.removeFirstInitialLightTask();
+                        default -> queue.removeFirstTask();
+                    };
+                    assertNotNull(task);
+                    assertFalse(completion.isDone());
+                    assertTrue(queue.hasWork());
+                    queue.completeTask(task);
+                }
+                assertTrue(completion.isDone());
+                assertFalse(queue.hasWork());
+            }
+            // Lazy indexes must not retain completed ChunkTasks (and their chunks)
+            // indefinitely after another dequeue path drained the actual queue.
+            for (String name : new String[]{"maintenanceTasks", "blockChangeKeys", "initialLightKeys"}) {
+                var field = LightQueue.class.getDeclaredField(name);
+                field.setAccessible(true);
+                Object index = field.get(queue);
+                assertEquals(0, index.getClass().getMethod("size").invoke(index), "path=" + path + " " + name);
+            }
+        }
+    }
+
+    @Test
     void coalescesWakeSignalsWhileLaneIsActive() {
         final LightQueue queue = new LightQueue(WorldHeightContext.VANILLA);
 

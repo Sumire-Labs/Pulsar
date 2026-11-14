@@ -434,6 +434,14 @@ public final class LightQueue {
         if (task.initialLightChunk != null) {
             this.initialLightCount--;
         }
+        if (this.tasksByChunk.isEmpty()) {
+            // Other claim paths leave lazy index entries behind. Once the last
+            // queued batch leaves, all entries are stale, including references
+            // to ChunkTasks that can otherwise retain unloaded chunks while idle.
+            this.blockChangeKeys.clear();
+            this.initialLightKeys.clear();
+            this.maintenanceTasks.clear();
+        }
     }
 
     /**
