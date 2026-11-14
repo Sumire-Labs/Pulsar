@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reject invalid saved light-nibble states during loading so corrupt caches
+  trigger relighting instead of being accepted and failing on later saves.
 - Clear partially initialized engine caches when chunk lookup or cache setup
   fails, preventing retained chunk references and stale data on engine reuse.
 - Release stale priority-index entries when the lighting queue drains, so idle

@@ -16,6 +16,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SWMRNibbleArrayTest {
 
+    @Test
+    void invalidPersistedStatesAreRejectedBeforeTheyCanBecomeVisible() {
+        for (int state : new int[]{-128, -1, 4, 127}) {
+            assertThrows(IllegalArgumentException.class, () -> SWMRNibbleArray.fromOwned(null, state));
+            assertThrows(IllegalArgumentException.class,
+                () -> SWMRNibbleArray.fromOwned(new byte[SWMRNibbleArray.ARRAY_SIZE], state));
+        }
+        for (int state = SWMRNibbleArray.INIT_STATE_NULL; state <= SWMRNibbleArray.INIT_STATE_HIDDEN; state++) {
+            final int valid = state;
+            final byte[] data = state >= SWMRNibbleArray.INIT_STATE_INIT
+                ? new byte[SWMRNibbleArray.ARRAY_SIZE]
+                : null;
+            assertDoesNotThrow(() -> SWMRNibbleArray.fromOwned(data, valid).getSaveState());
+        }
+    }
+
     @org.junit.jupiter.api.Test
     void scalarWriterRechecksOwnershipAfterUniformAndVisibleTransitions() {
         SWMRNibbleArray nibble = new SWMRNibbleArray(null, true);

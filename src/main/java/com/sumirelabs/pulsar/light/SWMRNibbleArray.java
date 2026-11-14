@@ -134,6 +134,9 @@ public final class SWMRNibbleArray {
     }
 
     private SWMRNibbleArray(final byte[] bytes, final int state, final boolean retainVisibleStorage) {
+        if (state < INIT_STATE_NULL || state > INIT_STATE_HIDDEN) {
+            throw new IllegalArgumentException("Invalid light nibble state: " + state);
+        }
         if (bytes != null && bytes.length != ARRAY_SIZE) {
             throw new IllegalArgumentException("Data of wrong length: " + bytes.length);
         }
