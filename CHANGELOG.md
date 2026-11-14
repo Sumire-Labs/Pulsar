@@ -7,33 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Reject invalid saved light-nibble states during loading so corrupt caches
-  trigger relighting instead of being accepted and failing on later saves.
-- Clear partially initialized engine caches when chunk lookup or cache setup
-  fails, preventing retained chunk references and stale data on engine reuse.
-- Release stale priority-index entries when the lighting queue drains, so idle
-  queues no longer retain completed batches and their chunk references.
-- Respect a neighbouring block's closed outgoing faces during SCALAR and RGB
-  light recalculation, preventing false light mismatches and redundant relighting
-  during chunk-edge reconciliation near slabs and other sided blocks.
+## [0.6.5-beta] - 2026-11-14
 
 ### Changed
 
-- Sync CleanroomDevEnv through `6b24e5c`: expand class token replacement, validate
-  tokens in class constant pools, and select JVM runtime variants for embedded
-  dependencies. Remove Felt build tooling while preserving Pulsar's LGPL license
-  and existing source notices.
-- Sync CleanroomDevEnv through `590d46c`: migrate build entry points and shared
-  scripts to Kotlin DSL, and enable parallel configuration caching.
-- Adapt Pulsar's native compatibility tests to configuration-cache execution,
-  retaining the standalone API publication and production-JAR checks.
-- Add Felt license management with LGPL-3.0-only headers while retaining
-  source-specific upstream notices and the template's MIT notice.
-- Move Spotless profiles under `gradle/spotless` and extend Renovate coverage.
-- Harden release-note extraction while retaining resumable uploads and GitHub
-  Releases with the pre-release flag disabled.
+- Update CleanroomDevEnv to `6b24e5c`, with Kotlin DSL build scripts and parallel
+  configuration caching. Native compatibility tests support configuration caching;
+  the standalone API publication and production JAR checks remain available.
+- Apply version tokens to all compiled classes and check class constant pools
+  for unresolved tokens, avoiding false matches in binary data.
+- Select JVM runtime variants when resolving embedded dependencies.
+- Move Spotless profiles to `gradle/spotless` and extend Renovate dependency coverage.
+- Validate release-note extraction and retain support for resuming interrupted
+  uploads. GitHub Releases continue to use the pre-release flag disabled.
+- Add LGPL-3.0-only source headers while preserving upstream copyright notices
+  and the CleanroomDevEnv MIT notice. The API publication declares its LGPL license.
+
+### Removed
+
+- Remove Actinium-specific renderer integration. Actinium targets Cleanroom 0.6.x;
+  Pulsar requires Cleanroom 0.7.14-alpha or newer within the 0.7.x series.
+- Remove Felt build tooling and its header-management configuration.
+
+### Fixed
+
+- Respect closed outgoing block faces during SCALAR and RGB light recalculation,
+  avoiding false mismatches and unnecessary relighting at chunk boundaries near
+  slabs and other sided blocks.
+- Release completed tasks and their chunk references from stale priority indexes
+  when a lighting queue drains.
+- Clear partially initialized engine caches after setup failures, so reused
+  engines do not retain stale chunk data.
+- Reject invalid saved light-nibble states on load, allowing corrupt caches to
+  relight before they can cause errors on later saves.
 
 ## [0.6.4-beta] - 2026-11-08
 
@@ -711,3 +717,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0-dev.1] - 2026-04-10
 
 First working build
+
+[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.5-beta...HEAD
+[0.6.5-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.4-beta...0.6.5-beta
