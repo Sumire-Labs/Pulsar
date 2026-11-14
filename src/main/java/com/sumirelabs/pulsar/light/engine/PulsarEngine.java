@@ -228,8 +228,8 @@ public abstract class PulsarEngine extends LightEngineCache {
         }
         final int chunkX = blockX >> 4;
         final int chunkZ = blockZ >> 4;
-        this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
         try {
+            this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
             final Chunk chunk = this.getChunkInCache(chunkX, chunkZ);
             if (chunk == null) {
                 return;
@@ -246,8 +246,8 @@ public abstract class PulsarEngine extends LightEngineCache {
         this.lastBfsIncreaseTotal = 0;
         this.lastBfsDecreaseTotal = 0;
         this.lastPositionsProcessed = 0;
-        this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
         try {
+            this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
             final Chunk chunk = this.getChunkInCache(chunkX, chunkZ);
             if (chunk == null) {
                 return;
@@ -341,8 +341,8 @@ public abstract class PulsarEngine extends LightEngineCache {
     public final void light(final Chunk chunk, final Boolean[] emptySections, final boolean checkEdges) {
         final int chunkX = chunk.x;
         final int chunkZ = chunk.z;
-        this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
         try {
+            this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
             final SWMRNibbleArray[] nibbles = this.getFilledEmptyLight();
             this.setChunkInCache(chunkX, chunkZ, chunk);
             this.setBlocksForChunkInCache(chunkX, chunkZ, chunk.getBlockStorageArray());
@@ -457,8 +457,8 @@ public abstract class PulsarEngine extends LightEngineCache {
     public final void loadInChunk(final Chunk chunk, final Boolean[] emptySections) {
         final int chunkX = chunk.x;
         final int chunkZ = chunk.z;
-        this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
         try {
+            this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
             final Chunk center = this.getChunkInCache(chunkX, chunkZ);
             if (center == null) {
                 return;
@@ -474,8 +474,8 @@ public abstract class PulsarEngine extends LightEngineCache {
     }
 
     public final void checkChunkEdges(final int chunkX, final int chunkZ, final IntOpenHashSet sections) {
-        this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, false);
         try {
+            this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, false);
             final Chunk chunk = this.getChunkInCache(chunkX, chunkZ);
             if (chunk == null) {
                 return;

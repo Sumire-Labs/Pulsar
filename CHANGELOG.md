@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Clear partially initialized engine caches when chunk lookup or cache setup
+  fails, preventing retained chunk references and stale data on engine reuse.
 - Release stale priority-index entries when the lighting queue drains, so idle
   queues no longer retain completed batches and their chunk references.
 - Respect a neighbouring block's closed outgoing faces during SCALAR and RGB
