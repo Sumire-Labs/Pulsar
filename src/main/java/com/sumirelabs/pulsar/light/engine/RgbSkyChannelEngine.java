@@ -198,7 +198,10 @@ final class RgbSkyChannelEngine extends PulsarEngine {
             final int localIndex = (offX & 15) | ((offZ & 15) << 4) | ((offY & 15) << 8);
 
             final int neighbourLevel = this.getLightLevel(sectionIndex, localIndex);
-            if (blocksSlabBoundary(info, state, direction.ordinal(), worldX, worldY, worldZ))
+            if (neighbourLevel <= level + 1)
+                continue;
+            if (blocksSourceFace(offX, offY, offZ, direction.oppositeOrdinal, LightInfo.REGISTRY)
+                || blocksSlabBoundary(info, state, direction.ordinal(), worldX, worldY, worldZ))
                 continue;
 
             final int absorption = absorption(info, state, direction.ordinal(), worldX, worldY, worldZ);

@@ -50,6 +50,13 @@ import it.unimi.dsi.fastutil.ints.IntSet;
  */
 public abstract class PulsarEngine extends LightEngineCache {
 
+    /** Recalculation must respect the same outgoing faces as the increase flood. */
+    protected final boolean blocksSourceFace(int x, int y, int z, int face, int sidedMask) {
+        IBlockState source = getBlockState(x, y, z);
+        int info = lightInfoAt(source, x, y, z);
+        return (info & sidedMask) != 0 && (LightInfo.faceBits(info) & (1 << face)) != 0;
+    }
+
     /** Two opaque opposite-half slabs jointly seal a horizontal boundary. */
     protected final boolean blocksSlabBoundary(int info, IBlockState state, int face, int x, int y, int z) {
         if (face >= 4 || (info & LightInfo.SIDED) == 0 || LightInfo.opacity(info) < 15

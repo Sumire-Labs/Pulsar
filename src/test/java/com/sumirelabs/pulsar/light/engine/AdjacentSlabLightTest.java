@@ -21,6 +21,49 @@ import static org.junit.jupiter.api.Assertions.*;
 class AdjacentSlabLightTest {
 
     @Test
+    void recalculationCannotBorrowLightThroughASlabsClosedFace() throws Exception {
+        Bootstrap.register();
+        FaceOcclusion.registerDefaults();
+        for (int kind = 0; kind < 10; kind++) {
+            for (var half : BlockSlab.EnumBlockHalf.values()) {
+                var w = world();
+                var h = WorldHeightContext.contiguous(0, 0);
+                PulsarEngine engine = switch (kind) {
+                    case 0 -> new ScalarBlockEngine(w, h);
+                    case 1 -> new ScalarSkyEngine(w, h);
+                    case 2, 3, 4 -> new RgbChannelEngine(w, h, kind - 2, new java.util.HashSet<>());
+                    case 5 -> new RgbPackedBlockChannelEngine(w, h, new java.util.HashSet<>());
+                    case 6 -> new RgbPackedSkyChannelEngine(w, h, new java.util.HashSet<>());
+                    default -> new RgbSkyChannelEngine(w, h, kind - 7, new java.util.HashSet<>());
+                };
+                engine.setupEncodeOffset(7, 8, 7);
+                var section = new ExtendedBlockStorage(0, true);
+                engine.setChunkSectionInCache(0, 0, 0, section);
+                boolean packed = engine instanceof PackedRgbChannelEngine;
+                if (packed)
+                    for (int c = 0; c < 3; c++)
+                        ((PackedRgbChannelEngine) engine).rgb.replacePlane(c, engine.chunkSectionIndexOffset,
+                            new SWMRNibbleArray());
+                else
+                    engine.setNibbleInCache(0, 0, 0, new SWMRNibbleArray());
+                section.set(8, 8, 8, Blocks.WOODEN_SLAB.getDefaultState().withProperty(BlockSlab.HALF, half));
+                int source = packed ? 0x0E0E0E : 14;
+                engine.setLightLevel(8, 8, 8, source);
+                int closedY = half == BlockSlab.EnumBlockHalf.TOP ? 9 : 7;
+                int openY = half == BlockSlab.EnumBlockHalf.TOP ? 7 : 9;
+                assertEquals(0, engine.calculateLightValue(8, closedY, 8, 0),
+                    "Closed source face kind=" + kind + " half=" + half);
+                assertEquals(packed ? 0x0D0D0D : 13, engine.calculateLightValue(8, openY, 8, 0),
+                    "Open source face kind=" + kind + " half=" + half);
+                // A full opaque emitter must still illuminate its neighbours.
+                section.set(8, 8, 8, Blocks.GLOWSTONE.getDefaultState());
+                assertEquals(packed ? 0x0D0D0D : 13, engine.calculateLightValue(8, closedY, 8, 0),
+                    "Opaque emitter kind=" + kind);
+            }
+        }
+    }
+
+    @Test
     void oppositeHalvesSealTheSharedBoundaryButEqualHalvesStayOpen() throws Exception {
         Bootstrap.register();
         FaceOcclusion.registerDefaults();

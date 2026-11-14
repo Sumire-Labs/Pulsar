@@ -47,7 +47,9 @@ final class RgbPackedBlockChannelEngine extends PackedRgbChannelEngine {
             int nx = x + direction.x, ny = y + direction.y, nz = z + direction.z;
             int candidate = PackedRgbLight.packedSubRGB(getLightLevel(nx, ny, nz),
                 absorption(info, state, direction.ordinal(), x, y, z));
-            level = PackedRgbLight.packedMax(level, candidate);
+            if (PackedRgbLight.anyComponentGreater(candidate, level)
+                && !blocksSourceFace(nx, ny, nz, direction.oppositeOrdinal, LightInfo.SIDED))
+                level = PackedRgbLight.packedMax(level, candidate);
         }
         return level;
     }

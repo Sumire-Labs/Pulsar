@@ -81,8 +81,11 @@ final class RgbPackedSkyChannelEngine extends PackedRgbChannelEngine {
             int nx = x + direction.x, ny = y + direction.y, nz = z + direction.z, idx = section(nx, ny, nz);
             if (idx < 0 || idx >= nibbleCache.length)
                 continue;
-            level = PackedRgbLight.packedMax(level, PackedRgbLight.packedSubRGB(getLightLevel(nx, ny, nz),
-                absorption(info, state, direction.ordinal(), x, y, z)));
+            int candidate = PackedRgbLight.packedSubRGB(getLightLevel(nx, ny, nz),
+                absorption(info, state, direction.ordinal(), x, y, z));
+            if (PackedRgbLight.anyComponentGreater(candidate, level)
+                && !blocksSourceFace(nx, ny, nz, direction.oppositeOrdinal, LightInfo.SIDED))
+                level = PackedRgbLight.packedMax(level, candidate);
         }
         return level;
     }
