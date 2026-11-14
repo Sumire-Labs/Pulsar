@@ -29,6 +29,19 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Config(modid = Reference.MOD_ID, name = "pulsar")
 public class PulsarConfig {
 
+    public static DynamicLights dynamicLights = new DynamicLights();
+    public static class DynamicLights {
+
+        @Config.Comment({"Server-authoritative held and dropped block light sources and lava buckets.",
+            "Burning mobs and players also emit light using the fire source palette.",
+            "Open-air dynamic light has a round 7.75-block falloff; obstacles and colored filters still absorb light.",
+            "OFF disables dynamic lights. VISUAL changes rendering only.",
+            "GAMEPLAY also changes server light queries (for example mob spawning).",
+            "Enabled modes require compatible Pulsar clients. No dynamic light is saved in chunks.",
+            "Disable other dynamic-light mods to avoid duplicate lighting. Restart to apply."})
+        @Config.RequiresMcRestart public com.sumirelabs.pulsar.dynamic.DynamicLights.Mode mode = com.sumirelabs.pulsar.dynamic.DynamicLights.Mode.OFF;
+
+    }
     public enum LightingMode {
         SCALAR, RGB
     }

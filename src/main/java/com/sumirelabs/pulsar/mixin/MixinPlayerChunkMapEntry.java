@@ -66,8 +66,8 @@ public abstract class MixinPlayerChunkMapEntry {
     @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/management/PlayerChunkMapEntry;sendPacket(Lnet/minecraft/network/Packet;)V"))
     private void pulsar$preserveEntitiesOnSectionRefresh(final PlayerChunkMapEntry entry,
         final net.minecraft.network.Packet<?> packet) {
-        if (packet instanceof net.minecraft.network.play.server.SPacketChunkData data && data.isFullChunk()
-            && this.chunk != null) {
+        if (packet instanceof net.minecraft.network.play.server.SPacketChunkData
+            && ((com.sumirelabs.pulsar.light.ChunkPacketCoordinates) packet).pulsar$fullChunk() && this.chunk != null) {
             final WorldLightManager manager = ((PulsarWorld) this.chunk.getWorld()).pulsar$getLightManager();
             if (manager != null) {
                 manager.sendChunkLightRefresh(entry, this.chunk, this.changedSectionFilter);
