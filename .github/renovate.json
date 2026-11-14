@@ -58,17 +58,6 @@
       ]
     },
     {
-      "matchDatasources": [
-        "maven"
-      ],
-      "matchPackageNames": [
-        "com.sumirelabs*"
-      ],
-      "registryUrls": [
-        "https://artifact.sumirelabs.com/maven/releases"
-      ]
-    },
-    {
       "description": "Maven Central is supplied by CleanroomGradle at runtime and is invisible to static extraction.",
       "matchDatasources": [
         "maven"

@@ -48,6 +48,13 @@ publishing {
                 name = 'Pulsar public API'
                 description = 'Compile-only API in MCP stable_39 names. Requires Cleanroom and the matching full Pulsar mod at runtime.'
                 url = mod_url
+                licenses {
+                    license {
+                        name = 'GNU Lesser General Public License, version 3 only'
+                        url = 'https://www.gnu.org/licenses/lgpl-3.0.html'
+                        distribution = 'repo'
+                    }
+                }
             }
         }
     }

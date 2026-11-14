@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Sync CleanroomDevEnv through `6b24e5c`: expand class token replacement, validate
+  tokens in class constant pools, and select JVM runtime variants for embedded
+  dependencies. Remove Felt build tooling while preserving Pulsar's LGPL license
+  and existing source notices.
 - Sync CleanroomDevEnv through `590d46c`: migrate build entry points and shared
   scripts to Kotlin DSL, and enable parallel configuration caching.
 - Adapt Pulsar's native compatibility tests to configuration-cache execution,
