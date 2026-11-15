@@ -30,6 +30,7 @@ public final class ModLightColors {
     }
 
     static void registerDefaults(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register) {
+        IndustrialLightColors.registerDefaults(lookup, register);
         registerAdditionalDefaults(lookup, register);
         registerLegacyPorts(lookup, register);
         registerSupplementalDefaults(lookup, register);
@@ -281,7 +282,7 @@ public final class ModLightColors {
         };
     }
 
-    private static String namedProperty(IBlockState state, String name) {
+    static String namedProperty(IBlockState state, String name) {
         for (var property : state.getPropertyKeys())
             if (property.getName().equals(name))
                 return propertyName(state, property);
@@ -293,14 +294,14 @@ public final class ModLightColors {
         return property.getName(state.getValue(property));
     }
 
-    private static EnumDyeColor dye(IBlockState state) {
+    static EnumDyeColor dye(IBlockState state) {
         for (var entry : state.getProperties().entrySet())
             if (entry.getKey().getName().equals("color") && entry.getValue() instanceof EnumDyeColor color)
                 return color;
         return null;
     }
 
-    private static void register(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register,
+    static void register(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register,
         String name, Function<IBlockState, Integer> color) {
         Block block = lookup.apply(new ResourceLocation(name.indexOf(':') < 0 ? "botania:" + name : name));
         // An integration's own static/positional API always wins over our presets.

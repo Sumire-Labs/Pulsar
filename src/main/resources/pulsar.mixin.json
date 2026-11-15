@@ -17,6 +17,8 @@
     "MixinRgbFilterPalette",
     "MixinRgbStateProperties",
     "MixinRgbProjectRedLamp",
+    "MixinRgbMekanismPanel",
+    "MixinRgbGregCable",
     "MixinMultipartLightBlock",
     "MixinMultipartLightTile",
     "MixinBedrockOreLightTile",

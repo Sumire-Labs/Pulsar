@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add industrial RGB presets for Mekanism's glowing plastic, refined blocks,
+  energized smelters, superheating elements and heat/gas/bio generators.
+- Sample Mekanism Glow Panel dye colors and GTCEu cable temperature on the
+  world thread, including color changes without block-state changes.
+- Add all 32 GTCEu normal/borderless lamp presets, preserving power, inversion,
+  bloom and light-emission settings.
+- Add Ender IO electric lights, light nodes, Cold Fire, painted glowstone,
+  Liquid Sunshine and dye-specific enlightened glass/quartz presets.
+- Add Actually Additions colored lamps, tiny torches and double-furnace presets.
+  All presets retain native brightness and existing API/user overrides.
+
 ## [0.6.5-beta] - 2026-11-14
 
 ### Changed
