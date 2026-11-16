@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.6-beta] - 2026-11-16
+
 ### Added
 
 - Add industrial RGB presets for Mekanism's glowing plastic, refined blocks,
@@ -731,5 +733,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 First working build
 
-[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.5-beta...HEAD
+[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.6-beta...HEAD
+[0.6.6-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.5-beta...0.6.6-beta
 [0.6.5-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.4-beta...0.6.5-beta
