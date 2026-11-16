@@ -1,0 +1,34 @@
+name: Update release notes
+
+on:
+  workflow_dispatch:
+    inputs:
+      notes_plan:
+        description: JSON array of existing version IDs and replacement changelogs
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-release-notes
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate requested updates
+        env:
+          NOTES_PLAN: ${{ inputs.notes_plan }}
+        run: python3 gradle/scripts/update-release-notes.py --dry-run
+      - name: Update published changelogs
+        env:
+          NOTES_PLAN: ${{ inputs.notes_plan }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: python3 gradle/scripts/update-release-notes.py
