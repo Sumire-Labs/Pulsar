@@ -155,25 +155,12 @@ See the [measured values and run ranges](https://raw.githubusercontent.com/Sumir
 
 See [lighting validation notes](https://raw.githubusercontent.com/Sumire-Labs/Pulsar/main/docs/lighting-validation.md) for compatibility probes and the opt-in empty-section experiment.
 
-## Development
-
-The build follows CleanroomDevEnv `6b24e5c`, with Kotlin DSL entry points and
-configuration caching. Pulsar-specific dependency, API publication and native-test
-scripts remain under `gradle/scripts/`.
-
-- `./gradlew build`: Compile, test, check formatting and verify the production JAR.
-- `./gradlew spotlessApply`: Apply the formatter configured in `gradle/spotless/`.
-
-Preserve source-specific copyright and license notices when importing or modifying
-code. New Pulsar sources use the `LGPL-3.0-only` SPDX header.
-
 ## Credits
 
 - [Starlight](https://github.com/PaperMC/Starlight): The foundation for the lighting engine's architecture and core algorithms.
 - [SuperNova](https://github.com/GTNewHorizons/SuperNova): The source of the ported lighting engine, per-world task management, and packed RGB propagation code.
 - [Alfheim](https://github.com/Red-Studio-Ragnarok/Alfheim): A reference for various lighting bug fixes.
-- [CleanroomModTemplate](https://github.com/CleanroomMC/CleanroomModTemplate): An excellent mod development template for Cleanroom.
-- [CleanroomDevEnv](https://github.com/Sumire-Labs/CleanroomDevEnv): Current development scaffold; its MIT notice is retained in [licenses/CleanroomDevEnv-MIT.txt](licenses/CleanroomDevEnv-MIT.txt).
+- [CleanroomDevEnv](https://github.com/Sumire-Labs/CleanroomDevEnv): 
 - CleanroomVersioning: Build plugin for version management.
 - TokenEnvoy: Build plugin for embedding metadata at build time.
 
