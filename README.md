@@ -66,46 +66,47 @@ Pulsar completely replaces the lighting engine and is incompatible with other li
 - `config/pulsar-colors.cfg`: Defines light source colors.
 - `config/pulsar-filters.cfg`: Defines attenuation for each RGB channel.
 
-### Additional RGB source colors
+### Mods with RGB presets
 
-The presets below use the source block's own contextual brightness. Power, fuel,
-and other native on/off conditions remain authoritative. User palette overrides
-and a mod's own color API retain precedence. Earlier presets use
-[ColoredLux's 1.12.2 Lux Packs](https://github.com/dragon-forge/luxpacks/tree/abb9575047e4d27a1a0b8d864b16dd10d04e3575/1.12.2)
-as a reference; industrial additions are checked against the mods' own sources.
+Pulsar includes RGB presets for selected light sources from the following mods:
 
-| Mod | Additional source presets |
-| --- | --- |
-| [Mekanism / Mekanism Generators](https://github.com/mekanism/Mekanism/tree/b032fb98a50a751df7ba6a5530c25c803ea11c4b) | All 16 Glow Panel and glowing plastic colors; refined obsidian/glowstone, teleporter frames, superheating elements, energized smelters and heat/gas/bio generators when they emit light |
-| [GregTech CE Unofficial (GTCEu)](https://github.com/GregTechCEu/GregTech/tree/52c04cd7bf03e5749a653580c12ef5856cc12e31) | All 16 normal and borderless lamp colors, including inverted and light-disabled states; overheated cables change from red-orange toward warm white as temperature rises |
-| [Ender IO](https://github.com/SleepyTrousers/EnderIO-1.5-1.12/tree/9249b7e01fd73c7bc92a2fd60e768c1ef5b39fd3) | Electric lights and light nodes; Cold Fire; painted glowstone; Liquid Sunshine; all 14 enlightened fused glass/quartz families, using their dye colors |
-| [Actually Additions](https://github.com/Ellpeck/ActuallyAdditions/tree/12206a03a383a035758d6615c5da3ae32adaac81) | Colored lamps, tiny torches and powered double furnaces |
-| Quark | Paper, duskbound, elder-sea and blaze lanterns; lit lamps; candles; glowshrooms and glowcelium; crystals and crystal panes |
-| Inspirations | Torch levers, powered redstone torch levers and the single-color enlightened bushes |
-| Embers / Embers Construct | Lanterns, archaic lights and burning kilns |
-| Immersive Engineering | Lantern and balloon variants of the shared device blocks |
-| Charm | Smooth glowstone, iron/gold lanterns and variable redstone lamps |
-| NetherEx / TAIGA | Blue fire, rime ore/blocks and dilithium ore/blocks, where the installed mod emits light |
-| Deep Mob Learning | Infused ingot blocks, simulation/extraction chambers and trial keystones, where the installed mod emits light |
-| Pam's HarvestCraft / Coloured Sea Lanterns | Dye-specific candles and sea lanterns |
-| Advanced Chimneys | Glowstone and sea-lantern chimneys |
-| Exotic Birds / Tinker I/O / Tinkers' Construct | Lit egg sorters/incubators, What a Beautiful Block and the glowing block |
-| Vanilla | End gateways use the end-portal hue |
-
-Glow Panel colors and GTCEu cable temperatures are sampled on the world thread.
-Workers use the captured values, including changes that do not replace a block state.
-GTCEu lamp bloom and physical emission are separate settings: a lamp with light
-emission disabled keeps emitting no block light. ShaderTech-style bloom remains a
-renderer/resource-pack effect; these presets color the light that reaches nearby blocks.
-
-Quark's crystal palette follows its own names: `crystal_blue` is cyan and
-`crystal_indigo` is blue. Black candles, crystals and sea lanterns keep neutral
-light at their native brightness. Unknown state variants retain their existing
-fallback. Absent mods are skipped; the presets do not load optional mod classes.
-
-These presets do not make normally non-emissive redstone/lapis blocks glow.
-ColoredLux's randomized flicker, radius formulas and entity lights are separate
-features. ColoredLux itself is not required or intended to be installed alongside Pulsar.
+- Actually Additions
+- Advanced Chimneys
+- Applied Energistics 2
+- Ars Magica 2: Rekindled
+- BiblioCraft
+- Biomes O' Plenty
+- Botania
+- BuildCraft
+- Charm
+- Chisel
+- Coloured Sea Lanterns
+- Deep Mob Learning
+- Embers / Embers Construct
+- Ender IO
+- Exotic Birds
+- Extra Utilities 2
+- Forestry
+- Future MC
+- Galacticraft
+- GregTech CE Unofficial (GTCEu)
+- Immersive Engineering
+- Inspirations
+- Mekanism / Mekanism Generators
+- Natura / Natura Legacy
+- NetherEx
+- OpenComputers
+- Pam's HarvestCraft
+- ProjectRed
+- Quark
+- Railcraft
+- TAIGA
+- Thaumcraft
+- Thermal Expansion
+- Thermal Foundation
+- Tinker I/O
+- Tinkers' Construct
+- Twilight Forest
 
 ## API
 
