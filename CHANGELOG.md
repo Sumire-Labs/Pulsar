@@ -26,23 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update CleanroomDevEnv to `6b24e5c`, with Kotlin DSL build scripts and parallel
-  configuration caching. Native compatibility tests support configuration caching;
-  the standalone API publication and production JAR checks remain available.
-- Apply version tokens to all compiled classes and check class constant pools
-  for unresolved tokens, avoiding false matches in binary data.
-- Select JVM runtime variants when resolving embedded dependencies.
-- Move Spotless profiles to `gradle/spotless` and extend Renovate dependency coverage.
-- Validate release-note extraction and retain support for resuming interrupted
-  uploads. GitHub Releases continue to use the pre-release flag disabled.
-- Add LGPL-3.0-only source headers while preserving upstream copyright notices
-  and the CleanroomDevEnv MIT notice. The API publication declares its LGPL license.
+- Update DevEnv.
 
 ### Removed
 
 - Remove Actinium-specific renderer integration. Actinium targets Cleanroom 0.6.x;
   Pulsar requires Cleanroom 0.7.14-alpha or newer within the 0.7.x series.
-- Remove Felt build tooling and its header-management configuration.
 
 ### Fixed
 
@@ -60,10 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update Gradle to 9.9.0 and actions/setup-java to v6.2.0.
-- Publish beta-tagged builds as beta files on CurseForge and Modrinth while
-  keeping the GitHub Release's pre-release flag disabled.
-- Use the matching CHANGELOG entry as the release notes on all distribution sites.
+- Update DevEnv.
 
 ### Fixed
 
@@ -84,30 +70,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Exotic Birds; Tinker I/O; and Tinkers' Construct's glowing block.
 - Add an end-portal-colored preset for end gateways. All new presets retain the
   original contextual brightness and lit/unlit behavior, without creating new light sources.
-- Add Spotless formatting checks and the CleanroomDevEnv Eclipse formatter profile.
-- Add verification of the production JAR's metadata, version constants, Mixin mappings,
-  coremod and access-transformer packaging.
-- Add Renovate configuration for weekly dependency update PRs.
 
 ### Changed
 
-- Replace the Unimined development environment with CleanroomDevEnv, using
-  CleanroomGradle 0.23.0, Cleanroom USERDEV 0.7.14-alpha and Gradle 9.8.2.
+- Update DevEnv.
 - Require Java 25 and Cleanroom Loader 0.7.14-alpha or newer within the 0.7.x series.
-- Apply the template's formatting rules across production code, tests and the API example.
-- Migrate automated releases to the template's Gradle publishing workflow, retaining
-  CurseForge, Modrinth and the `com.sumirelabs:pulsar-api` Maven publication.
-- Adapt compatibility-test dependencies to CleanroomGradle's SRG-to-MCP remapping.
 
 ### Fixed
 
-- Preserve test-resource task dependencies when replacing remapped compatibility JARs
-  on the test classpath, so clean CI builds include the probe Mixin configurations.
 - Preserve the runtime name of Forge's five-argument `BufferBuilder.putColorRGBA`
   method when building production Mixins.
 - Use the LWJGL texture-environment query supported by the new Cleanroom environment.
-- Remove stale signatures from disposable remapped test JARs so signed compatibility
-  fixtures can load after remapping.
 
 ## [0.6.2]
 
@@ -314,7 +287,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove the Pulsar Colored Lighting Addon backend API and integration hooks.
   Pulsar now uses its built-in scalar engines.
 
-
 ## [0.4.0]
 
 ### Fixed
@@ -406,11 +378,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated the build toolchain to Gradle 9.7.1, Shadow 9.6.1,
-  Unimined 1.4.37-kappa, JUnit 6.1.3, and `actions/setup-java` v6. Release
-  workflows now use the checked-in Gradle wrapper instead of selecting a
-  separate Gradle version.
-- Added Pulsar's issue tracker URL to the generated mod metadata.
+- Update DevEnv.
 
 ### Fixed
 
@@ -472,9 +440,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1]
 
-### Changed
-
-- Refactored the lighting pipeline and chunk mixins into smaller, responsibility-focused components to improve maintainability without intended behavior changes.
+No user-facing changes.
 
 ## [0.2.0]
 
@@ -482,14 +448,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed the optional Celeritas-specific directional mesh-light and
   clone-cache hooks.
-  compatible without the extra integrations.
-- Added a reproducible Lightbench fresh-chunk generation comparison to the
-  README, including three interleaved runs each for vanilla, Alfheim, and
-  Pulsar, the test conditions, and exact per-run aggregate data.
-- Added a correctness-checked Lightbench update comparison covering skylight
-  increase and decrease plus glowstone placement and removal. The README shows
-  the median and full restart range from three interleaved runs per engine and
-  links the exact comparison data.
 
 ### Fixed
 
@@ -528,7 +486,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Ordinary blocks retain the cached fast path; only overriding block classes
   use context-aware lookups, with no per-lookup `BlockPos` allocation. Existing
   Pulsar light caches are invalidated once so affected chunks relight.
-
 
 ## [0.1.0]
 
@@ -653,18 +610,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The non-functional `performance` config category
 - The `trackPlayerAction` config and the synchronous light path (no longer
   needed)
-- Assorted dead code (`SafeBlockAccess`, the render update queue, unused
-  counters)
 
 ## [0.1.0-dev.10]
 
 ### Changed
 
-- Synced with upstream CleanroomModTemplate
-
-### Fixed
-
-- Broken action ID and mismatched Gradle version in CI workflows
+- Update DevEnv.
 
 ### Removed
 
@@ -723,11 +674,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Alfheim-style BFS queue deduplication (`enableBfsDedup`)
-- CHANGELOG.md
-
-### Changed
-
-- Expanded README credits
 
 ## [0.1.0-dev.1] - 2026-04-10
 
