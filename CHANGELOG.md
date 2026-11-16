@@ -645,9 +645,7 @@ No user-facing changes.
 
 - `enableBfsDedup` now defaults to `false` (saves ~1.5 MB per engine)
 
-### Removed
-
-- Unused dirty-range tracking
+- Reduce memory use by 8 bytes per light array.
 
 ## [0.1.0-dev.5] - 2026-04-10
 
