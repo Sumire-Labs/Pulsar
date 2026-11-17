@@ -28,6 +28,40 @@ restore its NBT, and verify that a later publication survives vanilla's dirty re
 Failure probes cover initial failure, retention of a good sample, retry backoff, recovery,
 unload, and visibility while failed samples are excluded from valid disk caches.
 
+## Task failure and reference calculations
+
+`TaskFailureRecoveryTest` injects initial/edge exceptions and exhausted retry
+budgets into the production task/coordinator paths. Failed generations remain
+unready and unusable, their saved-light validity is cleared, and their completion
+futures fail. Failure records continue to block nearby save/send eligibility after
+queues drain. New relights and chunk removal clear the records. A stale generation
+cannot fail its replacement, and recovery failures reach the original waiters.
+RGB dispatch exceptions and RGB edge retry exhaustion are covered too.
+
+Exceptions terminate the affected generation. Queue overflows retain bounded
+retries. A subsequent relight can complete a new generation after the cause has
+been corrected; an empty queue alone does not indicate successful lighting.
+
+`ReferenceLightSolverTest` runs a standalone JVM with a plain integer relaxation
+solver. Its emission, water absorption, glass filters and slab-face rules are
+specified independently of `LightInfo`, packed RGB arithmetic, engine face tables
+and production queues. Production scalar, packed RGB and all three separate RGB
+channel kernels are compared after initial propagation and eight edits per scene.
+
+The fixed seeds are 91 and 48392. Each scene contains 32 x 16 x 32 cells spanning
+four chunks, with sealed stone boundaries and zero light outside. Scenes run at
+Y=0 and Y=-32; the latter also crosses negative X/Z coordinates. Sources, water,
+opaque blocks, clear/colored glass and opposite-half slabs are included. Changes
+exercise source addition/removal, a weaker remaining source and changed occlusion.
+There are 360 full-volume comparisons of 16,384 cells each. The test runs in the
+normal Gradle test task.
+
+Sky cases use explicit fixed source cells. These comparisons validate sky
+propagation and boundary-source removal, not the creation of direct-sky columns,
+null-section extrusion, contextual mod callbacks or the full chunk lifecycle.
+Those remain separate test areas. The solver comparison is evidence for the stated
+fixtures, not a formal correctness proof for arbitrary worlds or schedules.
+
 ## Diagnostics
 
 Set `debug.traceLightUpdates=true` in `config/pulsar.cfg`. Every 200 client ticks,
