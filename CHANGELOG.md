@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Prevent failed lighting tasks and exhausted retries from marking chunks ready
+  or allowing incomplete light to be sent or saved as a valid cache.
+- Stop RGB edge retries at their configured limit and report failed relights to
+  waiting callers. Failures from older relight requests no longer affect newer ones.
+- Publish RGB color data before announcing completed lighting in VANILLA gameplay
+  light mode.
+
 ## [0.6.6-beta] - 2026-11-16
 
 ### Added

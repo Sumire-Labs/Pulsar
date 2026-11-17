@@ -402,7 +402,7 @@ public final class WorldLightManager {
         if (chunk == null || !((PulsarChunk) chunk).pulsar$isLightReady())
             return false;
         // Propagation from a neighboring task can also write this chunk's nibbles.
-        return !this.hasPendingLightWorkNear(cx, cz);
+        return !this.hasPendingLightWorkNear(cx, cz) && !this.hasFailedLightWorkNear(cx, cz);
     }
 
     public void deferInitialChunkSend(PlayerChunkMapEntry entry, Chunk chunk) {
@@ -542,14 +542,18 @@ public final class WorldLightManager {
                 long scalarStarted = measureRgb ? System.nanoTime() : 0L;
                 boolean scalar = !(engine instanceof com.sumirelabs.pulsar.light.engine.RgbSkyEngine rgb)
                     || rgb.requiresScalarLighting();
+                boolean scalarSucceeded = true;
                 if (!scalar) {
                     ((com.sumirelabs.pulsar.light.engine.RgbSkyEngine) engine).publishColors();
                     this.completeProjectedTask(task, engine, true);
                 } else
-                    this.processSkyTask(task, engine);
+                    scalarSucceeded = this.processSkyTask(task, engine);
                 long scalarFinished = measureRgb ? System.nanoTime() : 0L;
-                if (scalar && engine instanceof com.sumirelabs.pulsar.light.engine.RgbSkyEngine rgb)
+                if (scalar && scalarSucceeded
+                    && engine instanceof com.sumirelabs.pulsar.light.engine.RgbSkyEngine rgb) {
                     rgb.publishColors();
+                    this.completeTaskLighting(task, true);
+                }
                 if (measureRgb) {
                     long total = System.nanoTime() - rgbStarted;
                     this.stats.skyWorkerTimeNs.addAndGet(total - (scalarFinished - scalarStarted));
@@ -573,20 +577,27 @@ public final class WorldLightManager {
                 long scalarStarted = measureRgb ? System.nanoTime() : 0L;
                 boolean scalar = !(engine instanceof com.sumirelabs.pulsar.light.engine.RgbBlockEngine rgb)
                     || rgb.requiresScalarLighting();
+                boolean scalarSucceeded = true;
                 if (!scalar) {
                     ((com.sumirelabs.pulsar.light.engine.RgbBlockEngine) engine).publishColors();
                     this.completeProjectedTask(task, engine, false);
                 } else
-                    this.processBlockTask(task, engine);
+                    scalarSucceeded = this.processBlockTask(task, engine);
                 long scalarFinished = measureRgb ? System.nanoTime() : 0L;
-                if (scalar && engine instanceof com.sumirelabs.pulsar.light.engine.RgbBlockEngine rgb)
+                if (scalar && scalarSucceeded
+                    && engine instanceof com.sumirelabs.pulsar.light.engine.RgbBlockEngine rgb) {
                     rgb.publishColors();
+                    this.completeTaskLighting(task, false);
+                }
                 if (measureRgb) {
                     long total = System.nanoTime() - rgbStarted;
                     this.stats.blockWorkerTimeNs.addAndGet(total - (scalarFinished - scalarStarted));
                     this.stats.blockTaskMaxNs.accumulateAndGet(total, Math::max);
                 }
             }
+        } catch (final Throwable failure) {
+            this.initialLighting.fail(task, failure);
+            throw failure;
         } finally {
             if (!this.world.isRemote)
                 this.lightingGate.readLock().unlock();
@@ -597,13 +608,7 @@ public final class WorldLightManager {
 
     /** RGB maximum and snapshot are installed before initial/edge readiness becomes observable. */
     private void completeProjectedTask(ChunkTasks task, PulsarEngine engine, boolean sky) {
-        if (task.initialLightChunk != null)
-            this.initialLighting.completeInitial(task,
-                sky ? InitialLightCompletionState.SKY : InitialLightCompletionState.BLOCK);
-        if (task.initialLightEdgeGeneration > 0L
-            && (sky ? task.queuedEdgeChecksSky : task.queuedEdgeChecksBlock) != null)
-            this.initialLighting.completeEdges(task,
-                sky ? InitialLightCompletionState.SKY : InitialLightCompletionState.BLOCK);
+        this.completeTaskLighting(task, sky);
         if (LightStats.enabled) {
             this.stats.chunksProcessed.incrementAndGet();
             this.stats.recordQueueLatency(task.enqueueTimeNs);
@@ -619,7 +624,17 @@ public final class WorldLightManager {
         }
     }
 
-    private void processSkyTask(final ChunkTasks task, final PulsarEngine skyEngine) {
+    private void completeTaskLighting(ChunkTasks task, boolean sky) {
+        if (task.initialLightChunk != null)
+            this.initialLighting.completeInitial(task,
+                sky ? InitialLightCompletionState.SKY : InitialLightCompletionState.BLOCK);
+        if (task.initialLightEdgeGeneration > 0L
+            && (sky ? task.queuedEdgeChecksSky : task.queuedEdgeChecksBlock) != null)
+            this.initialLighting.completeEdges(task,
+                sky ? InitialLightCompletionState.SKY : InitialLightCompletionState.BLOCK);
+    }
+
+    private boolean processSkyTask(final ChunkTasks task, final PulsarEngine skyEngine) {
         final boolean statsOn = LightStats.enabled;
         final long t0 = statsOn ? System.nanoTime() : 0L;
         final int cx = CoordinateUtils.getChunkX(task.chunkCoordinate);
@@ -629,13 +644,9 @@ public final class WorldLightManager {
             && task.queuedEdgeChecksSky != null;
 
         if (this.loadedChunkMap.get(task.chunkCoordinate) == null) {
-            if (finishInitial) {
-                this.initialLighting.completeInitial(task, InitialLightCompletionState.SKY);
-            }
-            if (finishEdges) {
-                this.initialLighting.completeEdges(task, InitialLightCompletionState.SKY);
-            }
-            return;
+            this.initialLighting.fail(task,
+                new java.util.concurrent.CancellationException("Chunk unloaded during lighting"));
+            return false;
         }
 
         if (statsOn) {
@@ -676,21 +687,18 @@ public final class WorldLightManager {
                 edgeOverflowed |= skyEngine.wasQueueOverflowed();
             }
 
-            if (valueOverflowed) {
-                if (this.requeueAfterOverflow(this.skyQueue, task, cx, cz, "Sky")) {
-                    finishInitial = false;
-                    finishEdges = false;
-                }
-            } else if (edgeOverflowed) {
-                if (finishEdges) {
-                    if (this.initialLighting.restartAfterEdgeOverflow(task, cx, cz, "Sky")) {
-                        finishEdges = false;
-                    }
-                } else if (this.requeueAfterOverflow(this.skyQueue, task, cx, cz, "Sky")) {
-                    finishInitial = false;
-                }
+            if (valueOverflowed || edgeOverflowed) {
+                finishInitial = false;
+                finishEdges = false;
+                if (!valueOverflowed && task.initialLightEdgeGeneration > 0L)
+                    this.initialLighting.restartAfterEdgeOverflow(task, cx, cz, "Sky");
+                else
+                    this.requeueAfterOverflow(this.skyQueue, task, cx, cz, "Sky");
             }
         } catch (final Throwable t) {
+            finishInitial = false;
+            finishEdges = false;
+            this.initialLighting.fail(task, t);
             if (this.loadedChunkMap.get(task.chunkCoordinate) != null) {
                 Pulsar.LOGGER.error("Sky task for chunk ({}, {}) failed", cx, cz, t);
             } else {
@@ -698,10 +706,10 @@ public final class WorldLightManager {
             }
         }
 
-        if (finishInitial) {
+        if (finishInitial && !(skyEngine instanceof com.sumirelabs.pulsar.light.engine.RgbSkyEngine)) {
             this.initialLighting.completeInitial(task, InitialLightCompletionState.SKY);
         }
-        if (finishEdges) {
+        if (finishEdges && !(skyEngine instanceof com.sumirelabs.pulsar.light.engine.RgbSkyEngine)) {
             this.initialLighting.completeEdges(task, InitialLightCompletionState.SKY);
         }
 
@@ -712,9 +720,10 @@ public final class WorldLightManager {
             this.stats.skyTaskMaxNs.accumulateAndGet(elapsed, Math::max);
             this.stats.skyTasksProcessed.incrementAndGet();
         }
+        return !valueOverflowed && !edgeOverflowed && task.failure == null;
     }
 
-    private void processBlockTask(final ChunkTasks task, final PulsarEngine blockEngine) {
+    private boolean processBlockTask(final ChunkTasks task, final PulsarEngine blockEngine) {
         final boolean statsOn = LightStats.enabled;
         // t0/t1/t2 stay unconditional: they also feed the slow-task warning.
         final long t0 = System.nanoTime();
@@ -725,13 +734,9 @@ public final class WorldLightManager {
             && task.queuedEdgeChecksBlock != null;
 
         if (this.loadedChunkMap.get(task.chunkCoordinate) == null) {
-            if (finishInitial) {
-                this.initialLighting.completeInitial(task, InitialLightCompletionState.BLOCK);
-            }
-            if (finishEdges) {
-                this.initialLighting.completeEdges(task, InitialLightCompletionState.BLOCK);
-            }
-            return;
+            this.initialLighting.fail(task,
+                new java.util.concurrent.CancellationException("Chunk unloaded during lighting"));
+            return false;
         }
 
         if (statsOn) {
@@ -783,21 +788,18 @@ public final class WorldLightManager {
                 edgeOverflowed |= blockEngine.wasQueueOverflowed();
             }
 
-            if (valueOverflowed) {
-                if (this.requeueAfterOverflow(this.blockQueue, task, cx, cz, "Block")) {
-                    finishInitial = false;
-                    finishEdges = false;
-                }
-            } else if (edgeOverflowed) {
-                if (finishEdges) {
-                    if (this.initialLighting.restartAfterEdgeOverflow(task, cx, cz, "Block")) {
-                        finishEdges = false;
-                    }
-                } else if (this.requeueAfterOverflow(this.blockQueue, task, cx, cz, "Block")) {
-                    finishInitial = false;
-                }
+            if (valueOverflowed || edgeOverflowed) {
+                finishInitial = false;
+                finishEdges = false;
+                if (!valueOverflowed && task.initialLightEdgeGeneration > 0L)
+                    this.initialLighting.restartAfterEdgeOverflow(task, cx, cz, "Block");
+                else
+                    this.requeueAfterOverflow(this.blockQueue, task, cx, cz, "Block");
             }
         } catch (final Throwable t) {
+            finishInitial = false;
+            finishEdges = false;
+            this.initialLighting.fail(task, t);
             if (this.loadedChunkMap.get(task.chunkCoordinate) != null) {
                 Pulsar.LOGGER.error("Block task for chunk ({}, {}) failed", cx, cz, t);
             } else {
@@ -806,10 +808,10 @@ public final class WorldLightManager {
             }
         }
 
-        if (finishInitial) {
+        if (finishInitial && !(blockEngine instanceof com.sumirelabs.pulsar.light.engine.RgbBlockEngine)) {
             this.initialLighting.completeInitial(task, InitialLightCompletionState.BLOCK);
         }
-        if (finishEdges) {
+        if (finishEdges && !(blockEngine instanceof com.sumirelabs.pulsar.light.engine.RgbBlockEngine)) {
             this.initialLighting.completeEdges(task, InitialLightCompletionState.BLOCK);
         }
 
@@ -827,6 +829,7 @@ public final class WorldLightManager {
                 cx, cz, totalNs / 1_000_000L, changesNs / 1_000_000L, changesPos, changesBfsInc, changesBfsDec,
                 edgesNs / 1_000_000L, edgeSec, edgeBfsInc, edgeBfsDec);
         }
+        return !valueOverflowed && !edgeOverflowed && task.failure == null;
     }
 
     /**
@@ -837,9 +840,13 @@ public final class WorldLightManager {
      */
     private boolean requeueAfterOverflow(final LightQueue queue, final ChunkTasks task,
         final int cx, final int cz, final String engineName) {
+        if (task.initialLightChunk == null && task.initialLightEdgeGeneration > 0L)
+            return this.initialLighting.restartAfterEdgeOverflow(task, cx, cz, engineName);
         if (task.relightAttempts < InitialLightCoordinator.MAX_RELIGHT_ATTEMPTS) {
             final Chunk chunk = this.loadedChunkMap.get(task.chunkCoordinate);
             if (chunk == null) {
+                this.initialLighting.fail(task,
+                    new java.util.concurrent.CancellationException("Chunk unloaded during retry"));
                 return false;
             }
             final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(chunk);
@@ -847,10 +854,7 @@ public final class WorldLightManager {
                 // An ordinary block/section/edge task has no completion state
                 // to release. Promote its recovery to a coordinated relight
                 // of every active lane so final sync and edge checks run.
-                final int edgeRecoveryAttempts = task.initialLightEdgeGeneration > 0L
-                    ? Math.min(InitialLightCoordinator.MAX_RELIGHT_ATTEMPTS, task.edgeCheckAttempts + 1)
-                    : 0;
-                this.initialLighting.queueRecovery(cx, cz, chunk, emptySections, edgeRecoveryAttempts);
+                this.initialLighting.queueRecovery(cx, cz, chunk, emptySections, 0);
                 return true;
             }
 
@@ -864,6 +868,7 @@ public final class WorldLightManager {
 
         Pulsar.LOGGER.error("{} engine: chunk ({}, {}) overflowed BFS queue {} times - giving up.",
             engineName, cx, cz, task.relightAttempts + 1);
+        this.initialLighting.fail(task, new IllegalStateException(engineName + " lighting exhausted its retries"));
         return false;
     }
 
@@ -1087,9 +1092,20 @@ public final class WorldLightManager {
         return false;
     }
 
-    /** Retry backoff must not hide chunks from players, but degraded samples are
-     * not a valid disk cache. Keep this separate from packet/readiness gates. */
+    /** Failed propagation can leave incomplete light anywhere in its 3x3 write region. */
+    public boolean hasFailedLightWorkNear(int cx, int cz) {
+        for (int dz = -1; dz <= 1; dz++)
+            for (int dx = -1; dx <= 1; dx++)
+                if (this.initialLighting.hasFailed(CoordinateUtils.getChunkKey(cx + dx, cz + dz)))
+                    return true;
+        return false;
+    }
+
+    /** Invalid disk caches include failed propagation and degraded contextual samples.
+     * Sample retry backoff alone still does not block packet visibility. */
     public boolean hasFailedLightSamplesNear(int cx, int cz) {
+        if (this.hasFailedLightWorkNear(cx, cz))
+            return true;
         for (int dz = -1; dz <= 1; dz++)
             for (int dx = -1; dx <= 1; dx++)
                 if (this.contextualLight.hasFailedSamples(cx + dx, cz + dz)
@@ -1112,7 +1128,7 @@ public final class WorldLightManager {
         while (true) {
             final Future<Void> pending = this.getPendingWorkFutureNear(cx, cz);
             if (pending == null) {
-                return this.finishUnloadWait(waitedNs, true);
+                return this.finishUnloadWait(waitedNs, !this.hasFailedLightWorkNear(cx, cz));
             }
             final long remaining = this.unloadWaitBudget.remainingNs();
             if (remaining <= 0L) {

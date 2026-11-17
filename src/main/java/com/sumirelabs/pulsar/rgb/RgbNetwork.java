@@ -190,7 +190,8 @@ public final class RgbNetwork {
             }
             // A published RGB snapshot already contains all three completed channels.
             // Waiting for unrelated later work can starve color updates indefinitely.
-            if (!((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$isLightReady())
+            if (!((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$isLightReady()
+                || manager.hasFailedLightWorkNear(chunk.x, chunk.z))
                 continue;
             if (!dirty.remove(entry.getKey(), entry.getValue()))
                 continue;

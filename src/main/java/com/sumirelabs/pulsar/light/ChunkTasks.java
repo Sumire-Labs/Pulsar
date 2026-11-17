@@ -55,6 +55,7 @@ public final class ChunkTasks {
     public int edgeCheckAttempts;
     public int relightAttempts;
     boolean maintenanceIndexed;
+    Throwable failure;
 
     public ChunkTasks(final long chunkCoordinate) {
         this.chunkCoordinate = chunkCoordinate;

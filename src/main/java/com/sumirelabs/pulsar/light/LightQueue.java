@@ -424,7 +424,10 @@ public final class LightQueue {
                 this.inFlightTasks.remove(task.chunkCoordinate);
             }
         }
-        task.onComplete.set(null);
+        if (task.failure == null)
+            task.onComplete.set(null);
+        else
+            task.onComplete.setException(task.failure);
     }
 
     /**

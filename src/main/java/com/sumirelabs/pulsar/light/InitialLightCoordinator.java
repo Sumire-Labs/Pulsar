@@ -34,6 +34,9 @@ final class InitialLightCoordinator {
 
     private final Object lock = new Object();
     private final Long2ObjectOpenHashMap<ChunkLightCompletion> completions = new Long2ObjectOpenHashMap<>();
+    private final it.unimi.dsi.fastutil.longs.LongOpenHashSet failedChunks = new it.unimi.dsi.fastutil.longs.LongOpenHashSet(
+        0);
+    private volatile int failedCount;
     private long nextGeneration;
 
     InitialLightCoordinator(final SnapshotChunkMap loadedChunks,
@@ -98,6 +101,8 @@ final class InitialLightCoordinator {
                 | (this.blockQueue != null ? InitialLightCompletionState.BLOCK : 0);
             completion = new ChunkLightCompletion(generation, requiredLanes, chunk, edgeRecoveryAttempts);
             superseded = this.completions.put(key, completion);
+            this.failedChunks.remove(key);
+            this.failedCount = this.failedChunks.size();
 
             // Queue both lanes while holding the generation lock so a newer
             // request cannot be followed by an older task insertion.
@@ -123,7 +128,16 @@ final class InitialLightCoordinator {
         if (superseded != null) {
             if (handoffSupersededCompletion) {
                 completion.future.addListener(
-                    () -> superseded.finish(completion.published), Runnable::run);
+                    () -> {
+                        try {
+                            com.google.common.util.concurrent.Futures.getDone(completion.future);
+                            superseded.finish(completion.published);
+                        } catch (java.util.concurrent.ExecutionException failure) {
+                            superseded.fail(failure.getCause());
+                        } catch (java.util.concurrent.CancellationException cancelled) {
+                            superseded.finish(false);
+                        }
+                    }, Runnable::run);
             } else {
                 superseded.finish(false);
             }
@@ -136,6 +150,8 @@ final class InitialLightCoordinator {
         final ChunkLightCompletion removed;
         synchronized (this.lock) {
             removed = this.completions.remove(key);
+            this.failedChunks.remove(key);
+            this.failedCount = this.failedChunks.size();
             if (this.skyQueue != null) {
                 this.skyQueue.removeChunk(chunkX, chunkZ);
             }
@@ -146,6 +162,35 @@ final class InitialLightCoordinator {
         if (removed != null) {
             removed.finish(false);
         }
+    }
+
+    /** Reject only this generation. A late failure must not invalidate newer lighting. */
+    void fail(final ChunkTasks task, final Throwable failure) {
+        task.failure = failure;
+        final long generation = task.initialLightChunk != null
+            ? task.initialLightGeneration
+            : task.initialLightEdgeGeneration;
+        final ChunkLightCompletion failed;
+        synchronized (this.lock) {
+            final ChunkLightCompletion current = this.completions.get(task.chunkCoordinate);
+            if (generation > 0L && (current == null || current.generation != generation)
+                || generation == 0L && current != null)
+                return;
+            failed = current;
+            if (failed != null)
+                this.completions.remove(task.chunkCoordinate);
+            final Chunk chunk = this.loadedChunks.get(task.chunkCoordinate);
+            if (chunk != null && (failed == null || failed.chunk == chunk)) {
+                this.failedChunks.add(task.chunkCoordinate);
+                this.failedCount = this.failedChunks.size();
+                PulsarChunk pc = (PulsarChunk) chunk;
+                pc.pulsar$setLightReady(false);
+                pc.pulsar$setLightUsable(false);
+                pc.pulsar$setSavedLightValid(false);
+            }
+        }
+        if (failed != null)
+            failed.fail(failure);
     }
 
     /**
@@ -162,6 +207,7 @@ final class InitialLightCoordinator {
             Pulsar.LOGGER.error(
                 "{} engine: chunk ({}, {}) overflowed final edge reconciliation {} times - giving up.",
                 engineName, chunkX, chunkZ, task.edgeCheckAttempts + 1);
+            this.fail(task, new IllegalStateException("Final light edge reconciliation exhausted its retries"));
             return false;
         }
 
@@ -171,14 +217,15 @@ final class InitialLightCoordinator {
                 // A newer generation already superseded this edge pass.
                 return true;
             }
-            if (this.loadedChunks.get(task.chunkCoordinate) != completion.chunk) {
-                return false;
+            if (this.loadedChunks.get(task.chunkCoordinate) == completion.chunk) {
+                final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(completion.chunk);
+                this.queueRecovery(
+                    chunkX, chunkZ, completion.chunk, emptySections, task.edgeCheckAttempts + 1);
+                return true;
             }
-            final Boolean[] emptySections = PulsarEngine.getEmptySectionsForChunk(completion.chunk);
-            this.queueRecovery(
-                chunkX, chunkZ, completion.chunk, emptySections, task.edgeCheckAttempts + 1);
-            return true;
         }
+        this.fail(task, new java.util.concurrent.CancellationException("Chunk unloaded during edge retry"));
+        return false;
     }
 
     /**
@@ -228,6 +275,8 @@ final class InitialLightCoordinator {
                     }
                 } catch (final Throwable t) {
                     this.completions.remove(chunkCoordinate);
+                    this.failedChunks.add(chunkCoordinate);
+                    this.failedCount = this.failedChunks.size();
                     try {
                         pulsarChunk.pulsar$setLightReady(false);
                         pulsarChunk.pulsar$setLightUsable(false);
@@ -241,7 +290,12 @@ final class InitialLightCoordinator {
         }
 
         if (failedCompletion != null) {
-            failedCompletion.finish(false);
+            if (transitionFailure == null)
+                failedCompletion.finish(false);
+            else {
+                task.failure = transitionFailure;
+                failedCompletion.fail(transitionFailure);
+            }
         }
         if (transitionFailure != null) {
             Pulsar.LOGGER.error("Failed to start edge reconciliation for chunk ({}, {})",
@@ -302,10 +356,14 @@ final class InitialLightCoordinator {
                             ((PulsarChunk) completion.chunk).pulsar$setLightReady(true);
                             published = true;
                         } else if (currentGeneration) {
+                            this.failedChunks.add(chunkCoordinate);
+                            this.failedCount = this.failedChunks.size();
                             ((PulsarChunk) completion.chunk).pulsar$setLightReady(false);
                             ((PulsarChunk) completion.chunk).pulsar$setLightUsable(false);
                         }
                     } catch (final Throwable t) {
+                        this.failedChunks.add(chunkCoordinate);
+                        this.failedCount = this.failedChunks.size();
                         if (publishFailure == null) {
                             publishFailure = t;
                         } else {
@@ -323,11 +381,24 @@ final class InitialLightCoordinator {
             }
         }
 
-        completion.finish(published);
+        if (publishFailure == null)
+            completion.finish(published);
+        else {
+            task.failure = publishFailure;
+            completion.fail(publishFailure);
+        }
         if (publishFailure != null) {
             Pulsar.LOGGER.error("Failed to publish edge-reconciled light for chunk ({}, {})",
                 CoordinateUtils.getChunkX(chunkCoordinate), CoordinateUtils.getChunkZ(chunkCoordinate),
                 publishFailure);
+        }
+    }
+
+    boolean hasFailed(final long key) {
+        if (this.failedCount == 0)
+            return false;
+        synchronized (this.lock) {
+            return this.failedChunks.contains(key);
         }
     }
 

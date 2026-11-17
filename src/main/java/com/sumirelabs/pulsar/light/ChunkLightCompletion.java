@@ -33,6 +33,13 @@ final class ChunkLightCompletion {
         this.chunk = chunk;
     }
 
+    synchronized void fail(final Throwable failure) {
+        if (this.future.isDone())
+            return;
+        this.published = false;
+        this.future.setException(failure);
+    }
+
     synchronized void finish(final boolean published) {
         if (this.future.isDone()) {
             return;
