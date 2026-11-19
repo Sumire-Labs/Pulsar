@@ -20,6 +20,7 @@ final class AdditionalModLightColors {
     private AdditionalModLightColors() {}
 
     static void registerDefaults(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> output) {
+        registerAuditedDefaults(lookup, output);
         hue(lookup, output, 0xFCA, "advancedrocketry:thermitetorch", "rustic:lantern_wood", "mia:torch_gold");
         hue(lookup, output, 0x611, "mia:redstone_lantern");
         hue(lookup, output, 0xF83, "endreborn:block_end_magma", "iceandfire:dragonforge_fire_core");
@@ -28,7 +29,13 @@ final class AdditionalModLightColors {
             "integrateddynamics:menril_torch", "integrateddynamics:menril_torch_stone");
         hue(lookup, output, 0x8F8, "nuclearcraft:tritium_lamp");
         hue(lookup, output, 0xFC7, "thaumadditions:amber_lamp");
-        hue(lookup, output, 0xBDF, "thaumicaugmentation:ancient_light");
+        // This release registers one stone block; ancient_light is a model/state name.
+        ModLightColors.register(lookup, output, "thaumicaugmentation:stone", state -> switch (String.valueOf(
+            ModLightColors.namedProperty(state, "ta_stone_type"))) {
+            case "ancient_light" -> 0xBDF;
+            case "stone_crusted_glowing" -> 0xC9F;
+            default -> null;
+        });
 
         ModLightColors.register(lookup, output, "techguns:lamp0", state -> switch (String.valueOf(
             ModLightColors.namedProperty(state, "lamp_type"))) {
@@ -88,6 +95,86 @@ final class AdditionalModLightColors {
         hue(lookup, output, 0xFC7, "nb:shroom_light");
         hue(lookup, output, 0xFCA, "da:fire_stone_lit", "da:aza_vines_berries");
         hue(lookup, output, 0xBDF, "da:farum_lantern");
+    }
+
+    /** Additional native emitters found by auditing 1.12.2 registrations and emission implementations. */
+    private static void registerAuditedDefaults(Function<ResourceLocation, Block> lookup,
+        BiConsumer<IBlockState, Integer> output) {
+        hue(lookup, output, 0xF44, "actuallyadditions:block_crystal_cluster_redstone");
+        hue(lookup, output, 0x48F, "actuallyadditions:block_crystal_cluster_lapis");
+        hue(lookup, output, 0x6DF, "actuallyadditions:block_crystal_cluster_diamond");
+        hue(lookup, output, 0x6F8, "actuallyadditions:block_crystal_cluster_emerald");
+        hue(lookup, output, 0xFFF, "actuallyadditions:block_crystal_cluster_iron",
+            "actuallyadditions:block_crystal_cluster_coal");
+        hue(lookup, output, 0xFCA, "actuallyadditions:block_grinder", "actuallyadditions:block_grinder_double");
+        hue(lookup, output, 0x8FA, "actuallyadditions:block_item_repairer");
+        hue(lookup, output, 0x8DF, "biomesoplenty:blue_fire", "iceandfire:dread_portal");
+        hue(lookup, output, 0xFC7, "iceandfire:myrmex_desert_biolight");
+        hue(lookup, output, 0x8FA, "iceandfire:myrmex_jungle_biolight");
+
+        ModLightColors.register(lookup, output, "botania:dreamwood",
+            state -> "glimmering".equals(ModLightColors.namedProperty(state, "variant")) ? 0x08F : null);
+        hue(lookup, output, 0x611, "botania:animatedTorch");
+        hue(lookup, output, 0xF83, "tconstruct:firewood", "tconstruct:firewood_slab",
+            "tconstruct:firewood_stairs", "tconstruct:lavawood_stairs");
+
+        hue(lookup, output, 0xFCA, "rustic:candle", "rustic:candle_double", "rustic:candle_lever",
+            "rustic:candle_gold", "rustic:candle_double_gold", "rustic:candle_lever_gold",
+            "rustic:candle_silver", "rustic:candle_double_silver", "rustic:candle_lever_silver",
+            "rustic:iron_lantern", "rustic:golden_lantern", "rustic:silver_lantern");
+        for (String id : new String[]{"randomthings:luminousblock", "randomthings:luminousstainedbrick",
+            "randomthings:translucentluminousblock"})
+            ModLightColors.register(lookup, output, id, state -> {
+                EnumDyeColor dye = ModLightColors.dye(state);
+                return dye == null ? null : RgbDefaultPalette.glassTransmittance(dye);
+            });
+        hue(lookup, output, 0xF83, "randomthings:blazingfire");
+
+        String[] panes = {"white", "red", "orange", "yellow", "green", "blue", "indigo", "violet", "black"};
+        int[] hues = {0xFFF, 0xF00, 0xF80, 0xFF0, 0x0F0, 0x0FF, 0x00F, 0xF0F, 0xFFF};
+        for (int i = 0; i < panes.length; i++)
+            hue(lookup, output, hues[i], "quark:crystal_" + panes[i] + "_pane");
+        hue(lookup, output, 0xFCA, "quark:blaze_rod");
+        hue(lookup, output, 0xFD3, "quark:glowstone_dust_block");
+        hue(lookup, output, 0xF83, "quark:magma_bricks", "quark:magma_bricks_slab",
+            "quark:magma_bricks_slab_double", "quark:magma_bricks_stairs");
+
+        hue(lookup, output, 0xFCA, "thaumcraft:cinderpearl", "thaumcraft:lamp_arcane",
+            "thaumcraft:lamp_fertility", "thaumcraft:lamp_growth");
+        hue(lookup, output, 0xBDF, "thaumcraft:shimmerleaf", "thaumcraft:log_silverwood");
+        hue(lookup, output, 0xC9F, "thaumcraft:vishroom", "thaumcraft:taint_fibre", "thaumcraft:vis_battery");
+        hue(lookup, output, 0xF83, "thaumcraft:infernal_furnace", "thaumcraft:smelter_basic",
+            "thaumcraft:smelter_thaumium", "thaumcraft:smelter_void", "thaumadditions:adaminite_smelter",
+            "thaumadditions:mithminite_smelter", "thaumadditions:mithrillium_smelter");
+        hue(lookup, output, 0xC9F, "thaumicaugmentation:taint_flower", "thaumicaugmentation:strange_crystal",
+            "thaumicaugmentation:rift_barrier");
+        hue(lookup, output, 0xBDF, "thaumicaugmentation:obelisk");
+        hue(lookup, output, 0x8F8, "twilightforest:moonworm");
+        hue(lookup, output, 0xFE8, "aether_legacy:quicksoil_glass");
+        hue(lookup, output, 0xFCA, "betternether:cincinnasite_fire_bowl", "betternether:cincinnasite_forge");
+        hue(lookup, output, 0xCF7, "betternether:lucis_mushroom", "betternether:lucis_spore");
+        hue(lookup, output, 0xC9F, "nb:cry_obi", "nb:respawn_anchor");
+        hue(lookup, output, 0x8DF, "theaurorian:crystal", "theaurorian:mysticalbarrier",
+            "theaurorian:aurorianportal");
+        hue(lookup, output, 0xF83, "theaurorian:aurorianfurnacelit");
+        hue(lookup, output, 0xBDF, "da:cold_brick_lamp", "da:frost_icicle");
+        hue(lookup, output, 0x9DF, "journey:ancient_obelisk");
+        hue(lookup, output, 0x8F8, "journey:bog_shrooms_small", "journey:bog_shroom_tall");
+        hue(lookup, output, 0xC9F, "journey:enchanted_shrooms_small", "journey:enchanted_shroom_tall",
+            "journey:tallterramushroom");
+        hue(lookup, output, 0xFFF, "journey:cloudiabrick", "journey:cloudiawall", "journey:cloudiatile",
+            "journey:cloudialeaves");
+        // Only fluids with native luminosity receive a source preset. Potion colors
+        // and tank contents are contextual and cannot be represented by one hue.
+        hue(lookup, output, 0xF22, "thermalfoundation:fluid_redstone");
+        hue(lookup, output, 0x4FB, "thermalfoundation:fluid_ender");
+        hue(lookup, output, 0xF83, "thermalfoundation:fluid_pyrotheum");
+        hue(lookup, output, 0x48F, "thermalfoundation:fluid_mana");
+        hue(lookup, output, 0x9F4, "taiga:tiberium_block");
+        hue(lookup, output, 0xDBF, "taiga:prometheum_block");
+        hue(lookup, output, 0xF46, "taiga:seismodium_block");
+        hue(lookup, output, 0xBDF, "taiga:bysmuid_block");
+
     }
 
     private static void hue(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> output,

@@ -64,7 +64,10 @@ class AdditionalModLightColorsTest {
     @Test
     void nativeOnOffAndEveryContextualLevelRemainAuthoritative() {
         for (String id : new String[]{"simplylight:illuminant_block", "simplylight:illuminant_block_on",
-            "mia:redstone_lantern", "xtones:lamp_flat", "iceandfire:dragonforge_fire_core"}) {
+            "mia:redstone_lantern", "xtones:lamp_flat", "iceandfire:dragonforge_fire_core",
+            "actuallyadditions:block_grinder", "actuallyadditions:block_item_repairer",
+            "thaumcraft:vis_battery", "thaumcraft:smelter_basic", "nb:respawn_anchor",
+            "betternether:cincinnasite_forge", "thermalfoundation:fluid_redstone"}) {
             Block lamp = new ContextualLamp();
             var registered = colors(Map.of(id, lamp));
             assertEquals(32, registered.size(), id);
@@ -185,6 +188,59 @@ class AdditionalModLightColorsTest {
         int emitted = RgbLightAccess.effectiveEmission(RgbLight.normalize(registered.get(soul.getDefaultState())),
             soul.getDefaultState().getLightValue(), true);
         assertEquals(10, Math.max(emitted >> 8, Math.max(emitted >> 4 & 15, emitted & 15)));
+    }
+
+    enum AncientStone implements IStringSerializable {
+
+        ANCIENT_LIGHT, STONE_CRUSTED_GLOWING, ANCIENT_STONE, UNKNOWN;
+        public String getName() {
+            return name().toLowerCase(Locale.ROOT);
+        }
+
+    }
+    private static final PropertyEnum<AncientStone> TA_STONE = PropertyEnum.create("ta_stone_type", AncientStone.class);
+    private static class AncientBlock extends Plain {
+
+        @Override
+        protected BlockStateContainer createBlockState() {
+            return new BlockStateContainer(this, TA_STONE);
+        }
+
+    }
+    @Test
+    void augmentationUsesActualStoneRegistryAndOnlyItsLuminousVariants() {
+        Block stone = new AncientBlock();
+        var registered = colors(Map.of("thaumicaugmentation:stone", stone));
+        assertEquals(2, registered.size());
+        assertEquals(0xBDF, registered.get(stone.getDefaultState().withProperty(TA_STONE, AncientStone.ANCIENT_LIGHT)));
+        assertEquals(0xC9F,
+            registered.get(stone.getDefaultState().withProperty(TA_STONE, AncientStone.STONE_CRUSTED_GLOWING)));
+        assertTrue(colors(Map.of("thaumicaugmentation:ancient_light", new Plain(),
+            "thaumicaugmentation:stone", new Plain())).isEmpty());
+    }
+    @Test
+    void crystalPanesHaveSeparateRegistryIdsWithoutAColorProperty() {
+        String[] names = {"white", "red", "orange", "yellow", "green", "blue", "indigo", "violet", "black"};
+        int[] expected = {0xFFF, 0xF00, 0xF80, 0xFF0, 0x0F0, 0x0FF, 0x00F, 0xF0F, 0xFFF};
+        for (int i = 0; i < names.length; i++) {
+            Block pane = new Plain().setLightLevel(11F / 15F);
+            assertEquals(expected[i],
+                colors(Map.of("quark:crystal_" + names[i] + "_pane", pane)).get(pane.getDefaultState()));
+        }
+    }
+    @Test
+    void luminousDyeFamiliesRespectAllColorsAndCustomApis() {
+        for (String id : new String[]{"randomthings:luminousblock", "randomthings:luminousstainedbrick",
+            "randomthings:translucentluminousblock"}) {
+            Block block = new RainbowLamp();
+            var registered = colors(Map.of(id, block));
+            assertEquals(16, registered.size());
+            for (EnumDyeColor dye : EnumDyeColor.values())
+                assertEquals(RgbDefaultPalette.glassTransmittance(dye),
+                    registered.get(block.getDefaultState().withProperty(COLOR, dye)));
+            assertTrue(colors(Map.of(id, new Plain())).isEmpty());
+            assertTrue(colors(Map.of(id, new CustomSource())).isEmpty());
+        }
     }
 
 }

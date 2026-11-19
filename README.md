@@ -128,6 +128,8 @@ Pulsar includes RGB presets for selected light sources from the following mods:
 - Unseen's Nether Backport
 - Xtones
 
+Presets include selected crystals, luminous plants, working machines and glowing fluids, as well as lamps and torches. Coverage varies by mod version; blocks whose colors depend on their contents or custom APIs are not assigned a blanket fixed color.
+
 These presets preserve each block's native light level, redstone behavior and contextual emission.
 
 ## API
