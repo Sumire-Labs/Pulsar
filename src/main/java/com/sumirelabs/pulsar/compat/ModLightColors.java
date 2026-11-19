@@ -30,6 +30,7 @@ public final class ModLightColors {
     }
 
     static void registerDefaults(Function<ResourceLocation, Block> lookup, BiConsumer<IBlockState, Integer> register) {
+        AdditionalModLightColors.registerDefaults(lookup, register);
         IndustrialLightColors.registerDefaults(lookup, register);
         registerAdditionalDefaults(lookup, register);
         registerLegacyPorts(lookup, register);

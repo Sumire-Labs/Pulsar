@@ -72,8 +72,11 @@ Pulsar includes RGB presets for selected light sources from the following mods:
 
 - Actually Additions
 - Advanced Chimneys
+- Advanced Rocketry
+- Aether: Lost Content
 - Applied Energistics 2
 - Ars Magica 2: Rekindled
+- BetterNether
 - BiblioCraft
 - Biomes O' Plenty
 - Botania
@@ -83,6 +86,7 @@ Pulsar includes RGB presets for selected light sources from the following mods:
 - Coloured Sea Lanterns
 - Deep Mob Learning
 - Embers / Embers Construct
+- End Reborn
 - Ender IO
 - Exotic Birds
 - Extra Utilities 2
@@ -90,23 +94,41 @@ Pulsar includes RGB presets for selected light sources from the following mods:
 - Future MC
 - Galacticraft
 - GregTech CE Unofficial (GTCEu)
+- Ice and Fire
 - Immersive Engineering
 - Inspirations
+- Integrated Dynamics
+- Journey Into The Light
 - Mekanism / Mekanism Generators
+- MIA
 - Natura / Natura Legacy
 - NetherEx
+- NuclearCraft
 - OpenComputers
 - Pam's HarvestCraft
 - ProjectRed
 - Quark
 - Railcraft
+- Random Things
+- Rustic
+- Simply Light
 - TAIGA
+- Techguns
 - Thaumcraft
+- Thaumic Additions
+- Thaumic Augmentation
+- The Aether (Aether Legacy)
+- The Aurorian
 - Thermal Expansion
 - Thermal Foundation
 - Tinker I/O
 - Tinkers' Construct
 - Twilight Forest
+- Unseen's Dungeon Additions (BOMD/DA)
+- Unseen's Nether Backport
+- Xtones
+
+These presets preserve each block's native light level, redstone behavior and contextual emission.
 
 ## API
 
