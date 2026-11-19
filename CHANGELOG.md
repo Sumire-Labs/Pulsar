@@ -7,8 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Expand RGB presets across 20 mods to cover more crystals, luminous plants,
+  candles, lanterns, working machines and glowing fluids, including sources from
+  Actually Additions, Botania, Thaumcraft, Quark and Thermal Foundation.
+  Presets preserve native light levels, contextual on/off behavior and custom color APIs.
+
 ### Fixed
 
+- Register Thaumic Augmentation's Ancient Light using the actual stone block
+  state, and add its glowing crusted stone variant.
+- Apply Quark crystal-pane colors to the nine separately registered pane blocks.
 - Prevent failed lighting tasks and exhausted retries from marking chunks ready
   or allowing incomplete light to be sent or saved as a valid cache.
 - Stop RGB edge retries at their configured limit and report failed relights to
