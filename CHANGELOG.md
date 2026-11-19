@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.7-beta] - 2026-11-19
+
 ### Added
 
 - Expand RGB presets across 20 mods to cover more crystals, luminous plants,
@@ -696,6 +698,7 @@ No user-facing changes.
 
 First working build
 
-[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.6-beta...HEAD
+[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.7-beta...HEAD
+[0.6.7-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.6-beta...0.6.7-beta
 [0.6.6-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.5-beta...0.6.6-beta
 [0.6.5-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.4-beta...0.6.5-beta
