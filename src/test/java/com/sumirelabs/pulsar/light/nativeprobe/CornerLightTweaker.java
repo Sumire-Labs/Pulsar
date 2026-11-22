@@ -47,9 +47,16 @@ public final class CornerLightTweaker implements ITweaker {
         if (Boolean.getBoolean("issue26.replacedRenderer")) {
             loader.registerTransformer("com.sumirelabs.pulsar.light.nativeprobe.OptifineRendererShape");
         }
+        if (Boolean.getBoolean("issue20.celeritas")) {
+            loader.registerTransformer("com.sumirelabs.pulsar.light.nativeprobe.CeleritasQuadMappings");
+        }
         MixinBootstrap.init();
         MixinExtrasBootstrap.init();
         MixinEnvironment.getDefaultEnvironment().setSide(MixinEnvironment.Side.CLIENT);
+        if (Boolean.getBoolean("pulsar.dynamicProbe")) {
+            Mixins.addConfiguration("pulsar-dynamic-test.mixins.json");
+            return;
+        }
         if (Boolean.getBoolean("pulsar.fbpProbe")) {
             Mixins.addConfiguration("pulsar-fbp-test.mixins.json");
             return;
@@ -103,6 +110,8 @@ public final class CornerLightTweaker implements ITweaker {
     }
 
     public String getLaunchTarget() {
+        if (Boolean.getBoolean("pulsar.dynamicProbe"))
+            return "com.sumirelabs.pulsar.dynamic.DynamicLightProbe";
         if (Boolean.getBoolean("pulsar.fbpProbe"))
             return "com.sumirelabs.pulsar.rgb.FbpRgbProbe";
         if (Boolean.getBoolean("issue20.worldSlice"))

@@ -269,6 +269,10 @@ public enum RgbTintBlendMode {
 
     public int tintAbgr(int color, int r, int g, int b, int canonical,
         int sr, int sg, int sb, int skyCanonical, float skyScale) {
+        return tintAbgr(color, (float) r, (float) g, (float) b, (float) canonical, sr, sg, sb, skyCanonical, skyScale);
+    }
+    public int tintAbgr(int color, float r, float g, float b, float canonical,
+        int sr, int sg, int sb, int skyCanonical, float skyScale) {
         float red = r + sr * skyScale, green = g + sg * skyScale, blue = b + sb * skyScale;
         float scalar = canonical + skyCanonical * skyScale;
         if (this == LEGACY) {
