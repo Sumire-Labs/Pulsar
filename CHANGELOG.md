@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-23
+
+### Changed
+
+- Default Dynamic Lights to `GAMEPLAY` in new configurations, so moving light sources
+  affect server light checks such as mob spawning. Existing mode settings are preserved.
+
 ## [0.7.0-beta] - 2026-11-23
 
 ### Added
@@ -715,7 +722,8 @@ No user-facing changes.
 
 First working build
 
-[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.0-beta...HEAD
+[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.1...HEAD
+[0.7.1]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.0-beta...0.7.1
 [0.7.0-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.7-beta...0.7.0-beta
 [0.6.7-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.6-beta...0.6.7-beta
 [0.6.6-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.5-beta...0.6.6-beta
