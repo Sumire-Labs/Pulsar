@@ -6,6 +6,11 @@ public final class DynamicLightVisualSample {
     private DynamicLightVisualSample() {}
     public static void merge(DynamicLightField field, double sx, double sy, double sz, double x, double y, double z,
         boolean ownSource, float[] light) {
+        mergeSurface(field, sx, sy, sz, x, y, z, x, y, z, ownSource, light);
+    }
+    public static void mergeSurface(DynamicLightField field, double sx, double sy, double sz, double x, double y,
+        double z,
+        double maskX, double maskY, double maskZ, boolean ownSource, float[] light) {
         int emission = field.emission();
         if (ownSource) {
             // An emitter illuminates itself at its source strength, including near opaque floors.
@@ -19,8 +24,8 @@ public final class DynamicLightVisualSample {
         double dx = x - sx, dy = y - sy, dz = z - sz, distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (distance >= DynamicLightField.RANGE || !field.hasVisualData())
             return;
-        int bx = (int) Math.floor(x - .5), by = (int) Math.floor(y - .5), bz = (int) Math.floor(z - .5);
-        double fx = x - .5 - bx, fy = y - .5 - by, fz = z - .5 - bz;
+        int bx = (int) Math.floor(maskX - .5), by = (int) Math.floor(maskY - .5), bz = (int) Math.floor(maskZ - .5);
+        double fx = maskX - .5 - bx, fy = maskY - .5 - by, fz = maskZ - .5 - bz;
         for (int channel = 0; channel < 4; channel++) {
             int lane = channel == 0 ? 2 : channel == 2 ? 0 : channel;
             double value = 0;

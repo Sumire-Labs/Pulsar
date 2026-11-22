@@ -50,7 +50,7 @@ final class DynamicLightRebuilds {
                 owner = world;
             }
             QUEUE.add(x >> 4, y >> 4, z >> 4, xx >> 4, yy >> 4, zz >> 4);
-            flush(world);
+            // The caller flushes after publishing a complete generation and collecting its dirty sections.
             return true;
         } catch (ReflectiveOperationException | RuntimeException | LinkageError error) {
             fail(error);

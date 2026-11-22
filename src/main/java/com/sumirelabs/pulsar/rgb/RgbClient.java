@@ -180,6 +180,9 @@ public final class RgbClient {
      * Sky and a small ambient term desaturate color; it is not shader-level RGB lightmaps.
      */
     public static int tintAbgr(int color, double x, double y, double z) {
+        return tintAbgr(color, x, y, z, null);
+    }
+    public static int tintAbgr(int color, double x, double y, double z, float[] surfaceLight) {
         if (!active() && !skyActive)
             return color;
         float r = 0, g = 0, b = 0, canonical = 0;
@@ -207,7 +210,7 @@ public final class RgbClient {
                     found = true;
                 for (int dy = 0; dy < 2; dy++) {
                     int yy = by + dy;
-                    int dynamic = objectLight == null
+                    int dynamic = objectLight == null && surfaceLight == null
                         ? com.sumirelabs.pulsar.dynamic.DynamicLightClient.sample(xx, yy, zz)
                         : 0;
                     if (dynamic != 0) {
@@ -251,6 +254,14 @@ public final class RgbClient {
             b = Math.max(b, objectLight.blue());
             canonical = Math.max(canonical, objectLight.brightness());
             found |= canonical > 0 || r > 0 || g > 0 || b > 0;
+        }
+        if (surfaceLight != null) {
+            r = Math.max(r, surfaceLight[0]);
+            g = Math.max(g, surfaceLight[1]);
+            b = Math.max(b, surfaceLight[2]);
+            canonical = Math.max(canonical,
+                com.sumirelabs.pulsar.dynamic.DynamicLightClient.surfaceBrightness(surfaceLight));
+            found |= canonical > 0;
         }
         if (!found)
             return color;

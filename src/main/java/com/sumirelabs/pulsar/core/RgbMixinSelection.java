@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import net.minecraft.launchwrapper.Launch;
 
-/** Reads the restart-only switch before mixin application. SCALAR gets no RGB chunk fields or renderer hooks. */
+/** Reads the restart-only switch before mixin application. SCALAR omits RGB storage and tint; shared dynamic-light vertex hooks still apply. */
 public final class RgbMixinSelection implements IMixinConfigPlugin {
 
     private boolean rgb;
@@ -51,7 +51,8 @@ public final class RgbMixinSelection implements IMixinConfigPlugin {
         // strict injection requirements and all other corrections unchanged.
         if (optifine && name.equals("MixinPartialBlockModelLight"))
             return false;
-        return !name.startsWith("MixinRgb") || rgb;
+        return !name.startsWith("MixinRgb") || name.equals("MixinRgbCeleritasRenderer")
+            || name.equals("MixinRgbQuadLightmap") || rgb;
     }
     public String getRefMapperConfig() {
         return null;

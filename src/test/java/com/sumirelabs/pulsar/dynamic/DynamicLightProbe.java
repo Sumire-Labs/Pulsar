@@ -28,6 +28,10 @@ public final class DynamicLightProbe {
 
         Provider chunks;
         int renderUpdates;
+        @Override
+        public net.minecraft.entity.Entity getEntityByID(int id) {
+            return null;
+        }
         ProbeWorld() {
             super(null, null, null, 0, null);
         }
@@ -595,6 +599,30 @@ public final class DynamicLightProbe {
         }
         check(DynamicLightClient.sample(world, 11, 72, 8) > before,
             "New mesh did not observe fractional source motion");
+        Object handler = new Object();
+        set(DynamicLightClient.class, null, "connection", handler);
+        set(DynamicLightClient.class, null, "session", 90L);
+        set(DynamicLightClient.class, null, "sequence", 0L);
+        var replacement = new DynamicLightField(8, 72, 8, radius, cells, new short[size * 4]);
+        var packet = new DynamicLightPacket();
+        packet.session = 90;
+        packet.dimension = world.provider.getDimension();
+        packet.source = 1;
+        packet.field = replacement;
+        packet.mode = DynamicLights.Mode.VISUAL;
+        packet.revision = 1;
+        DynamicLightClient.apply(packet, handler, world, handler);
+        try (var pinned = DynamicLightClient.beginMesh()) {
+            // The cell array is empty here; only the continuous loss-mask sample can light it.
+            check(DynamicLightClient.sample(world, 11, 72, 8) > 0,
+                "Packet scheduled a mesh before its render position was installed");
+            packet.revision = 2;
+            packet.field = null;
+            DynamicLightClient.apply(packet, handler, world, handler);
+            check(DynamicLightClient.sample(world, 11, 72, 8) > 0,
+                "Packet removal changed an in-flight mesh generation");
+        }
+        check(DynamicLightClient.sample(world, 11, 72, 8) == 0, "Removed light survived in published view");
         var renderChunk = net.minecraft.client.renderer.chunk.RenderChunk.class;
         check(Arrays.stream(renderChunk.getDeclaredMethods())
             .anyMatch(m -> m.getName().contains("pulsar$dynamicSnapshot")), "Missing vanilla mesh snapshot wrapper");
@@ -631,6 +659,8 @@ public final class DynamicLightProbe {
         var f = type.getDeclaredField(name);
         f.setAccessible(true);
         f.set(instance, value);
+        if (type == DynamicLightClient.class)
+            DynamicLightClient.publish();
     }
     private static <T> T inert(Class<T> type) throws Exception {
         var u = Class.forName("sun.misc.Unsafe");

@@ -25,19 +25,27 @@ public final class DynamicLightClient {
         return mode;
     }
     public static Map<Integer, DynamicLightField> visualFields() {
-        return fields;
+        ReadView view = MESH_VIEW.get();
+        return (view == null ? publication : view).fields;
     }
     public static boolean projected() {
-        return projected;
+        ReadView view = MESH_VIEW.get();
+        return (view == null ? publication : view).projected;
     }
     public static boolean colored() {
-        return rgb;
+        ReadView view = MESH_VIEW.get();
+        return (view == null ? publication : view).rgb;
     }
     public static boolean inMesh() {
         return MESH_VIEW.get() != null;
     }
     private record ReadView(World world, Map<Integer, DynamicLightField> fields, boolean rgb, boolean projected,
         Map<Integer, DynamicLightRenderSource> sources) {
+    }
+    private static volatile ReadView publication = new ReadView(null, Map.of(), false, false, Map.of());
+    /** Publish one complete generation; mesh workers must never pair a new field with an old position. */
+    static void publish() {
+        publication = new ReadView(owner, fields, rgb, projected, renderSources);
     }
     private static final ThreadLocal<ReadView> MESH_VIEW = new ThreadLocal<>();
     /** Scalar brightness and RGB vertex tint must use the same publication for an entire mesh. */
@@ -46,17 +54,8 @@ public final class DynamicLightClient {
         private final ReadView previous;
         private MeshScope() {
             previous = MESH_VIEW.get();
-            if (previous == null) {
-                World world = owner;
-                var snapshot = fields;
-                boolean color = rgb, projection = projected;
-                // A dimension transition must not attach a new world's fields to an old mesh.
-                if (owner != world) {
-                    snapshot = Map.of();
-                    color = false;
-                }
-                MESH_VIEW.set(new ReadView(world, snapshot, color, projection, renderSources));
-            }
+            if (previous == null)
+                MESH_VIEW.set(publication);
         }
         @Override
         public void close() {
@@ -76,13 +75,15 @@ public final class DynamicLightClient {
     }
     public static boolean rgbActive() {
         ReadView view = MESH_VIEW.get();
-        return view == null ? rgb && !fields.isEmpty() : view.rgb && !view.fields.isEmpty();
+        if (view == null)
+            view = publication;
+        return view.rgb && !view.fields.isEmpty();
     }
     public static boolean intersects(int chunkX, int sectionY, int chunkZ) {
         if (!rgbActive())
             return false;
         int x = chunkX << 4, y = sectionY << 4, z = chunkZ << 4;
-        for (var field : fields.values()) {
+        for (var field : visualFields().values()) {
             int r = field.radius;
             if (x <= field.x + r && x + 15 >= field.x - r && y <= field.y + r && y + 15 >= field.y - r
                 && z <= field.z + r && z + 15 >= field.z - r)
@@ -96,13 +97,15 @@ public final class DynamicLightClient {
     }
     public static int sample(World world, int x, int y, int z) {
         ReadView view = MESH_VIEW.get();
-        if (world == null || world != (view == null ? owner : view.world))
+        if (view == null)
+            view = publication;
+        if (world == null || world != view.world)
             return 0;
         int value = 0;
         float[] light = SCRATCH.get();
         Arrays.fill(light, 0);
-        var sources = view == null ? renderSources : view.sources;
-        for (var entry : (view == null ? fields : view.fields).entrySet()) {
+        var sources = view.sources;
+        for (var entry : view.fields.entrySet()) {
             var field = entry.getValue();
             var source = sources.get(entry.getKey());
             if (!field.hasVisualData() || source == null || source.field() != field) {
@@ -115,11 +118,11 @@ public final class DynamicLightClient {
     }
     public static int sample(int x, int y, int z) {
         ReadView view = MESH_VIEW.get();
-        return sample(view == null ? owner : view.world, x, y, z);
+        return sample(view == null ? publication.world : view.world, x, y, z);
     }
     public static int brightness(int cell) {
         ReadView view = MESH_VIEW.get();
-        return DynamicLightField.brightness(cell, view == null ? projected : view.projected);
+        return DynamicLightField.brightness(cell, view == null ? publication.projected : view.projected);
     }
     public static int light(World world, int x, int y, int z) {
         Integer objectLight = com.sumirelabs.pulsar.rgb.DynamicObjectLight.blockLight(world);
@@ -141,6 +144,7 @@ public final class DynamicLightClient {
         ++generation;
         ++session;
         mode = DynamicLights.Mode.OFF;
+        publish();
     }
     public static void tick() {
         Minecraft mc = Minecraft.getMinecraft();
@@ -161,6 +165,7 @@ public final class DynamicLightClient {
             ++session;
             ++generation;
             mode = DynamicLights.Mode.OFF;
+            publish();
         }
         if (requested && !acknowledged && ++retryTicks >= 40) {
             requested = false;
@@ -192,17 +197,33 @@ public final class DynamicLightClient {
             fields = Map.of();
             renderSources = Map.of();
             ++generation;
+            publish();
             return;
         }
-        if (packet.source == Integer.MIN_VALUE)
+        if (packet.source == Integer.MIN_VALUE) {
+            publish();
             return;
+        }
         var next = new HashMap<>(fields);
         DynamicLightField previous = next.remove(packet.source);
         if (packet.field != null)
             next.put(packet.source, packet.field);
+        var positions = new HashMap<>(renderSources);
+        DynamicLightRenderSource oldPosition = positions.remove(packet.source);
+        if (packet.field != null)
+            positions.put(packet.source, source(packet.source, packet.field, 1, false));
         fields = Map.copyOf(next);
+        renderSources = Map.copyOf(positions);
         ++generation;
+        publish();
+        // Include the actual old footprint, which can be offset from the server's cell center.
+        if (oldPosition != null && (Math.floor(oldPosition.x()) != oldPosition.field().x
+            || Math.floor(oldPosition.y()) != oldPosition.field().y
+            || Math.floor(oldPosition.z()) != oldPosition.field().z))
+            invalidate(oldPosition);
         invalidate(previous, packet.field);
+        // A complete packet generation can be rendered immediately; do not add a whole tick of latency.
+        DynamicLightRebuilds.flush(owner);
     }
     private static DynamicLightRenderSource source(int id, DynamicLightField field, float partial,
         boolean interpolate) {
@@ -221,6 +242,7 @@ public final class DynamicLightClient {
     private static void updateRenderSources() {
         if (owner == null || fields.isEmpty()) {
             renderSources = Map.of();
+            publish();
             return;
         }
         var next = new HashMap<Integer, DynamicLightRenderSource>();
@@ -240,6 +262,7 @@ public final class DynamicLightClient {
         if (!invalidated.isEmpty())
             ++generation;
         // Publish before scheduling workers: each new mesh must see the new positions.
+        publish();
         invalidated.forEach(DynamicLightClient::invalidate);
     }
     private static void invalidate(DynamicLightRenderSource source) {
@@ -248,6 +271,24 @@ public final class DynamicLightClient {
         int r = (int) Math.ceil(DynamicLightField.RANGE) + 1;
         int x = (int) Math.floor(source.x()), y = (int) Math.floor(source.y()), z = (int) Math.floor(source.z());
         mark(x - r, y - r, z - r, x + r, y + r, z + r);
+    }
+    /** Continuous vertex light; sample the visible side's mask without moving the distance evaluation. */
+    public static void sampleSurface(double x, double y, double z, int nx, int ny, int nz, float[] light) {
+        Arrays.fill(light, 0);
+        ReadView view = MESH_VIEW.get();
+        if (view == null)
+            view = publication;
+        for (var entry : view.sources.entrySet()) {
+            var source = entry.getValue();
+            DynamicLightVisualSample.mergeSurface(source.field(), source.x(), source.y(), source.z(), x, y, z,
+                x + nx * .501, y + ny * .501, z + nz * .501, false, light);
+        }
+    }
+    public static float surfaceBrightness(float[] light) {
+        ReadView view = MESH_VIEW.get();
+        if (view == null)
+            view = publication;
+        return view.projected ? Math.max(light[0], Math.max(light[1], light[2])) : light[3];
     }
     /** Object light is sampled per draw; terrain uses immutable 20 Hz positions instead. */
     public static void sampleObject(int id, double x, double y, double z, float partial, float[] light) {

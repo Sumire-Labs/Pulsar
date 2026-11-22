@@ -109,12 +109,16 @@ public final class CeleritasWorldSliceProbe {
             fields.setAccessible(true);
             fields.set(null, java.util.Map.of(1, new com.sumirelabs.pulsar.dynamic.DynamicLightField(pos.getX(),
                 pos.getY(), pos.getZ(), 0, new short[]{(short) 0xEEEE})));
+            var publish = com.sumirelabs.pulsar.dynamic.DynamicLightClient.class.getDeclaredMethod("publish");
+            publish.setAccessible(true);
+            publish.invoke(null);
             if ((slice.getCombinedLight(pos, 0) >>> 4 & 15) != 14)
                 throw new AssertionError("Dynamic WorldSlice coordinate conversion: " + base);
             fields.set(null, java.util.Map.of());
+            publish.invoke(null);
             if ((slice.getCombinedLight(pos, 0) >>> 4 & 15) != 0)
                 throw new AssertionError("WorldSlice kept removed dynamic light");
-            owner.set(null, null);
+            com.sumirelabs.pulsar.dynamic.DynamicLightClient.reset();
         }
         System.out.println("CELERITAS_WORLDSLICE_PASS cases=" + cases);
     }
