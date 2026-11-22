@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.7.1] - 2026-11-23
+## [0.7.1-beta] - 2026-11-23
 
 ### Changed
 
@@ -722,8 +722,8 @@ No user-facing changes.
 
 First working build
 
-[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.1...HEAD
-[0.7.1]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.0-beta...0.7.1
+[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.1-beta...HEAD
+[0.7.1-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.0-beta...0.7.1-beta
 [0.7.0-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.7-beta...0.7.0-beta
 [0.6.7-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.6-beta...0.6.7-beta
 [0.6.6-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.5-beta...0.6.6-beta
