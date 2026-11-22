@@ -28,7 +28,8 @@ public class PulsarConfig {
     public static DynamicLights dynamicLights = new DynamicLights();
     public static class DynamicLights {
 
-        @Config.Comment({"Server-authoritative held and dropped block light sources and lava buckets.",
+        @Config.Comment({"Experimental dynamic lighting. The default mode is OFF.",
+            "Server-authoritative held and dropped block light sources and lava buckets.",
             "Burning mobs and players also emit light using the fire source palette.",
             "Open-air dynamic light has a round 7.75-block falloff; obstacles and colored filters still absorb light.",
             "OFF disables dynamic lights. VISUAL changes rendering only.",
