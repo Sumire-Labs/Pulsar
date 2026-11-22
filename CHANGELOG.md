@@ -7,17 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.7.0] - 2026-11-23
+## [0.7.0-beta] - 2026-11-23
 
 ### Added
 
 - Add experimental Dynamic Lights for both SCALAR and RGB. Held and dropped light sources, such as
   torches and lava buckets, illuminate their surroundings, as do burning mobs and players.
   In RGB mode, stained glass filters the color of that light.
-- Dynamic Lights are off by default. Set `dynamicLights.mode` in the server config
-  to `VISUAL` for a purely visual effect like Celeritas Dynamic Lights, or `GAMEPLAY`
-  to include dynamic light in the light levels the server uses for checks such as
-  mob spawning. Restart to apply the setting. Both modes require compatible Pulsar clients.
+- Dynamic Lights default to `VISUAL` for a purely visual effect like Celeritas Dynamic Lights.
+  Set `dynamicLights.mode` in the server config to `GAMEPLAY` to include dynamic light
+  in checks such as mob spawning, or `OFF` to disable it. Restart to apply the setting.
+  Both enabled modes require compatible Pulsar clients.
+
+### Fixed
+
+- Smooth the color transitions between nearby RGB light sources when using shader packs.
+  This fixes sharp bands across flat surfaces seen with Demonica 0.9.0 and Complementary Reimagined.
 
 ## [0.6.7-beta] - 2026-11-19
 
@@ -710,7 +715,8 @@ No user-facing changes.
 
 First working build
 
-[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.7-beta...HEAD
+[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.0-beta...HEAD
+[0.7.0-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.7-beta...0.7.0-beta
 [0.6.7-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.6-beta...0.6.7-beta
 [0.6.6-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.5-beta...0.6.6-beta
 [0.6.5-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.4-beta...0.6.5-beta

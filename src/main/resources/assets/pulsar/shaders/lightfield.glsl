@@ -37,16 +37,25 @@ bool pulsarSample(vec3 relativePosition, out vec4 blockLight, out vec4 skyLight)
     blockLight = vec4(0.0); skyLight = vec4(0.0);
     if (pulsarLightEnabled == 0) return false;
     vec3 fraction = vec3(pulsarCameraFractX, pulsarCameraFractY, pulsarCameraFractZ);
-    ivec3 base = ivec3(floor(relativePosition + fraction - vec3(0.5)))
+    vec3 grid = relativePosition + fraction - vec3(0.5);
+    ivec3 base = ivec3(floor(grid))
         + ivec3(pulsarCameraBlockX, pulsarCameraBlockY, pulsarCameraBlockZ);
-    bool found = false;
+    vec3 f = fract(grid);
+    float total = 0.0;
     for (int z = 0; z < 2; ++z) for (int x = 0; x < 2; ++x) for (int y = 0; y < 2; ++y) {
         vec4 b, s;
         if (pulsarReadCell(base + ivec3(x, y, z), b, s)) {
-            blockLight = max(blockLight, b); skyLight = max(skyLight, s); found = true;
+            vec3 w = mix(vec3(1.0) - f, f, vec3(x, y, z));
+            float weight = w.x * w.y * w.z;
+            blockLight += b * weight;
+            skyLight += s * weight;
+            total += weight;
         }
     }
-    return found;
+    if (total <= 0.0) return false;
+    blockLight /= total;
+    skyLight /= total;
+    return true;
 }
 
 float pulsarPeak(vec3 value) { return max(value.r, max(value.g, value.b)); }
