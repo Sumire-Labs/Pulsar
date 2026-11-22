@@ -5,7 +5,17 @@ All notable changes to Pulsar are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.0] - 2026-11-23
+
+### Added
+
+- Add experimental Dynamic Lights for both SCALAR and RGB. Held and dropped light sources, such as
+  torches and lava buckets, illuminate their surroundings, as do burning mobs and players.
+  In RGB mode, stained glass filters the color of that light.
+- Dynamic Lights are off by default. Set `dynamicLights.mode` in the server config
+  to `VISUAL` for a purely visual effect like Celeritas Dynamic Lights, or `GAMEPLAY`
+  to include dynamic light in the light levels the server uses for checks such as
+  mob spawning. Restart to apply the setting. Both modes require compatible Pulsar clients.
 
 ## [0.6.7-beta] - 2026-11-19
 
