@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.3-beta] - 2026-11-24
+
+### Fixed
+
+- Fix a startup crash when Celeritas replaces the vanilla terrain renderer.
+  Verified with Celeritas 2.5.0-dev and 2.6.0-dev ([#32](https://github.com/Sumire-Labs/Pulsar/issues/32)).
+
+### Changed
+
+- Reduce temporary allocations during Forge and Celeritas lighting calculations.
+  RGB terrain rendering now reuses nearby chunk lighting data while building each mesh.
+- Reduce Dynamic Lights memory use by sharing identical occlusion data across color
+  channels and avoiding redundant copies when building and transferring light data.
+- Reduce memory use when loading saved RGB lighting by sharing identical light arrays
+  until a channel changes. Speed up detection of all-zero light arrays when saving chunks.
+- Speed up initial block lighting with Fluidlogged API 3.3.3 by skipping sections
+  whose block palette and stored fluid data rule out light sources.
+
 ## [0.7.2] - 2026-11-23
 
 ### Added
@@ -740,7 +758,8 @@ No user-facing changes.
 
 First working build
 
-[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.2...HEAD
+[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.3-beta...HEAD
+[0.7.3-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.2...0.7.3-beta
 [0.7.2]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.1-beta...0.7.2
 [0.7.1-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.0-beta...0.7.1-beta
 [0.7.0-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.7-beta...0.7.0-beta
