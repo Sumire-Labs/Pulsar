@@ -8,12 +8,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.sumirelabs.pulsar.light.SmoothLightMatrix;
 import com.sumirelabs.pulsar.light.SmoothLightOcclusion;
 
@@ -27,6 +25,10 @@ public abstract class MixinForgeLightMatrix implements SmoothLightMatrix {
 
     @Shadow private IBlockAccess world;
     @Shadow private BlockPos blockPos;
+    @Shadow
+    private float combine(int center, int a, int b, int diagonal, boolean ct, boolean at, boolean bt, boolean dt) {
+        throw new AssertionError();
+    }
     @Unique private int pulsar$sampleIndex, pulsar$hiddenFaces;
     @Unique private final BlockPos.MutableBlockPos pulsar$corner = new BlockPos.MutableBlockPos();
 
@@ -39,13 +41,12 @@ public abstract class MixinForgeLightMatrix implements SmoothLightMatrix {
         pulsar$sampleIndex = pulsar$hiddenFaces = 0;
     }
 
-    @WrapOperation(method = "updateLightMatrix", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/model/pipeline/BlockInfo;combine(IIIIZZZZ)F"))
-    private float pulsar$excludeHiddenLight(@Coerce Object self, int center, int a, int b, int diagonal,
-        boolean ct, boolean at, boolean bt, boolean dt,
-        Operation<Float> original) {
+    @Redirect(method = "updateLightMatrix", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/model/pipeline/BlockInfo;combine(IIIIZZZZ)F"))
+    private float pulsar$excludeHiddenLight(BlockInfo self, int center, int a, int b, int diagonal,
+        boolean ct, boolean at, boolean bt, boolean dt) {
         int index = pulsar$sampleIndex++;
         if (a <= center && b <= center && diagonal <= center)
-            return original.call(self, center, a, b, diagonal, ct, at, bt, dt);
+            return combine(center, a, b, diagonal, ct, at, bt, dt);
         int vertex = index / 6;
         int x = vertex >> 2, y = vertex >> 1 & 1, z = vertex & 1;
         int axis = index % 6 / 2;
@@ -66,7 +67,7 @@ public abstract class MixinForgeLightMatrix implements SmoothLightMatrix {
         boolean hideDiagonal = (mask & 4) != 0 && diagonal > center;
         if (hideA || hideB || hideDiagonal)
             pulsar$hiddenFaces |= 1 << normal.ordinal();
-        return original.call(self, center, hideA ? center : a, hideB ? center : b, hideDiagonal ? center : diagonal,
+        return combine(center, hideA ? center : a, hideB ? center : b, hideDiagonal ? center : diagonal,
             ct, hideA ? ct : at, hideB ? ct : bt, hideDiagonal ? ct : dt);
     }
 

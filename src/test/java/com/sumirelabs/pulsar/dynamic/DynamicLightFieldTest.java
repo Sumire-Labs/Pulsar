@@ -20,6 +20,36 @@ class DynamicLightFieldTest {
         return costs;
     }
     @Test
+    void sharedLossesPreserveExpandedWireValuesAndPublicInputIsolation() {
+        int radius = 3, size = DynamicLightField.cube(radius);
+        var compact = DynamicLightField.propagate(0, 0, 0, radius, 0xEFA8, air(radius), new byte[size]);
+        short[] cells = new short[size], losses = new short[size * 4];
+        for (int i = 0; i < size; i++) {
+            cells[i] = (short) compact.cell(i);
+            for (int lane = 0; lane < 4; lane++)
+                losses[4 * i + lane] = (short) compact.visualLoss(i, lane);
+        }
+        var expanded = new DynamicLightField(0, 0, 0, radius, cells, losses);
+        cells[0]++;
+        losses[0]++;
+        assertTrue(expanded.sameLight(compact));
+        var packet = new DynamicLightPacket();
+        packet.mode = DynamicLights.Mode.VISUAL;
+        packet.field = expanded;
+        var buffer = Unpooled.buffer();
+        try {
+            packet.toBytes(buffer);
+            var received = new DynamicLightPacket();
+            received.fromBytes(buffer);
+            assertTrue(received.field.sameLight(expanded));
+            assertTrue(received.field.sameLight(compact));
+        } finally {
+            buffer.release();
+        }
+        var pure = DynamicLightField.propagate(0, 0, 0, radius, 0xFF00, air(radius), new byte[size]);
+        assertEquals(DynamicLightField.BLOCKED, pure.visualLoss(index(radius, 0, 0, 0), 0));
+    }
+    @Test
     void bothHandsCombinePerChannelAndLightDecaysInAllDirections() {
         int emission = DynamicLightField.merge(0xEE40, 0x9009);
         assertEquals(0xEE49, emission);

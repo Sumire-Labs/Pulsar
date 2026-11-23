@@ -10,8 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import com.sumirelabs.pulsar.util.CoordinateUtils;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.Particle;
@@ -242,7 +240,7 @@ public final class FbpRgbProbe {
             byte[][] canonical = {new byte[2048]};
             Arrays.fill(canonical[0], (byte) 255);
             RgbSnapshot snapshot = new RgbSnapshot(4, 1, channels, canonical);
-            views.put(CoordinateUtils.getChunkKey(chunk, 0),
+            views.put(RgbClient.viewKey(chunk, 0),
                 new RgbClient.View(null, sky ? null : snapshot, sky ? snapshot : null, new byte[0][]));
         }
         setFlag(RgbClient.class, "active", !sky);

@@ -62,9 +62,10 @@ public final class DynamicLightClient {
         }
         @Override
         public void close() {
-            if (previous == null)
+            if (previous == null) {
                 MESH_VIEW.remove();
-            else
+                com.sumirelabs.pulsar.rgb.RgbClient.clearMeshViews();
+            } else
                 MESH_VIEW.set(previous);
         }
 

@@ -49,7 +49,11 @@ public final class RgbPersistence {
                     byte[] bytes = data.getByteArray(key);
                     if (bytes.length != 2048)
                         throw new IllegalArgumentException("Invalid saved RGB nibble");
-                    storage.channels[c][s] = new SWMRNibbleArray(bytes.clone());
+                    // NBT owns mutable arrays. Copy once, sharing equal immutable planes across
+                    // neighboring color channels until the first write to that channel.
+                    var prior = c == 0 ? null : storage.channels[c - 1][s];
+                    byte[] immutable = RgbSnapshot.copyPlane(bytes, prior == null ? null : prior.getVisibleData());
+                    storage.channels[c][s] = SWMRNibbleArray.fromImmutable(immutable);
                 } else if (sky)
                     storage.channels[c][s] = new SWMRNibbleArray();
             }

@@ -20,6 +20,7 @@ public final class RgbMixinSelection implements IMixinConfigPlugin {
 
     private boolean rgb;
     private boolean optifine;
+    private boolean celeritasTerrain;
     private static boolean enabled;
     public static boolean rgbEnabled() {
         return enabled;
@@ -29,6 +30,7 @@ public final class RgbMixinSelection implements IMixinConfigPlugin {
         // load Minecraft targets before Mixins have been applied.
         ClassLoader loader = Launch.classLoader != null ? Launch.classLoader : getClass().getClassLoader();
         optifine = loader.getResource("net/optifine/reflect/ReflectorForge.class") != null;
+        celeritasTerrain = loader.getResource("org/taumc/celeritas/mixin/core/terrain/RenderGlobalMixin.class") != null;
         try {
             var home = Launch.minecraftHome == null ? new java.io.File(".") : Launch.minecraftHome;
             var path = home.toPath().resolve("config/pulsar.cfg");
@@ -50,6 +52,9 @@ public final class RgbMixinSelection implements IMixinConfigPlugin {
     }
     public boolean shouldApplyMixin(String target, String mixin) {
         String name = mixin.substring(mixin.lastIndexOf('.') + 1);
+        // Celeritas owns setupTerrain and already schedules moving lights through its own dispatcher.
+        if (celeritasTerrain && name.equals("MixinDynamicTerrainScheduling"))
+            return false;
         // OptiFine G5 replaces the vanilla renderQuadsSmooth descriptor with
         // a RenderEnv overload. Leave its partial-face path to OptiFine; keep
         // strict injection requirements and all other corrections unchanged.

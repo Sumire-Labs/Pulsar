@@ -6,7 +6,10 @@ public final class RgbAmbientFloor {
     private static volatile int[] lightmap;
     private RgbAmbientFloor() {}
     public static void update(int[] colors) {
-        lightmap = colors != null && colors.length == 256 ? colors.clone() : null;
+        if (colors == null || colors.length != 256)
+            lightmap = null;
+        else if (!java.util.Arrays.equals(lightmap, colors))
+            lightmap = colors.clone();
     }
     public static int preserve(int material, int tinted, float block, float sky) {
         int[] map = lightmap;

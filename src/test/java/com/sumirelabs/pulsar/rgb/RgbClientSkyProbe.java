@@ -5,7 +5,6 @@
 package com.sumirelabs.pulsar.rgb;
 
 import com.sumirelabs.pulsar.light.WorldLightManager;
-import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 import com.sumirelabs.pulsar.world.PulsarWorld;
 
@@ -63,7 +62,7 @@ public final class RgbClientSkyProbe {
         field.setAccessible(true);
         @SuppressWarnings("unchecked")
         var views = (java.util.Map<Long, RgbClient.View>) field.get(null);
-        long key = CoordinateUtils.getChunkKey(32, 32);
+        long key = RgbClient.viewKey(32, 32);
         try {
             RgbClient.refresh(chunk);
             var fallback = views.get(key).sky();

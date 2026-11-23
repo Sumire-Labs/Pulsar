@@ -17,6 +17,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class SWMRNibbleArrayTest {
 
     @Test
+    void saveDistinguishesDarkFromNonzeroLightAtEveryByteOffset() {
+        byte[] plane = new byte[SWMRNibbleArray.ARRAY_SIZE];
+        SWMRNibbleArray visible = new SWMRNibbleArray(plane, SWMRNibbleArray.INIT_STATE_INIT);
+        assertEquals(SWMRNibbleArray.INIT_STATE_UNINIT, visible.getSaveState().state);
+        for (int i = 0; i < plane.length; i++) {
+            plane[i] = (byte) (1 << (i & 7));
+            assertArrayEquals(plane, visible.getSaveState().data);
+            plane[i] = 0;
+        }
+        assertNull(new SWMRNibbleArray(plane, SWMRNibbleArray.INIT_STATE_HIDDEN).getSaveState());
+    }
+    @Test
     void invalidPersistedStatesAreRejectedBeforeTheyCanBecomeVisible() {
         for (int state : new int[]{-128, -1, 4, 127}) {
             assertThrows(IllegalArgumentException.class, () -> SWMRNibbleArray.fromOwned(null, state));

@@ -31,7 +31,51 @@ public final class RgbClient {
     public static volatile boolean vanillaRendered, celeritasRendered;
     private static volatile float skyScale = 1;
     private static final ConcurrentHashMap<Long, Chunk> REFRESH = new ConcurrentHashMap<>();
+    // A section and its sampling border normally touch at most 3 x 3 chunk columns.
+    private static final class MeshViews {
+
+        final long[] keys = new long[16];
+        final View[] views = new View[16];
+        int valid;
+
+        View get(int x, int z, long key) {
+            int slot = (x & 3) | ((z & 3) << 2);
+            int bit = 1 << slot;
+            if ((valid & bit) == 0 || keys[slot] != key) {
+                views[slot] = VIEWS.get(viewKey(x, z));
+                keys[slot] = key;
+                valid |= bit;
+            }
+            return views[slot];
+        }
+
+    }
+    private static final ThreadLocal<MeshViews> MESH_VIEWS = new ThreadLocal<>();
+
+    private static MeshViews meshViews() {
+        if (!com.sumirelabs.pulsar.dynamic.DynamicLightClient.inMesh())
+            return null;
+        MeshViews cache = MESH_VIEWS.get();
+        if (cache == null) {
+            cache = new MeshViews();
+            MESH_VIEWS.set(cache);
+        }
+        return cache;
+    }
+
+    public static void clearMeshViews() {
+        MeshViews cache = MESH_VIEWS.get();
+        if (cache != null) {
+            java.util.Arrays.fill(cache.views, null);
+            cache.valid = 0;
+        }
+    }
     private RgbClient() {}
+    // Long.hashCode folds the two chunk coordinates with XOR. Neighboring chunks
+    // on a diagonal otherwise collide in the tint lookup for every terrain vertex.
+    static long viewKey(int chunkX, int chunkZ) {
+        return CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(chunkX, chunkZ));
+    }
     public static boolean active() {
         return active || com.sumirelabs.pulsar.dynamic.DynamicLightClient.rgbActive();
     }
@@ -149,7 +193,7 @@ public final class RgbClient {
                 ((PulsarChunk) chunk).pulsar$setSkyNibbles(block);
             else
                 ((PulsarChunk) chunk).pulsar$setBlockNibbles(block);
-            var rendered = VIEWS.get(CoordinateUtils.getChunkKey(chunk.x, chunk.z));
+            var rendered = VIEWS.get(viewKey(chunk.x, chunk.z));
             RgbSnapshot renderedSnapshot = rendered == null || rendered.chunk != chunk
                 ? null
                 : packet.sky ? (skyActive ? rendered.skyRgb : null) : (active ? rendered.rgb : null);
@@ -185,7 +229,7 @@ public final class RgbClient {
         if (rgb == null && skyRgb == null)
             return;
         SWMRNibbleArray[] sky = ((PulsarChunk) chunk).pulsar$getSkyNibbles();
-        long key = CoordinateUtils.getChunkKey(chunk.x, chunk.z);
+        long key = viewKey(chunk.x, chunk.z);
         byte[][] copy = NO_FALLBACK_SKY;
         if (skyRgb == null && chunk.getWorld().provider.hasSkyLight() && sky != null) {
             View previous = VIEWS.get(key);
@@ -207,6 +251,7 @@ public final class RgbClient {
         var objectLight = DynamicObjectLight.current();
         boolean found = false;
         int bx = (int) Math.floor(x - .5), by = (int) Math.floor(y - .5), bz = (int) Math.floor(z - .5);
+        MeshViews cache = meshViews();
         long previousKey = 0;
         View previousView = null;
         boolean havePrevious = false;
@@ -214,13 +259,14 @@ public final class RgbClient {
         for (int dx = 0; dx < 2; dx++)
             for (int dz = 0; dz < 2; dz++) {
                 int xx = bx + dx, zz = bz + dz;
-                long key = CoordinateUtils.getChunkKey(xx >> 4, zz >> 4);
+                int cx = xx >> 4, cz = zz >> 4;
+                long key = CoordinateUtils.getChunkKey(cx, cz);
                 View view;
                 if (havePrevious && key == previousKey)
                     view = previousView;
                 else {
                     previousKey = key;
-                    previousView = view = VIEWS.get(key);
+                    previousView = view = cache == null ? VIEWS.get(viewKey(cx, cz)) : cache.get(cx, cz, key);
                     havePrevious = true;
                 }
                 if (view != null)

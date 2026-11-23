@@ -9,8 +9,6 @@ import java.util.*;
 
 import org.junit.jupiter.api.*;
 
-import com.sumirelabs.pulsar.util.CoordinateUtils;
-
 import net.minecraft.world.chunk.Chunk;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -69,7 +67,7 @@ class RgbClientSamplingTest {
         for (int i = 0; i < fallback.length; i++)
             if (fallback[i] >= 0)
                 scalar[i] = plane(fallback[i]);
-        views.put(CoordinateUtils.getChunkKey(x, z), view.newInstance(null, block, sky, scalar));
+        views.put(RgbClient.viewKey(x, z), view.newInstance(null, block, sky, scalar));
     }
     @Test
     void interiorRetainsCanonicalAttenuationAndMaterialAlpha() throws Exception {
@@ -88,6 +86,27 @@ class RgbClientSamplingTest {
             RgbClient.tintAbgr(MATERIAL, 0, .5, 0));
         assertEquals(RgbClient.modulateSky(MATERIAL, 15, 0, 0, 15, 0, 0, 0, 0, 1),
             RgbClient.tintAbgr(MATERIAL, -5.5, .5, -5.5));
+    }
+    @Test
+    void meshPinsNearbyColumnsIncludingMissingOnesOnlyUntilItsOuterScopeEnds() throws Exception {
+        put(-1, 0, solid(0xF00, 15), null);
+        int old = RgbClient.tintAbgr(MATERIAL, -2, .5, 2);
+        try (var mesh = com.sumirelabs.pulsar.dynamic.DynamicLightClient.beginMesh()) {
+            assertEquals(old, RgbClient.tintAbgr(MATERIAL, -2, .5, 2));
+            assertEquals(MATERIAL, RgbClient.tintAbgr(MATERIAL, 2, .5, 2));
+            put(-1, 0, solid(0x00F, 15), null);
+            put(0, 0, solid(0x0F0, 15), null);
+            try (var nested = com.sumirelabs.pulsar.dynamic.DynamicLightClient.beginMesh()) {
+                assertEquals(old, RgbClient.tintAbgr(MATERIAL, -2, .5, 2));
+            }
+            assertEquals(MATERIAL, RgbClient.tintAbgr(MATERIAL, 2, .5, 2));
+            put(4, 0, solid(0xF0F, 15), null);
+            assertNotEquals(MATERIAL, RgbClient.tintAbgr(MATERIAL, 66, .5, 2));
+        }
+        try (var mesh = com.sumirelabs.pulsar.dynamic.DynamicLightClient.beginMesh()) {
+            assertNotEquals(old, RgbClient.tintAbgr(MATERIAL, -2, .5, 2));
+            assertNotEquals(MATERIAL, RgbClient.tintAbgr(MATERIAL, 2, .5, 2));
+        }
     }
     @Test
     void verticalSectionBoundaryCombinesBlockAndColoredSkyIndependently() throws Exception {

@@ -4,6 +4,9 @@
 
 package com.sumirelabs.pulsar.light;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import net.minecraft.world.chunk.NibbleArray;
@@ -177,15 +180,13 @@ public final class SWMRNibbleArray {
         return new SWMRNibbleArray(data.clone(), INIT_STATE_INIT, false);
     }
 
+    private static final VarHandle WORDS = MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.nativeOrder());
+
     private static boolean isAllZero(final byte[] data) {
-        for (int i = 0; i < (ARRAY_SIZE >>> 4); ++i) {
-            byte whole = data[i << 4];
-            for (int k = 1; k < (1 << 4); ++k) {
-                whole |= data[(i << 4) | k];
-            }
-            if (whole != 0) {
+        // Nibble storage is exactly 2048 bytes, so every read is a complete word.
+        for (int offset = 0; offset < ARRAY_SIZE; offset += Long.BYTES) {
+            if ((long) WORDS.get(data, offset) != 0L)
                 return false;
-            }
         }
         return true;
     }

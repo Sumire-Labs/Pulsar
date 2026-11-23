@@ -98,6 +98,7 @@ public final class RgbPalettePersistenceProbe {
         info.setAccessible(true);
         info.set(world,
             new WorldInfo(new WorldSettings(1, GameType.CREATIVE, false, false, WorldType.FLAT), "palette-probe"));
+        verifyLoadedPlanes();
         ProbeChunk source = new ProbeChunk(world);
         PulsarChunk light = (PulsarChunk) (Object) source;
         int count = WorldHeightContext.VANILLA.getTotalLightSections();
@@ -142,6 +143,29 @@ public final class RgbPalettePersistenceProbe {
     private static void require(boolean value, String message) {
         if (!value)
             throw new AssertionError(message);
+    }
+
+    private static void verifyLoadedPlanes() {
+        var height = WorldHeightContext.VANILLA;
+        byte[][][] planes = new byte[3][height.getTotalLightSections()][];
+        for (int c = 0; c < 3; c++) {
+            planes[c][1] = new byte[2048];
+            planes[c][1][0] = 0x34;
+        }
+        var root = new NBTTagCompound();
+        RgbPersistence.save(root, new RgbSnapshot(height.getMinLightSection(), 1, planes));
+        var loaded = RgbPersistence.load(root, height);
+        var red = loaded.channels[0][1];
+        var green = loaded.channels[1][1];
+        if (red.getVisibleData() != green.getVisibleData())
+            throw new AssertionError("Identical saved RGB channels were not shared");
+        root.getCompoundTag("rgb").getByteArray("0:1")[0] = 7;
+        if (red.getUpdating(0) != 4)
+            throw new AssertionError("Modifying NBT changed restored light");
+        red.set(0, 9);
+        red.updateVisible();
+        if (green.getUpdating(0) != 4 || green.getVisibleData()[0] != 0x34)
+            throw new AssertionError("Changing red modified the shared green channel");
     }
 
 }

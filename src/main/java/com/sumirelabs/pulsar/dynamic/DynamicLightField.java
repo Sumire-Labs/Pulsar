@@ -24,6 +24,15 @@ public final class DynamicLightField {
         this(x, y, z, radius, cells, null);
     }
     public DynamicLightField(int x, int y, int z, int radius, short[] cells, short[] visualLoss) {
+        this(x, y, z, radius, cells, visualLoss, false);
+    }
+
+    /** Internal producers relinquish both arrays. Public constructors always isolate mutable input. */
+    static DynamicLightField fromOwned(int x, int y, int z, int radius, short[] cells, short[] visualLoss) {
+        return new DynamicLightField(x, y, z, radius, cells, visualLoss, true);
+    }
+
+    private DynamicLightField(int x, int y, int z, int radius, short[] cells, short[] visualLoss, boolean owned) {
         if (radius < 0 || radius > 14 || cells.length != cube(radius))
             throw new IllegalArgumentException("Invalid dynamic light volume");
         this.x = x;
@@ -31,10 +40,11 @@ public final class DynamicLightField {
         this.z = z;
         this.radius = radius;
         this.side = radius * 2 + 1;
-        this.cells = cells.clone();
-        if (visualLoss != null && visualLoss.length != cells.length * 4)
+        this.cells = owned ? cells : cells.clone();
+        if (visualLoss != null && visualLoss.length != cells.length * 4
+            && !(owned && visualLoss.length == cells.length))
             throw new IllegalArgumentException("Invalid visual light volume");
-        this.visualLoss = visualLoss == null ? null : visualLoss.clone();
+        this.visualLoss = owned || visualLoss == null ? visualLoss : visualLoss.clone();
     }
     public static int cube(int radius) {
         int side = radius * 2 + 1;
@@ -44,14 +54,42 @@ public final class DynamicLightField {
         return cells.length;
     }
     public boolean sameLight(DynamicLightField other) {
-        return other != null && x == other.x && y == other.y && z == other.z && radius == other.radius
-            && java.util.Arrays.equals(cells, other.cells) && java.util.Arrays.equals(visualLoss, other.visualLoss);
+        if (other == null || x != other.x || y != other.y || z != other.z || radius != other.radius
+            || !Arrays.equals(cells, other.cells))
+            return false;
+        if (visualLoss == null || other.visualLoss == null || visualLoss.length == other.visualLoss.length)
+            return Arrays.equals(visualLoss, other.visualLoss);
+        for (int i = 0; i < cells.length; i++)
+            for (int lane = 0; lane < 4; lane++)
+                if (visualLoss(i, lane) != other.visualLoss(i, lane))
+                    return false;
+        return true;
     }
     public boolean hasVisualData() {
         return visualLoss != null;
     }
     public int visualLoss(int cell, int lane) {
-        return visualLoss == null ? BLOCKED : visualLoss[cell * 4 + lane] & 65535;
+        return visualLoss == null
+            ? BLOCKED
+            : visualLoss[visualLoss.length == cells.length ? cell : cell * 4 + lane] & 65535;
+    }
+    /** Encode the legacy little-endian plane layout without exposing the immutable arrays. */
+    byte[] packetData() {
+        int length = cells.length * Short.BYTES;
+        byte[] raw = new byte[visualLoss == null ? length : length * 5];
+        var bytes = java.nio.ByteBuffer.wrap(raw).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        bytes.asShortBuffer().put(cells);
+        if (visualLoss != null) {
+            bytes.position(length);
+            if (visualLoss.length == cells.length) {
+                var lanes = bytes.asLongBuffer();
+                for (short loss : visualLoss)
+                    lanes.put((loss & 0xFFFFL) * 0x0001000100010001L);
+            } else {
+                bytes.asShortBuffer().put(visualLoss);
+            }
+        }
+        return raw;
     }
     public int emission() {
         return cell(radius + side * (radius + side * radius));
@@ -95,8 +133,6 @@ public final class DynamicLightField {
         if (absorption.length != size * 6 || exits.length != size)
             throw new IllegalArgumentException("Invalid geometry");
         short[] light = new short[size];
-        short[] visual = new short[size * 4];
-        Arrays.fill(visual, (short) BLOCKED);
         double[] distanceCorrection = new double[size];
         for (int i = 0; i < size; i++) {
             int dx = i % side - radius, dz = i / side % side - radius, dy = i / (side * side) - radius;
@@ -116,6 +152,13 @@ public final class DynamicLightField {
                 break;
             }
         }
+        // All four emitting lanes have exactly the same loss in neutral media.
+        // A zero-emission lane needs its own BLOCKED entries.
+        boolean sharedLoss = neutral && (emission & 15) != 0 && (emission & 0xF0) != 0
+            && (emission & 0xF00) != 0 && (emission & 0xF000) != 0;
+        int stride = sharedLoss ? 1 : 4;
+        short[] visual = new short[size * stride];
+        Arrays.fill(visual, (short) BLOCKED);
         int solvedLane = -1;
         for (int shift = 0; shift < 16; shift += 4) {
             int strength = emission >>> shift & 15;
@@ -128,7 +171,8 @@ public final class DynamicLightField {
                     double distance = costs[i] / (double) COST_UNIT + distanceCorrection[i];
                     int value = (int) (strength * Math.max(0, 1 - distance / RANGE) + 1e-9);
                     light[i] |= (short) (value << shift);
-                    visual[i * 4 + shift / 4] = visual[i * 4 + solvedLane];
+                    if (!sharedLoss)
+                        visual[i * 4 + shift / 4] = visual[i * 4 + solvedLane];
                 }
                 continue;
             }
@@ -137,7 +181,7 @@ public final class DynamicLightField {
             costs[center] = 0;
             queue.enqueue(center);
             light[center] |= (short) (strength << shift);
-            visual[center * 4 + shift / 4] = 0;
+            visual[center * stride + (sharedLoss ? 0 : shift / 4)] = 0;
             while (!queue.isEmpty()) {
                 long entry = queue.dequeueLong();
                 int at = (int) entry, cost = (int) (entry >>> 32);
@@ -167,13 +211,13 @@ public final class DynamicLightField {
                     light[to] = (short) ((light[to] & ~(15 << shift)) | value << shift);
                     int tx = to % side - radius, tz = to / side % side - radius, ty = to / (side * side) - radius;
                     double extra = nextCost / (double) COST_UNIT - Math.abs(tx) - Math.abs(ty) - Math.abs(tz);
-                    visual[to * 4 + shift / 4] = (short) Math.min(BLOCKED - 1,
+                    visual[to * stride + (sharedLoss ? 0 : shift / 4)] = (short) Math.min(BLOCKED - 1,
                         (int) Math.ceil(Math.max(0, extra) * 256));
                     queue.enqueue((long) nextCost << 32 | to & 0xffffffffL);
                 }
             }
         }
-        return new DynamicLightField(x, y, z, radius, light, visual);
+        return fromOwned(x, y, z, radius, light, visual);
     }
 
 }

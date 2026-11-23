@@ -1,6 +1,7 @@
 package com.sumirelabs.pulsar.dynamic;
 
-import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.zip.*;
 
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -33,27 +34,17 @@ public final class DynamicLightPacket implements IMessage {
             return;
         out.writeInt(field.x).writeInt(field.y).writeInt(field.z).writeByte(field.radius)
             .writeBoolean(field.hasVisualData());
-        byte[] raw = new byte[field.size() * (field.hasVisualData() ? 10 : 2)];
-        for (int i = 0; i < field.size(); i++) {
-            raw[i * 2] = (byte) field.cell(i);
-            raw[i * 2 + 1] = (byte) (field.cell(i) >>> 8);
-        }
-        if (field.hasVisualData())
-            for (int i = 0; i < field.size(); i++)
-                for (int lane = 0; lane < 4; lane++) {
-                    int at = field.size() * 2 + (i * 4 + lane) * 2, value = field.visualLoss(i, lane);
-                    raw[at] = (byte) value;
-                    raw[at + 1] = (byte) (value >>> 8);
-                }
+        byte[] raw = field.packetData();
         Deflater deflater = new Deflater(Deflater.BEST_SPEED);
         try {
             deflater.setInput(raw);
             deflater.finish();
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            int lengthIndex = out.writerIndex();
+            out.writeInt(0);
             byte[] buffer = new byte[4096];
             while (!deflater.finished())
-                bytes.write(buffer, 0, deflater.deflate(buffer));
-            out.writeInt(bytes.size()).writeBytes(bytes.toByteArray());
+                out.writeBytes(buffer, 0, deflater.deflate(buffer));
+            out.setInt(lengthIndex, out.writerIndex() - lengthIndex - Integer.BYTES);
         } finally {
             deflater.end();
         }
@@ -99,18 +90,36 @@ public final class DynamicLightPacket implements IMessage {
                 inflater.end();
             }
             short[] cells = new short[size];
-            for (int i = 0; i < cells.length; i++)
-                cells[i] = (short) ((raw[i * 2] & 255) | (raw[i * 2 + 1] & 255) << 8);
-            short[] losses = visual ? new short[size * 4] : null;
-            if (visual)
-                for (int i = 0; i < losses.length; i++) {
-                    int at = size * 2 + i * 2;
-                    losses[i] = (short) ((raw[at] & 255) | (raw[at + 1] & 255) << 8);
-                }
-            field = new DynamicLightField(x, y, z, radius, cells, losses);
+            var bytes = ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN);
+            bytes.asShortBuffer().get(cells);
+            short[] losses = visual ? readLosses(bytes, size) : null;
+            field = DynamicLightField.fromOwned(x, y, z, radius, cells, losses);
         }
         if (in.isReadable())
             throw new IllegalArgumentException("Trailing dynamic light data");
+    }
+
+    // The wire carries four 16-bit values per cell, including on older peers.
+    private static short[] readLosses(ByteBuffer bytes, int size) {
+        int offset = size * Short.BYTES;
+        boolean shared = true;
+        for (int i = offset; i < bytes.limit(); i += Long.BYTES) {
+            long lanes = bytes.getLong(i);
+            if (lanes != (lanes & 0xFFFFL) * 0x0001000100010001L) {
+                shared = false;
+                break;
+            }
+        }
+        short[] result = new short[shared ? size : size * 4];
+        bytes.position(offset);
+        if (shared) {
+            var lanes = bytes.asLongBuffer();
+            for (int i = 0; i < size; i++)
+                result[i] = (short) lanes.get();
+        } else {
+            bytes.asShortBuffer().get(result);
+        }
+        return result;
     }
 
 }

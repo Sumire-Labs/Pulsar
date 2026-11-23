@@ -206,17 +206,15 @@ public final class RgbSnapshot {
             return null;
         int value = live[0] & 255;
         if ((value & 15) == value >>> 4) {
-            boolean constant = true;
-            for (byte b : live)
-                if ((b & 255) != value) {
-                    constant = false;
-                    break;
-                }
-            if (constant) {
-                int level = value & 15;
-                byte[] cached = CONSTANTS.get(level);
-                if (cached != null)
+            int level = value & 15;
+            byte[] cached = CONSTANTS.get(level);
+            if (cached != null) {
+                if (java.util.Arrays.equals(live, cached))
                     return cached;
+            } else {
+                for (byte b : live)
+                    if ((b & 255) != value)
+                        return frozen ? live : live.clone();
                 byte[] owned = frozen ? live : live.clone();
                 return CONSTANTS.compareAndSet(level, null, owned) ? owned : CONSTANTS.get(level);
             }
