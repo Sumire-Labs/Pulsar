@@ -88,17 +88,18 @@ public final class FluidLightBridge {
      * races an insertion gets a later per-position correction through the same
      * synchronized light queue.
      */
-    public static boolean mayHaveFluidStates(final Object capability,
-        final int minSection, final int maxSection) {
-        if (!LOADED)
-            return false;
-        if (capability == null)
-            return false;
+    public static boolean mayHaveFluidStates(final Object capability, final int minSection, final int maxSection) {
+        return sourceScanSections(capability, minSection, maxSection) != 0;
+    }
+
+    /** Zero for no stored fluid, one bit per vanilla section, or -1 for a conservative scan. */
+    public static int sourceScanSections(final Object capability, final int minSection, final int maxSection) {
+        if (!LOADED || capability == null)
+            return 0;
         try {
-            return FluidLightPositions.mayHaveFluidStates(
-                (IFluidStateCapability) capability, minSection, maxSection);
+            return FluidLightPositions.sourceScanSections((IFluidStateCapability) capability, minSection, maxSection);
         } catch (final LinkageError | RuntimeException unavailable) {
-            return true;
+            return -1;
         }
     }
 

@@ -31,7 +31,14 @@ class FluidLightBridgeTest {
 
     }
 
-    private static final class IncompleteFluidIndexCapability extends FluidStateCapabilityVanilla {
+    private static final class IncompleteFluidIndexCapability extends FluidStateCapabilityVanilla
+        implements
+            FluidSectionHint {
+
+        @Override
+        public int pulsar$fluidSections() {
+            return 1; // An inherited hint cannot certify a custom capability's other storage.
+        }
 
         IncompleteFluidIndexCapability(final int chunkX, final int chunkZ) {
             super(chunkX, chunkZ);
@@ -56,10 +63,10 @@ class FluidLightBridgeTest {
         final int chunkX = 5;
         final int chunkZ = -2;
         final FluidStateCapabilityVanilla capability = new FluidStateCapabilityVanilla(chunkX, chunkZ);
-        assertFalse(FluidLightPositions.mayHaveFluidStates(capability, 0, 15));
+        assertEquals(0, FluidLightPositions.sourceScanSections(capability, 0, 15));
         final FluidState water = new TestFluidState();
         capability.setFluidState((chunkX << 4) + 3, 42, (chunkZ << 4) + 7, water);
-        assertTrue(FluidLightPositions.mayHaveFluidStates(capability, 0, 15));
+        assertNotEquals(0, FluidLightPositions.sourceScanSections(capability, 0, 15));
         capability.setFluidState((chunkX << 4) + 12, 90, (chunkZ << 4) + 1, water);
 
         final int[] positions = FluidLightPositions.enumerate(capability, 0, 15);
@@ -69,23 +76,23 @@ class FluidLightBridgeTest {
         capability.setFluidState((chunkX << 4) + 3, 42, (chunkZ << 4) + 7, FluidState.EMPTY);
         assertArrayEquals(new int[]{(90 << 8) | (1 << 4) | 12},
             FluidLightPositions.enumerate(capability, 0, 15));
-        assertTrue(FluidLightPositions.mayHaveFluidStates(capability, 0, 15));
+        assertNotEquals(0, FluidLightPositions.sourceScanSections(capability, 0, 15));
         capability.setFluidState((chunkX << 4) + 12, 90, (chunkZ << 4) + 1, FluidState.EMPTY);
-        assertFalse(FluidLightPositions.mayHaveFluidStates(capability, 0, 15));
+        assertEquals(0, FluidLightPositions.sourceScanSections(capability, 0, 15));
     }
 
     @Test
     void emptyFluidIndexIsDifferentFromAnUnavailableContainer() {
         final FluidStateCapabilityVanilla capability = new FluidStateCapabilityVanilla(0, 0);
         assertArrayEquals(new int[0], FluidLightPositions.enumerate(capability, 0, 15));
-        assertFalse(FluidLightPositions.mayHaveFluidStates(capability, 0, 15));
+        assertEquals(0, FluidLightPositions.sourceScanSections(capability, 0, 15));
 
         final IFluidStateCapability missingContainer = (IFluidStateCapability) Proxy.newProxyInstance(
             IFluidStateCapability.class.getClassLoader(), new Class<?>[]{IFluidStateCapability.class},
             (proxy, method, args) -> null);
         assertNull(FluidLightPositions.enumerate(missingContainer, 0, 0));
-        assertTrue(FluidLightPositions.mayHaveFluidStates(missingContainer, 0, 0));
-        assertTrue(FluidLightPositions.mayHaveFluidStates(
+        assertNotEquals(0, FluidLightPositions.sourceScanSections(missingContainer, 0, 0));
+        assertNotEquals(0, FluidLightPositions.sourceScanSections(
             new FluidStateCapabilityVanilla(0, 0) {
             }, 0, 15));
     }
@@ -102,7 +109,7 @@ class FluidLightBridgeTest {
         assertFalse(capability.getFluidState(worldX, 42, worldZ, FluidState.EMPTY).isEmpty());
         assertTrue(capability.getSerializedPositions().isEmpty());
         assertNull(FluidLightPositions.enumerate(capability, 0, 15));
-        assertTrue(FluidLightPositions.mayHaveFluidStates(capability, 0, 15));
+        assertEquals(-1, FluidLightPositions.sourceScanSections(capability, 0, 15));
     }
 
     @Test
@@ -110,8 +117,8 @@ class FluidLightBridgeTest {
         final FluidStateCapabilityVanilla capability = new FluidStateCapabilityVanilla(0, 0);
         assertNull(FluidLightPositions.enumerate(capability, -1, 15));
         assertNull(FluidLightPositions.enumerate(capability, 16, 16));
-        assertTrue(FluidLightPositions.mayHaveFluidStates(capability, -1, 15));
-        assertTrue(FluidLightPositions.mayHaveFluidStates(capability, 16, 16));
+        assertNotEquals(0, FluidLightPositions.sourceScanSections(capability, -1, 15));
+        assertNotEquals(0, FluidLightPositions.sourceScanSections(capability, 16, 16));
     }
 
 }

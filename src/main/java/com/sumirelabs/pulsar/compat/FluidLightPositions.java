@@ -19,6 +19,16 @@ final class FluidLightPositions {
 
     private FluidLightPositions() {}
 
+    // This version's NBT reader installs each fluid through setFluidState(char, FluidState).
+    // A different serializer or container may not populate the hint.
+    private static final class HintVersion {
+
+        private static final net.minecraftforge.fml.common.ModContainer MOD = net.minecraftforge.fml.common.Loader
+            .instance().getIndexedModList().get("fluidlogged_api");
+        static final boolean SUPPORTED = MOD != null && "3.3.3".equals(MOD.getVersion());
+
+    }
+
     /**
      * Returns packed local-cell keys, an empty array when there are no fluids,
      * or {@code null} when the index cannot be trusted and a full scan is needed.
@@ -75,36 +85,29 @@ final class FluidLightPositions {
         }
     }
 
-    /**
-     * Whether a known vanilla capability contains any fluids in the chunk.
-     * Unknown implementations or height serializers conservatively mean true.
-     */
-    static boolean mayHaveFluidStates(final IFluidStateCapability capability,
-        final int minSection, final int maxSection) {
+    /** Zero for empty, one bit per vanilla section, or -1 when absence cannot be proven. */
+    static int sourceScanSections(final IFluidStateCapability capability, final int minSection, final int maxSection) {
         if (capability == null)
-            return false;
-        try {
-            // Only this implementation's position index is known to cover the
-            // full capability consistently; wrappers and alternate APIs scan.
-            if (capability.getClass() != FluidStateCapabilityVanilla.class)
-                return true;
-            final IFluidStateContainer shared = capability.getContainer(minSection << 4);
-            if (shared == null || shared.getClass() != FluidStateCapabilityVanilla.class)
-                return true;
-            for (int sectionY = minSection; sectionY <= maxSection; sectionY++) {
-                final int minY = sectionY << 4;
-                final int maxY = minY + 15;
-                final IFluidStateContainer container = capability.getContainer(minY);
-                if (container != shared
-                    || container.deserializeY((char) container.serializeY(minY)) != minY
-                    || container.deserializeY((char) container.serializeY(maxY)) != maxY) {
-                    return true;
-                }
-            }
-            return !shared.getSerializedPositions().isEmpty();
-        } catch (final LinkageError | RuntimeException unavailable) {
-            return true;
+            return 0;
+        if (capability.getClass() != FluidStateCapabilityVanilla.class || minSection < 0 || maxSection > 15)
+            return -1;
+        final IFluidStateContainer shared = capability.getContainer(minSection << 4);
+        if (shared != capability)
+            return -1;
+        for (int sy = minSection; sy <= maxSection; sy++) {
+            int y = sy << 4;
+            if (capability.getContainer(y) != shared || shared.deserializeY((char) shared.serializeY(y)) != y
+                || shared.deserializeY((char) shared.serializeY(y + 15)) != y + 15)
+                return -1;
         }
+        if (shared.getSerializedPositions().isEmpty())
+            return 0;
+        if (shared instanceof FluidSectionHint hint && HintVersion.SUPPORTED) {
+            int mask = hint.pulsar$fluidSections();
+            if (mask != 0)
+                return mask;
+        }
+        return -1;
     }
 
 }

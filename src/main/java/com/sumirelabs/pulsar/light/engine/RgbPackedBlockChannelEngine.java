@@ -74,10 +74,13 @@ final class RgbPackedBlockChannelEngine extends PackedRgbChannelEngine {
     protected void lightChunk(Chunk chunk, boolean needsEdgeChecks) {
         var sections = chunk.getBlockStorageArray();
         Object capability = fluidCapCache[chunk.x + 5 * chunk.z + chunkIndexOffset];
+        int fluidSections = FluidLightBridge.sourceScanSections(capability, minSection, maxSection);
         for (int sy = minSection; sy <= maxSection; sy++) {
             int index = heightContext.getStorageIndex(sy);
             var section = index < 0 || index >= sections.length ? null : sections[index];
-            boolean fluids = FluidLightBridge.mayHaveFluidStates(capability, sy, sy);
+            boolean fluids = fluidSections == -1
+                ? FluidLightBridge.mayHaveFluidStates(capability, sy, sy)
+                : (fluidSections & (1 << sy)) != 0;
             boolean absolute = section != null
                 && (!(section.getData() instanceof RgbFilterPalette palette) || palette.pulsar$mayEmitAbsoluteRgb());
             if (!fluids && !absolute && (section == null || section.isEmpty()

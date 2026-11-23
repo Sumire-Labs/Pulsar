@@ -200,7 +200,7 @@ public class ScalarBlockEngine extends PulsarEngine {
         final int offZ = chunk.z << 4;
         final ExtendedBlockStorage[] sections = chunk.getBlockStorageArray();
         final Object fluidCapability = this.fluidCapCache[chunk.x + 5 * chunk.z + this.chunkIndexOffset];
-        final boolean mayHaveFluidStates = FluidLightBridge.mayHaveFluidStates(
+        final int fluidSections = FluidLightBridge.sourceScanSections(
             fluidCapability, this.minSection, this.maxSection);
 
         for (int sectionY = this.minSection; sectionY <= this.maxSection; ++sectionY) {
@@ -212,9 +212,9 @@ public class ScalarBlockEngine extends PulsarEngine {
                 continue;
             }
             // Local palettes can rule out all emitters with a bounded state scan.
-            // Unknown containers and Fluidlogged remain on the full cell scan.
+            // A possible stored fluid still requires the full scan, even with a dark block palette.
             final Object blockData = section.getData();
-            if (!mayHaveFluidStates && blockData instanceof ContextualLightPalette
+            if ((fluidSections & (1 << sectionY)) == 0 && blockData instanceof ContextualLightPalette
                 && ((((ContextualLightPalette) blockData).pulsar$lightPaletteFlags()
                     & ContextualLightPalette.MAY_EMIT) == 0)) {
                 continue;

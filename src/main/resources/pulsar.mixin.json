@@ -12,6 +12,7 @@
     "MixinBlockStairsFaceLight",
     "MixinBlockStateImplementation",
     "MixinBlockStateContainerSamples",
+    "MixinFluidSectionHint",
     "MixinChunk",
     "MixinRgbChunk",
     "MixinRgbFilterPalette",
