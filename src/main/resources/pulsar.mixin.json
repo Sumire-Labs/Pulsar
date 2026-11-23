@@ -44,6 +44,7 @@
     "MixinDynamicLightmapCoordinates",
     "MixinDynamicCeleritasTask",
     "MixinDynamicRenderChunk",
+    "MixinDynamicTerrainScheduling",
     "MixinLightUpdateTrace",
     "MixinCeleritasUpdateTrace",
     "MixinCeleritasBuildTrace",

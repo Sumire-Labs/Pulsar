@@ -30,7 +30,7 @@ public abstract class MixinRgbFbpUploader {
         @Coerce Object texture, @Coerce Object color, @Coerce Object light,
         Operation<Void> original) {
         int start = buffer.getVertexCount();
-        long generation = ((RgbDynamicVertices) buffer).pulsar$rgbGeneration();
+        long generation = buffer instanceof RgbDynamicVertices tags ? tags.pulsar$rgbGeneration() : 0;
         original.call(buffer, model, normal, texture, color, light);
         RgbFbpLighting.apply(buffer, start, generation);
     }

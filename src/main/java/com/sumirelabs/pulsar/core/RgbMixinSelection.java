@@ -56,7 +56,8 @@ public final class RgbMixinSelection implements IMixinConfigPlugin {
         if (optifine && name.equals("MixinPartialBlockModelLight"))
             return false;
         return !name.startsWith("MixinRgb") || name.equals("MixinRgbCeleritasRenderer")
-            || name.equals("MixinRgbQuadLightmap") || rgb;
+            || name.equals("MixinRgbQuadLightmap") || name.equals("MixinRgbFbpUploader")
+            || name.equals("MixinRgbFbpLegacyRenderer") || rgb;
     }
     public String getRefMapperConfig() {
         return null;

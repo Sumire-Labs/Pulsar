@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
 
 /** Optional Celeritas scheduling bridge; vanilla/unknown renderers keep their normal invalidation path. */
-final class DynamicLightRebuilds {
+public final class DynamicLightRebuilds {
 
     private static final boolean PRESENT = DynamicLightRebuilds.class.getClassLoader()
         .getResource("org/taumc/celeritas/impl/render/terrain/CeleritasWorldRenderer.class") != null;
@@ -16,6 +16,23 @@ final class DynamicLightRebuilds {
     private static boolean failed;
     private static Method instance, manager, section, pending, building, schedule;
     private DynamicLightRebuilds() {}
+    // Vanilla's world listener synchronously marks each affected RenderChunk on the client thread.
+    private static final ThreadLocal<Boolean> MARKING = new ThreadLocal<>();
+    public static boolean markingDynamicLight() {
+        return MARKING.get() != null;
+    }
+    static void markVanilla(World world, int x, int y, int z, int xx, int yy, int zz) {
+        if (markingDynamicLight()) {
+            world.markBlockRangeForRenderUpdate(x, y, z, xx, yy, zz);
+            return;
+        }
+        MARKING.set(Boolean.TRUE);
+        try {
+            world.markBlockRangeForRenderUpdate(x, y, z, xx, yy, zz);
+        } finally {
+            MARKING.remove();
+        }
+    }
     static void clear() {
         QUEUE.clear();
         owner = null;

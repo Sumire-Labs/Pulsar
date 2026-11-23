@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-23
+
+### Added
+
+- Add Dynamic Lights settings for movement update frequency, player and entity sources,
+  light from blocks carried by pistons, water-sensitive items, and primed TNT and creeper flashes.
+
+### Changed
+
+- Reduce stuttering when walking with a light source by scheduling light-only updates to
+  existing vanilla terrain meshes on the background chunk dispatcher.
+- Reduce repeated light sampling during terrain rendering and limit RGB terrain updates
+  to the area affected by changed light values.
+
+### Fixed
+
+- Apply handheld light to Fancier and Fanciest Block Particles in visual-only mode.
+
 ## [0.7.1-beta] - 2026-11-23
 
 ### Changed
@@ -722,7 +740,8 @@ No user-facing changes.
 
 First working build
 
-[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.1-beta...HEAD
+[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.2...HEAD
+[0.7.2]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.1-beta...0.7.2
 [0.7.1-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.0-beta...0.7.1-beta
 [0.7.0-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.7-beta...0.7.0-beta
 [0.6.7-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.6.6-beta...0.6.7-beta

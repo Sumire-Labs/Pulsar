@@ -82,9 +82,42 @@ public final class FbpRgbProbe {
                 }
             }
         }
+        if (!mode.equals("SHADER"))
+            checkHandheldLight(buffer, mc);
         pass();
     }
 
+    private static void checkHandheldLight(BufferBuilder buffer, Minecraft mc) throws Exception {
+        // Capture the real uploader output with the static lightmap alone, then install a
+        // visual-only field. No world/gameplay light is changed between draws.
+        buffer = mesh(buffer);
+        byte[] before = bytes(buffer);
+        int radius = 3, size = com.sumirelabs.pulsar.dynamic.DynamicLightField.cube(radius);
+        short[] cells = new short[size];
+        Arrays.fill(cells, (short) 0xEEEE);
+        var field = new com.sumirelabs.pulsar.dynamic.DynamicLightField(5, 65, 6, radius, cells, new short[size * 4]);
+        var client = com.sumirelabs.pulsar.dynamic.DynamicLightClient.class;
+        setFlag(client, "owner", mc.world);
+        setFlag(client, "fields", Map.of(1, field));
+        setFlag(client, "renderSources",
+            Map.of(1, com.sumirelabs.pulsar.dynamic.DynamicLightRenderSource.at(field, 5.5, 65, 6.5)));
+        var publish = client.getDeclaredMethod("publish");
+        publish.setAccessible(true);
+        publish.invoke(null);
+        buffer = mesh(buffer);
+        var after = buffer.getByteBuffer();
+        var original = ByteBuffer.wrap(before).order(after.order());
+        int stride = buffer.getVertexFormat().getSize(), uv = buffer.getVertexFormat().getUvOffsetById(1);
+        for (int i = 0; i < buffer.getVertexCount(); i++) {
+            int at = i * stride + uv;
+            if (i < 24 && after.getShort(at) <= original.getShort(at))
+                throw new AssertionError("Handheld light did not brighten FBP vertex " + i);
+            if (after.getShort(at + 2) != original.getShort(at + 2))
+                throw new AssertionError("Handheld light changed sky light");
+            if (i >= 24 && i < 72 && after.getShort(at) != original.getShort(at))
+                throw new AssertionError("Out-of-range or fullbright face changed");
+        }
+    }
     private static void pass() {
         System.out.println("FBP_RGB_PASS variant=" + variant + " mode=" + mode);
     }

@@ -32,6 +32,18 @@ public class PulsarConfig {
     public static DynamicLights dynamicLights = new DynamicLights();
     public static class DynamicLights {
 
+        @Config.Comment("Minimum ticks between movement updates. One tick is 50 ms at 20 TPS. Higher values reduce terrain rebuilds.")
+        @Config.RangeInt(min = 1, max = 40) public int updateIntervalTicks = 2;
+        @Config.Comment("Allow players to emit held and burning dynamic light.") public boolean playerLightSources = true;
+        @Config.Comment("Allow non-player entities, including dropped items, to emit dynamic light.") public boolean entityLightSources = true;
+        @Config.Comment("Allow moving piston block entities to carry a pushed block's light.") public boolean blockEntityLightSources = false;
+        @Config.Comment("Extinguish carried or dropped torches when their source position is in water.") public boolean extinguishTorchesInWater = true;
+        @Config.Comment("Additional item registry IDs extinguished in water when extinguishTorchesInWater is enabled.") public String[] waterSensitiveItems = {};
+        @Config.Comment("Ticks between primed TNT light flashes. Zero disables this source.")
+        @Config.RangeInt(min = 0, max = 200) public int tntFlashIntervalTicks = 0;
+        @Config.Comment("Ticks between light flashes while a creeper is swelling. Zero disables this source.")
+        @Config.RangeInt(min = 0, max = 200) public int creeperFlashIntervalTicks = 0;
+
         @Config.Comment({"Experimental dynamic lighting. The default mode is GAMEPLAY.",
             "Server-authoritative held and dropped block light sources and lava buckets.",
             "Burning mobs and players also emit light using the fire source palette.",

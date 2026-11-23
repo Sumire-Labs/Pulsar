@@ -25,7 +25,7 @@ public abstract class MixinRgbFbpLegacyRenderer {
     private static void pulsar$tintCube(BufferBuilder buffer, Vec2f[] texture, double scale, @Coerce Object rotation,
         int lightU, int lightV, float r, float g, float b, float a, Operation<Void> original) {
         int start = buffer.getVertexCount();
-        long generation = ((RgbDynamicVertices) buffer).pulsar$rgbGeneration();
+        long generation = buffer instanceof RgbDynamicVertices tags ? tags.pulsar$rgbGeneration() : 0;
         original.call(buffer, texture, scale, rotation, lightU, lightV, r, g, b, a);
         RgbFbpLighting.apply(buffer, start, generation);
     }
@@ -35,7 +35,7 @@ public abstract class MixinRgbFbpLegacyRenderer {
         @Coerce Object rotation, int lightU, int lightV,
         float r, float g, float b, float a, Operation<Void> original) {
         int start = buffer.getVertexCount();
-        long generation = ((RgbDynamicVertices) buffer).pulsar$rgbGeneration();
+        long generation = buffer instanceof RgbDynamicVertices tags ? tags.pulsar$rgbGeneration() : 0;
         original.call(buffer, texture, width, height, rotation, lightU, lightV, r, g, b, a);
         RgbFbpLighting.apply(buffer, start, generation);
     }

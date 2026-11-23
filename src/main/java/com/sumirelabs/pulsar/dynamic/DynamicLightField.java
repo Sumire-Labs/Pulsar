@@ -106,10 +106,33 @@ public final class DynamicLightField {
         LongHeapPriorityQueue queue = new LongHeapPriorityQueue();
         int center = radius + side * (radius + side * radius);
         int[] offsets = {1, -1, side, -side, side * side, -side * side};
+        // With neutral absorption every emitting channel follows the same paths, even for
+        // a colored lamp. Reuse the distances, not the rounded brightness of another channel.
+        boolean neutral = true;
+        for (short value : absorption) {
+            int medium = value & 65535;
+            if (medium != (medium >>> 12) * 0x1111) {
+                neutral = false;
+                break;
+            }
+        }
+        int solvedLane = -1;
         for (int shift = 0; shift < 16; shift += 4) {
             int strength = emission >>> shift & 15;
             if (strength == 0)
                 continue;
+            if (neutral && solvedLane >= 0) {
+                for (int i = 0; i < size; i++) {
+                    if (costs[i] == Integer.MAX_VALUE)
+                        continue;
+                    double distance = costs[i] / (double) COST_UNIT + distanceCorrection[i];
+                    int value = (int) (strength * Math.max(0, 1 - distance / RANGE) + 1e-9);
+                    light[i] |= (short) (value << shift);
+                    visual[i * 4 + shift / 4] = visual[i * 4 + solvedLane];
+                }
+                continue;
+            }
+            solvedLane = shift / 4;
             Arrays.fill(costs, Integer.MAX_VALUE);
             costs[center] = 0;
             queue.enqueue(center);

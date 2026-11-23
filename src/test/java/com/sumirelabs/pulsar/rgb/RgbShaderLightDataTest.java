@@ -14,6 +14,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class RgbShaderLightDataTest {
 
     @Test
+    void snapshotRenderBoundsIncludeHighAndLowNibblesAcrossAllPlanes() {
+        byte[][][] planes = new byte[3][1][];
+        var before = new RgbSnapshot(0, 0, planes, new byte[1][]);
+        planes[0][0] = new byte[2048];
+        planes[0][0][(3 + (4 << 4) + (5 << 8)) >> 1] = 0x70;
+        byte[][] canonical = {new byte[2048]};
+        canonical[0][(6 + (2 << 4) + (8 << 8)) >> 1] = 5;
+        var after = new RgbSnapshot(0, 1, planes, canonical);
+        long bounds = com.sumirelabs.pulsar.light.RenderBounds.pack(3, 5, 2, 6, 8, 4);
+        assertEquals(bounds, after.changedBounds(before, 0));
+        assertEquals(bounds, before.changedBounds(after, 0));
+        assertEquals(-1, after.changedBounds(new RgbSnapshot(0, 2, planes, canonical), 0));
+    }
+    @Test
     void allEightComponentsKeepTheirOwnBitsIncludingTheSignBit() {
         for (int channel = 0; channel < 8; channel++)
             for (int level = 0; level < 16; level++) {

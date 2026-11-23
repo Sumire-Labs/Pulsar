@@ -149,15 +149,28 @@ public final class RgbClient {
                 ((PulsarChunk) chunk).pulsar$setSkyNibbles(block);
             else
                 ((PulsarChunk) chunk).pulsar$setBlockNibbles(block);
+            var rendered = VIEWS.get(CoordinateUtils.getChunkKey(chunk.x, chunk.z));
+            RgbSnapshot renderedSnapshot = rendered == null || rendered.chunk != chunk
+                ? null
+                : packet.sky ? (skyActive ? rendered.skyRgb : null) : (active ? rendered.rgb : null);
             refresh(chunk);
             if (packet.sky)
                 skyActive = true;
             else
                 active = true;
-            int min = WorldUtil.getHeightContext(mc.world).getMinBlockY();
-            int max = WorldUtil.getHeightContext(mc.world).getMaxBlockY();
-            mc.world.markBlockRangeForRenderUpdate((packet.x << 4) - 1, min, (packet.z << 4) - 1,
-                (packet.x << 4) + 16, max, (packet.z << 4) + 16);
+            var manager = ((com.sumirelabs.pulsar.world.PulsarWorld) mc.world).pulsar$getLightManager();
+            if (renderedSnapshot == null || renderedSnapshot.minSection != packet.snapshot.minSection
+                || renderedSnapshot.sectionCount() != block.length || manager == null
+                || manager.getLoadedChunk(packet.x, packet.z) != chunk) {
+                mc.world.markBlockRangeForRenderUpdate((packet.x << 4) - 1, height.getMinBlockY(), (packet.z << 4) - 1,
+                    (packet.x << 4) + 16, height.getMaxBlockY(), (packet.z << 4) + 16);
+                return;
+            }
+            for (int s = 0; s < block.length; s++) {
+                long bounds = packet.snapshot.changedBounds(renderedSnapshot, s);
+                if (bounds >= 0)
+                    manager.queueClientRenderUpdate(chunk, packet.snapshot.minSection + s, bounds);
+            }
         });
     }
     public static void chunkRead(Chunk chunk) {

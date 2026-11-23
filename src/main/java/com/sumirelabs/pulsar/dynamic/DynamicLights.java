@@ -47,6 +47,8 @@ public final class DynamicLights {
 
         final Map<Integer, Source> sources = new LinkedHashMap<>();
         volatile List<DynamicLightField> visible = List.of();
+        final Map<BlockPos, Integer> pistonIds = new HashMap<>();
+        int nextPistonId = -1;
         long tick, revision;
 
     }
@@ -107,47 +109,74 @@ public final class DynamicLights {
             }
             source.pending = null;
         }
-        for (EntityPlayer player : world.playerEntities) {
-            if (!player.isEntityAlive() || player.isSpectator() || player.world != world)
-                continue;
-            BlockPos pos = new BlockPos(player.posX, player.posY + player.getEyeHeight(), player.posZ);
-            int emission;
-            try {
-                emission = DynamicLightField.merge(
-                    DynamicLightGeometry.itemEmission(world, pos, player.getHeldItemMainhand(),
-                        RgbMixinSelection.rgbEnabled()),
-                    DynamicLightGeometry.itemEmission(world, pos, player.getHeldItemOffhand(),
-                        RgbMixinSelection.rgbEnabled()));
-            } catch (RuntimeException exception) {
-                continue;
-            } // Unsupported item states are not light sources.
-              // One source per player: neither burning nor held light may overwrite the other.
-            if (player.isBurning())
-                emission = DynamicLightField.merge(emission,
-                    DynamicLightGeometry.fireEmission(world, pos, RgbMixinSelection.rgbEnabled()));
-            if (emission == 0)
-                continue;
-            changed |= track(state, present, player.getEntityId(), pos, emission);
-        }
+        if (PulsarConfig.dynamicLights.playerLightSources)
+            for (EntityPlayer player : world.playerEntities) {
+                if (!player.isEntityAlive() || player.isSpectator() || player.world != world)
+                    continue;
+                BlockPos pos = new BlockPos(player.posX, player.posY + player.getEyeHeight(), player.posZ);
+                int emission;
+                try {
+                    emission = DynamicLightField.merge(
+                        DynamicLightGeometry.itemEmission(world, pos, player.getHeldItemMainhand(),
+                            RgbMixinSelection.rgbEnabled()),
+                        DynamicLightGeometry.itemEmission(world, pos, player.getHeldItemOffhand(),
+                            RgbMixinSelection.rgbEnabled()));
+                } catch (RuntimeException exception) {
+                    continue;
+                } // Unsupported item states are not light sources.
+                  // One source per player: neither burning nor held light may overwrite the other.
+                if (player.isBurning())
+                    emission = DynamicLightField.merge(emission,
+                        DynamicLightGeometry.fireEmission(world, pos, RgbMixinSelection.rgbEnabled()));
+                if (emission == 0)
+                    continue;
+                changed |= track(state, present, player.getEntityId(), pos, emission);
+            }
         // Loaded drops and burning mobs share the same bounded propagation budget.
         // Use their physical center, not client-only item bobbing or flame animation.
-        for (var entity : world.loadedEntityList) {
-            if (entity.isDead || entity.world != world)
-                continue;
-            boolean burningMob = entity instanceof EntityLiving mob && mob.isEntityAlive() && mob.isBurning();
-            if (!(entity instanceof EntityItem) && !burningMob)
-                continue;
-            BlockPos pos = new BlockPos(entity.posX, entity.posY + entity.height * .5, entity.posZ);
-            var chunk = world.getChunkProvider().getLoadedChunk(pos.getX() >> 4, pos.getZ() >> 4);
-            if (chunk == null)
-                continue; // EmptyChunk is a client-only placeholder, never a server chunk.
-            int emission = burningMob
-                ? DynamicLightGeometry.fireEmission(world, pos, RgbMixinSelection.rgbEnabled())
-                : DynamicLightGeometry.itemEmission(world, pos, ((EntityItem) entity).getItem(),
-                    RgbMixinSelection.rgbEnabled());
-            if (emission != 0)
-                changed |= track(state, present, entity.getEntityId(), pos, emission);
+        var options = PulsarConfig.dynamicLights;
+        if (options.entityLightSources)
+            for (var entity : world.loadedEntityList) {
+                if (entity.isDead || entity.world != world)
+                    continue;
+                boolean burningMob = entity instanceof EntityLiving mob && mob.isEntityAlive() && mob.isBurning();
+                boolean flash = entity instanceof net.minecraft.entity.item.EntityTNTPrimed
+                    && flashes(entity.ticksExisted, options.tntFlashIntervalTicks)
+                    || entity instanceof net.minecraft.entity.monster.EntityCreeper creeper
+                        && (creeper.getCreeperState() > 0 || creeper.hasIgnited())
+                        && flashes(entity.ticksExisted, options.creeperFlashIntervalTicks);
+                if (!(entity instanceof EntityItem) && !burningMob && !flash)
+                    continue;
+                BlockPos pos = new BlockPos(entity.posX, entity.posY + entity.height * .5, entity.posZ);
+                var chunk = world.getChunkProvider().getLoadedChunk(pos.getX() >> 4, pos.getZ() >> 4);
+                if (chunk == null)
+                    continue; // EmptyChunk is a client-only placeholder, never a server chunk.
+                int emission = burningMob || flash
+                    ? DynamicLightGeometry.fireEmission(world, pos, RgbMixinSelection.rgbEnabled())
+                    : DynamicLightGeometry.itemEmission(world, pos, ((EntityItem) entity).getItem(),
+                        RgbMixinSelection.rgbEnabled());
+                if (emission != 0)
+                    changed |= track(state, present, entity.getEntityId(), pos, emission);
+            }
+        if (options.blockEntityLightSources) {
+            for (var tile : world.loadedTileEntityList) {
+                if (!(tile instanceof net.minecraft.tileentity.TileEntityPiston piston) || tile.isInvalid())
+                    continue;
+                BlockPos pos = tile.getPos();
+                int emission;
+                try {
+                    emission = DynamicLightGeometry.stateEmission(world, pos, piston.getPistonState(),
+                        RgbMixinSelection.rgbEnabled());
+                } catch (RuntimeException unsupported) {
+                    continue; // A contextual mod block may require its own block entity at this position.
+                }
+                if (emission != 0) {
+                    int id = state.pistonIds.computeIfAbsent(pos, key -> state.nextPistonId--);
+                    changed |= track(state, present, id, pos, emission);
+                }
+            }
         }
+        state.pistonIds.values().removeIf(id -> !present.contains(id));
         for (var it = state.sources.entrySet().iterator(); it.hasNext();) {
             var entry = it.next();
             if (present.contains(entry.getKey()))
@@ -164,8 +193,11 @@ public final class DynamicLights {
         long deadline = System.nanoTime() + 2_000_000L;
         for (Source source : scheduled) {
             // Refresh stationary lights too: doors, fluids, filters and palette changes are sampled afresh.
-            if (source.pending != null || !source.dirty && state.tick - source.sampled < 10 || captures >= 2
-                || System.nanoTime() >= deadline)
+            if (captures >= 2 || System.nanoTime() >= deadline)
+                break;
+            int interval = Math.max(1, options.updateIntervalTicks);
+            if (source.pending != null || source.field != null
+                && state.tick - source.sampled < (source.dirty ? interval : Math.max(10, interval)))
                 continue;
             // Only the server thread submits jobs. Backpressure must defer an update, not
             // turn a still-valid light off through the generic sampling-failure path.
@@ -196,6 +228,9 @@ public final class DynamicLights {
                 publications.put(id, new DynamicLightNetwork.Publication(source.revision, source.field));
         });
         DynamicLightNetwork.publish(world, publications);
+    }
+    private static boolean flashes(int age, int interval) {
+        return interval > 0 && age % interval < (interval + 1) / 2;
     }
     private static boolean track(State state, Set<Integer> present, int id, BlockPos pos, int emission) {
         present.add(id);

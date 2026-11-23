@@ -14,7 +14,7 @@ public final class DynamicLightClient {
     private static Object player;
     private static long session, sequence;
     private static boolean requested, acknowledged;
-    private static int retryTicks;
+    private static int retryTicks, movementTicks;
     private static volatile boolean rgb, projected;
     private static volatile Map<Integer, DynamicLightField> fields = Map.of();
     private static volatile Map<Integer, DynamicLightRenderSource> renderSources = Map.of();
@@ -54,8 +54,11 @@ public final class DynamicLightClient {
         private final ReadView previous;
         private MeshScope() {
             previous = MESH_VIEW.get();
-            if (previous == null)
+            if (previous == null) {
                 MESH_VIEW.set(publication);
+                var cache = CELL_CACHE.get();
+                Arrays.fill(cache.valid, false);
+            }
         }
         @Override
         public void close() {
@@ -95,12 +98,37 @@ public final class DynamicLightClient {
         int cell = sample(x, y, z);
         return (cell & 0xFFF) | brightness(cell) << 12;
     }
+    // Adjacent vanilla terrain vertices repeatedly sample the same eight block centers.
+    // Bound the cache per mesh thread and retain results only for one immutable publication.
+    private static final ThreadLocal<CellCache> CELL_CACHE = ThreadLocal.withInitial(CellCache::new);
+
+    private static final class CellCache {
+
+        final int[] x = new int[2048], y = new int[2048], z = new int[2048], value = new int[2048];
+        final boolean[] valid = new boolean[2048];
+
+    }
     public static int sample(World world, int x, int y, int z) {
         ReadView view = MESH_VIEW.get();
         if (view == null)
             view = publication;
-        if (world == null || world != view.world)
+        if (world == null || world != view.world || view.fields.isEmpty())
             return 0;
+        if (MESH_VIEW.get() != null) {
+            CellCache cache = CELL_CACHE.get();
+            int i = (x * 31 + y * 103 + z * 317) & (cache.valid.length - 1);
+            if (!cache.valid[i] || cache.x[i] != x || cache.y[i] != y || cache.z[i] != z) {
+                cache.value[i] = sampleCell(view, x, y, z);
+                cache.x[i] = x;
+                cache.y[i] = y;
+                cache.z[i] = z;
+                cache.valid[i] = true;
+            }
+            return cache.value[i];
+        }
+        return sampleCell(view, x, y, z);
+    }
+    private static int sampleCell(ReadView view, int x, int y, int z) {
         int value = 0;
         float[] light = SCRATCH.get();
         Arrays.fill(light, 0);
@@ -175,7 +203,11 @@ public final class DynamicLightClient {
             requested = true;
             DynamicLightNetwork.request(session, owner.provider.getDimension());
         }
-        updateRenderSources();
+        if (++movementTicks >= Math.max(1,
+            com.sumirelabs.pulsar.config.PulsarConfig.dynamicLights.updateIntervalTicks)) {
+            movementTicks = 0;
+            updateRenderSources();
+        }
         DynamicLightRebuilds.flush(owner);
     }
     public static void receive(DynamicLightPacket packet, Object handler) {
@@ -258,9 +290,10 @@ public final class DynamicLightClient {
                 current = previous;
             next.put(entry.getKey(), current);
         }
+        if (invalidated.isEmpty())
+            return;
         renderSources = Map.copyOf(next);
-        if (!invalidated.isEmpty())
-            ++generation;
+        ++generation;
         // Publish before scheduling workers: each new mesh must see the new positions.
         publish();
         invalidated.forEach(DynamicLightClient::invalidate);
@@ -325,7 +358,7 @@ public final class DynamicLightClient {
     }
     private static void mark(int x, int y, int z, int xx, int yy, int zz) {
         if (!DynamicLightRebuilds.invalidate(owner, x, y, z, xx, yy, zz))
-            owner.markBlockRangeForRenderUpdate(x, y, z, xx, yy, zz);
+            DynamicLightRebuilds.markVanilla(owner, x, y, z, xx, yy, zz);
     }
 
 }

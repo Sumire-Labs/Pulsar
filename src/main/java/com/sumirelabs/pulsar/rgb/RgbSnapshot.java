@@ -310,6 +310,33 @@ public final class RgbSnapshot {
     public byte[] canonicalSection(int s) {
         return canonical[s] == null ? null : canonical[s].clone();
     }
+    /** Bounds of cells whose RGB or gameplay light changed. A negative result means no render work. */
+    long changedBounds(RgbSnapshot previous, int section) {
+        int minX = 16, minY = 16, minZ = 16, maxX = 0, maxY = 0, maxZ = 0;
+        for (int lane = 0; lane < 4; lane++) {
+            byte[] a = lane == 3 ? canonical[section] : data[lane][section];
+            byte[] b = lane == 3 ? previous.canonical[section] : previous.data[lane][section];
+            if (a == b)
+                continue;
+            // For a newly allocated or removed plane, zero nibbles still represent darkness.
+            int start = a == null || b == null ? 0 : java.util.Arrays.mismatch(a, b);
+            if (start < 0)
+                continue;
+            for (int i = start; i < 2048; i++) {
+                int diff = (a == null ? 0 : a[i]) ^ (b == null ? 0 : b[i]);
+                if (diff == 0)
+                    continue;
+                int x = (i & 7) << 1, z = i >> 3 & 15, y = i >> 7;
+                minX = Math.min(minX, (diff & 15) != 0 ? x : x + 1);
+                maxX = Math.max(maxX, (diff & 240) != 0 ? x + 1 : x);
+                minY = Math.min(minY, y);
+                maxY = Math.max(maxY, y);
+                minZ = Math.min(minZ, z);
+                maxZ = Math.max(maxZ, z);
+            }
+        }
+        return minX == 16 ? -1 : com.sumirelabs.pulsar.light.RenderBounds.pack(minX, minY, minZ, maxX, maxY, maxZ);
+    }
     boolean canonicalAbsent(int s) {
         return canonical[s] == null;
     }

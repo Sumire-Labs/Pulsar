@@ -28,6 +28,7 @@ public final class DynamicLightProbe {
 
         Provider chunks;
         int renderUpdates;
+        net.minecraft.client.renderer.chunk.RenderChunk markedChunk;
         @Override
         public net.minecraft.entity.Entity getEntityByID(int id) {
             return null;
@@ -50,6 +51,8 @@ public final class DynamicLightProbe {
         @Override
         public void markBlockRangeForRenderUpdate(int x, int y, int z, int xx, int yy, int zz) {
             renderUpdates++;
+            if (markedChunk != null)
+                markedChunk.setNeedsUpdate(false);
         }
 
     }
@@ -146,6 +149,22 @@ public final class DynamicLightProbe {
                 world.chunks.loaded.put((long) x << 32 | z & 0xffffffffL, chunk);
                 chunk.getBlockStorageArray()[4] = new ExtendedBlockStorage(64, true);
             }
+        var waterCell = world.getChunk(POS.getX() >> 4, POS.getZ() >> 4).getBlockStorageArray()[4];
+        waterCell.set(POS.getX() & 15, POS.getY() & 15, POS.getZ() & 15, Blocks.WATER.getDefaultState());
+        var config = com.sumirelabs.pulsar.config.PulsarConfig.dynamicLights;
+        check(DynamicLightGeometry.itemEmission(world, POS, new ItemStack(Blocks.TORCH), true) == 0,
+            "Underwater torch lit");
+        check(DynamicLightGeometry.itemEmission(world, POS, new ItemStack(Blocks.GLOWSTONE), true) != 0,
+            "Waterproof source extinguished");
+        config.waterSensitiveItems = new String[]{"minecraft:glowstone"};
+        check(DynamicLightGeometry.itemEmission(world, POS, new ItemStack(Blocks.GLOWSTONE), true) == 0,
+            "Configured item stayed lit");
+        config.waterSensitiveItems = new String[0];
+        config.extinguishTorchesInWater = false;
+        check(DynamicLightGeometry.itemEmission(world, POS, new ItemStack(Blocks.TORCH), true) != 0,
+            "Water sensitivity toggle ignored");
+        config.extinguishTorchesInWater = true;
+        waterCell.set(POS.getX() & 15, POS.getY() & 15, POS.getZ() & 15, Blocks.AIR.getDefaultState());
         int torch = DynamicLightGeometry.itemEmission(world, POS, new ItemStack(Blocks.TORCH), true);
         check((torch >>> 12) == 14, "Torch source level changed");
         check((DynamicLightGeometry.itemEmission(world, POS, new ItemStack(Items.LAVA_BUCKET), false) >>> 12) == 15,
@@ -271,6 +290,19 @@ public final class DynamicLightProbe {
         packet.field = new DynamicLightField(1000, 72, 8, 0, new short[]{(short) 0xFFFF});
         DynamicLightClient.apply(packet, connection, world, connection);
         check(world.renderUpdates == 2, "Teleport rebuilt the entire gap between fields");
+        var section = inert(net.minecraft.client.renderer.chunk.RenderChunk.class);
+        world.markedChunk = section;
+        var reason = (DynamicLightRenderUpdate) section;
+        DynamicLightRebuilds.markVanilla(world, 0, 0, 0, 0, 0, 0);
+        check(reason.pulsar$onlyDynamicLight(), "Light-only mesh did not qualify for background rebuild");
+        section.setNeedsUpdate(false);
+        DynamicLightRebuilds.markVanilla(world, 0, 0, 0, 0, 0, 0);
+        check(!reason.pulsar$onlyDynamicLight(), "Moving light downgraded a pending geometry update");
+        section.clearNeedsUpdate();
+        DynamicLightRebuilds.markVanilla(world, 0, 0, 0, 0, 0, 0);
+        section.setNeedsUpdate(true);
+        check(!reason.pulsar$onlyDynamicLight(), "Moving light retained priority over immediate geometry");
+        world.markedChunk = null;
         verifyMeshScope(world);
         DynamicLightClient.reset();
         System.out.println("DYNAMIC_LIGHT_PASS");
@@ -281,6 +313,12 @@ public final class DynamicLightProbe {
         EntityItem torch = new EntityItem(world, 20.5, 72, 8.5, new ItemStack(Blocks.TORCH, 64));
         torch.setEntityId(300);
         world.loadedEntityList.add(torch);
+        awaitLight(world, manager, tick, pos, 14);
+        var options = com.sumirelabs.pulsar.config.PulsarConfig.dynamicLights;
+        options.entityLightSources = false;
+        manager.tick(tick);
+        check(DynamicLights.gameplay(world, 20, 72, 8) == 0, "Disabled dropped light remained active");
+        options.entityLightSources = true;
         awaitLight(world, manager, tick, pos, 14);
         int colored = DynamicLightGeometry.itemEmission(world, pos, torch.getItem(), true);
         check((colored & 0xFFF) == BlockLightColors.emission(Blocks.TORCH.getDefaultState(), 14),
@@ -344,6 +382,42 @@ public final class DynamicLightProbe {
         Thread.sleep(20);
         manager.tick(tick);
         check(DynamicLights.gameplay(world, 20, 72, 8) == 0, "Late worker resurrected removed drop");
+        var tnt = new net.minecraft.entity.item.EntityTNTPrimed(world);
+        tnt.setEntityId(700);
+        tnt.setPosition(20.5, 72, 8.5);
+        world.loadedEntityList.add(tnt);
+        options.tntFlashIntervalTicks = 8;
+        awaitLight(world, manager, tick, pos, 15);
+        tnt.ticksExisted = 4;
+        manager.tick(tick);
+        check(DynamicLights.gameplay(world, 20, 72, 8) == 0, "TNT flash did not switch off");
+        options.tntFlashIntervalTicks = 0;
+        world.loadedEntityList.clear();
+
+        var creeper = new net.minecraft.entity.monster.EntityCreeper(world);
+        creeper.setEntityId(701);
+        creeper.setPosition(20.5, 72, 8.5);
+        world.loadedEntityList.add(creeper);
+        options.creeperFlashIntervalTicks = 6;
+        manager.tick(tick);
+        check(DynamicLights.gameplay(world, 20, 72, 8) == 0, "Idle creeper emitted light");
+        creeper.ignite();
+        awaitLight(world, manager, tick, pos, 15);
+        creeper.ticksExisted = 3;
+        manager.tick(tick);
+        check(DynamicLights.gameplay(world, 20, 72, 8) == 0, "Creeper flash did not switch off");
+        options.creeperFlashIntervalTicks = 0;
+        world.loadedEntityList.clear();
+
+        var piston = new net.minecraft.tileentity.TileEntityPiston(Blocks.GLOWSTONE.getDefaultState(),
+            net.minecraft.util.EnumFacing.UP, true, false);
+        piston.setPos(pos);
+        set(World.class, world, "loadedTileEntityList", new ArrayList<>(java.util.List.of(piston)));
+        options.blockEntityLightSources = true;
+        awaitLight(world, manager, tick, pos, 15);
+        options.blockEntityLightSources = false;
+        manager.tick(tick);
+        check(DynamicLights.gameplay(world, 20, 72, 8) == 0, "Piston toggle retained light");
     }
     private static void awaitLight(ProbeWorld world, DynamicLights manager, TickEvent.WorldTickEvent tick, BlockPos pos,
         int expected) throws Exception {

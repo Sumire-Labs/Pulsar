@@ -4,6 +4,8 @@
 
 package com.sumirelabs.pulsar.rgb;
 
+import com.sumirelabs.pulsar.dynamic.DynamicLightClient;
+
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.BufferBuilder;
 
@@ -12,13 +14,16 @@ public final class RgbFbpLighting {
 
     private static final ThreadLocal<RgbDrawState> TINT = ThreadLocal.withInitial(RgbDrawState::new);
 
+    private static final ThreadLocal<float[]> LIGHT = ThreadLocal.withInitial(() -> new float[4]);
+
     private RgbFbpLighting() {}
 
     public static void apply(BufferBuilder buffer, int start, long generation) {
-        if (RgbShaderRuntime.active() || !RgbDrawContext.available())
+        boolean dynamic = !DynamicLightClient.visualFields().isEmpty();
+        if (RgbShaderRuntime.active() || !dynamic && !RgbDrawContext.available())
             return;
-        RgbDynamicVertices tags = (RgbDynamicVertices) buffer;
-        if (generation != tags.pulsar$rgbGeneration())
+        RgbDynamicVertices tags = buffer instanceof RgbDynamicVertices t ? t : null;
+        if (tags != null && generation != tags.pulsar$rgbGeneration())
             start = 0;
         int end = buffer.getVertexCount();
         if (start < 0 || start >= end || !buffer.getVertexFormat().hasColor())
@@ -34,13 +39,32 @@ public final class RgbFbpLighting {
             x += bytes.getFloat(at);
             y += bytes.getFloat(at + 4);
             z += bytes.getFloat(at + 8);
-            pending |= !tags.pulsar$rgbProcessed(vertex);
+            pending |= tags == null || !tags.pulsar$rgbProcessed(vertex);
         }
         if (!pending)
             return;
         int count = end - start;
-        int tint = RgbClient.tintAbgr(0xffffffff, x / count + Particle.interpPosX,
-            y / count + Particle.interpPosY, z / count + Particle.interpPosZ);
+        x = x / count + Particle.interpPosX;
+        y = y / count + Particle.interpPosY;
+        z = z / count + Particle.interpPosZ;
+        float[] light = null;
+        if (dynamic) {
+            light = LIGHT.get();
+            DynamicLightClient.sampleSurface(x, y, z, 0, 0, 0, light);
+            int blockUV = Math.round(16 * DynamicLightClient.surfaceBrightness(light));
+            var format = buffer.getVertexFormat();
+            if (blockUV > 0 && format.hasUvOffset(1)) {
+                int uv = format.getUvOffsetById(1);
+                for (int vertex = start; vertex < end; vertex++) {
+                    int at = vertex * stride + uv;
+                    if (Short.toUnsignedInt(bytes.getShort(at)) < blockUV)
+                        bytes.putShort(at, (short) blockUV);
+                }
+            }
+        }
+        if (tags == null || !RgbDrawContext.available())
+            return;
+        int tint = RgbClient.tintAbgr(0xffffffff, x, y, z, light);
         RgbDrawState state = TINT.get();
         int token = state.push(buffer, tint, false, false);
         state.lightmap = true;

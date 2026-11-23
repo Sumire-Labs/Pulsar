@@ -59,12 +59,18 @@ final class DynamicLightGeometry {
             state = net.minecraft.init.Blocks.LAVA.getDefaultState();
         else
             return 0;
+        var options = com.sumirelabs.pulsar.config.PulsarConfig.dynamicLights;
+        if (options.extinguishTorchesInWater && (state.getBlock() instanceof net.minecraft.block.BlockTorch
+            || options.waterSensitiveItems.length > 0 && java.util.Arrays.asList(options.waterSensitiveItems)
+                .contains(String.valueOf(stack.getItem().getRegistryName())))
+            && world.getBlockState(pos).getMaterial() == net.minecraft.block.material.Material.WATER)
+            return 0;
         return stateEmission(world, pos, state, rgb);
     }
     static int fireEmission(World world, BlockPos pos, boolean rgb) {
         return stateEmission(world, pos, net.minecraft.init.Blocks.FIRE.getDefaultState(), rgb);
     }
-    private static int stateEmission(World world, BlockPos pos, IBlockState state, boolean rgb) {
+    static int stateEmission(World world, BlockPos pos, IBlockState state, boolean rgb) {
         int scalar = Math.max(0, Math.min(15, state.getLightValue(world, pos)));
         int color = rgb
             ? RgbLightAccess.effectiveEmission(properties(world, pos, state), scalar,
@@ -81,6 +87,13 @@ final class DynamicLightGeometry {
         Arrays.fill(exits, (byte) 63);
         var height = WorldUtil.getHeightContext(world);
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        int minChunkX = (source.getX() - radius) >> 4, minChunkZ = (source.getZ() - radius) >> 4;
+        int width = ((source.getX() + radius) >> 4) - minChunkX + 1;
+        int depth = ((source.getZ() + radius) >> 4) - minChunkZ + 1;
+        var chunks = new net.minecraft.world.chunk.Chunk[width * depth];
+        for (int cz = 0; cz < depth; cz++)
+            for (int cx = 0; cx < width; cx++)
+                chunks[cx + width * cz] = world.getChunkProvider().getLoadedChunk(minChunkX + cx, minChunkZ + cz);
         for (int dy = -radius; dy <= radius; dy++)
             for (int dz = -radius; dz <= radius; dz++)
                 for (int dx = -radius; dx <= radius; dx++) {
@@ -89,7 +102,7 @@ final class DynamicLightGeometry {
                     int x = source.getX() + dx, y = source.getY() + dy, z = source.getZ() + dz;
                     if (y < height.getMinBlockY() || y > height.getMaxBlockY())
                         continue;
-                    var chunk = world.getChunkProvider().getLoadedChunk(x >> 4, z >> 4);
+                    var chunk = chunks[(x >> 4) - minChunkX + width * ((z >> 4) - minChunkZ)];
                     // Server providers return null for unloaded chunks. EmptyChunk is client-only.
                     if (chunk == null)
                         continue;
