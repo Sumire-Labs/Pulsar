@@ -92,7 +92,10 @@ final class RgbPackedBlockChannelEngine extends PackedRgbChannelEngine {
             for (int local = 0; local < 4096; local++) {
                 int x = chunk.x * 16 + (local & 15), y = sy * 16 + (local >> 8), z = chunk.z * 16 + (local >> 4 & 15);
                 IBlockState state = getBlockStateFast(idx, x & 15, y & 15, z & 15);
-                int source = emission(state, x, y, z), current = getLightLevel(idx, local);
+                int source = emission(state, x, y, z);
+                if (source == 0)
+                    continue;
+                int current = getLightLevel(idx, local);
                 if (!PackedRgbLight.anyComponentGreater(source, current))
                     continue;
                 int merged = PackedRgbLight.packedMax(current, source);
