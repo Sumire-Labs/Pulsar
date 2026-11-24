@@ -20,6 +20,22 @@ class LightDataSerializerTest {
     }
 
     @Test
+    void savedLightMustCoverTheCurrentBuildHeight() {
+        var root = saved(false);
+        var vanilla = com.sumirelabs.pulsar.util.WorldHeightContext.VANILLA;
+        var tall = com.sumirelabs.pulsar.util.WorldHeightContext.zeroBased(512);
+        assertTrue(LightDataSerializer.hasCompatibleHeight(root, vanilla));
+        assertFalse(LightDataSerializer.hasCompatibleHeight(root, tall));
+        root.setInteger("maxBlockY", 511);
+        assertFalse(LightDataSerializer.hasCompatibleHeight(root, tall));
+        root.setInteger("minBlockY", 0);
+        assertTrue(LightDataSerializer.hasCompatibleHeight(root, tall));
+        assertFalse(LightDataSerializer.hasCompatibleHeight(root, vanilla));
+        assertFalse(LightDataSerializer.hasCompatibleHeight(root,
+            com.sumirelabs.pulsar.util.WorldHeightContext.zeroBased(511)));
+    }
+
+    @Test
     void switchingFromRgbMaxToScalarRequiresRelighting() {
         var root = saved(true);
         assertTrue(LightDataSerializer.hasCompatibleGameplayLight(root, true));

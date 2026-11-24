@@ -49,9 +49,19 @@ public final class DepthsUpdateBridge {
     private DepthsUpdateBridge() {}
 
     public static WorldHeightContext getHeightContext(final World world) {
-        if (!LOADED || world == null || state == FAILED) {
+        if (world == null || world.provider == null) {
             return WorldHeightContext.VANILLA;
         }
+
+        if (!LOADED) {
+            int height = world.getHeight();
+            if (height == 256)
+                return WorldHeightContext.VANILLA;
+            return CONTEXTS.computeIfAbsent(world, ignored -> WorldHeightContext.zeroBased(height));
+        }
+        // An unreadable Depths mapping may contain negative or reordered sections.
+        if (state == FAILED)
+            return WorldHeightContext.VANILLA;
 
         final WorldHeightContext cached = CONTEXTS.get(world);
         if (cached != null) {
@@ -74,9 +84,12 @@ public final class DepthsUpdateBridge {
 
         try {
             final Object heightInfo = getHeightInfo.invoke(null, world);
-            if (heightInfo == null || !(Boolean) isExtended.invoke(heightInfo)) {
-                CONTEXTS.put(world, WorldHeightContext.VANILLA);
+            if (heightInfo == null)
                 return WorldHeightContext.VANILLA;
+            if (!(Boolean) isExtended.invoke(heightInfo)) {
+                WorldHeightContext context = WorldHeightContext.zeroBased(world.getHeight());
+                CONTEXTS.put(world, context);
+                return context;
             }
 
             final int minimumY = (Integer) minY.invoke(heightInfo);

@@ -11,6 +11,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class WorldHeightContextTest {
 
     @Test
+    void zeroBasedHeightIsExclusiveEvenWithinTheLastSection() {
+        assertSame(WorldHeightContext.VANILLA, WorldHeightContext.zeroBased(256));
+        var height = WorldHeightContext.zeroBased(257);
+        assertTrue(height.containsBlockY(256));
+        assertFalse(height.containsBlockY(257));
+        assertEquals(16, height.getStorageIndex(16));
+        assertEquals(0x1FFFF, height.getFullChunkSectionMask());
+    }
+
+    @Test
     void vanillaContextUsesVanillaBoundsAndStorageIndices() {
         final WorldHeightContext context = WorldHeightContext.VANILLA;
 

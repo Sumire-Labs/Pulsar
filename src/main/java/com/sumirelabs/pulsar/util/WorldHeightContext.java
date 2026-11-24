@@ -23,13 +23,14 @@ public final class WorldHeightContext {
 
     private final int minSection;
     private final int maxSection;
+    private final int maxBlockY;
     private final int minLightSection;
     private final int maxLightSection;
     private final int[] storageIndexBySection;
     private final int[] sectionByStorageIndex;
 
     private WorldHeightContext(final int minSection, final int maxSection,
-        final int[] storageIndexBySection) {
+        final int[] storageIndexBySection, final int maxBlockY) {
         if (minSection > maxSection) {
             throw new IllegalArgumentException("Minimum section exceeds maximum section");
         }
@@ -40,6 +41,7 @@ public final class WorldHeightContext {
 
         this.minSection = minSection;
         this.maxSection = maxSection;
+        this.maxBlockY = maxBlockY;
         this.minLightSection = minSection - 1;
         this.maxLightSection = maxSection + 1;
         this.storageIndexBySection = storageIndexBySection.clone();
@@ -67,6 +69,17 @@ public final class WorldHeightContext {
      * through {@code maxSection}.
      */
     public static WorldHeightContext contiguous(final int minSection, final int maxSection) {
+        return contiguous(minSection, maxSection, (maxSection << 4) | 15);
+    }
+
+    /** Vanilla-order storage starting at Y=0. World.getHeight() is an exclusive ceiling. */
+    public static WorldHeightContext zeroBased(final int height) {
+        if (height <= 0)
+            throw new IllegalArgumentException("World height must be positive: " + height);
+        return height == 256 ? VANILLA : contiguous(0, (height - 1) >> 4, height - 1);
+    }
+
+    private static WorldHeightContext contiguous(final int minSection, final int maxSection, final int maxBlockY) {
         if (minSection > maxSection) {
             throw new IllegalArgumentException("Minimum section exceeds maximum section");
         }
@@ -74,7 +87,7 @@ public final class WorldHeightContext {
         for (int i = 0; i < mapping.length; ++i) {
             mapping[i] = i;
         }
-        return new WorldHeightContext(minSection, maxSection, mapping);
+        return new WorldHeightContext(minSection, maxSection, mapping, maxBlockY);
     }
 
     /**
@@ -83,7 +96,7 @@ public final class WorldHeightContext {
      */
     public static WorldHeightContext mapped(final int minSection, final int maxSection,
         final int[] storageIndexBySection) {
-        return new WorldHeightContext(minSection, maxSection, storageIndexBySection);
+        return new WorldHeightContext(minSection, maxSection, storageIndexBySection, (maxSection << 4) | 15);
     }
 
     public int getMinSection() {
@@ -130,7 +143,7 @@ public final class WorldHeightContext {
     }
 
     public int getMaxBlockY() {
-        return (this.maxSection << 4) | 15;
+        return this.maxBlockY;
     }
 
     public boolean containsSection(final int sectionY) {

@@ -53,6 +53,7 @@ public final class RgbGlassProbe {
         }
         BlockLightColors.freeze();
         int source = BlockLightColors.emission(Blocks.TORCH.getDefaultState(), 14);
+        extendedHeightBoundary(source);
         test("bare", Blocks.AIR.getDefaultState(), source, legacy);
         test("clear", Blocks.GLASS.getDefaultState(), source, legacy);
         test("opaque", Blocks.STONE.getDefaultState(), source, legacy);
@@ -68,6 +69,45 @@ public final class RgbGlassProbe {
         System.out.println("GLASS_BFS_PASS legacy=" + legacy + " cases=35");
         if (!legacy)
             testRoofBypass();
+    }
+
+    private static void extendedHeightBoundary(int torch) throws Exception {
+        World w = world();
+        var provider = World.class.getDeclaredField("provider");
+        provider.setAccessible(true);
+        provider.set(w, new net.minecraft.world.WorldProviderSurface() {
+
+            @Override
+            public int getHeight() {
+                return 512;
+            }
+
+        });
+        var height = com.sumirelabs.pulsar.util.WorldUtil.getHeightContext(w);
+        if (height.getMaxBlockY() != 511)
+            throw new AssertionError("Expected generic 512-block world");
+        var engine = new RgbPackedBlockChannelEngine(w, height, new HashSet<>());
+        engine.setupEncodeOffset(7, 255, 7);
+        for (int sy = 15; sy <= 16; sy++) {
+            engine.setChunkSectionInCache(0, sy, 0, new ExtendedBlockStorage(sy << 4, true));
+            for (int c = 0; c < 3; c++)
+                engine.rgb.replacePlane(c, 25 * sy + engine.chunkSectionIndexOffset, new SWMRNibbleArray());
+        }
+        int expected = 0;
+        for (int shift = 0; shift <= 8; shift += 4)
+            expected |= Math.max(0, ((torch >>> shift) & 15) - 1) << shift;
+        for (int y : new int[]{255, 256}) {
+            for (boolean lit : new boolean[]{true, false}) {
+                engine.getChunkSection(0, y >> 4, 0).set(8, y & 15, 8,
+                    (lit ? Blocks.TORCH : Blocks.AIR).getDefaultState());
+                engine.resetTaskState();
+                engine.checkBlock(8, y, 8);
+                engine.performLightDecrease();
+                int actual = PackedRgbLight.toCompact(engine.getLightLevel(8, y == 255 ? 256 : 255, 8));
+                if (actual != (lit ? expected : 0))
+                    throw new AssertionError("RGB crossing Y=255/256 from " + y + ", lit=" + lit + ", RGB=" + actual);
+            }
+        }
     }
 
     private static void testRoofBypass() throws Exception {

@@ -79,6 +79,16 @@ public final class LightDataSerializer {
             && root.getBoolean(TAG_RGB_MAX) == projected;
     }
 
+    static boolean hasCompatibleHeight(NBTTagCompound root, WorldHeightContext height) {
+        if (!root.hasKey("minBlockY") && !root.hasKey("maxBlockY")) {
+            // Older caches may contain only the first 16 sections of a taller world.
+            return height.getMinBlockY() == 0 && height.getMaxBlockY() == 255;
+        }
+        return root.hasKey("minBlockY", Constants.NBT.TAG_INT) && root.hasKey("maxBlockY", Constants.NBT.TAG_INT)
+            && root.getInteger("minBlockY") == height.getMinBlockY()
+            && root.getInteger("maxBlockY") == height.getMaxBlockY();
+    }
+
     private static SWMRNibbleArray restoreNibble(final NBTTagCompound section, final String stateTag,
         final String dataTag) {
         final int state = section.getByte(stateTag);
@@ -173,6 +183,8 @@ public final class LightDataSerializer {
 
             final NBTTagCompound root = new NBTTagCompound();
             root.setInteger(TAG_VERSION, LIGHT_VERSION);
+            root.setInteger("minBlockY", heightContext.getMinBlockY());
+            root.setInteger("maxBlockY", heightContext.getMaxBlockY());
             root.setBoolean(TAG_RGB_MAX, com.sumirelabs.pulsar.rgb.RgbSettings.projectsGameplayLight());
             root.setInteger(TAG_CRYSTAL_LIGHT, ThaumcraftCrystalLighting.cacheProfile());
             root.setTag(TAG_SECTIONS, sections);
@@ -213,6 +225,8 @@ public final class LightDataSerializer {
         }
 
         final WorldHeightContext heightContext = WorldUtil.getHeightContext(event.getChunk().getWorld());
+        if (!hasCompatibleHeight(root, heightContext))
+            return;
         final int minLightSection = heightContext.getMinLightSection();
         final int totalLightSections = heightContext.getTotalLightSections();
 

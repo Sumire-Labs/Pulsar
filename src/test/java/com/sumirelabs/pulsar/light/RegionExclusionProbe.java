@@ -39,6 +39,11 @@ public final class RegionExclusionProbe {
         Map<Long, Chunk> chunks;
         WorldHeightContext height;
         int offset;
+        int reportedHeight;
+        @Override
+        public int getHeight() {
+            return reportedHeight > 0 ? reportedHeight : super.getHeight();
+        }
         volatile Runnable onPublication;
         ProbeWorld() {
             super(null, null, null, 0, null);
@@ -122,6 +127,7 @@ public final class RegionExclusionProbe {
                         + " maxJobs=" + result.parallelism + " hash=" + result.finalHash);
                 }
         } else {
+            zeroBasedHeightBoundary();
             int rounds = Integer.getInteger("pulsar.region.rounds", 8);
             for (int spacing : new int[]{0, 4, 5})
                 for (boolean shapes : new boolean[]{false, true}) {
@@ -309,6 +315,47 @@ public final class RegionExclusionProbe {
         return new Result(times, hashes, maximum.get(), hash(world, verify));
     }
 
+    private static void zeroBasedHeightBoundary() throws Exception {
+        ProbeWorld world = world();
+        world.reportedHeight = 512;
+        world.height = com.sumirelabs.pulsar.util.WorldUtil.getHeightContext(world);
+        world.offset = 176; // The fixture's solid roof is now at Y=272.
+        if (world.height.getMaxBlockY() != 511 || world.height.getStorageIndex(16) != 16)
+            throw new AssertionError("World.getHeight() was not used");
+        for (int x = -2; x <= 2; x++)
+            for (int z = -2; z <= 2; z++)
+                addChunk(world, x, z, false);
+        Chunk center = world.pulsar$getAnyChunkImmediately(0, 0);
+        Job job = new Job(world, 0, 0);
+        PulsarChunk light = (PulsarChunk) center;
+        for (int sourceY : new int[]{255, 256}) {
+            int targetY = sourceY == 255 ? 256 : 255;
+            int sy = sourceY >> 4;
+            if (center.getBlockStorageArray()[sy] == null)
+                center.getBlockStorageArray()[sy] = new ExtendedBlockStorage(sy << 4, true);
+            job.changes.clear();
+            job.changes.add(sourceY << 8 | 8 << 4 | 8);
+            for (boolean lit : new boolean[]{true, false}) {
+                center.getBlockStorageArray()[sy].set(8, sourceY & 15, 8,
+                    (lit ? Blocks.GLOWSTONE : Blocks.AIR).getDefaultState());
+                job.run(false);
+                if (ChunkLightHelper.getBlockLight(world.height, light.pulsar$getBlockNibbles(), 8, targetY,
+                    8) != (lit ? 14 : 0))
+                    throw new AssertionError("Cross-boundary block light from " + sourceY + ", lit=" + lit);
+            }
+        }
+        job.changes.clear();
+        job.changes.add(272 << 8 | 8 << 4 | 8);
+        for (boolean open : new boolean[]{true, false}) {
+            center.getBlockStorageArray()[17].set(8, 0, 8, (open ? Blocks.AIR : Blocks.STONE).getDefaultState());
+            job.run(false);
+            for (int y : new int[]{255, 256})
+                if (ChunkLightHelper.getSkyLight(world.height, light.pulsar$getSkyNibbles(), 8, y,
+                    8) != (open ? 15 : 0))
+                    throw new AssertionError("Cross-boundary sky light at " + y + ", open=" + open);
+        }
+        System.out.println("HEIGHT_512_BOUNDARY_PASS");
+    }
     private static void addChunk(ProbeWorld world, int x, int z, boolean shapes) throws Exception {
         Chunk chunk = new Chunk(world, x, z);
         world.chunks.put(CoordinateUtils.getChunkKey(x, z), chunk);

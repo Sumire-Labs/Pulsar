@@ -45,7 +45,7 @@ No separate per-frame dynamic-terrain shader or 64-source rendering cutoff is us
 - Future MC: Warm lanterns and campfires, and pale cyan soul lanterns, retaining their original brightness and lit/unlit behavior.
 - CBMultipart: Standard microblocks inherit their materials' light source colors. Custom parts retain neutral emission unless handled by a dedicated integration.
 - ProjectRed: RGB emission for full-block lamps, multipart fixtures, light buttons, and light microblock materials, preserving their actual brightness and power state.
-- Depths Update: Supports extended world height ranges.
+- Height extensions: Pulsar uses `World.getHeight()` for worlds starting at Y=0 with sections stored in ascending order. The height mod supplies extended chunk storage and client synchronization. Depths Update worlds use their own section mapping, including negative Y.
 - Thaumcraft: Adds smooth lighting to crystals.
 - Celeritas: Supports its rendering pipeline.
 - Demonica Shader: Tested and confirmed working with Complementary Reimagined.
