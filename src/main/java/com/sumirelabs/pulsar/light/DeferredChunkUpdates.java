@@ -4,8 +4,7 @@
 
 package com.sumirelabs.pulsar.light;
 
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
+import java.util.Arrays;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
@@ -16,7 +15,30 @@ final class DeferredChunkUpdates<T> {
         WAIT, SEND, DROP
     }
 
+    interface Check<T> {
+
+        Decision apply(long key, T value);
+
+    }
+
+    interface Send<T> {
+
+        void accept(long key, T value);
+
+    }
+
+    // Bound retained scratch space per queue after a large generation burst.
+    private static final int MAX_CACHED_ENTRIES = 1024;
+    private record Snapshot(long[] keys, Object[] values) {
+
+        Snapshot(int size) {
+            this(new long[size], new Object[size]);
+        }
+
+    }
+
     private final Long2ObjectOpenHashMap<T> pending = new Long2ObjectOpenHashMap<>();
+    private Snapshot spare;
 
     void defer(long key, T chunk) {
         pending.put(key, chunk);
@@ -38,17 +60,31 @@ final class DeferredChunkUpdates<T> {
         return pending.size();
     }
 
-    void drain(BiFunction<Long, T, Decision> decision, BiConsumer<Long, T> send) {
+    void drain(Check<T> decision, Send<T> send) {
         if (pending.isEmpty()) {
             return;
         }
 
         // Snapshot primitive keys and values before callbacks: callbacks can replace,
         // remove, or re-defer entries, and additions must wait for the next drain.
-        // Keep these arrays local so a nested drain cannot overwrite its caller's snapshot.
         int size = pending.size();
-        long[] keys = new long[size];
-        Object[] chunks = new Object[size];
+        Snapshot snapshot = spare;
+        spare = null; // A nested drain needs its own snapshot.
+        if (snapshot == null || snapshot.keys.length < size)
+            snapshot = new Snapshot(size);
+        try {
+            drain(snapshot, size, decision, send);
+        } finally {
+            if (snapshot.keys.length <= MAX_CACHED_ENTRIES) {
+                Arrays.fill(snapshot.values, 0, size, null);
+                spare = snapshot;
+            }
+        }
+    }
+
+    private void drain(Snapshot snapshot, int size, Check<T> decision, Send<T> send) {
+        long[] keys = snapshot.keys;
+        Object[] chunks = snapshot.values;
         var iterator = pending.long2ObjectEntrySet().fastIterator();
         for (int i = 0; i < size; i++) {
             var entry = iterator.next();
@@ -64,7 +100,7 @@ final class DeferredChunkUpdates<T> {
                 continue;
             }
             Decision action = decision.apply(key, chunk);
-            if (action == Decision.WAIT) {
+            if (action == Decision.WAIT || pending.get(key) != chunk) {
                 continue;
             }
             pending.remove(key);

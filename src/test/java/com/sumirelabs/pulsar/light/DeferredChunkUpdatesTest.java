@@ -79,6 +79,18 @@ class DeferredChunkUpdatesTest {
     }
 
     @Test
+    void replacementDuringReadinessCheckKeepsOwnership() {
+        var queue = new DeferredChunkUpdates<Object>();
+        var replacement = new Object();
+        queue.defer(1, new Object());
+        queue.drain((key, value) -> {
+            queue.defer(key, replacement);
+            return DeferredChunkUpdates.Decision.SEND;
+        }, (key, value) -> fail("Sent replaced chunk"));
+        assertSame(replacement, queue.get(1));
+    }
+
+    @Test
     void nestedDrainKeepsItsOwnSnapshotAndDoesNotDoubleSend() {
         var queue = new DeferredChunkUpdates<Object>();
         queue.defer(1, new Object());
