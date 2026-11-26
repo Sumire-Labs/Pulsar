@@ -7,6 +7,9 @@ import com.sumirelabs.pulsar.light.engine.FaceOcclusion;
 
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.*;
@@ -303,9 +306,46 @@ public final class DynamicLightProbe {
         section.setNeedsUpdate(true);
         check(!reason.pulsar$onlyDynamicLight(), "Moving light retained priority over immediate geometry");
         world.markedChunk = null;
+        verifyTerrainRebuilds(section);
         verifyMeshScope(world);
         DynamicLightClient.reset();
         System.out.println("DYNAMIC_LIGHT_PASS");
+    }
+    private static void verifyTerrainRebuilds(RenderChunk section) throws Exception {
+        var mesh = (TerrainMeshSize) new net.minecraft.client.renderer.chunk.CompiledChunk();
+        mesh.pulsar$recordLayerSize(4);
+        check(!mesh.pulsar$hasLargeLayer(), "Ordinary terrain marked as expensive");
+        mesh.pulsar$recordLayerSize(65536);
+        mesh.pulsar$recordLayerSize(0);
+        check(mesh.pulsar$hasLargeLayer(), "A later empty layer hid the expensive layer");
+        var update = (DynamicLightRenderUpdate) section;
+        var task = new ChunkCompileTaskGenerator(section, ChunkCompileTaskGenerator.Type.REBUILD_CHUNK, 0);
+        set(RenderChunk.class, section, "compileTask", task);
+        check(!update.pulsar$rebuildInProgress(), "Unclaimed or abandoned pending build blocked a retry");
+        for (var status : List.of(ChunkCompileTaskGenerator.Status.COMPILING,
+            ChunkCompileTaskGenerator.Status.UPLOADING)) {
+            task.setStatus(status);
+            check(update.pulsar$rebuildInProgress(), "Lost outstanding build in " + status);
+        }
+        task.setStatus(ChunkCompileTaskGenerator.Status.DONE);
+        check(!update.pulsar$rebuildInProgress() && section.needsUpdate(), "Deferred edit lost after upload");
+        set(RenderChunk.class, section, "lockCompileTask", new java.util.concurrent.locks.ReentrantLock());
+        update.pulsar$setResortPending(true);
+        section.stopCompileTask();
+        check(!update.pulsar$resortPending(), "Retired geometry retained a pending transparency sort");
+        var dispatcher = new ChunkRenderDispatcher(2);
+        try {
+            var first = dispatcher.allocateRenderBuilder();
+            var second = dispatcher.allocateRenderBuilder();
+            dispatcher.freeRenderBuilder(first);
+            dispatcher.freeRenderBuilder(second);
+            check(dispatcher.allocateRenderBuilder() == second, "Expanded builder rotated behind idle buffers");
+            check(dispatcher.allocateRenderBuilder() == first, "Builder lost from free pool");
+            dispatcher.freeRenderBuilder(first);
+            dispatcher.freeRenderBuilder(second);
+        } finally {
+            dispatcher.stopWorkerThreads();
+        }
     }
     private static void verifyDroppedItems(ProbeWorld world, DynamicLights manager, TickEvent.WorldTickEvent tick,
         Player player) throws Exception {

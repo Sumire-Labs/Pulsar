@@ -52,6 +52,8 @@ public final class RgbMixinSelection implements IMixinConfigPlugin {
     }
     public boolean shouldApplyMixin(String target, String mixin) {
         String name = mixin.substring(mixin.lastIndexOf('.') + 1);
+        if ((celeritasTerrain || optifine) && name.equals("MixinTerrainBuilderPool"))
+            return false;
         // Celeritas owns setupTerrain and already schedules moving lights through its own dispatcher.
         if (celeritasTerrain && name.equals("MixinDynamicTerrainScheduling"))
             return false;

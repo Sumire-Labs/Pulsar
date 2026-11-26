@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Reduce frame stalls and direct-buffer exhaustion when rebuilding detailed terrain
+  such as dense ArchitectureCraft shapes in the vanilla renderer.
+- Fix a conflict with Expanded World Height when sending multi-block updates.
+
+### Changed
+
+- Support zero-based worlds with an extended height reported by `World.getHeight()`.
+- Reduce allocations when retrying deferred chunk sends and skip unnecessary light
+  reads during initial RGB block-light scans.
+
 ## [0.7.3-beta] - 2026-11-24
 
 ### Fixed

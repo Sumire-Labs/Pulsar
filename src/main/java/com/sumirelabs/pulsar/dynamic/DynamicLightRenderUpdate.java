@@ -5,4 +5,10 @@ public interface DynamicLightRenderUpdate {
 
     boolean pulsar$onlyDynamicLight();
 
+    boolean pulsar$rebuildInProgress();
+
+    boolean pulsar$resortPending();
+
+    void pulsar$setResortPending(boolean pending);
+
 }
