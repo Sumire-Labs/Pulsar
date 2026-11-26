@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.4-beta] - 2026-11-26
+
 ### Fixed
 
 - Reduce frame stalls and direct-buffer exhaustion when rebuilding detailed terrain
@@ -770,7 +772,8 @@ No user-facing changes.
 
 First working build
 
-[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.3-beta...HEAD
+[Unreleased]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.4-beta...HEAD
+[0.7.4-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.3-beta...0.7.4-beta
 [0.7.3-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.2...0.7.3-beta
 [0.7.2]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.1-beta...0.7.2
 [0.7.1-beta]: https://github.com/Sumire-Labs/Pulsar/compare/0.7.0-beta...0.7.1-beta
