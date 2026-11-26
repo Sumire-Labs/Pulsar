@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -63,7 +64,8 @@ public abstract class MixinPlayerChunkMapEntry {
         }
     }
 
-    @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/management/PlayerChunkMapEntry;sendPacket(Lnet/minecraft/network/Packet;)V"))
+    // Height extensions may replace the separate multi-block packet at the next send site.
+    @Redirect(method = "update", slice = @Slice(from = @At(value = "NEW", target = "net/minecraft/network/play/server/SPacketChunkData")), at = @At(value = "INVOKE", target = "Lnet/minecraft/server/management/PlayerChunkMapEntry;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0))
     private void pulsar$preserveEntitiesOnSectionRefresh(final PlayerChunkMapEntry entry,
         final net.minecraft.network.Packet<?> packet) {
         if (packet instanceof net.minecraft.network.play.server.SPacketChunkData
