@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sumirelabs.pulsar.Pulsar;
+import com.sumirelabs.pulsar.light.PulsarChunk;
 import com.sumirelabs.pulsar.light.WorldLightManager;
 import com.sumirelabs.pulsar.util.CoordinateUtils;
 import com.sumirelabs.pulsar.world.PulsarWorld;
@@ -27,10 +28,14 @@ import net.minecraftforge.fml.relauncher.Side;
 public final class RgbNetwork {
 
     private static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel("pulsar_rgb");
+    // Shared by joining players across dimensions. A chunk's block/sky pair finishes together.
+    private static final int INITIAL_COORDINATES_PER_TICK = 32;
+    private static final long INITIAL_SYNC_BUDGET_NS = 1_000_000L;
     private record Change(Chunk chunk, RgbSnapshot snapshot, RgbSnapshot sky, boolean canonical) {
     }
     private static final Map<World, ConcurrentHashMap<Long, Change>> DIRTY = new ConcurrentHashMap<>();
     private static final Set<EntityPlayerMP> CLIENTS = Collections.newSetFromMap(new IdentityHashMap<>());
+    private static final InitialRgbSyncQueue<EntityPlayerMP, WorldServer> INITIAL = new InitialRgbSyncQueue<>();
     public static void initialize() {
         CHANNEL.registerMessage(Handler.class, RgbPacket.class, 0, Side.CLIENT);
         CHANNEL.registerMessage(HelloHandler.class, RgbHello.class, 1, Side.SERVER);
@@ -72,29 +77,38 @@ public final class RgbNetwork {
                     || p != player && p.connection.netManager == player.connection.netManager);
                 CLIENTS.add(player);
                 WorldServer world = player.getServerWorld();
-                WorldLightManager manager = ((PulsarWorld) world).pulsar$getLightManager();
-                if (manager == null)
-                    return;
                 int radius = world.getMinecraftServer().getPlayerList().getViewDistance();
-                int cx = player.getPosition().getX() >> 4, cz = player.getPosition().getZ() >> 4;
-                for (int x = cx - radius; x <= cx + radius; x++)
-                    for (int z = cz - radius; z <= cz + radius; z++) {
-                        var entry = world.getPlayerChunkMap().getEntry(x, z);
-                        if (entry == null || !entry.getWatchingPlayers().contains(player)
-                            || manager.isPendingChunkWatch(entry, player))
-                            continue;
-                        Chunk chunk = entry.getChunk();
-                        if (chunk == null)
-                            continue;
-                        if (manager.canSendUpdatedChunkLight(x, z))
-                            send(player, chunk);
-                        else
-                            changed(chunk);
-                    }
+                INITIAL.request(player, world, player.getPosition().getX() >> 4, player.getPosition().getZ() >> 4,
+                    radius);
             });
             return null;
         }
 
+    }
+    @SubscribeEvent
+    public void initialSyncTick(TickEvent.ServerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END)
+            INITIAL.drain(INITIAL_COORDINATES_PER_TICK, INITIAL_SYNC_BUDGET_NS, System::nanoTime,
+                (player, world) -> player.world == world && player.connection != null
+                    && player.connection.player == player && player.connection.netManager.isChannelOpen(),
+                RgbNetwork::sendInitial);
+    }
+    private static boolean sendInitial(EntityPlayerMP player, WorldServer world, int x, int z) {
+        var entry = world.getPlayerChunkMap().getEntry(x, z);
+        if (entry == null || !entry.getWatchingPlayers().contains(player))
+            return true;
+        WorldLightManager manager = ((PulsarWorld) world).pulsar$getLightManager();
+        Chunk chunk = entry.getChunk();
+        if (chunk == null || manager == null || manager.getLoadedChunk(x, z) != chunk
+            || manager.isPendingChunkWatch(entry, player))
+            return true;
+        if (!readyForRgbUpdate(manager, chunk))
+            return false;
+        send(player, chunk);
+        return true;
+    }
+    private static boolean readyForRgbUpdate(WorldLightManager manager, Chunk chunk) {
+        return ((PulsarChunk) chunk).pulsar$isLightReady() && !manager.hasFailedLightWorkNear(chunk.x, chunk.z);
     }
     static boolean supported(EntityPlayerMP player) {
         return CLIENTS.contains(player);
@@ -190,8 +204,7 @@ public final class RgbNetwork {
             }
             // A published RGB snapshot already contains all three completed channels.
             // Waiting for unrelated later work can starve color updates indefinitely.
-            if (!((com.sumirelabs.pulsar.light.PulsarChunk) chunk).pulsar$isLightReady()
-                || manager.hasFailedLightWorkNear(chunk.x, chunk.z))
+            if (!readyForRgbUpdate(manager, chunk))
                 continue;
             if (!dirty.remove(entry.getKey(), entry.getValue()))
                 continue;
@@ -212,10 +225,13 @@ public final class RgbNetwork {
         if (event.getWorld().isRemote)
             return;
         DIRTY.remove(event.getWorld());
+        if (event.getWorld() instanceof WorldServer world)
+            INITIAL.removeWorld(world);
     }
     @SubscribeEvent
     public void logout(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.player instanceof EntityPlayerMP player) {
+            INITIAL.removePlayer(player);
             var connection = player.connection == null ? null : player.connection.netManager;
             CLIENTS.removeIf(p -> p == player || p.connection == null
                 || connection != null && p.connection.netManager == connection

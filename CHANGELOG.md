@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Spread the initial RGB lighting sync across server ticks when a player joins.
+
 ### Fixed
 
 - Report lighting worker failures to callers waiting for a batch, including failures
