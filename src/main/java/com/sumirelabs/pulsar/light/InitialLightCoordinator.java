@@ -45,6 +45,10 @@ final class InitialLightCoordinator {
         this.loadedChunks = loadedChunks;
         this.skyQueue = skyQueue;
         this.blockQueue = blockQueue;
+        if (skyQueue != null)
+            skyQueue.setFailureHandler(this::fail);
+        if (blockQueue != null)
+            blockQueue.setFailureHandler(this::fail);
     }
 
     ChunkLightCompletion queue(final int chunkX, final int chunkZ, final Chunk chunk,

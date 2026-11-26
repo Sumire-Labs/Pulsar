@@ -23,8 +23,38 @@ import static org.junit.jupiter.api.Assertions.*;
 class LightEngineWorkerTest {
 
     @ParameterizedTest
+    @ValueSource(strings = {"shared", "dedicated", "client"})
+    void engineCreationFailureFailsTheClaimedBatch(String path) {
+        var queue = new LightQueue(WorldHeightContext.VANILLA);
+        var failure = new IllegalStateException("factory probe");
+        var worker = new LightEngineWorker(queue, () -> {
+            throw failure;
+        }, (task, engine) -> fail("Processor ran without an engine"), new AtomicInteger(), "test", "unused", false,
+            new Object(), new AtomicInteger());
+        queue.queueBlockChange(1, 64, 1);
+        var future = queue.getPendingWorkFuture(0);
+        var notified = new AtomicInteger();
+        queue.setFailureHandler((task, error) -> {
+            assertSame(failure, error);
+            notified.incrementAndGet();
+        });
+        switch (path) {
+            case "shared" -> assertSame(failure, assertThrows(IllegalStateException.class,
+                () -> worker.processClaimedTask(queue.removeFirstBlockChangeTask())));
+            case "dedicated" -> worker.processPendingUntil(Long.MAX_VALUE);
+            case "client" -> worker.processOnePendingUntil(Long.MAX_VALUE);
+            default -> fail(path);
+        }
+        assertTrue(future.isDone());
+        assertSame(failure, assertThrows(java.util.concurrent.ExecutionException.class, future::get).getCause());
+        assertEquals(1, notified.get());
+        assertFalse(queue.hasWork());
+    }
+
+    @ParameterizedTest
     @ValueSource(ints = {0, 1, 4})
     void ordinaryTasksReuseOneEngineButReentrantTasksCannotShareItsMutableCaches(int cacheSize) throws Exception {
+        net.minecraft.init.Bootstrap.register();
         final int previousCacheSize = PulsarConfig.performance.cachedEnginesPerLane;
         PulsarConfig.performance.cachedEnginesPerLane = cacheSize;
         Class<?> unsafeType = Class.forName("sun.misc.Unsafe");

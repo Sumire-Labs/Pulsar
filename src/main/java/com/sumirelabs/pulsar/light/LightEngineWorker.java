@@ -7,6 +7,7 @@ package com.sumirelabs.pulsar.light;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.LongPredicate;
 import java.util.function.Supplier;
 
@@ -33,6 +34,7 @@ final class LightEngineWorker {
     private boolean singleEngineInUse;
     private final Supplier<PulsarEngine> engineFactory;
     private final BiConsumer<ChunkTasks, PulsarEngine> taskProcessor;
+    private final Consumer<ChunkTasks> runWithEngine = this::processTask;
     private final AtomicInteger budgetYields;
     private final String operationName;
     private final Thread thread;
@@ -140,14 +142,15 @@ final class LightEngineWorker {
     }
 
     void processClaimedTask(ChunkTasks task) {
-        PulsarEngine engine = null;
+        this.queue.runClaimedTask(task, this.runWithEngine);
+    }
+
+    private void processTask(ChunkTasks task) {
+        PulsarEngine engine = this.acquireEngine();
         try {
-            engine = this.acquireEngine();
             this.taskProcessor.accept(task, engine);
         } finally {
-            if (engine != null)
-                this.releaseEngine(engine);
-            this.queue.completeTask(task);
+            this.releaseEngine(engine);
         }
     }
 
@@ -155,15 +158,11 @@ final class LightEngineWorker {
     boolean processOnePendingUntil(final long deadline) {
         if (!this.running || this.queue.isEmpty() || System.nanoTime() - deadline >= 0L)
             return false;
-        final PulsarEngine engine = this.acquireEngine();
         try {
-            return this.scheduler.drainOneUntil(deadline, () -> this.running,
-                task -> this.taskProcessor.accept(task, engine));
+            return this.scheduler.drainOneUntil(deadline, () -> this.running, this.runWithEngine);
         } catch (final Throwable t) {
             Pulsar.LOGGER.error("Exception in " + this.operationName, t);
             return false;
-        } finally {
-            this.releaseEngine(engine);
         }
     }
 
@@ -173,16 +172,12 @@ final class LightEngineWorker {
         }
         if (System.nanoTime() - deadline >= 0L)
             return;
-        final PulsarEngine engine = this.acquireEngine();
         try {
-            if (this.scheduler.drainUntil(deadline, () -> this.running,
-                task -> this.taskProcessor.accept(task, engine)) && LightStats.enabled) {
+            if (this.scheduler.drainUntil(deadline, () -> this.running, this.runWithEngine) && LightStats.enabled) {
                 this.budgetYields.incrementAndGet();
             }
         } catch (final Throwable t) {
             Pulsar.LOGGER.error("Exception in " + this.operationName, t);
-        } finally {
-            this.releaseEngine(engine);
         }
     }
 

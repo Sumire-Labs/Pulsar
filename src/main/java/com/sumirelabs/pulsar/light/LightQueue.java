@@ -7,6 +7,8 @@ package com.sumirelabs.pulsar.light;
 import java.util.ArrayDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.LongPredicate;
 
 import com.sumirelabs.pulsar.util.CoordinateUtils;
@@ -35,6 +37,26 @@ public final class LightQueue {
     private final Long2ObjectOpenHashMap<ChunkTasks> inFlightTasks = new Long2ObjectOpenHashMap<>();
     private final Semaphore workAvailable = new Semaphore(0);
     private volatile Runnable parallelWakeup;
+    private BiConsumer<ChunkTasks, Throwable> onFailure;
+
+    void setFailureHandler(BiConsumer<ChunkTasks, Throwable> handler) {
+        this.onFailure = handler;
+    }
+
+    void runClaimedTask(ChunkTasks task, Consumer<ChunkTasks> processor) {
+        try {
+            processor.accept(task);
+        } catch (Throwable failure) {
+            if (task.failure == null) {
+                task.failure = failure;
+                if (onFailure != null)
+                    onFailure.accept(task, failure);
+            }
+            throw failure;
+        } finally {
+            completeTask(task);
+        }
+    }
 
     void setParallelWakeup(final Runnable wakeup) {
         this.parallelWakeup = wakeup;

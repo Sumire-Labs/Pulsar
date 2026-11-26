@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Report lighting worker failures to callers waiting for a batch, including failures
+  that occur while creating its lighting engine.
+
 ## [0.7.4-beta] - 2026-11-26
 
 ### Fixed

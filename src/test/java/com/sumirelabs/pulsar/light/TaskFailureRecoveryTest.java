@@ -139,13 +139,19 @@ class TaskFailureRecoveryTest {
         var failing = coordinator.queue(0, 0, chunk, new Boolean[16]);
         var task = queue.removeFirstTask();
         chunk.saved = true;
-        coordinator.fail(task, new IllegalStateException("Current failure"));
-        queue.completeTask(task);
+        var failure = new IllegalStateException("Current failure");
+        var currentTask = task;
+        assertSame(failure, assertThrows(IllegalStateException.class, () -> queue.runClaimedTask(currentTask,
+            ignored -> {
+                throw failure;
+            })));
         assertFalse(chunk.ready);
         assertFalse(chunk.usable);
         assertFalse(chunk.saved);
-        assertThrows(java.util.concurrent.ExecutionException.class,
-            () -> failing.future.get(2, java.util.concurrent.TimeUnit.SECONDS));
+        assertSame(failure, assertThrows(java.util.concurrent.ExecutionException.class,
+            () -> failing.future.get(2, java.util.concurrent.TimeUnit.SECONDS)).getCause());
+        assertSame(failure, assertThrows(java.util.concurrent.ExecutionException.class,
+            currentTask.onComplete::get).getCause());
         var recovered = coordinator.queue(0, 0, chunk, new Boolean[16]);
         task = queue.removeFirstTask();
         coordinator.completeInitial(task, 2);

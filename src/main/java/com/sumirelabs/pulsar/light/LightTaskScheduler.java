@@ -56,11 +56,7 @@ final class LightTaskScheduler {
         final ChunkTasks task = this.nextTask();
         if (task == null)
             return false;
-        try {
-            processor.accept(task);
-        } finally {
-            this.queue.completeTask(task);
-        }
+        this.queue.runClaimedTask(task, processor);
         return true;
     }
 
