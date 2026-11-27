@@ -43,6 +43,8 @@ public final class ContextualLightManager {
 
         final Chunk chunk;
         final ContextualLightSnapshot<IBlockState> snapshot;
+        // Owner-thread only. Cleared before processing the detached batch so callbacks can requeue.
+        long lastRequestedCenter = Long.MIN_VALUE;
         Set<BlockPos> tracked = java.util.Collections.emptySet();
         boolean active = true;
         volatile LightSampleRetries retries;
@@ -196,6 +198,23 @@ public final class ContextualLightManager {
     }
 
     private void requestNeighbours(final int x, final int y, final int z) {
+        // Owner-thread neighbour invalidations only visit published samples. If this
+        // chunk has none, only neighbours across a chunk boundary can need a refresh.
+        if (this.isOwnerThread()) {
+            final Entry entry = this.chunks
+                .get(CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(x >> 4, z >> 4)));
+            if (entry == null || entry.snapshot.isEmpty()) {
+                if ((x & 15) == 0)
+                    this.requestCell(x - 1, y, z, false);
+                else if ((x & 15) == 15)
+                    this.requestCell(x + 1, y, z, false);
+                if ((z & 15) == 0)
+                    this.requestCell(x, y, z - 1, false);
+                else if ((z & 15) == 15)
+                    this.requestCell(x, y, z + 1, false);
+                return;
+            }
+        }
         this.requestCell(x - 1, y, z, false);
         this.requestCell(x + 1, y, z, false);
         this.requestCell(x, y - 1, z, false);
@@ -213,11 +232,16 @@ public final class ContextualLightManager {
             return;
         final int key = pack(x, y, z);
         // Off-thread requests must not inspect live world state.
-        if (!this.isOwnerThread() || entry.snapshot.contains(key)
+        boolean owner = this.isOwnerThread();
+        if (discover && owner && entry.lastRequestedCenter == key)
+            return;
+        if (!owner || entry.snapshot.contains(key)
             || (discover && (FluidLightBridge.LOADED
                 || LightInfo.hasContextualValues(LightInfo.of(entry.chunk.getBlockState(x, y, z)))))) {
             entry.snapshot.request(key);
             this.pendingChunks.add(entry);
+            if (discover && owner)
+                entry.lastRequestedCenter = key;
         }
     }
 
@@ -259,6 +283,7 @@ public final class ContextualLightManager {
             // Local to this batch: reentrant callbacks cannot overwrite a
             // different flush's position. Reuse for capture and tile lookups.
             final BlockPos.MutableBlockPos samplePos = new BlockPos.MutableBlockPos();
+            entry.lastRequestedCenter = Long.MIN_VALUE;
             final IntIterator pending = entry.snapshot.takePendingPositions().iterator();
             while (pending.hasNext()) {
                 final int key = pending.nextInt();

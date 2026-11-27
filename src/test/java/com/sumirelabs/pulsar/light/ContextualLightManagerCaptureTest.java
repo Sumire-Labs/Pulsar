@@ -460,6 +460,53 @@ class ContextualLightManagerCaptureTest {
     }
 
     @Test
+    void emptySnapshotStillInvalidatesAcrossNegativeChunkBoundary() {
+        var manager = new ContextualLightManager(null, WorldHeightContext.VANILLA);
+        manager.load(new TestChunk(-1, 0));
+        var adjacent = new TestChunk(0, 0);
+        var section = adjacent.getBlockStorageArray()[4] = new ExtendedBlockStorage(64, true);
+        var block = new TileLightBlock();
+        section.set(0, 1, 7, block.getDefaultState());
+        manager.load(adjacent);
+        block.emission = 12;
+        manager.request(-1, 65, 7);
+        assertTrue(manager.hasPending(0, 0));
+        manager.flushSamples((x, y, z, lanes) -> {
+        });
+        assertEquals(12, LightInfo.emission(manager.read(LightInfo.of(block.getDefaultState()),
+            block.getDefaultState(), 0, 65, 7)));
+    }
+
+    @Test
+    void workerCanDiscoverUnpublishedNeighbourAndLaterRequestsReadTheCurrentState() throws Exception {
+        var manager = new ContextualLightManager(null, WorldHeightContext.VANILLA);
+        var chunk = new TestChunk(-1, 0);
+        var section = chunk.getBlockStorageArray()[4] = new ExtendedBlockStorage(64, true);
+        manager.load(chunk);
+        var block = new TileLightBlock();
+        section.set(6, 1, 7, block.getDefaultState());
+        block.emission = 10;
+        java.util.concurrent.CompletableFuture.runAsync(() -> manager.request(-9, 65, 7))
+            .get(5, java.util.concurrent.TimeUnit.SECONDS);
+        manager.flushSamples((x, y, z, lanes) -> {
+        });
+        int info = LightInfo.of(block.getDefaultState());
+        assertEquals(10, LightInfo.emission(manager.read(info, block.getDefaultState(), -10, 65, 7)));
+        manager.request(-10, 65, 7);
+        block.emission = 6;
+        manager.request(-10, 65, 7);
+        block.callback = () -> manager.request(-10, 65, 7);
+        manager.flushSamples((x, y, z, lanes) -> {
+        });
+        assertEquals(6, LightInfo.emission(manager.read(info, block.getDefaultState(), -10, 65, 7)));
+        assertTrue(manager.hasPending(-1, 0), "A request from within capture belongs to the next batch");
+        block.emission = 0;
+        manager.flushSamples((x, y, z, lanes) -> {
+        });
+        assertEquals(0, LightInfo.emission(manager.read(info, block.getDefaultState(), -10, 65, 7)));
+    }
+
+    @Test
     void staticChangesSkipDiscoveryUntilTheWorldHasContextualSources() throws Exception {
         final var chunk = new TestChunk(-2, 3);
         final var section = new ExtendedBlockStorage(64, true);

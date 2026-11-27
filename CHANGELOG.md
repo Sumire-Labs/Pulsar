@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Spread the initial RGB lighting sync across server ticks when a player joins.
 - Reduce server tick time in builds with many ArchitectureCraft: Renovated shapes
   by refreshing their cached light opacity when it changes.
+- Reduce redundant checks for position-dependent light values during bulk block placement.
 
 ### Fixed
 
