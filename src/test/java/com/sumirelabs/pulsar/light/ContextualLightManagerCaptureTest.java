@@ -207,6 +207,30 @@ class ContextualLightManagerCaptureTest {
     }
 
     @Test
+    void unknownShapeTileStillPollsForUnannouncedEmissionChanges() {
+        class OtherTile extends net.minecraft.tileentity.TileEntity
+            implements
+                com.sumirelabs.pulsar.compat.ArchitectureShapeLight {
+
+            public boolean pulsar$subscribeToOpacityChanges() {
+                return fail("Unverified tile subscribed");
+            }
+
+        }
+        pollingLimit(1);
+        var block = new TileLightBlock();
+        var chunk = tileChunk(block, 0, 1);
+        chunk.getTileEntityMap().put(new BlockPos(0, 64, 0), new OtherTile());
+        var manager = new ContextualLightManager(null, WorldHeightContext.VANILLA);
+        manager.load(chunk);
+        block.emission = 12;
+        var changes = new java.util.ArrayList<Integer>();
+        manager.flushSamples((x, y, z, lanes) -> changes.add(lanes));
+        assertEquals(java.util.List.of(ContextualLightSnapshot.BLOCK_CHANGED), changes);
+        assertEquals(12, LightInfo.emission(
+            manager.read(LightInfo.of(block.getDefaultState()), block.getDefaultState(), 0, 64, 0)));
+    }
+    @Test
     void explicitChangesBypassTheFallbackLimitAndWorkWithPollingDisabled() {
         pollingLimit(1);
         var block = new TileLightBlock();

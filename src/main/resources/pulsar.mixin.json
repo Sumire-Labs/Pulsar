@@ -23,6 +23,7 @@
     "MixinMultipartLightBlock",
     "MixinMultipartLightTile",
     "MixinBedrockOreLightTile",
+    "MixinArchitectureShapeLight",
     "MixinRgbMultipartLight",
     "MixinRgbChunkSend",
     "MixinChunkSectionChanges",

@@ -9,7 +9,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
+import com.sumirelabs.pulsar.compat.ArchitectureShapeLight;
+import com.sumirelabs.pulsar.compat.BedrockOreLightTile;
+import com.sumirelabs.pulsar.compat.BedrockOreLighting;
 import com.sumirelabs.pulsar.compat.FluidLightBridge;
+import com.sumirelabs.pulsar.compat.MultipartLightBridge;
 import com.sumirelabs.pulsar.config.PulsarConfig;
 import com.sumirelabs.pulsar.light.engine.LightInfo;
 import com.sumirelabs.pulsar.util.CoordinateUtils;
@@ -364,8 +368,10 @@ public final class ContextualLightManager {
         TileEntity tile = entry.chunk.getTileEntityMap().get(pos);
         if (tile != null && tile.isInvalid())
             tile = null;
-        final boolean notified = tile != null && (!com.sumirelabs.pulsar.compat.MultipartLightBridge.needsPolling(tile)
-            || com.sumirelabs.pulsar.compat.BedrockOreLighting.notified(tile, entry.chunk.getBlockState(pos)))
+        final boolean notified = tile != null && (!MultipartLightBridge.needsPolling(tile)
+            || tile instanceof BedrockOreLightTile && BedrockOreLighting.notified(tile, entry.chunk.getBlockState(pos))
+            || tile instanceof ArchitectureShapeLight
+                && ArchitectureShapeLight.subscribe(tile, entry.chunk.getBlockState(pos)))
             && (!FluidLightBridge.LOADED || FluidLightBridge.stateAt(entry.chunk,
                 pos.getX(), pos.getY(), pos.getZ()) == null);
         final boolean contextual = !notified && this.height.containsBlockY(pos.getY())
