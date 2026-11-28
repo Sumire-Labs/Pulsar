@@ -7,15 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Filter RGB light through all 16 colors of Chisel stained glass and panes,
+  and all 16 Xtones Glaxx variants.
+
 ### Changed
 
 - Spread the initial RGB lighting sync across server ticks when a player joins.
 - Reduce server tick time in builds with many ArchitectureCraft: Renovated shapes
-  by refreshing their cached light opacity when it changes.
+  by refreshing their cached light opacity when it changes. This includes version 0.9.1.
 - Reduce redundant checks for position-dependent light values during bulk block placement.
 
 ### Fixed
 
+- Use the base material's emission color for glowing ArchitectureCraft: Renovated
+  0.9.1 shapes held in either hand or dropped as items, matching their placed appearance.
 - Report lighting worker failures to callers waiting for a batch, including failures
   that occur while creating its lighting engine.
 

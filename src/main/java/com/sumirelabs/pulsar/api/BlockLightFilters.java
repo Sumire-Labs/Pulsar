@@ -14,6 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
+import net.minecraft.util.ResourceLocation;
 
 /** Static minimum absorption per RGB component; RGB_MAX also uses this for gameplay light.
  * Register during initialization, preferably in {@link RegisterLightPropertiesEvent}.
@@ -86,6 +87,9 @@ public final class BlockLightFilters {
     public static synchronized void defaults() {
         for (EnumDyeColor dye : EnumDyeColor.values()) {
             int filter = 0xFFF ^ com.sumirelabs.pulsar.rgb.RgbDefaultPalette.glassTransmittance(dye);
+            String suffix = dye == EnumDyeColor.SILVER ? "lightgray" : dye.getName().replace("_", "");
+            addChiselGlass("glassdyed" + suffix, filter);
+            addChiselGlass("glasspanedyed" + suffix, filter);
             for (IBlockState state : Blocks.STAINED_GLASS.getBlockState().getValidStates())
                 if (state.getBlock().getMetaFromState(state) == dye.getMetadata())
                     FILTERS.putIfAbsent(state, filter);
@@ -93,6 +97,21 @@ public final class BlockLightFilters {
                 if (state.getBlock().getMetaFromState(state) == dye.getMetadata())
                     FILTERS.putIfAbsent(state, filter);
         }
+        Block glaxx = Block.REGISTRY.getObject(new ResourceLocation("xtones", "glaxx"));
+        if (glaxx != null && glaxx != Blocks.AIR) {
+            // Glaxx has its own spectrum in texture/metadata order.
+            int[] transmission = {0xFFF, 0xFF0, 0xCF0, 0x7F0, 0x0F6, 0x0FC, 0x0BF, 0x03F,
+                0x60F, 0xD0F, 0xF04, 0xF20, 0xF80, 0xFD0, 0x888, 0x444};
+            for (IBlockState state : glaxx.getBlockState().getValidStates())
+                FILTERS.putIfAbsent(state, 0xFFF ^ transmission[glaxx.getMetaFromState(state)]);
+        }
+    }
+
+    private static void addChiselGlass(String name, int filter) {
+        Block block = Block.REGISTRY.getObject(new ResourceLocation("chisel", name));
+        if (block != null && block != Blocks.AIR)
+            for (IBlockState state : block.getBlockState().getValidStates())
+                FILTERS.putIfAbsent(state, filter);
     }
 
     public static synchronized void freeze() {

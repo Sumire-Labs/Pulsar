@@ -42,7 +42,7 @@ public interface ArchitectureShapeLight {
         private static boolean supportedVersion() {
             var mod = Loader.instance().getIndexedModList().get("architecturecraft");
             return mod != null && switch (mod.getVersion()) {
-                case "3.108-0.8", "3.108-0.9.0pre1", "3.108-0.9.0" -> true;
+                case "3.108-0.8", "3.108-0.9.0pre1", "3.108-0.9.0", "3.108-0.9.1" -> true;
                 default -> false;
             };
         }

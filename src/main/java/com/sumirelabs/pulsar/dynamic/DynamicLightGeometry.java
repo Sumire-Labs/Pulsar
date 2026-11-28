@@ -9,7 +9,9 @@ import com.sumirelabs.pulsar.rgb.RgbLightAccess;
 import com.sumirelabs.pulsar.rgb.RgbSettings;
 import com.sumirelabs.pulsar.util.WorldUtil;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -17,6 +19,9 @@ import net.minecraft.world.World;
 
 /** Samples mod callbacks on the world thread; workers receive only primitive arrays. */
 final class DynamicLightGeometry {
+
+    private static final net.minecraft.util.ResourceLocation ARCHITECTURE_SHAPE = new net.minecraft.util.ResourceLocation(
+        "architecturecraft", "shape");
 
     record Snapshot(int x, int y, int z, int radius, int emission, short[] absorption, byte[] exits) {
 
@@ -65,7 +70,29 @@ final class DynamicLightGeometry {
                 .contains(String.valueOf(stack.getItem().getRegistryName())))
             && world.getBlockState(pos).getMaterial() == net.minecraft.block.material.Material.WATER)
             return 0;
+        if (rgb && ARCHITECTURE_SHAPE.equals(state.getBlock().getRegistryName())
+            && (RgbStateProperties.of(state) & RgbStateProperties.DYNAMIC_SOURCE) != 0)
+            return shapeItemEmission(stack, state);
         return stateEmission(world, pos, state, rgb);
+    }
+
+    private static int shapeItemEmission(ItemStack stack, IBlockState state) {
+        // Renovated stores LIGHT in damage and the base material in the stack.
+        // Secondary glazing belongs to the placed tile, not the picked-up shape.
+        int level = state.getLightValue();
+        if (level == 0)
+            return 0;
+        int hue = 0xFFF;
+        var tag = stack.getTagCompound();
+        if (tag != null && tag.hasKey("BaseName", 8)) {
+            Block material = Block.getBlockFromName(tag.getString("BaseName"));
+            if (material != null && material != Blocks.AIR)
+                hue = RgbStateProperties
+                    .color(RgbStateProperties.of(material.getStateFromMeta(tag.getInteger("BaseData"))));
+        }
+        // Match Renovated's placed source, which rounds each channel down.
+        return level << 12 | ((hue >> 8) * level / 15) << 8 | ((hue >> 4 & 15) * level / 15) << 4
+            | (hue & 15) * level / 15;
     }
     static int fireEmission(World world, BlockPos pos, boolean rgb) {
         return stateEmission(world, pos, net.minecraft.init.Blocks.FIRE.getDefaultState(), rgb);
