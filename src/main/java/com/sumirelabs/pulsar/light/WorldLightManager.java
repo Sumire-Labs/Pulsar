@@ -34,6 +34,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+
 /**
  * Per-{@link World} light manager. Owns the worker threads, engine pools and
  * task queues that drive Pulsar's BFS lighting. Ported from SuperNova
@@ -286,6 +288,21 @@ public final class WorldLightManager {
             queue.queueRestoredChunk(cx, cz, chunk, emptySections, sky);
     }
 
+    public boolean usesAuthoritativeClientLight(final boolean sky) {
+        return this.world.isRemote && (Pulsar.proxy.authoritativeClientLight(this.world)
+            || com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
+                && (sky
+                    ? com.sumirelabs.pulsar.rgb.RgbClient.skyActive()
+                    : com.sumirelabs.pulsar.rgb.RgbClient.active()));
+    }
+
+    public void queueClientSectionPacket(final Chunk chunk, final Boolean[] emptySections,
+        final Int2IntOpenHashMap blockLightChanges) {
+        this.queueChunkLoadInit(this.skyQueue, chunk.x, chunk.z, chunk, emptySections, true);
+        if (this.blockQueue != null)
+            this.blockQueue.queuePacketBlockLight(chunk.x, chunk.z, chunk, emptySections, blockLightChanges);
+    }
+
     public void removeChunkFromQueues(final int cx, final int cz) {
         this.initialLighting.removeChunk(cx, cz);
     }
@@ -507,11 +524,7 @@ public final class WorldLightManager {
                 : task.initialLightEdgeGeneration;
             if (generation > 0L && !this.initialLighting.isCurrent(task.chunkCoordinate, generation))
                 return;
-            if (this.world.isRemote && (Pulsar.proxy.authoritativeClientLight(this.world)
-                || com.sumirelabs.pulsar.core.RgbMixinSelection.rgbEnabled()
-                    && (sky
-                        ? com.sumirelabs.pulsar.rgb.RgbClient.skyActive()
-                        : com.sumirelabs.pulsar.rgb.RgbClient.active()))) {
+            if (this.usesAuthoritativeClientLight(sky)) {
                 if (task.initialLightChunk != null)
                     this.initialLighting.completeInitial(task,
                         sky ? InitialLightCompletionState.SKY : InitialLightCompletionState.BLOCK);
@@ -761,6 +774,10 @@ public final class WorldLightManager {
                 // Persisted-light chunk: nibble/emptiness-map init only, no BFS.
                 blockEngine.loadInChunk(task.loadInitChunk, task.loadInitEmptySections);
                 valueOverflowed |= blockEngine.wasQueueOverflowed();
+                if (task.packetBlockLight != null && blockEngine instanceof ScalarBlockEngine scalar) {
+                    scalar.reconcilePacketBlockLight(task.loadInitChunk, task.packetBlockLight);
+                    valueOverflowed |= scalar.wasQueueOverflowed();
+                }
             }
 
             if (task.initialLightChunk != null) {

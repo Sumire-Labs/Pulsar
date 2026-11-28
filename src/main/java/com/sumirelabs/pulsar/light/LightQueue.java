@@ -16,6 +16,7 @@ import com.sumirelabs.pulsar.util.WorldHeightContext;
 
 import net.minecraft.world.chunk.Chunk;
 
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -212,8 +213,26 @@ public final class LightQueue {
         this.addAllEdgeSections(this.prepareLoadInit(cx, cz, chunk, emptySections), sky);
     }
 
+    synchronized void queuePacketBlockLight(final int cx, final int cz, final Chunk chunk,
+        final Boolean[] emptySections, final Int2IntOpenHashMap changes) {
+        final ChunkTasks tasks = this.prepareLoadInit(cx, cz, chunk, emptySections);
+        if (tasks.packetBlockLight == null) {
+            tasks.packetBlockLight = changes;
+        } else if (changes != null) {
+            for (var entry : changes.int2IntEntrySet()) {
+                int key = entry.getIntKey();
+                int latest = entry.getIntValue();
+                int previous = tasks.packetBlockLight.get(key);
+                tasks.packetBlockLight.put(key, Math.max(previous & 0xF0, latest & 0xF0) | (latest & 15));
+            }
+        }
+        this.indexMaintenance(tasks);
+    }
+
     private ChunkTasks prepareLoadInit(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
         final ChunkTasks tasks = this.getOrCreate(CoordinateUtils.getChunkKey(cx, cz));
+        if (tasks.loadInitChunk != chunk)
+            tasks.packetBlockLight = null;
         tasks.loadInitChunk = chunk;
         tasks.loadInitEmptySections = emptySections;
         return tasks;

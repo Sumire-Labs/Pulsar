@@ -8,6 +8,7 @@ import com.google.common.util.concurrent.SettableFuture;
 
 import net.minecraft.world.chunk.Chunk;
 
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 
@@ -45,6 +46,8 @@ public final class ChunkTasks {
      */
     public Chunk loadInitChunk;
     public Boolean[] loadInitEmptySections;
+    /** Old and incoming block-light levels packed into one byte per changed packet face cell. */
+    public Int2IntOpenHashMap packetBlockLight;
     public IntOpenHashSet queuedEdgeChecksSky;
     public IntOpenHashSet queuedEdgeChecksBlock;
     /**

@@ -7,6 +7,8 @@ package com.sumirelabs.pulsar.mixin;
 // REID coexistence: REID also @Unique-injects fields onto Chunk. The pulsar$
 // prefix below avoids collisions with its biome-container state.
 
+import java.util.Arrays;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,6 +18,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.sumirelabs.pulsar.api.ExtendedChunk;
 import com.sumirelabs.pulsar.light.ChunkLightHelper;
 import com.sumirelabs.pulsar.light.PulsarChunk;
@@ -32,6 +36,8 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
 /**
  * Owns Pulsar's per-chunk state and chunk lifecycle integration.
@@ -106,6 +112,28 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
             this.pulsar$heightContext = WorldUtil.getHeightContext(this.world);
         }
         return this.pulsar$heightContext;
+    }
+
+    @Inject(method = "read", at = @At("HEAD"), require = 0)
+    private void pulsar$capturePacketBlockLight(final PacketBuffer buf, final int availableSections,
+        final boolean full, final CallbackInfo ci,
+        @Share("previousBlockLight") final LocalRef<byte[][]> previous) {
+        if (!this.world.isRemote || !this.pulsar$isLightUsable() || full || availableSections == 0)
+            return;
+        final WorldLightManager manager = ((PulsarWorld) this.world).pulsar$getLightManager();
+        if (manager == null || manager.usesAuthoritativeClientLight(false))
+            return;
+        final WorldHeightContext height = this.pulsar$getHeightContext();
+        final byte[][] snapshot = new byte[this.pulsar$blockNibbles.length][];
+        for (int i = 0; i < snapshot.length; ++i) {
+            if (!pulsar$packetIncludes(height, i, availableSections))
+                continue;
+            final SWMRNibbleArray nibble = this.pulsar$blockNibbles[i];
+            final byte[] bytes = nibble == null ? null : nibble.getVisibleData();
+            if (bytes != null)
+                snapshot[i] = bytes.clone();
+        }
+        previous.set(snapshot);
     }
 
     /**
@@ -234,12 +262,12 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
     }
 
     /**
-     * Wraps packet nibbles without copying on the thin client and queues only
-     * the inexpensive cache/emptiness initialization.
+     * Wraps packet nibbles without copying on the thin client and queues cache initialization.
      */
     @Inject(method = "read", at = @At("RETURN"), require = 0)
     private void pulsar$onRead(final PacketBuffer buf, final int availableSections,
-        final boolean groundUpContinuous, final CallbackInfo ci) {
+        final boolean groundUpContinuous, final CallbackInfo ci,
+        @Share("previousBlockLight") final LocalRef<byte[][]> previous) {
         if (!this.world.isRemote) {
             return;
         }
@@ -258,8 +286,49 @@ public abstract class MixinChunk implements PulsarChunk, ExtendedChunk {
         }
         manager.registerChunk(self);
         this.pulsar$lightReady = true;
-        manager.queueChunkLoadInit(
-            this.x, this.z, self, PulsarEngine.getEmptySectionsForChunk(self));
+        final Boolean[] empty = PulsarEngine.getEmptySectionsForChunk(self);
+        final byte[][] oldLight = previous.get();
+        if (oldLight == null)
+            manager.queueChunkLoadInit(this.x, this.z, self, empty);
+        else
+            manager.queueClientSectionPacket(self, empty,
+                this.pulsar$packetBlockLightChanges(oldLight, availableSections));
+    }
+
+    @Unique
+    private Int2IntOpenHashMap pulsar$packetBlockLightChanges(final byte[][] previous,
+        final int mask) {
+        final WorldHeightContext height = this.pulsar$getHeightContext();
+        Int2IntOpenHashMap changes = null;
+        for (int i = 0; i < previous.length; ++i) {
+            if (!pulsar$packetIncludes(height, i, mask))
+                continue;
+            final SWMRNibbleArray nibble = this.pulsar$blockNibbles[i];
+            final byte[] current = nibble == null ? null : nibble.getVisibleData();
+            if (Arrays.equals(previous[i], current))
+                continue;
+            final int y = ((height.getMinLightSection() + i) << 4) << 8;
+            for (int cell = 0; cell < 4096; ++cell) {
+                int x = cell & 15, z = (cell >> 4) & 15, localY = cell >> 8;
+                if (x != 0 && x != 15 && z != 0 && z != 15 && localY != 0 && localY != 15)
+                    continue;
+                int shift = (cell & 1) << 2;
+                int oldLevel = previous[i] == null ? 0 : (previous[i][cell >> 1] >>> shift) & 15;
+                int newLevel = current == null ? 0 : (current[cell >> 1] >>> shift) & 15;
+                if (oldLevel == newLevel)
+                    continue;
+                if (changes == null)
+                    changes = new Int2IntOpenHashMap();
+                changes.put(y | cell, oldLevel << 4 | newLevel);
+            }
+        }
+        return changes;
+    }
+
+    @Unique
+    private static boolean pulsar$packetIncludes(final WorldHeightContext height, final int index, final int mask) {
+        int slot = height.getStorageIndex(height.getMinLightSection() + index);
+        return slot >= 0 && slot < Integer.SIZE && (mask & (1 << slot)) != 0;
     }
 
     @Override

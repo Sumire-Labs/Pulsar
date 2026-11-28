@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntSet;
 
@@ -192,6 +193,36 @@ public class ScalarBlockEngine extends PulsarEngine {
             this.checkBlock(worldX, worldY, worldZ);
         }
         this.performLightDecrease();
+    }
+
+    /** Carry block-light changes across faces whose old levels were overwritten by a section packet. */
+    public final void reconcilePacketBlockLight(final Chunk chunk,
+        final Int2IntOpenHashMap changes) {
+        try {
+            this.setupCaches((chunk.x << 4) + 7, 128, (chunk.z << 4) + 7, true, false);
+            if (this.getChunkInCache(chunk.x, chunk.z) != chunk)
+                return;
+            for (var entry : changes.int2IntEntrySet()) {
+                int pos = entry.getIntKey(), levels = entry.getIntValue();
+                int x = (chunk.x << 4) | (pos & 15), y = pos >> 8, z = (chunk.z << 4) | ((pos >> 4) & 15);
+                int oldLevel = levels >> 4, newLevel = levels & 15;
+                long encoded = encodeCoords(x, z, y, this.coordinateOffset)
+                    | ((long) ALL_DIRECTIONS_BITSET << DIRECTION_SHIFT);
+                if (oldLevel > newLevel) {
+                    this.setLightLevel(x, y, z, newLevel);
+                    this.appendToDecreaseQueue(encoded | this.encodeQueueLevel(oldLevel));
+                }
+                if (newLevel > 0) {
+                    IBlockState state = this.getBlockState(x, y, z);
+                    this.appendToIncreaseQueue(encoded | this.encodeQueueLevel(newLevel)
+                        | sidedFlag(this.lightInfoAt(state, x, y, z)) | FLAG_WRITE_LEVEL);
+                }
+            }
+            this.performLightDecrease();
+            this.updateVisible();
+        } finally {
+            this.destroyCaches();
+        }
     }
 
     @Override

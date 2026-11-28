@@ -53,6 +53,7 @@ class PacketMixinCompatibilityTest {
             String output = Files.readString(log);
             assertEquals(0, child.exitValue(), mode + "\n" + output);
             assertTrue(output.contains("PACKET_LIGHT_PASS cases=12 sponge=" + sponge), output);
+            assertTrue(output.contains("PACKET_SCALAR_SEAMS_PASS cases=2"), output);
             assertFalse(output.contains("@Redirect conflict"), output);
             System.out.println(mode + ": PACKET_LIGHT_PASS cases=12");
         }
