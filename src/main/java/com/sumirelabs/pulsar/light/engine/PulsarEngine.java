@@ -460,7 +460,7 @@ public abstract class PulsarEngine extends LightEngineCache {
         try {
             this.setupCaches(chunkX * 16 + 7, 128, chunkZ * 16 + 7, true, true);
             final Chunk center = this.getChunkInCache(chunkX, chunkZ);
-            if (center == null) {
+            if (center != chunk) {
                 return;
             }
             final boolean[] ret = this.handleEmptySectionChanges(center, emptySections, false);
@@ -515,8 +515,10 @@ public abstract class PulsarEngine extends LightEngineCache {
     }
 
     protected boolean areBothEdgeSectionsZero(final int currentIndex, final int neighbourIndex) {
-        return this.nibbleCache[currentIndex].isZeroUpdating()
-            && this.nibbleCache[neighbourIndex].isZeroUpdating();
+        final SWMRNibbleArray current = this.nibbleCache[currentIndex];
+        final SWMRNibbleArray neighbour = this.nibbleCache[neighbourIndex];
+        return (current.isZeroUpdating() || current.getUpdatingData() == null)
+            && (neighbour.isZeroUpdating() || neighbour.getUpdatingData() == null);
     }
 
     protected void checkChunkEdges(final Chunk chunk, final int fromSection, final int toSection) {

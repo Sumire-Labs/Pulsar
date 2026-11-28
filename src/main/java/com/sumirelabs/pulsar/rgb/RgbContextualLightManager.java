@@ -90,8 +90,11 @@ public final class RgbContextualLightManager {
     private static int key(int x, int y, int z) {
         return y << 8 | (z & 15) << 4 | x & 15;
     }
+    private static long chunkKey(int cx, int cz) {
+        return CoordinateUtils.mixChunkKey(CoordinateUtils.getChunkKey(cx, cz));
+    }
     private Entry entry(int x, int z) {
-        return chunks.get(CoordinateUtils.getChunkKey(x >> 4, z >> 4));
+        return chunks.get(chunkKey(x >> 4, z >> 4));
     }
     private static boolean dynamic(IBlockState state) {
         return (RgbStateProperties.of(state) & RgbStateProperties.DYNAMIC) != 0;
@@ -135,16 +138,16 @@ public final class RgbContextualLightManager {
         pending.add(entry);
     }
     public boolean hasPending(int cx, int cz) {
-        Entry entry = chunks.get(CoordinateUtils.getChunkKey(cx, cz));
+        Entry entry = chunks.get(chunkKey(cx, cz));
         return entry != null && entry.snapshot.hasPending();
     }
     public boolean hasFailedSamples(int cx, int cz) {
-        Entry entry = chunks.get(CoordinateUtils.getChunkKey(cx, cz));
+        Entry entry = chunks.get(chunkKey(cx, cz));
         return entry != null && entry.retries != null;
     }
     public void unload(int cx, int cz) {
         requireOwner();
-        Entry old = chunks.remove(CoordinateUtils.getChunkKey(cx, cz));
+        Entry old = chunks.remove(chunkKey(cx, cz));
         if (old != null) {
             pending.remove(old);
             tracked.remove(old);
@@ -164,7 +167,7 @@ public final class RgbContextualLightManager {
      * No second world/TileEntity scan is needed. */
     public void recheckLoadedChunk(int cx, int cz, WorldLightManager manager) {
         requireOwner();
-        Entry entry = chunks.get(CoordinateUtils.getChunkKey(cx, cz));
+        Entry entry = chunks.get(chunkKey(cx, cz));
         if (entry == null)
             return;
         for (int key : entry.dynamic.toIntArray())
@@ -175,7 +178,7 @@ public final class RgbContextualLightManager {
         requireOwner();
         unload(chunk.x, chunk.z);
         Entry entry = new Entry(chunk);
-        chunks.put(CoordinateUtils.getChunkKey(chunk.x, chunk.z), entry);
+        chunks.put(chunkKey(chunk.x, chunk.z), entry);
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         var sections = chunk.getBlockStorageArray();
         boolean[] scanned = new boolean[height.getTotalSections()];
@@ -241,18 +244,18 @@ public final class RgbContextualLightManager {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (Entry entry : new HashSet<>(pending)) {
             pending.remove(entry);
-            if (chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x, entry.chunk.z)) != entry)
+            if (chunks.get(chunkKey(entry.chunk.x, entry.chunk.z)) != entry)
                 continue;
             for (int key : entry.snapshot.takePending()) {
                 int x = key & 15, z = key >>> 4 & 15, y = key >> 8;
                 int lanes = capture(entry, x, y, z, pos);
-                if (chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x, entry.chunk.z)) != entry)
+                if (chunks.get(chunkKey(entry.chunk.x, entry.chunk.z)) != entry)
                     break;
                 if (lanes != 0)
                     changes.changed((entry.chunk.x << 4) + x, y,
                         (entry.chunk.z << 4) + z, lanes);
             }
-            if (chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x, entry.chunk.z)) != entry)
+            if (chunks.get(chunkKey(entry.chunk.x, entry.chunk.z)) != entry)
                 continue;
             if (entry.polled == null)
                 tracked.remove(entry);
@@ -283,7 +286,7 @@ public final class RgbContextualLightManager {
         } catch (RuntimeException | LinkageError failure) {
             com.sumirelabs.pulsar.light.LightCallbackFailures.report((block != null ? block : fluid).getBlock(),
                 failure);
-            if (chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x, entry.chunk.z)) != entry)
+            if (chunks.get(chunkKey(entry.chunk.x, entry.chunk.z)) != entry)
                 return 0;
             if (entry.retries == null)
                 entry.retries = new com.sumirelabs.pulsar.light.LightSampleRetries();
@@ -302,7 +305,7 @@ public final class RgbContextualLightManager {
                     fluid == null ? 0 : RgbStateProperties.of(fluid) & ~0xFFF, 0xFFF);
             return 0;
         }
-        if (chunks.get(CoordinateUtils.getChunkKey(entry.chunk.x, entry.chunk.z)) != entry)
+        if (chunks.get(chunkKey(entry.chunk.x, entry.chunk.z)) != entry)
             return 0;
         if (entry.retries != null) {
             entry.retries.succeeded(key);

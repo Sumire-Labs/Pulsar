@@ -154,8 +154,7 @@ final class LightSectionProcessor {
         final PulsarEngine engine = this.engine;
         final int currentCacheIndex = chunkX + 5 * chunkZ + (5 * 5) * chunkY
             + engine.chunkSectionIndexOffset;
-        final SWMRNibbleArray currentNibble = engine.nibbleCache[currentCacheIndex];
-        if (currentNibble == null) {
+        if (engine.nibbleCache[currentCacheIndex] == null) {
             return;
         }
 
@@ -166,11 +165,7 @@ final class LightSectionProcessor {
             final int neighbourCacheIndex = (chunkX + neighbourOffsetX)
                 + 5 * (chunkZ + neighbourOffsetZ) + (5 * 5) * chunkY
                 + engine.chunkSectionIndexOffset;
-            final SWMRNibbleArray neighbourNibble = engine.nibbleCache[neighbourCacheIndex];
-            if (neighbourNibble == null) {
-                continue;
-            }
-            if (!currentNibble.isInitialisedUpdating() && !neighbourNibble.isInitialisedUpdating()) {
+            if (engine.nibbleCache[neighbourCacheIndex] == null) {
                 continue;
             }
             if (engine.areBothEdgeSectionsFull(currentCacheIndex, neighbourCacheIndex)) {
@@ -178,6 +173,7 @@ final class LightSectionProcessor {
                     stats.edgeSectionPairsSkippedFull.incrementAndGet();
                 continue;
             }
+            // Hidden nibbles and non-red RGB planes can still contain light.
             if (engine.areBothEdgeSectionsZero(currentCacheIndex, neighbourCacheIndex)) {
                 if (stats != null)
                     stats.edgeSectionPairsSkippedZero.incrementAndGet();

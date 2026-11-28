@@ -31,7 +31,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * <p>Load: fires during chunk deserialisation, before {@code Chunk.onLoad}.
  * On a valid restore {@code pulsar$setSavedLightValid(true)} is set and
  * {@code MixinChunk.pulsar$onLoad} skips the initial-light queue entirely,
- * scheduling only a cheap nibble/emptiness-map init
+ * scheduling nibble/emptiness-map init and reconciliation with loaded neighbors
  * ({@link WorldLightManager#queueChunkLoadInit}).
  */
 public final class LightDataSerializer {

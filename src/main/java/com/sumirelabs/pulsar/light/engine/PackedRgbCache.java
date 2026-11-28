@@ -279,9 +279,11 @@ final class PackedRgbCache {
                     return false;
             return true;
         }
-        for (int c = 0; c < 3; c++)
-            if (planes[c][idx] != null && !planes[c][idx].isZeroUpdating())
+        for (int c = 0; c < 3; c++) {
+            var nibble = planes[c][idx];
+            if (nibble != null && !nibble.isZeroUpdating() && nibble.getUpdatingData() != null)
                 return false;
+        }
         return true;
     }
     void destroy() {

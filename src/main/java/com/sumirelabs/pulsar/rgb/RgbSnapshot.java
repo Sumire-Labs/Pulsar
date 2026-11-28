@@ -20,6 +20,18 @@ public final class RgbSnapshot {
     static byte[] saturatedPlane() {
         return FULL;
     }
+    static int constantLevel(byte[] owned) {
+        int level = owned[0] & 15;
+        return CONSTANTS.get(level) == owned ? level : -1;
+    }
+    static byte[] constantPlane(int level) {
+        byte[] plane = CONSTANTS.get(level);
+        if (plane != null)
+            return plane;
+        plane = new byte[2048];
+        java.util.Arrays.fill(plane, (byte) (level * 17));
+        return CONSTANTS.compareAndSet(level, null, plane) ? plane : CONSTANTS.get(level);
+    }
     public final int minSection;
     public final long revision;
     private final byte[][][] data;

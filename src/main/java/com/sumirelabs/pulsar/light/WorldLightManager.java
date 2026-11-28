@@ -268,18 +268,22 @@ public final class WorldLightManager {
         this.initialLighting.queue(cx, cz, chunk, emptySections);
     }
 
-    /**
-     * Queue the cheap load-time init for a chunk restored with valid
-     * persisted light. No completion latch: the caller has already set
-     * {@code lightReady}.
-     */
+    /** Initialize restored storage and reconcile server seams against current neighbors. */
     public void queueChunkLoadInit(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
-        if (this.skyQueue != null)
-            this.skyQueue.queueChunkLoadInit(cx, cz, chunk, emptySections);
-        if (this.blockQueue != null)
-            this.blockQueue.queueChunkLoadInit(cx, cz, chunk, emptySections);
+        this.queueChunkLoadInit(this.skyQueue, cx, cz, chunk, emptySections, true);
+        this.queueChunkLoadInit(this.blockQueue, cx, cz, chunk, emptySections, false);
         if (this.rgbContextualLight != null)
             this.rgbContextualLight.recheckLoadedChunk(cx, cz, this);
+    }
+
+    private void queueChunkLoadInit(final LightQueue queue, final int cx, final int cz, final Chunk chunk,
+        final Boolean[] emptySections, final boolean sky) {
+        if (queue == null)
+            return;
+        if (this.world.isRemote)
+            queue.queueChunkLoadInit(cx, cz, chunk, emptySections);
+        else
+            queue.queueRestoredChunk(cx, cz, chunk, emptySections, sky);
     }
 
     public void removeChunkFromQueues(final int cx, final int cz) {

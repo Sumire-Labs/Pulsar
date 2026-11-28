@@ -152,11 +152,21 @@ public final class RgbPalettePersistenceProbe {
             planes[c][1] = new byte[2048];
             planes[c][1][0] = 0x34;
         }
+        planes[0][2] = new byte[2048];
+        java.util.Arrays.fill(planes[0][2], (byte) 0xFF);
+        planes[2][2] = new byte[2048];
+        java.util.Arrays.fill(planes[2][2], (byte) 0x55);
         var root = new NBTTagCompound();
         RgbPersistence.save(root, new RgbSnapshot(height.getMinLightSection(), 1, planes));
+        var tags = root.getCompoundTag("rgb");
+        require(tags.getByte("1:1") == -1 && tags.getByte("2:1") == -1, "Repeated planes were not elided");
+        require(tags.getByte("0:2") == 15 && tags.getByte("2:2") == 5, "Uniform planes were not compacted");
         var loaded = RgbPersistence.load(root, height);
         var red = loaded.channels[0][1];
         var green = loaded.channels[1][1];
+        require(loaded.channels[0][2].getVisible(4095) == 15 && loaded.channels[2][2].getVisible(4095) == 5,
+            "Compact levels did not round-trip");
+        require(loaded.channels[1][2].isNullNibbleVisible(), "Absent block RGB plane was materialized");
         if (red.getVisibleData() != green.getVisibleData())
             throw new AssertionError("Identical saved RGB channels were not shared");
         root.getCompoundTag("rgb").getByteArray("0:1")[0] = 7;
@@ -166,6 +176,21 @@ public final class RgbPalettePersistenceProbe {
         red.updateVisible();
         if (green.getUpdating(0) != 4 || green.getVisibleData()[0] != 0x34)
             throw new AssertionError("Changing red modified the shared green channel");
+
+        root.setInteger("rgbVersion", 2);
+        var legacy = new NBTTagCompound();
+        for (int c = 0; c < 3; ++c)
+            legacy.setByteArray(c + ":1", planes[c][1].clone());
+        root.setTag("rgb", legacy);
+        var previous = RgbPersistence.load(root, height);
+        require(previous.channels[1][1].getVisible(0) == 4, "Legacy RGB arrays did not restore");
+        root.setInteger("rgbVersion", 3);
+        legacy.setByte("0:1", (byte) -1);
+        try {
+            RgbPersistence.load(root, height);
+            throw new AssertionError("A forward plane reference passed validation");
+        } catch (IllegalArgumentException expected) {
+        }
     }
 
 }

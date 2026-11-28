@@ -203,11 +203,20 @@ public final class LightQueue {
      */
     public synchronized void queueChunkLoadInit(final int cx, final int cz, final Chunk chunk,
         final Boolean[] emptySections) {
-        final long key = CoordinateUtils.getChunkKey(cx, cz);
-        final ChunkTasks tasks = this.getOrCreate(key);
+        this.indexMaintenance(this.prepareLoadInit(cx, cz, chunk, emptySections));
+    }
+
+    /** A restored server chunk needs storage initialization and seam checks in one batch. */
+    synchronized void queueRestoredChunk(final int cx, final int cz, final Chunk chunk,
+        final Boolean[] emptySections, final boolean sky) {
+        this.addAllEdgeSections(this.prepareLoadInit(cx, cz, chunk, emptySections), sky);
+    }
+
+    private ChunkTasks prepareLoadInit(final int cx, final int cz, final Chunk chunk, final Boolean[] emptySections) {
+        final ChunkTasks tasks = this.getOrCreate(CoordinateUtils.getChunkKey(cx, cz));
         tasks.loadInitChunk = chunk;
         tasks.loadInitEmptySections = emptySections;
-        this.indexMaintenance(tasks);
+        return tasks;
     }
 
     /**

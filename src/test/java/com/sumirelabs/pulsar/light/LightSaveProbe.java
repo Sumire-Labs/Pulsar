@@ -5,6 +5,7 @@
 package com.sumirelabs.pulsar.light;
 
 import com.sumirelabs.pulsar.light.engine.MultipartPropagation;
+import com.sumirelabs.pulsar.light.engine.PulsarEngine;
 import com.sumirelabs.pulsar.rgb.*;
 import com.sumirelabs.pulsar.util.WorldHeightContext;
 
@@ -53,7 +54,56 @@ final class LightSaveProbe {
         modified.setBoolean(neighbour, false);
         check(neighbour.needsSaving(false), "Post-save publication was lost");
         world.manager.unregisterChunk(1, 0);
+        verifyRestoredBoundary(world, serializer, rgb);
     }
+
+    private static void verifyRestoredBoundary(MultipartLightProbe.ProbeWorld world, LightDataSerializer serializer,
+        boolean rgb) {
+        var receiver = new Chunk(world, 5, 4);
+        var light = (PulsarChunk) receiver;
+        light.pulsar$setLightReady(true);
+        var height = WorldHeightContext.VANILLA;
+        int section = height.getLightSectionIndex(4);
+        var plane = light.pulsar$getBlockNibbles()[section];
+        plane.set(0, 0, 8, 14);
+        plane.setHidden();
+        plane.updateVisible();
+        if (rgb) {
+            var colored = (RgbChunk) receiver;
+            var storage = new RgbStorage(height.getMinLightSection(), height.getTotalLightSections());
+            storage.channels[2][section].set(0, 0, 8, 14);
+            storage.channels[2][section].updateVisible();
+            colored.pulsar$setRgbSnapshot(storage.snapshot(1, light.pulsar$getBlockNibbles()));
+            colored.pulsar$setRgbSkySnapshot(new RgbSnapshot(height.getMinLightSection(), 1,
+                new byte[3][height.getTotalLightSections()][]));
+        }
+        var saved = new NBTTagCompound();
+        serializer.onChunkSave(new ChunkDataEvent.Save(receiver, saved));
+
+        var restored = new Chunk(world, 5, 4);
+        var restoredLight = (PulsarChunk) restored;
+        serializer.onChunkLoad(new ChunkDataEvent.Load(restored, saved));
+        check(restoredLight.pulsar$hasSavedLightValid(), "Boundary fixture did not load saved light");
+        check(restoredLight.pulsar$getBlockNibbles()[section].getVisible(0, 0, 8) == 14,
+            "Boundary fixture did not restore its stale light");
+        var neighbor = new Chunk(world, 4, 4);
+        ((PulsarChunk) neighbor).pulsar$setLightReady(true);
+        restoredLight.pulsar$setLightReady(true);
+        world.manager.registerChunk(neighbor);
+        world.manager.registerChunk(restored);
+        world.manager.queueChunkLoadInit(5, 4, restored, PulsarEngine.getEmptySectionsForChunk(restored));
+        for (int i = 0; i < 20 && world.manager.hasUpdates(); i++)
+            world.manager.processClientRenderUpdates(); // drain the fixture's manual workers
+        check(!world.manager.hasUpdates(), "Restored edge work did not finish");
+        check(restoredLight.pulsar$getBlockNibbles()[section].getVisible(0, 0, 8) == 0,
+            "Stale hidden light survived the boundary check");
+        if (rgb)
+            check(((RgbChunk) restored).pulsar$getRgbSnapshot().get(80, 64, 72) == 0,
+                "Stale blue-only light survived the boundary check");
+        world.manager.unregisterChunk(4, 4);
+        world.manager.unregisterChunk(5, 4);
+    }
+
     private static void check(boolean ok, String message) {
         if (!ok)
             throw new AssertionError(message);
